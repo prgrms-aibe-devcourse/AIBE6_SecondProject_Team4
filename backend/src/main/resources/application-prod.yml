@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: ${db.mysql.url}
+    username: ${db.mysql.username}
+    password: ${db.mysql.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  h2:
+    console:
+      enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
