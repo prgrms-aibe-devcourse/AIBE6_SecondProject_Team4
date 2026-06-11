@@ -1,10 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+
+import { useChat } from '@/hooks/useChat'
 
 type View = 'closed' | 'list' | 'chat'
 
 interface ChatEntry {
+    roomId: number  // 백엔드 chat_rooms.id
     name: string
     src: string
     lastMsg: string
@@ -15,6 +18,7 @@ interface ChatEntry {
 
 const chatList: ChatEntry[] = [
     {
+        roomId: 1, // 실제 DB의 chat_rooms.id
         name: '김민수 트레이너',
         src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA09pq8e0kKsbZDTF-lUdSQIOoXVn-07pIYtLl_-Zaax5ktY-YqTykDCIktBi4cbscdTLvHEwvRSn1J8dPEm5rE-Hrx0IE2cSdReJduclUxdP7ThEZXQ-EzixnyTOdUTaR-2FfZS7ZdxqsDqcdJgSEMldAVcbfT-08eEaNDNY8mg6W6zi6LfwtMFbXqqFhYPwWs6ce-X6TNlQxHKPlDRH9xBBK5MCA9FehpMFMTRfzqiin-tgxB-uhjCEuayakmauWBFGL-WA135w',
         lastMsg: '오늘 하체 루틴 정말 좋았어요! 식...',
@@ -23,12 +27,14 @@ const chatList: ChatEntry[] = [
         online: true,
     },
     {
+        roomId: 2,
         name: '최윤지 트레이너',
         src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuASA0uzgLYeb0CfbPrpu0fo0lIFLL8yHAF3T1rcRly0KKSH9m520u-dmSpIGxHvP1gIt8ZcQn0IatJxWrJpAci04rJCs4b9hILc8LrtCMWlAaP2A2gu7RDYZlfuv7YxgQDjkEntdU4PGvUkZzKCqouvEIVOi9NE2WXDvVcYyWobCV40FnobnyTK698CmtucSjzae9eAV2uA3A0Xefim433ZqKgyVLdzcKCjqAz2z5nWz-ftEVHIWxeU4SOou4wWdu9EdFt7TrKjsQ',
         lastMsg: '내일 오전 10시 수업 잊지 마세요!',
         time: '오전 11:15',
     },
     {
+        roomId: 3,
         name: '박준호 트레이너',
         src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCNpZpuHpNSp8s8JVMNc8popczKvH1wIhD3Eu9jvrvnhHIo6z5nZ-0mAnlw5fNIXsQK7pHxZRRlNRlZdY7-cp8pNKM3TILuvqYFpOOUPI-jDzpednr5mLQnkEqdXx3xuheEXOFwWep4MsF2lsLmfFh2rPSh4Qc5foOXfYvdWdvrjVlRdfn3qbWDe0seA-V4_TJvzZYS6PmP5WPP-jNsYryAGWfp9JT4R0SKKPcE4kkVUxHKlP5EvB0OTYjqCkt1ogUbZQDHPd1ScQ',
         lastMsg: '수고하셨습니다. 주말 잘 보내세요.',
@@ -36,13 +42,43 @@ const chatList: ChatEntry[] = [
     },
 ]
 
+// TODO: 로그인 구현 후 실제 로그인한 유저 ID 로 교체
+const MY_ID = 1
+
 export default function ChatFAB() {
     const [view, setView] = useState<View>('closed')
     const [selectedChat, setSelectedChat] = useState<ChatEntry | null>(null)
+    const [inputText, setInputText] = useState('')
+    const messagesEndRef = useRef<HTMLDivElement>(null)
+
+    // ── WebSocket 훅 연결 ────────────────────────────────────
+    // selectedChat.roomId 가 있을 때만 연결, 채팅방 선택 전엔 roomId=0 (비활성)
+    const { messages, sendMessage, connected } = useChat({
+        roomId: selectedChat?.roomId ?? 0,
+        myId: MY_ID,
+    })
+
+    // 새 메시지가 오면 스크롤을 맨 아래로 이동
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [messages])
 
     const openChat = (entry: ChatEntry) => {
         setSelectedChat(entry)
         setView('chat')
+    }
+
+    // 메시지 전송 핸들러
+    const handleSend = () => {
+        const trimmed = inputText.trim()
+        if (!trimmed || !connected) return
+        sendMessage(trimmed) // useChat 훅의 sendMessage 호출
+        setInputText('')
+    }
+
+    // 엔터키로 전송
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') handleSend()
     }
 
     return (
@@ -159,40 +195,67 @@ export default function ChatFAB() {
                         </button>
                     </div>
 
+                    {/* 메시지 목록 — useChat 훅의 messages 배열을 그대로 렌더링 */}
                     <div className="h-80 overflow-y-auto p-4 space-y-4 bg-surface-container-low">
-                        <div className="flex flex-col items-start gap-1 max-w-[85%]">
-                            <div className="bg-surface-container-highest text-on-surface p-3 rounded-2xl rounded-tl-none text-body-sm">
-                                안녕하세요! 오늘 오전 하체 루틴은 어떠셨나요? 근육통이 조금 있을 수
-                                있으니 스트레칭 꼭 잊지 마세요.
-                            </div>
-                            <span className="text-[10px] text-secondary ml-1">오전 11:30</span>
-                        </div>
-                        <div className="flex flex-col items-end gap-1 ml-auto max-w-[85%]">
-                            <div className="bg-primary text-on-primary p-3 rounded-2xl rounded-tr-none text-body-sm">
-                                생각보다 훨씬 힘들었지만 개운해요! 알려주신 폼롤러 동작 위주로 하고
-                                있습니다.
-                            </div>
-                            <span className="text-[10px] text-secondary mr-1">오전 11:35</span>
-                        </div>
-                        <div className="flex flex-col items-start gap-1 max-w-[85%]">
-                            <div className="bg-surface-container-highest text-on-surface p-3 rounded-2xl rounded-tl-none text-body-sm">
-                                좋습니다! 폼롤러 하실 때 허벅지 옆면(장경인대) 쪽을 더 신경 써
-                                주시면 회복에 큰 도움이 될 거예요.
-                            </div>
-                            <span className="text-[10px] text-secondary ml-1">오전 11:36</span>
-                        </div>
+
+                        {/* 연결 상태 표시 */}
+                        <p className="text-center text-[10px] text-secondary">
+                            {connected ? '🟢 연결됨' : '⚪ 연결 중...'}
+                        </p>
+
+                        {/* 메시지가 없을 때 */}
+                        {messages.length === 0 && (
+                            <p className="text-center text-body-sm text-on-surface-variant">
+                                아직 메시지가 없습니다.
+                            </p>
+                        )}
+
+                        {/* 메시지 목록 */}
+                        {messages.map((msg, i) => {
+                            const isMine = msg.senderId === MY_ID
+                            return (
+                                <div
+                                    key={i}
+                                    className={`flex flex-col gap-1 max-w-[85%] ${isMine ? 'items-end ml-auto' : 'items-start'}`}
+                                >
+                                    <div
+                                        className={`p-3 text-body-sm ${
+                                            isMine
+                                                ? 'bg-primary text-on-primary rounded-2xl rounded-tr-none'
+                                                : 'bg-surface-container-highest text-on-surface rounded-2xl rounded-tl-none'
+                                        }`}
+                                    >
+                                        {msg.message}
+                                    </div>
+                                    <span className={`text-[10px] text-secondary ${isMine ? 'mr-1' : 'ml-1'}`}>
+                                        {new Date(msg.sentAt).toLocaleTimeString('ko-KR', {
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                        })}
+                                    </span>
+                                </div>
+                            )
+                        })}
+
+                        {/* 새 메시지 오면 여기로 스크롤 */}
+                        <div ref={messagesEndRef} />
                     </div>
 
                     <div className="p-4 bg-surface-container-lowest border-t border-outline-variant flex items-center gap-2">
-                        <button className="material-symbols-outlined text-secondary hover:text-primary">
-                            add_circle
-                        </button>
                         <input
                             className="flex-1 bg-surface-container border-none rounded-full px-4 py-2 text-body-sm focus:ring-2 focus:ring-primary"
-                            placeholder="메시지를 입력하세요"
+                            placeholder={connected ? '메시지를 입력하세요' : '연결 중...'}
                             type="text"
+                            value={inputText}
+                            onChange={(e) => setInputText(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            disabled={!connected}
                         />
-                        <button className="material-symbols-outlined text-primary hover:scale-110 transition-transform">
+                        <button
+                            className="material-symbols-outlined text-primary hover:scale-110 transition-transform disabled:opacity-40"
+                            onClick={handleSend}
+                            disabled={!connected || !inputText.trim()}
+                        >
                             send
                         </button>
                     </div>
