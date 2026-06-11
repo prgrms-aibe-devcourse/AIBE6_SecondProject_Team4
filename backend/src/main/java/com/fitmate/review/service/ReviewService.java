@@ -6,6 +6,7 @@ import com.fitmate.member.entity.Member;
 import com.fitmate.member.repository.MemberRepository;
 import com.fitmate.review.dto.ReviewRequest;
 import com.fitmate.review.dto.ReviewResponse;
+import com.fitmate.review.dto.TrainerRatingResponse;
 import com.fitmate.review.entity.Review;
 import com.fitmate.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
@@ -51,5 +52,13 @@ public class ReviewService {
         return reviewRepository.findByTrainerId(trainerId).stream()
                 .map(ReviewResponse::from)
                 .toList();
+    }
+
+    public TrainerRatingResponse getTrainerRating(Long trainerId) {
+        Double avg = reviewRepository.findAverageRatingByTrainerId(trainerId);
+        long count = reviewRepository.countByTrainerId(trainerId);
+        // 후기가 0건이면 avg가 null이라 0.0 처리
+        double average = (avg == null) ? 0.0 : Math.round(avg * 10) / 10.0; // 소수점 1자리
+        return new TrainerRatingResponse(trainerId, average, count);
     }
 }

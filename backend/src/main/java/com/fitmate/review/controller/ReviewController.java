@@ -2,6 +2,7 @@ package com.fitmate.review.controller;
 
 import com.fitmate.review.dto.ReviewRequest;
 import com.fitmate.review.dto.ReviewResponse;
+import com.fitmate.review.dto.TrainerRatingResponse;
 import com.fitmate.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,5 +34,13 @@ public class ReviewController {
             @PathVariable Long trainerId
     ) {
         return ResponseEntity.ok(reviewService.getReviewsByTrainer(trainerId));
+    }
+
+    // 트레이너 평균 평점 조회
+    @GetMapping("/trainer/{trainerId}/rating")
+    public ResponseEntity<TrainerRatingResponse> getTrainerRating(
+            @PathVariable Long trainerId
+    ) {
+        return ResponseEntity.ok(reviewService.getTrainerRating(trainerId));
     }
 }
