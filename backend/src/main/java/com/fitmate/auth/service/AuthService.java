@@ -11,6 +11,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fitmate.global.exception.CustomException;
+import com.fitmate.global.exception.ErrorCode;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -23,10 +26,10 @@ public class AuthService {
     public LoginResponse login(LoginRequest request) {
 
         Member member = memberRepository.findByUserId(request.userId())
-                .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
 
         if (!passwordEncoder.matches(request.password(), member.getPassword())) {
-            throw new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다.");
+            throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
         }
 
         String token = jwtProvider.generateToken(member.getUserId(), member.getRole().name());
@@ -38,11 +41,11 @@ public class AuthService {
     public void signup(SignupRequest request) {
 
         if (memberRepository.existsByUserId(request.userId())) {
-            throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
+            throw new CustomException(ErrorCode.DUPLICATE_USER_ID);
         }
 
         if (memberRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
         }
 
         Member member = Member.builder()
