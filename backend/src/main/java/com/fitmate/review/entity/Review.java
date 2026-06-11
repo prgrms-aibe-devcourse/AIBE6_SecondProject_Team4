@@ -14,10 +14,6 @@ import lombok.*;
 @AllArgsConstructor
 public class Review extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "matching_id", nullable = false, unique = true)
     private MatchingRequest matchingRequest;

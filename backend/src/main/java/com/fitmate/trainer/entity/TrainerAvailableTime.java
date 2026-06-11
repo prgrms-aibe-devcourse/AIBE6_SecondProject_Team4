@@ -14,10 +14,6 @@ import java.time.LocalTime;
 @AllArgsConstructor
 public class TrainerAvailableTime extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trainer_profile_id", nullable = false)
     private TrainerProfile trainerProfile;

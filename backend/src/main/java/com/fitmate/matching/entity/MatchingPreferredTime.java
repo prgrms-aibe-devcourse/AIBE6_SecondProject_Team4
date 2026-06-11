@@ -14,10 +14,6 @@ import java.time.LocalTime;
 @AllArgsConstructor
 public class MatchingPreferredTime extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "matching_id", nullable = false)
     private MatchingRequest matchingRequest;

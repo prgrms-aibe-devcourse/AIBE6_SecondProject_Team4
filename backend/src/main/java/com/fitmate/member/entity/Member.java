@@ -12,10 +12,6 @@ import lombok.*;
 @AllArgsConstructor
 public class Member extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(name = "user_id", nullable = false, length = 100, unique = true)
     private String userId;
 
