@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record ReviewRequest(
         @NotNull Long matchingId,
+        @NotNull Long trainerId,
         @Min(1) @Max(5) int rating,
         @NotBlank String content
 ) {}
