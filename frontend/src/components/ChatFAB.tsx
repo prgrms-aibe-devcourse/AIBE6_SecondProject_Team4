@@ -1,100 +1,275 @@
 'use client'
 
+import { useAuth } from '@/context/AuthContext'
+import { useChat } from '@/hooks/useChat'
+import type { components } from '@/types/api'
+import { apiClient } from '@/utils/apiClient'
 import { useEffect, useRef, useState } from 'react'
 
-import { useChat } from '@/hooks/useChat'
+type View = 'closed' | 'list' | 'chat' | 'new'
 
-type View = 'closed' | 'list' | 'chat'
+type ChatRoomDto = components['schemas']['ChatRoomResponseDto']
+type TrainerDto = components['schemas']['TrainerSummaryDto']
+type ChatMessageDto = components['schemas']['ChatResponseDto']
+
+const AVATAR_FALLBACK =
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23bfc3d4'%3E%3Ccircle cx='12' cy='8' r='4'/%3E%3Cpath d='M4 20c0-4 3.6-7 8-7s8 3 8 7'/%3E%3C/svg%3E"
+
+function Avatar({ src, alt, className }: { src?: string; alt: string; className?: string }) {
+    return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+            src={src || AVATAR_FALLBACK}
+            alt={alt}
+            className={className}
+            onError={(e) => {
+                e.currentTarget.src = AVATAR_FALLBACK
+            }}
+        />
+    )
+}
 
 interface ChatEntry {
-    roomId: number  // 백엔드 chat_rooms.id
+    roomId: number
     name: string
     src: string
     lastMsg: string
     time: string
-    unread?: number
-    online?: boolean
+    unread: number
 }
 
-const chatList: ChatEntry[] = [
-    {
-        roomId: 1, // 실제 DB의 chat_rooms.id
-        name: '김민수 트레이너',
-        src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA09pq8e0kKsbZDTF-lUdSQIOoXVn-07pIYtLl_-Zaax5ktY-YqTykDCIktBi4cbscdTLvHEwvRSn1J8dPEm5rE-Hrx0IE2cSdReJduclUxdP7ThEZXQ-EzixnyTOdUTaR-2FfZS7ZdxqsDqcdJgSEMldAVcbfT-08eEaNDNY8mg6W6zi6LfwtMFbXqqFhYPwWs6ce-X6TNlQxHKPlDRH9xBBK5MCA9FehpMFMTRfzqiin-tgxB-uhjCEuayakmauWBFGL-WA135w',
-        lastMsg: '오늘 하체 루틴 정말 좋았어요! 식...',
-        time: '오후 2:30',
-        unread: 2,
-        online: true,
-    },
-    {
-        roomId: 2,
-        name: '최윤지 트레이너',
-        src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuASA0uzgLYeb0CfbPrpu0fo0lIFLL8yHAF3T1rcRly0KKSH9m520u-dmSpIGxHvP1gIt8ZcQn0IatJxWrJpAci04rJCs4b9hILc8LrtCMWlAaP2A2gu7RDYZlfuv7YxgQDjkEntdU4PGvUkZzKCqouvEIVOi9NE2WXDvVcYyWobCV40FnobnyTK698CmtucSjzae9eAV2uA3A0Xefim433ZqKgyVLdzcKCjqAz2z5nWz-ftEVHIWxeU4SOou4wWdu9EdFt7TrKjsQ',
-        lastMsg: '내일 오전 10시 수업 잊지 마세요!',
-        time: '오전 11:15',
-    },
-    {
-        roomId: 3,
-        name: '박준호 트레이너',
-        src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCNpZpuHpNSp8s8JVMNc8popczKvH1wIhD3Eu9jvrvnhHIo6z5nZ-0mAnlw5fNIXsQK7pHxZRRlNRlZdY7-cp8pNKM3TILuvqYFpOOUPI-jDzpednr5mLQnkEqdXx3xuheEXOFwWep4MsF2lsLmfFh2rPSh4Qc5foOXfYvdWdvrjVlRdfn3qbWDe0seA-V4_TJvzZYS6PmP5WPP-jNsYryAGWfp9JT4R0SKKPcE4kkVUxHKlP5EvB0OTYjqCkt1ogUbZQDHPd1ScQ',
-        lastMsg: '수고하셨습니다. 주말 잘 보내세요.',
-        time: '어제',
-    },
-]
+function formatTime(dateStr?: string | null): string {
+    if (!dateStr) return ''
+    const date = new Date(dateStr)
+    const now = new Date()
+    const isToday =
+        date.getFullYear() === now.getFullYear() &&
+        date.getMonth() === now.getMonth() &&
+        date.getDate() === now.getDate()
+    if (isToday) {
+        return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+    }
+    const yesterday = new Date(now)
+    yesterday.setDate(now.getDate() - 1)
+    const isYesterday =
+        date.getFullYear() === yesterday.getFullYear() &&
+        date.getMonth() === yesterday.getMonth() &&
+        date.getDate() === yesterday.getDate()
+    return isYesterday
+        ? '어제'
+        : date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })
+}
 
-// TODO: 로그인 구현 후 실제 로그인한 유저 ID 로 교체
-const MY_ID = 1
+function toEntry(dto: ChatRoomDto, myId: number): ChatEntry {
+    return {
+        roomId: dto.chatRoomId ?? 0,
+        name: dto.userId === myId ? (dto.trainerName ?? '') : (dto.userName ?? ''),
+        src: dto.trainerProfile ?? '',
+        lastMsg: dto.lastMessage ?? '',
+        time: formatTime(dto.lastMessageAt),
+        unread: dto.unreadCount ?? 0,
+    }
+}
 
 export default function ChatFAB() {
+    const { user } = useAuth()
+
     const [view, setView] = useState<View>('closed')
     const [selectedChat, setSelectedChat] = useState<ChatEntry | null>(null)
     const [inputText, setInputText] = useState('')
+    const [chatList, setChatList] = useState<ChatEntry[]>([])
+    const [history, setHistory] = useState<ChatMessageDto[]>([])
+    const [trainers, setTrainers] = useState<TrainerDto[]>([])
+    const [trainerSearch, setTrainerSearch] = useState('')
     const messagesEndRef = useRef<HTMLDivElement>(null)
 
-    // ── WebSocket 훅 연결 ────────────────────────────────────
-    // selectedChat.roomId 가 있을 때만 연결, 채팅방 선택 전엔 roomId=0 (비활성)
+    const authHeaders = (): Record<string, string> =>
+        user ? { Authorization: `Bearer ${user.token}` } : {}
+
     const { messages, sendMessage, connected } = useChat({
         roomId: selectedChat?.roomId ?? 0,
-        myId: MY_ID,
+        myId: user?.memberId ?? 0,
     })
 
-    // 새 메시지가 오면 스크롤을 맨 아래로 이동
+    const allMessages = [
+        ...history,
+        ...messages.filter(
+            (m) => !history.some((h) => h.sentAt === m.sentAt && h.message === m.message)
+        ),
+    ]
+
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }, [messages])
+    }, [allMessages.length])
 
-    const openChat = (entry: ChatEntry) => {
+    // 채팅 목록 조회
+    useEffect(() => {
+        if (view !== 'list' || !user) return
+        apiClient
+            .GET('/api/chat', {
+                params: { query: { memberId: user.memberId } },
+                headers: authHeaders(),
+            })
+            .then(({ data }) => {
+                if (data) setChatList(data.map((dto) => toEntry(dto, user.memberId)))
+            })
+            .catch(() => setChatList([]))
+    }, [view, user])
+
+    // 채팅방 선택 시 히스토리 조회 + 읽음 처리
+    const openChat = async (entry: ChatEntry) => {
         setSelectedChat(entry)
+        setHistory([])
         setView('chat')
+
+        await Promise.all([
+            apiClient
+                .GET('/api/chat/{roomId}/messages', {
+                    params: { path: { roomId: entry.roomId } },
+                    headers: authHeaders(),
+                })
+                .then(({ data }) => { if (data) setHistory(data) })
+                .catch(() => {}),
+
+            apiClient
+                .PUT('/api/chat/{roomId}/read', {
+                    params: {
+                        path: { roomId: entry.roomId },
+                        query: { memberId: user!.memberId },
+                    },
+                    headers: authHeaders(),
+                })
+                .then(() => {
+                    setChatList((prev) =>
+                        prev.map((c) => (c.roomId === entry.roomId ? { ...c, unread: 0 } : c))
+                    )
+                })
+                .catch(() => {}),
+        ])
     }
 
-    // 메시지 전송 핸들러
+    // 트레이너 목록 조회
+    useEffect(() => {
+        if (view !== 'new' || !user) return
+        apiClient
+            .GET('/api/members/trainers', { headers: authHeaders() })
+            .then(({ data }) => { if (data) setTrainers(data) })
+            .catch(() => setTrainers([]))
+    }, [view, user])
+
+    // 트레이너 선택 → 채팅방 생성 or 기존 방 오픈
+    const startChat = async (trainer: TrainerDto) => {
+        if (!user || !trainer.id) return
+        const { data: room } = await apiClient.POST('/api/chat', {
+            body: { trainerId: trainer.id, userId: user.memberId },
+            headers: authHeaders(),
+        })
+        if (!room) return
+        await openChat({
+            roomId: room.chatRoomId ?? 0,
+            name: trainer.userName ?? '',
+            src: trainer.profileImage ?? '',
+            lastMsg: '',
+            time: '',
+            unread: 0,
+        })
+    }
+
     const handleSend = () => {
         const trimmed = inputText.trim()
         if (!trimmed || !connected) return
-        sendMessage(trimmed) // useChat 훅의 sendMessage 호출
+        sendMessage(trimmed)
         setInputText('')
     }
 
-    // 엔터키로 전송
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') handleSend()
     }
+
+    if (!user) return null
+
+    const filteredTrainers = trainers.filter((t) =>
+        (t.userName ?? '').includes(trainerSearch)
+    )
 
     return (
         <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end gap-4">
             {/* 채팅 목록 패널 */}
             {view === 'list' && (
                 <div className="w-[360px] bg-surface-container-lowest rounded-2xl shadow-2xl border border-outline-variant overflow-hidden flex flex-col">
-                    <div className="bg-primary p-4 space-y-4 text-on-primary">
-                        <div className="flex items-center justify-between">
-                            <h3 className="font-headline-sm text-headline-sm">채팅</h3>
+                    <div className="bg-primary p-4 text-on-primary flex items-center justify-between">
+                        <h3 className="font-headline-sm text-headline-sm">채팅</h3>
+                        <button
+                            className="material-symbols-outlined hover:bg-white/10 rounded-full p-1"
+                            onClick={() => setView('closed')}
+                        >
+                            close
+                        </button>
+                    </div>
+
+                    <div className="h-80 overflow-y-auto bg-surface-container-low">
+                        {chatList.length === 0 && (
+                            <p className="text-center text-body-sm text-on-surface-variant p-8">
+                                채팅방이 없습니다.
+                            </p>
+                        )}
+                        {chatList.map((entry, i) => (
+                            <div
+                                key={entry.roomId}
+                                className={`flex items-center gap-3 p-4 hover:bg-surface-container transition-colors cursor-pointer ${
+                                    i < chatList.length - 1 ? 'border-b border-outline-variant/30' : ''
+                                }`}
+                                onClick={() => openChat(entry)}
+                            >
+                                <div className="relative">
+                                    <Avatar
+                                        className="w-12 h-12 rounded-full object-cover bg-surface-container-high"
+                                        src={entry.src}
+                                        alt={entry.name}
+                                    />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex justify-between items-center mb-0.5">
+                                        <p className="font-label-bold text-label-bold truncate">{entry.name}</p>
+                                        <span className="text-[10px] text-secondary shrink-0 ml-1">{entry.time}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center gap-1">
+                                        <p className="text-body-sm text-on-surface-variant truncate">{entry.lastMsg}</p>
+                                        {entry.unread > 0 && (
+                                            <span className="bg-primary text-on-primary text-[10px] font-bold min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full shrink-0">
+                                                {entry.unread}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="p-3 border-t border-outline-variant bg-surface-container-lowest">
+                        <button
+                            className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-primary text-on-primary text-label-bold font-label-bold hover:opacity-90 transition-opacity"
+                            onClick={() => setView('new')}
+                        >
+                            <span className="material-symbols-outlined text-base">add</span>
+                            새 채팅 시작
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* 새 채팅 (트레이너 선택) */}
+            {view === 'new' && (
+                <div className="w-[360px] bg-surface-container-lowest rounded-2xl shadow-2xl border border-outline-variant overflow-hidden flex flex-col">
+                    <div className="bg-primary p-4 text-on-primary space-y-3">
+                        <div className="flex items-center gap-2">
                             <button
                                 className="material-symbols-outlined hover:bg-white/10 rounded-full p-1"
-                                onClick={() => setView('closed')}
+                                onClick={() => setView('list')}
                             >
-                                close
+                                arrow_back
                             </button>
+                            <h3 className="font-headline-sm text-headline-sm">트레이너 선택</h3>
                         </div>
                         <div className="relative">
                             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-white/80 text-sm">
@@ -102,54 +277,37 @@ export default function ChatFAB() {
                             </span>
                             <input
                                 className="w-full bg-white/20 border-none rounded-xl py-2 pl-10 pr-4 text-body-sm placeholder:text-white/60 focus:ring-2 focus:ring-white/40"
-                                placeholder="트레이너 검색"
-                                type="text"
+                                placeholder="트레이너 이름 검색"
+                                value={trainerSearch}
+                                onChange={(e) => setTrainerSearch(e.target.value)}
                             />
                         </div>
                     </div>
 
                     <div className="h-80 overflow-y-auto bg-surface-container-low">
-                        {chatList.map((entry, i) => (
+                        {filteredTrainers.length === 0 && (
+                            <p className="text-center text-body-sm text-on-surface-variant p-8">
+                                트레이너가 없습니다.
+                            </p>
+                        )}
+                        {filteredTrainers.map((trainer, i) => (
                             <div
-                                key={entry.name}
+                                key={trainer.id}
                                 className={`flex items-center gap-3 p-4 hover:bg-surface-container transition-colors cursor-pointer ${
-                                    i < chatList.length - 1
-                                        ? 'border-b border-outline-variant/30'
-                                        : ''
+                                    i < filteredTrainers.length - 1 ? 'border-b border-outline-variant/30' : ''
                                 }`}
-                                onClick={() => openChat(entry)}
+                                onClick={() => startChat(trainer)}
                             >
-                                <div className="relative">
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
-                                        className="w-12 h-12 rounded-full object-cover"
-                                        src={entry.src}
-                                        alt={entry.name}
-                                    />
-                                    {entry.online && (
-                                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-surface-container-low rounded-full" />
-                                    )}
-                                </div>
+                                <Avatar
+                                    className="w-12 h-12 rounded-full object-cover bg-surface-container-high"
+                                    src={trainer.profileImage ?? ''}
+                                    alt={trainer.userName ?? ''}
+                                />
                                 <div className="flex-1 min-w-0">
-                                    <div className="flex justify-between items-center mb-0.5">
-                                        <p className="font-label-bold text-label-bold truncate">
-                                            {entry.name}
-                                        </p>
-                                        <span className="text-[10px] text-secondary">
-                                            {entry.time}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                        <p className="text-body-sm text-on-surface-variant truncate">
-                                            {entry.lastMsg}
-                                        </p>
-                                        {entry.unread && (
-                                            <span className="bg-primary text-on-primary text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full shrink-0 ml-1">
-                                                {entry.unread}
-                                            </span>
-                                        )}
-                                    </div>
+                                    <p className="font-label-bold text-label-bold">{trainer.userName}</p>
+                                    <p className="text-body-sm text-on-surface-variant">트레이너</p>
                                 </div>
+                                <span className="material-symbols-outlined text-primary">chat</span>
                             </div>
                         ))}
                     </div>
@@ -167,24 +325,14 @@ export default function ChatFAB() {
                             >
                                 arrow_back
                             </button>
-                            <div className="relative">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                    alt={selectedChat.name}
-                                    className="w-10 h-10 rounded-full object-cover border-2 border-white/20"
-                                    src={selectedChat.src}
-                                />
-                                {selectedChat.online && (
-                                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-primary rounded-full" />
-                                )}
-                            </div>
+                            <Avatar
+                                alt={selectedChat.name}
+                                className="w-10 h-10 rounded-full object-cover border-2 border-white/20 bg-white/10"
+                                src={selectedChat.src}
+                            />
                             <div>
-                                <p className="font-label-bold text-label-bold">
-                                    {selectedChat.name}
-                                </p>
-                                <p className="text-xs opacity-80">
-                                    {selectedChat.online ? '온라인' : '오프라인'}
-                                </p>
+                                <p className="font-label-bold text-label-bold">{selectedChat.name}</p>
+                                <p className="text-xs opacity-80">{connected ? '온라인' : '연결 중...'}</p>
                             </div>
                         </div>
                         <button
@@ -195,24 +343,14 @@ export default function ChatFAB() {
                         </button>
                     </div>
 
-                    {/* 메시지 목록 — useChat 훅의 messages 배열을 그대로 렌더링 */}
                     <div className="h-80 overflow-y-auto p-4 space-y-4 bg-surface-container-low">
-
-                        {/* 연결 상태 표시 */}
-                        <p className="text-center text-[10px] text-secondary">
-                            {connected ? '🟢 연결됨' : '⚪ 연결 중...'}
-                        </p>
-
-                        {/* 메시지가 없을 때 */}
-                        {messages.length === 0 && (
-                            <p className="text-center text-body-sm text-on-surface-variant">
+                        {allMessages.length === 0 && (
+                            <p className="text-center text-body-sm text-on-surface-variant mt-8">
                                 아직 메시지가 없습니다.
                             </p>
                         )}
-
-                        {/* 메시지 목록 */}
-                        {messages.map((msg, i) => {
-                            const isMine = msg.senderId === MY_ID
+                        {allMessages.map((msg, i) => {
+                            const isMine = msg.senderId === user.memberId
                             return (
                                 <div
                                     key={i}
@@ -228,16 +366,16 @@ export default function ChatFAB() {
                                         {msg.message}
                                     </div>
                                     <span className={`text-[10px] text-secondary ${isMine ? 'mr-1' : 'ml-1'}`}>
-                                        {new Date(msg.sentAt).toLocaleTimeString('ko-KR', {
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                        })}
+                                        {msg.sentAt
+                                            ? new Date(msg.sentAt).toLocaleTimeString('ko-KR', {
+                                                  hour: '2-digit',
+                                                  minute: '2-digit',
+                                              })
+                                            : ''}
                                     </span>
                                 </div>
                             )
                         })}
-
-                        {/* 새 메시지 오면 여기로 스크롤 */}
                         <div ref={messagesEndRef} />
                     </div>
 
