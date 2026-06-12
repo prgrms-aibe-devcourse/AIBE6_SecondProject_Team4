@@ -1,9 +1,16 @@
 package com.fitmate.auth.service;
 
+import com.fitmate.auth.dto.ReissueResponse;
+import com.fitmate.auth.dto.ReissueResult;
 import com.fitmate.auth.dto.LoginRequest;
+import com.fitmate.auth.dto.LoginResult;
 import com.fitmate.auth.dto.LoginResponse;
 import com.fitmate.auth.dto.SignupRequest;
+import com.fitmate.auth.entity.RefreshToken;
+import com.fitmate.auth.repository.RefreshTokenRepository;
 import com.fitmate.global.config.JwtProvider;
+import com.fitmate.global.exception.CustomException;
+import com.fitmate.global.exception.ErrorCode;
 import com.fitmate.member.entity.Member;
 import com.fitmate.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fitmate.global.exception.CustomException;
-import com.fitmate.global.exception.ErrorCode;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -20,10 +26,12 @@ import com.fitmate.global.exception.ErrorCode;
 public class AuthService {
 
     private final MemberRepository memberRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
-    public LoginResponse login(LoginRequest request) {
+    @Transactional
+    public LoginResult login(LoginRequest request) {
 
         Member member = memberRepository.findByUserId(request.userId())
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
@@ -32,9 +40,29 @@ public class AuthService {
             throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
         }
 
-        String token = jwtProvider.generateToken(member.getUserId(), member.getRole().name());
+        String accessToken = jwtProvider.generateToken(member.getUserId(), member.getRole().name());
+        String refreshToken = jwtProvider.generateRefreshToken(member.getUserId());
 
-        return LoginResponse.of(token);
+        saveOrUpdateRefreshToken(member.getUserId(), refreshToken);
+
+        return new LoginResult(accessToken, refreshToken);
+    }
+
+    private void saveOrUpdateRefreshToken(String userId, String refreshToken) {
+        LocalDateTime expiresAt = LocalDateTime.now()
+                .plusSeconds(jwtProvider.getRefreshExpirationMs() / 1000);
+
+        refreshTokenRepository.findByUserId(userId)
+                .ifPresentOrElse(
+                        existing -> existing.rotate(refreshToken, expiresAt),
+                        () -> refreshTokenRepository.save(
+                                RefreshToken.builder()
+                                        .userId(userId)
+                                        .token(refreshToken)
+                                        .expiresAt(expiresAt)
+                                        .build()
+                        )
+                );
     }
 
     @Transactional
@@ -59,5 +87,32 @@ public class AuthService {
                 .build();
 
         memberRepository.save(member);
+    }
+
+    @Transactional
+    public ReissueResult reissue(String refreshToken) {
+
+        if (refreshToken == null || !jwtProvider.isValid(refreshToken)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        String userId = jwtProvider.getUserId(refreshToken);
+
+        RefreshToken savedToken = refreshTokenRepository.findByUserId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
+
+        if (!savedToken.matches(refreshToken) || savedToken.isExpired()) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        Member member = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        String newAccessToken = jwtProvider.generateToken(member.getUserId(), member.getRole().name());
+        String newRefreshToken = jwtProvider.generateRefreshToken(member.getUserId());
+
+        saveOrUpdateRefreshToken(member.getUserId(), newRefreshToken);
+
+        return new ReissueResult(newAccessToken, newRefreshToken);
     }
 }
