@@ -35,7 +35,7 @@ public class AuthService {
 
         // 3. JWT 토큰 생성 후 반환
         String token = jwtProvider.generateToken(member.getUserId(), member.getRole().name());
-        return LoginResponse.of(token);
+        return LoginResponse.of(member.getId(), member.getUserName(), member.getRole().name(), token);
     }
 
     // 회원가입
