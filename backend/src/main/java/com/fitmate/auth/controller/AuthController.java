@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -58,5 +59,21 @@ public class AuthController {
         response.addCookie(refreshCookie);
 
         return ResponseEntity.ok(LoginResponse.of(result.accessToken()));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(Authentication authentication, HttpServletResponse response) {
+
+        String userId = authentication.getName();
+        authService.logout(userId);
+
+        Cookie refreshCookie = new Cookie("refreshToken", null);
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setSecure(false);
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(0); // 즉시 만료
+        response.addCookie(refreshCookie);
+
+        return ResponseEntity.ok().build();
     }
 }

@@ -66,6 +66,11 @@ public class AuthService {
     }
 
     @Transactional
+    public void logout(String userId) {
+        refreshTokenRepository.deleteByUserId(userId);
+    }
+
+    @Transactional
     public void signup(SignupRequest request) {
 
         if (memberRepository.existsByUserId(request.userId())) {
@@ -115,4 +120,6 @@ public class AuthService {
 
         return new ReissueResult(newAccessToken, newRefreshToken);
     }
+
+
 }
