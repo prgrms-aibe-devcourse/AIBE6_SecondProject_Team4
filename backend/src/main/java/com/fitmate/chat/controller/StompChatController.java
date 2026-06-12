@@ -70,6 +70,7 @@ public class StompChatController {
 
         // 3. 응답 DTO 생성
         ChatResponseDto response = new ChatResponseDto(
+                chatMessage.getId(),
                 dto.chatRoomId(),
                 dto.senderId(),
                 dto.message(),

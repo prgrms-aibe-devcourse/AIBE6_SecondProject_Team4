@@ -2,6 +2,7 @@ package com.fitmate.chat.service;
 
 import com.fitmate.chat.dto.ChatResponseDto;
 import com.fitmate.chat.dto.ChatRoomResponseDto;
+import com.fitmate.chat.entity.ChatMessage;
 import com.fitmate.chat.entity.ChatRoom;
 import com.fitmate.chat.repository.ChatMessageRepository;
 import com.fitmate.chat.repository.ChatRoomRepository;
@@ -13,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.PageRequest;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -46,11 +50,19 @@ public class ChatService {
         chatMessageRepository.markAsRead(roomId, memberId);
     }
 
-    // 채팅방 메시지 히스토리 조회
-    public List<ChatResponseDto> getMessages(Long roomId) {
-        return chatMessageRepository.findByChatRoomIdOrderByCreatedAtAsc(roomId)
-                .stream()
+    // 채팅방 메시지 히스토리 조회 (커서 기반 페이지네이션)
+    public List<ChatResponseDto> getMessages(Long roomId, Long before, int size) {
+        List<ChatMessage> messages = (before == null)
+                ? chatMessageRepository.findByChatRoomIdOrderByCreatedAtDesc(roomId, PageRequest.of(0, size))
+                : chatMessageRepository.findByChatRoomIdAndIdLessThanOrderByCreatedAtDesc(roomId, before, PageRequest.of(0, size));
+
+        // DESC로 가져온 것을 오래된 순(ASC)으로 뒤집어서 반환
+        List<ChatMessage> reversed = new ArrayList<>(messages);
+        java.util.Collections.reverse(reversed);
+
+        return reversed.stream()
                 .map(msg -> new ChatResponseDto(
+                        msg.getId(),
                         msg.getChatRoom().getId(),
                         msg.getSender().getId(),
                         msg.getMessage(),

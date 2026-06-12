@@ -33,10 +33,13 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
-    // 채팅방 메시지 히스토리 조회
+    // 채팅방 메시지 히스토리 조회 (커서 기반 페이지네이션)
     @GetMapping("/{roomId}/messages")
-    public ResponseEntity<List<ChatResponseDto>> getMessages(@PathVariable Long roomId) {
-        return ResponseEntity.ok(chatService.getMessages(roomId));
+    public ResponseEntity<List<ChatResponseDto>> getMessages(
+            @PathVariable Long roomId,
+            @RequestParam(required = false) Long before,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(chatService.getMessages(roomId, before, size));
     }
 
     // 채팅방 생성 or 기존 방 반환

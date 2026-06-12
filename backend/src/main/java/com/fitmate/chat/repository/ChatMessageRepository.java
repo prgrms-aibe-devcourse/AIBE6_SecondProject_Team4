@@ -1,6 +1,7 @@
 package com.fitmate.chat.repository;
 
 import com.fitmate.chat.entity.ChatMessage;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -11,6 +12,8 @@ import java.util.Optional;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
     List<ChatMessage> findByChatRoomIdOrderByCreatedAtAsc(Long chatRoomId);
+    List<ChatMessage> findByChatRoomIdOrderByCreatedAtDesc(Long chatRoomId, Pageable pageable);
+    List<ChatMessage> findByChatRoomIdAndIdLessThanOrderByCreatedAtDesc(Long chatRoomId, Long beforeId, Pageable pageable);
     Optional<ChatMessage> findTopByChatRoomIdOrderByCreatedAtDesc(Long chatRoomId);
     int countByChatRoomIdAndSenderIdNotAndIsReadFalse(Long chatRoomId, Long senderId);
 
