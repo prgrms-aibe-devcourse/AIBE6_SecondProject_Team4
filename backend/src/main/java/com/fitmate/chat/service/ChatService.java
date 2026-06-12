@@ -26,7 +26,7 @@ public class ChatService {
 
     // 내 채팅방 목록 조회 (트레이너로 참여하거나 유저로 참여한 방 모두)
     public List<ChatRoomResponseDto> getChatRooms(Long memberId) {
-        return chatRoomRepository.findByTrainerIdOrUserId(memberId, memberId)
+        return chatRoomRepository.findByTrainerIdOrUserIdOrderByLastMessageAtDesc(memberId, memberId)
                 .stream()
                 .map(room -> {
                     String lastMessage = chatMessageRepository

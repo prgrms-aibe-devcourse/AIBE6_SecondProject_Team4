@@ -38,6 +38,7 @@ interface ChatEntry {
     lastMsg: string
     time: string
     unread: number
+    lastMessageAt: string
 }
 
 function formatTime(dateStr?: string | null): string {
@@ -70,7 +71,16 @@ function toEntry(dto: ChatRoomDto, myId: number): ChatEntry {
         lastMsg: dto.lastMessage ?? '',
         time: formatTime(dto.lastMessageAt),
         unread: dto.unreadCount ?? 0,
+        lastMessageAt: dto.lastMessageAt ?? '',
     }
+}
+
+function sortByRecent(entries: ChatEntry[]): ChatEntry[] {
+    return [...entries].sort((a, b) => {
+        const ta = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0
+        const tb = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0
+        return tb - ta
+    })
 }
 
 export default function ChatFAB() {
@@ -122,7 +132,7 @@ export default function ChatFAB() {
                     // chatList도 갱신해야 entry.unread가 정확해짐
                     apiClient
                         .GET('/api/chat', { params: { query: { memberId: user.memberId } }, headers: { Authorization: `Bearer ${user.token}` } })
-                        .then(({ data }) => { if (data) setChatList(data.map((dto) => toEntry(dto, user.memberId))) })
+                        .then(({ data }) => { if (data) setChatList(sortByRecent(data.map((dto) => toEntry(dto, user.memberId)))) })
                         .catch(() => {})
                 })
             },
@@ -140,7 +150,7 @@ export default function ChatFAB() {
                 headers: authHeaders(),
             })
             .then(({ data }) => {
-                if (data) setChatList(data.map((dto) => toEntry(dto, user.memberId)))
+                if (data) setChatList(sortByRecent(data.map((dto) => toEntry(dto, user.memberId))))
             })
             .catch(() => setChatList([]))
     }, [view, user])
