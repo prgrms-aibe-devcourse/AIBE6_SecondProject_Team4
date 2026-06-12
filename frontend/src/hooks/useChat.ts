@@ -7,6 +7,7 @@ import SockJS from 'sockjs-client'
 
 // 서버에서 받는 메시지 형태 (ChatResponseDto 와 일치)
 export interface ChatMessage {
+  id: number
   chatRoomId: number
   senderId: number
   message: string
@@ -30,7 +31,9 @@ export interface ChatMessage {
 export function useChat({ roomId, myId }: { roomId: number; myId: number }) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [connected, setConnected] = useState(false)
-  const clientRef = useRef<Client | null>(null) // STOMP 클라이언트를 ref 로 보관
+  const clientRef = useRef<Client | null>(null)
+
+  const clearMessages = useCallback(() => setMessages([]), [])
 
   useEffect(() => {
     if (!roomId || !myId) return  // 로그인 전 or 채팅방 미선택 시 연결 안 함
@@ -93,5 +96,5 @@ export function useChat({ roomId, myId }: { roomId: number; myId: number }) {
     [roomId, myId],
   )
 
-  return { messages, sendMessage, connected }
+  return { messages, sendMessage, connected, clearMessages }
 }
