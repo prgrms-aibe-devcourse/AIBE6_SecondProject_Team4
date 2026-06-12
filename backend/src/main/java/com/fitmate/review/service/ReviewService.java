@@ -6,6 +6,7 @@ import com.fitmate.member.entity.Member;
 import com.fitmate.member.repository.MemberRepository;
 import com.fitmate.review.dto.ReviewRequest;
 import com.fitmate.review.dto.ReviewResponse;
+import com.fitmate.review.dto.ReviewUpdateRequest;
 import com.fitmate.review.dto.TrainerRatingResponse;
 import com.fitmate.review.entity.Review;
 import com.fitmate.review.repository.ReviewRepository;
@@ -27,6 +28,12 @@ public class ReviewService {
     // 후기 작성
     @Transactional
     public Long createReview(Long reviewerId, ReviewRequest request) {
+        // 중복 방지 (REV-05): 이미 이 매칭으로 작성한 후기가 있으면 막기
+        reviewRepository.findByMatchingRequestId(request.matchingId())
+                .ifPresent(r -> {
+                    throw new IllegalStateException("이미 해당 매칭에 대한 후기가 존재합니다.");
+                });
+
         Member reviewer = memberRepository.findById(reviewerId)
                 .orElseThrow(() -> new IllegalArgumentException("작성자를 찾을 수 없습니다."));
 
@@ -54,11 +61,39 @@ public class ReviewService {
                 .toList();
     }
 
+    // 트레이너 평균 평점
     public TrainerRatingResponse getTrainerRating(Long trainerId) {
         Double avg = reviewRepository.findAverageRatingByTrainerId(trainerId);
         long count = reviewRepository.countByTrainerId(trainerId);
-        // 후기가 0건이면 avg가 null이라 0.0 처리
-        double average = (avg == null) ? 0.0 : Math.round(avg * 10) / 10.0; // 소수점 1자리
+        double average = (avg == null) ? 0.0 : Math.round(avg * 10) / 10.0;
         return new TrainerRatingResponse(trainerId, average, count);
+    }
+
+    // 후기 수정 (REV-06)
+    @Transactional
+    public void updateReview(Long reviewId, Long reviewerId, ReviewUpdateRequest request) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("후기를 찾을 수 없습니다."));
+
+        // 작성자 본인 확인
+        if (!review.getReviewer().getId().equals(reviewerId)) {
+            throw new IllegalStateException("본인이 작성한 후기만 수정할 수 있습니다.");
+        }
+
+        review.update(request.rating(), request.content());
+    }
+
+    // 후기 삭제 (REV-07)
+    @Transactional
+    public void deleteReview(Long reviewId, Long reviewerId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("후기를 찾을 수 없습니다."));
+
+        // 작성자 본인 확인
+        if (!review.getReviewer().getId().equals(reviewerId)) {
+            throw new IllegalStateException("본인이 작성한 후기만 삭제할 수 있습니다.");
+        }
+
+        reviewRepository.delete(review);
     }
 }
