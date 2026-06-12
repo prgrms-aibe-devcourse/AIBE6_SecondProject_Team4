@@ -4,7 +4,9 @@ import { useAuth } from '@/context/AuthContext'
 import { useChat } from '@/hooks/useChat'
 import type { components } from '@/types/api'
 import { apiClient } from '@/utils/apiClient'
+import { Client } from '@stomp/stompjs'
 import { useEffect, useRef, useState } from 'react'
+import SockJS from 'sockjs-client'
 
 type View = 'closed' | 'list' | 'chat' | 'new'
 
@@ -81,6 +83,7 @@ export default function ChatFAB() {
     const [history, setHistory] = useState<ChatMessageDto[]>([])
     const [trainers, setTrainers] = useState<TrainerDto[]>([])
     const [trainerSearch, setTrainerSearch] = useState('')
+    const [unread, setUnread] = useState(0)
     const messagesEndRef = useRef<HTMLDivElement>(null)
 
     const authHeaders = (): Record<string, string> =>
@@ -102,6 +105,32 @@ export default function ChatFAB() {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [allMessages.length])
 
+    // 로그인 시 초기 배지 + WebSocket 실시간 구독
+    useEffect(() => {
+        if (!user) return
+        apiClient
+            .GET('/api/chat', { params: { query: { memberId: user.memberId } }, headers: { Authorization: `Bearer ${user.token}` } })
+            .then(({ data }) => {
+                if (data) setUnread(data.reduce((s, d) => s + (d.unreadCount ?? 0), 0))
+            })
+            .catch(() => {})
+        const client = new Client({
+            webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+            onConnect: () => {
+                client.subscribe(`/sub/notify/${user.memberId}`, (frame) => {
+                    setUnread(JSON.parse(frame.body) as number)
+                    // chatList도 갱신해야 entry.unread가 정확해짐
+                    apiClient
+                        .GET('/api/chat', { params: { query: { memberId: user.memberId } }, headers: { Authorization: `Bearer ${user.token}` } })
+                        .then(({ data }) => { if (data) setChatList(data.map((dto) => toEntry(dto, user.memberId))) })
+                        .catch(() => {})
+                })
+            },
+        })
+        client.activate()
+        return () => { client.deactivate() }
+    }, [user])
+
     // 채팅 목록 조회
     useEffect(() => {
         if (view !== 'list' || !user) return
@@ -118,6 +147,8 @@ export default function ChatFAB() {
 
     // 채팅방 선택 시 히스토리 조회 + 읽음 처리
     const openChat = async (entry: ChatEntry) => {
+        setUnread((prev) => Math.max(0, prev - entry.unread))
+        setChatList((prev) => prev.map((c) => c.roomId === entry.roomId ? { ...c, unread: 0 } : c))
         setSelectedChat(entry)
         setHistory([])
         setView('chat')
@@ -138,11 +169,6 @@ export default function ChatFAB() {
                         query: { memberId: user!.memberId },
                     },
                     headers: authHeaders(),
-                })
-                .then(() => {
-                    setChatList((prev) =>
-                        prev.map((c) => (c.roomId === entry.roomId ? { ...c, unread: 0 } : c))
-                    )
                 })
                 .catch(() => {}),
         ])
@@ -400,15 +426,20 @@ export default function ChatFAB() {
                 </div>
             )}
 
-            {/* FAB 버튼 */}
-            <button
-                className="w-14 h-14 bg-primary text-on-primary rounded-full shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
-                onClick={() => setView(view === 'closed' ? 'list' : 'closed')}
-            >
-                <span className="material-symbols-outlined text-3xl">
-                    {view !== 'closed' ? 'close' : 'chat'}
-                </span>
-            </button>
+            {/* FAB 버튼 - 패널 닫혀있을 때만 표시 */}
+            {view === 'closed' && (
+                <button
+                    className="relative w-14 h-14 bg-primary text-on-primary rounded-full shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
+                    onClick={() => setView('list')}
+                >
+                    <span className="material-symbols-outlined text-3xl">chat</span>
+                    {unread > 0 && (
+                        <span className="absolute top-0 right-0 bg-error text-on-primary text-[10px] font-bold min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full">
+                            {unread > 99 ? '99+' : unread}
+                        </span>
+                    )}
+                </button>
+            )}
         </div>
     )
 }

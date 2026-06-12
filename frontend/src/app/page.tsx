@@ -1,4 +1,3 @@
-import ChatFAB from '@/components/ChatFAB'
 
 const categories = [
     { icon: 'fitness_center', label: 'PT', active: true },
@@ -312,7 +311,6 @@ export default function Home() {
                 </section>
             </div>
 
-            <ChatFAB />
         </main>
     )
 }

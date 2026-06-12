@@ -77,7 +77,15 @@ public class StompChatController {
         );
 
         // 4. /sub/chat/{roomId} 를 구독 중인 클라이언트 전원에게 브로드캐스트
-        //    → 같은 채팅방에 접속한 유저들이 실시간으로 메시지를 받는다
         messagingTemplate.convertAndSend("/sub/chat/" + dto.chatRoomId(), response);
+
+        // 5. 수신자에게 전체 안읽은 메시지 수 실시간 알림 (모든 채팅방 합산)
+        Long receiverId = chatRoom.getTrainer().getId().equals(dto.senderId())
+                ? chatRoom.getUser().getId()
+                : chatRoom.getTrainer().getId();
+
+        int totalUnread = chatMessageRepository.countTotalUnread(receiverId);
+
+        messagingTemplate.convertAndSend("/sub/notify/" + receiverId, totalUnread);
     }
 }
