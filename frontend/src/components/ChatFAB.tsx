@@ -75,6 +75,17 @@ function toEntry(dto: ChatRoomDto, myId: number): ChatEntry {
     }
 }
 
+function formatDateLabel(dateStr: string): string {
+    const date = new Date(dateStr)
+    const now = new Date()
+    const isToday = date.toDateString() === now.toDateString()
+    const yesterday = new Date(now)
+    yesterday.setDate(now.getDate() - 1)
+    if (isToday) return '오늘'
+    if (date.toDateString() === yesterday.toDateString()) return '어제'
+    return date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
 function sortByRecent(entries: ChatEntry[]): ChatEntry[] {
     return [...entries].sort((a, b) => {
         const ta = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0
@@ -97,6 +108,7 @@ export default function ChatFAB() {
     const [trainers, setTrainers] = useState<TrainerDto[]>([])
     const [trainerSearch, setTrainerSearch] = useState('')
     const [unread, setUnread] = useState(0)
+    const [sendError, setSendError] = useState(false)
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const messagesTopRef = useRef<HTMLDivElement>(null)
     const scrollBoxRef = useRef<HTMLDivElement>(null)
@@ -104,23 +116,27 @@ export default function ChatFAB() {
     const authHeaders = (): Record<string, string> =>
         user ? { Authorization: `Bearer ${user.token}` } : {}
 
-    const { messages, sendMessage, connected } = useChat({
+    const { messages, sendMessage, connected, clearMessages } = useChat({
         roomId: selectedChat?.roomId ?? 0,
         myId: user?.memberId ?? 0,
     })
 
+    // id 기반 중복 제거
     const allMessages = [
         ...history,
-        ...messages.filter(
-            (m) => !history.some((h) => h.sentAt === m.sentAt && h.message === m.message)
-        ),
+        ...messages.filter((m) => !history.some((h) => h.id === m.id)),
     ]
 
-    // 새 WebSocket 메시지 수신 시 스크롤
+    // 새 WebSocket 메시지 수신 시 스크롤 + 읽음 처리
     useEffect(() => {
-        if (messages.length > 0) {
-            shouldScrollRef.current = true
-        }
+        if (messages.length === 0 || !selectedChat || !user) return
+        shouldScrollRef.current = true
+        apiClient
+            .PUT('/api/chat/{roomId}/read', {
+                params: { path: { roomId: selectedChat.roomId }, query: { memberId: user.memberId } },
+                headers: authHeaders(),
+            })
+            .catch(() => {})
     }, [messages.length])
 
     useEffect(() => {
@@ -202,6 +218,7 @@ export default function ChatFAB() {
         setSelectedChat(entry)
         setHistory([])
         setHasMore(false)
+        clearMessages()
         setView('chat')
 
         await Promise.all([
@@ -261,9 +278,15 @@ export default function ChatFAB() {
 
     const handleSend = () => {
         const trimmed = inputText.trim()
-        if (!trimmed || !connected) return
+        if (!trimmed) return
+        if (!connected) {
+            setSendError(true)
+            setTimeout(() => setSendError(false), 3000)
+            return
+        }
         sendMessage(trimmed)
         setInputText('')
+        setSendError(false)
     }
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -273,7 +296,7 @@ export default function ChatFAB() {
     if (!user) return null
 
     const filteredTrainers = trainers.filter((t) =>
-        (t.userName ?? '').includes(trainerSearch)
+        t.id !== user.memberId && (t.userName ?? '').includes(trainerSearch)
     )
 
     return (
@@ -449,51 +472,61 @@ export default function ChatFAB() {
                         )}
                         {allMessages.map((msg, i) => {
                             const isMine = msg.senderId === user.memberId
+                            const dateLabel = msg.sentAt ? formatDateLabel(msg.sentAt) : null
+                            const prevDateLabel = i > 0 && allMessages[i - 1].sentAt
+                                ? formatDateLabel(allMessages[i - 1].sentAt!)
+                                : null
+                            const showDate = dateLabel && dateLabel !== prevDateLabel
                             return (
-                                <div
-                                    key={i}
-                                    className={`flex flex-col gap-1 max-w-[85%] ${isMine ? 'items-end ml-auto' : 'items-start'}`}
-                                >
-                                    <div
-                                        className={`p-3 text-body-sm ${
+                                <div key={msg.id ?? i}>
+                                    {showDate && (
+                                        <div className="flex items-center gap-2 my-2">
+                                            <div className="flex-1 h-px bg-outline-variant/40" />
+                                            <span className="text-[10px] text-on-surface-variant shrink-0">{dateLabel}</span>
+                                            <div className="flex-1 h-px bg-outline-variant/40" />
+                                        </div>
+                                    )}
+                                    <div className={`flex flex-col gap-1 max-w-[85%] ${isMine ? 'items-end ml-auto' : 'items-start'}`}>
+                                        <div className={`p-3 text-body-sm ${
                                             isMine
                                                 ? 'bg-primary text-on-primary rounded-2xl rounded-tr-none'
                                                 : 'bg-surface-container-highest text-on-surface rounded-2xl rounded-tl-none'
-                                        }`}
-                                    >
-                                        {msg.message}
+                                        }`}>
+                                            {msg.message}
+                                        </div>
+                                        <span className={`text-[10px] text-secondary ${isMine ? 'mr-1' : 'ml-1'}`}>
+                                            {msg.sentAt
+                                                ? new Date(msg.sentAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+                                                : ''}
+                                        </span>
                                     </div>
-                                    <span className={`text-[10px] text-secondary ${isMine ? 'mr-1' : 'ml-1'}`}>
-                                        {msg.sentAt
-                                            ? new Date(msg.sentAt).toLocaleTimeString('ko-KR', {
-                                                  hour: '2-digit',
-                                                  minute: '2-digit',
-                                              })
-                                            : ''}
-                                    </span>
                                 </div>
                             )
                         })}
                         <div ref={messagesEndRef} />
                     </div>
 
-                    <div className="p-4 bg-surface-container-lowest border-t border-outline-variant flex items-center gap-2">
-                        <input
-                            className="flex-1 bg-surface-container border-none rounded-full px-4 py-2 text-body-sm focus:ring-2 focus:ring-primary"
-                            placeholder={connected ? '메시지를 입력하세요' : '연결 중...'}
-                            type="text"
-                            value={inputText}
-                            onChange={(e) => setInputText(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            disabled={!connected}
-                        />
-                        <button
-                            className="material-symbols-outlined text-primary hover:scale-110 transition-transform disabled:opacity-40"
-                            onClick={handleSend}
-                            disabled={!connected || !inputText.trim()}
-                        >
-                            send
-                        </button>
+                    <div className="bg-surface-container-lowest border-t border-outline-variant">
+                        {sendError && (
+                            <p className="text-[11px] text-error text-center py-1">연결이 끊겼습니다. 잠시 후 다시 시도해주세요.</p>
+                        )}
+                        <div className="p-4 flex items-center gap-2">
+                            <input
+                                className={`flex-1 bg-surface-container border-none rounded-full px-4 py-2 text-body-sm focus:ring-2 ${sendError ? 'ring-2 ring-error focus:ring-error' : 'focus:ring-primary'}`}
+                                placeholder={connected ? '메시지를 입력하세요' : '연결 중...'}
+                                type="text"
+                                value={inputText}
+                                onChange={(e) => setInputText(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            />
+                            <button
+                                className="material-symbols-outlined text-primary hover:scale-110 transition-transform disabled:opacity-40"
+                                onClick={handleSend}
+                                disabled={!inputText.trim()}
+                            >
+                                send
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
