@@ -1,5 +1,6 @@
 package com.fitmate.chat.service;
 
+import com.fitmate.chat.dto.ChatResponseDto;
 import com.fitmate.chat.dto.ChatRoomResponseDto;
 import com.fitmate.chat.entity.ChatRoom;
 import com.fitmate.chat.repository.ChatMessageRepository;
@@ -27,7 +28,34 @@ public class ChatService {
     public List<ChatRoomResponseDto> getChatRooms(Long memberId) {
         return chatRoomRepository.findByTrainerIdOrUserId(memberId, memberId)
                 .stream()
-                .map(ChatRoomResponseDto::from)
+                .map(room -> {
+                    String lastMessage = chatMessageRepository
+                            .findTopByChatRoomIdOrderByCreatedAtDesc(room.getId())
+                            .map(msg -> msg.getMessage())
+                            .orElse(null);
+                    int unreadCount = chatMessageRepository
+                            .countByChatRoomIdAndSenderIdNotAndIsReadFalse(room.getId(), memberId);
+                    return ChatRoomResponseDto.from(room, lastMessage, unreadCount);
+                })
+                .toList();
+    }
+
+    // 채팅방 입장 시 상대방 메시지 읽음 처리
+    @Transactional
+    public void markAsRead(Long roomId, Long memberId) {
+        chatMessageRepository.markAsRead(roomId, memberId);
+    }
+
+    // 채팅방 메시지 히스토리 조회
+    public List<ChatResponseDto> getMessages(Long roomId) {
+        return chatMessageRepository.findByChatRoomIdOrderByCreatedAtAsc(roomId)
+                .stream()
+                .map(msg -> new ChatResponseDto(
+                        msg.getChatRoom().getId(),
+                        msg.getSender().getId(),
+                        msg.getMessage(),
+                        msg.getCreatedAt()
+                ))
                 .toList();
     }
 

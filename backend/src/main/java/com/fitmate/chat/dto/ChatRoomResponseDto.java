@@ -12,9 +12,11 @@ public record ChatRoomResponseDto(
         Long userId,
         String userName,
         LocalDateTime createdAt,
-        LocalDateTime lastMessageAt
+        LocalDateTime lastMessageAt,
+        String lastMessage,
+        int unreadCount
 ){
-    public static ChatRoomResponseDto from(ChatRoom chatRoom){
+    public static ChatRoomResponseDto from(ChatRoom chatRoom) {
         return new ChatRoomResponseDto(
                 chatRoom.getId(),
                 chatRoom.getTrainer().getId(),
@@ -23,7 +25,24 @@ public record ChatRoomResponseDto(
                 chatRoom.getUser().getId(),
                 chatRoom.getUser().getUserName(),
                 chatRoom.getCreatedAt(),
-                chatRoom.getLastMessageAt()
-                );
+                chatRoom.getLastMessageAt(),
+                null,
+                0
+        );
+    }
+
+    public static ChatRoomResponseDto from(ChatRoom chatRoom, String lastMessage, int unreadCount) {
+        return new ChatRoomResponseDto(
+                chatRoom.getId(),
+                chatRoom.getTrainer().getId(),
+                chatRoom.getTrainer().getUserName(),
+                chatRoom.getTrainer().getProfileImage(),
+                chatRoom.getUser().getId(),
+                chatRoom.getUser().getUserName(),
+                chatRoom.getCreatedAt(),
+                chatRoom.getLastMessageAt(),
+                lastMessage,
+                unreadCount
+        );
     }
 }
