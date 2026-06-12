@@ -1,6 +1,7 @@
 package com.fitmate.member.service;
 
 import com.fitmate.member.dto.MemberResponse;
+import com.fitmate.member.dto.MemberUpdateRequest;
 import com.fitmate.global.exception.CustomException;
 import com.fitmate.global.exception.ErrorCode;
 import com.fitmate.member.entity.Member;
@@ -26,5 +27,22 @@ public class MemberService {
         return memberRepository.findByUserId(userId)
                 .map(MemberResponse::from)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+    }
+
+    @Transactional
+    public MemberResponse updateMyInfo(String userId, MemberUpdateRequest request) {
+
+        Member member = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        member.updateProfile(
+                request.nickname(),
+                request.profileImage(),
+                request.region(),
+                request.introduction(),
+                request.phone()
+        );
+
+        return MemberResponse.from(member);
     }
 }
