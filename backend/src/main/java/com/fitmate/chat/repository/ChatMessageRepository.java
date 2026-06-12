@@ -14,6 +14,9 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     Optional<ChatMessage> findTopByChatRoomIdOrderByCreatedAtDesc(Long chatRoomId);
     int countByChatRoomIdAndSenderIdNotAndIsReadFalse(Long chatRoomId, Long senderId);
 
+    @Query("SELECT COUNT(m) FROM ChatMessage m WHERE m.isRead = false AND m.sender.id <> :memberId AND (m.chatRoom.user.id = :memberId OR m.chatRoom.trainer.id = :memberId)")
+    int countTotalUnread(@Param("memberId") Long memberId);
+
     @Modifying
     @Query("UPDATE ChatMessage m SET m.isRead = true WHERE m.chatRoom.id = :roomId AND m.sender.id <> :memberId AND m.isRead = false")
     void markAsRead(@Param("roomId") Long roomId, @Param("memberId") Long memberId);

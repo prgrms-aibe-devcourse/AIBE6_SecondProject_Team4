@@ -33,6 +33,8 @@ export function useChat({ roomId, myId }: { roomId: number; myId: number }) {
   const clientRef = useRef<Client | null>(null) // STOMP 클라이언트를 ref 로 보관
 
   useEffect(() => {
+    if (!roomId || !myId) return  // 로그인 전 or 채팅방 미선택 시 연결 안 함
+
     // ── STEP 1. STOMP 클라이언트 생성 ───────────────────────
     const client = new Client({
       // SockJS 를 transport 로 사용 (브라우저 호환성 보장)
