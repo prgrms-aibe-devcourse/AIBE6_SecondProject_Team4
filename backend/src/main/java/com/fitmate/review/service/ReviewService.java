@@ -14,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -61,12 +63,23 @@ public class ReviewService {
                 .toList();
     }
 
-    // 트레이너 평균 평점
     public TrainerRatingResponse getTrainerRating(Long trainerId) {
         Double avg = reviewRepository.findAverageRatingByTrainerId(trainerId);
         long count = reviewRepository.countByTrainerId(trainerId);
         double average = (avg == null) ? 0.0 : Math.round(avg * 10) / 10.0;
-        return new TrainerRatingResponse(trainerId, average, count);
+
+        // 별점 분포 계산 (1~5점 모두 0으로 초기화 후 채우기)
+        Map<Integer, Long> distribution = new LinkedHashMap<>();
+        for (int i = 5; i >= 1; i--) {
+            distribution.put(i, 0L);
+        }
+        for (Object[] row : reviewRepository.countRatingDistributionByTrainerId(trainerId)) {
+            Integer rating = (Integer) row[0];
+            Long cnt = (Long) row[1];
+            distribution.put(rating, cnt);
+        }
+
+        return new TrainerRatingResponse(trainerId, average, count, distribution);
     }
 
     // 후기 수정 (REV-06)

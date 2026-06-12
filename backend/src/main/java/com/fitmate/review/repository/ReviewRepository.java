@@ -15,6 +15,10 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.trainer.id = :trainerId")
     Double findAverageRatingByTrainerId(Long trainerId);
 
+    // ReviewRepository에 추가
+    @Query("SELECT r.rating, COUNT(r) FROM Review r WHERE r.trainer.id = :trainerId GROUP BY r.rating")
+    List<Object[]> countRatingDistributionByTrainerId(Long trainerId);
+
     // 트레이너별 후기 개수
     long countByTrainerId(Long trainerId);
 
