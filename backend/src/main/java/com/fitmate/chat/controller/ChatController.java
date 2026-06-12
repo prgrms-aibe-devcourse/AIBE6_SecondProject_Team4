@@ -25,6 +25,13 @@ public class ChatController {
     }
 
 
+    // 채팅방 나가기 (숨김 처리)
+    @DeleteMapping("/{roomId}")
+    public ResponseEntity<Void> hideChatRoom(@PathVariable Long roomId, @RequestParam Long memberId) {
+        chatService.hideChatRoom(roomId, memberId);
+        return ResponseEntity.ok().build();
+    }
+
     // 채팅방 입장 시 읽음 처리
     // TODO: JWT 구현 후 @RequestParam 제거하고 SecurityContext에서 memberId 추출
     @PutMapping("/{roomId}/read")

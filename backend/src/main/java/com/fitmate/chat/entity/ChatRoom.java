@@ -26,8 +26,29 @@ public class ChatRoom extends BaseEntity {
     @Column(name = "last_message_at")
     private LocalDateTime lastMessageAt;
 
-    // 메시지 전송 시 호출 — StompChatController에서 사용
+    @Column(name = "hidden_by_trainer")
+    private Boolean hiddenByTrainer;
+
+    @Column(name = "hidden_by_user")
+    private Boolean hiddenByUser;
+
     public void updateLastMessageAt(LocalDateTime time) {
         this.lastMessageAt = time;
+    }
+
+    public void hideBy(Long memberId) {
+        if (trainer.getId().equals(memberId)) hiddenByTrainer = true;
+        else if (user.getId().equals(memberId)) hiddenByUser = true;
+    }
+
+    public void unhideBy(Long memberId) {
+        if (trainer.getId().equals(memberId)) hiddenByTrainer = false;
+        else if (user.getId().equals(memberId)) hiddenByUser = false;
+    }
+
+    public boolean isHiddenFor(Long memberId) {
+        if (trainer.getId().equals(memberId)) return Boolean.TRUE.equals(hiddenByTrainer);
+        if (user.getId().equals(memberId)) return Boolean.TRUE.equals(hiddenByUser);
+        return false;
     }
 }
