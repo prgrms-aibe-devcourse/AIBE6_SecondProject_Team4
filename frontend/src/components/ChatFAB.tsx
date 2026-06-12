@@ -91,10 +91,15 @@ export default function ChatFAB() {
     const [inputText, setInputText] = useState('')
     const [chatList, setChatList] = useState<ChatEntry[]>([])
     const [history, setHistory] = useState<ChatMessageDto[]>([])
+    const [hasMore, setHasMore] = useState(false)
+    const [loadingMore, setLoadingMore] = useState(false)
+    const shouldScrollRef = useRef(false)
     const [trainers, setTrainers] = useState<TrainerDto[]>([])
     const [trainerSearch, setTrainerSearch] = useState('')
     const [unread, setUnread] = useState(0)
     const messagesEndRef = useRef<HTMLDivElement>(null)
+    const messagesTopRef = useRef<HTMLDivElement>(null)
+    const scrollBoxRef = useRef<HTMLDivElement>(null)
 
     const authHeaders = (): Record<string, string> =>
         user ? { Authorization: `Bearer ${user.token}` } : {}
@@ -111,8 +116,18 @@ export default function ChatFAB() {
         ),
     ]
 
+    // 새 WebSocket 메시지 수신 시 스크롤
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+        if (messages.length > 0) {
+            shouldScrollRef.current = true
+        }
+    }, [messages.length])
+
+    useEffect(() => {
+        if (shouldScrollRef.current) {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+            shouldScrollRef.current = false
+        }
     }, [allMessages.length])
 
     // 로그인 시 초기 배지 + WebSocket 실시간 구독
@@ -155,21 +170,53 @@ export default function ChatFAB() {
             .catch(() => setChatList([]))
     }, [view, user])
 
+    // 이전 메시지 20개 더 불러오기
+    const loadMoreMessages = async (roomId: number) => {
+        if (loadingMore || !hasMore) return
+        const oldestId = history[0]?.id
+        if (!oldestId) return
+        setLoadingMore(true)
+        const scrollBox = scrollBoxRef.current
+        const prevHeight = scrollBox?.scrollHeight ?? 0
+        const { data } = await apiClient
+            .GET('/api/chat/{roomId}/messages', {
+                params: { path: { roomId }, query: { before: oldestId, size: 20 } },
+                headers: authHeaders(),
+            })
+            .catch(() => ({ data: null }))
+        if (data) {
+            setHasMore(data.length === 20)
+            setHistory((prev) => [...data, ...prev])
+            // 스크롤 위치 유지
+            requestAnimationFrame(() => {
+                if (scrollBox) scrollBox.scrollTop = scrollBox.scrollHeight - prevHeight
+            })
+        }
+        setLoadingMore(false)
+    }
+
     // 채팅방 선택 시 히스토리 조회 + 읽음 처리
     const openChat = async (entry: ChatEntry) => {
         setUnread((prev) => Math.max(0, prev - entry.unread))
         setChatList((prev) => prev.map((c) => c.roomId === entry.roomId ? { ...c, unread: 0 } : c))
         setSelectedChat(entry)
         setHistory([])
+        setHasMore(false)
         setView('chat')
 
         await Promise.all([
             apiClient
                 .GET('/api/chat/{roomId}/messages', {
-                    params: { path: { roomId: entry.roomId } },
+                    params: { path: { roomId: entry.roomId }, query: { size: 20 } },
                     headers: authHeaders(),
                 })
-                .then(({ data }) => { if (data) setHistory(data) })
+                .then(({ data }) => {
+                    if (data) {
+                        shouldScrollRef.current = true
+                        setHistory(data)
+                        setHasMore(data.length === 20)
+                    }
+                })
                 .catch(() => {}),
 
             apiClient
@@ -208,6 +255,7 @@ export default function ChatFAB() {
             lastMsg: '',
             time: '',
             unread: 0,
+            lastMessageAt: '',
         })
     }
 
@@ -379,7 +427,21 @@ export default function ChatFAB() {
                         </button>
                     </div>
 
-                    <div className="h-80 overflow-y-auto p-4 space-y-4 bg-surface-container-low">
+                    <div
+                        ref={scrollBoxRef}
+                        className="h-80 overflow-y-auto p-4 space-y-4 bg-surface-container-low"
+                        onScroll={(e) => {
+                            if (e.currentTarget.scrollTop === 0 && hasMore && selectedChat) {
+                                loadMoreMessages(selectedChat.roomId)
+                            }
+                        }}
+                    >
+                        {loadingMore && (
+                            <p className="text-center text-[11px] text-on-surface-variant py-1">불러오는 중...</p>
+                        )}
+                        {!hasMore && history.length > 0 && (
+                            <p className="text-center text-[11px] text-on-surface-variant py-1">첫 번째 메시지입니다.</p>
+                        )}
                         {allMessages.length === 0 && (
                             <p className="text-center text-body-sm text-on-surface-variant mt-8">
                                 아직 메시지가 없습니다.

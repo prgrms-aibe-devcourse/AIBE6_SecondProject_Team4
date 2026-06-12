@@ -159,6 +159,8 @@ export interface components {
         };
         ChatResponseDto: {
             /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
             chatRoomId?: number;
             /** Format: int64 */
             senderId?: number;
@@ -311,7 +313,10 @@ export interface operations {
     };
     getMessages: {
         parameters: {
-            query?: never;
+            query?: {
+                before?: number;
+                size?: number;
+            };
             header?: never;
             path: {
                 roomId: number;
