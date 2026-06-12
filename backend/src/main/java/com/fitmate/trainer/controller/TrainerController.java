@@ -21,9 +21,14 @@ public class TrainerController {
 
     @Transactional(readOnly = true)
     @GetMapping
-    @Operation(summary = "트레이너 목록 조회")
-    public ResponseEntity<List<TrainerProfileResponse>> getTrainerProfiles() {
-        return ResponseEntity.ok(trainerService.getTrainerProfiles());
+    @Operation(summary = "트레이너 목록 조회 및 필터링")
+    public ResponseEntity<List<TrainerProfileResponse>> getTrainerProfiles(
+            @RequestParam(required = false) String sport,
+            @RequestParam(required = false) String lessonType,
+            @RequestParam(required = false) Integer minPrice,
+            @RequestParam(required = false) Integer maxPrice,
+            @RequestParam(required = false) String region) {
+        return ResponseEntity.ok(trainerService.getTrainerProfilesByFilter(sport, lessonType, minPrice, maxPrice, region));
     }
 
     @Transactional(readOnly = true)

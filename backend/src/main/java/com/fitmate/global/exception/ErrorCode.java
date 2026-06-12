@@ -20,7 +20,8 @@ public enum ErrorCode {
 
     // Trainer
     TRAINER_PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND, "트레이너 프로필을 찾을 수 없습니다."),
-
+    TRAINER_PROFILE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록된 트레이너 프로필이 있습니다. 수정을 이용해주세요."),
+    
     // Matching
     MATCHING_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "매칭 요청을 찾을 수 없습니다."),
 
@@ -33,6 +34,8 @@ public enum ErrorCode {
 
     // Common
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "잘못된 입력값입니다.");
+
+
 
     private final HttpStatus status;
     private final String message;
