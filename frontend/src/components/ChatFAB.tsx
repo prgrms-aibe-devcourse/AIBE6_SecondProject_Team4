@@ -293,6 +293,20 @@ export default function ChatFAB() {
         if (e.key === 'Enter') handleSend()
     }
 
+    const handleLeaveRoom = async () => {
+        if (!selectedChat || !user) return
+        if (!confirm(`'${selectedChat.name}'님과의 채팅방을 나가시겠습니까?`)) return
+        await apiClient
+            .DELETE('/api/chat/{roomId}', {
+                params: { path: { roomId: selectedChat.roomId }, query: { memberId: user.memberId } },
+                headers: authHeaders(),
+            })
+            .catch(() => {})
+        setChatList((prev) => prev.filter((c) => c.roomId !== selectedChat.roomId))
+        setSelectedChat(null)
+        setView('list')
+    }
+
     if (!user) return null
 
     const filteredTrainers = trainers.filter((t) =>
@@ -442,12 +456,21 @@ export default function ChatFAB() {
                                 <p className="text-xs opacity-80">{connected ? '온라인' : '연결 중...'}</p>
                             </div>
                         </div>
-                        <button
-                            className="material-symbols-outlined hover:bg-white/10 rounded-full p-1"
-                            onClick={() => setView('closed')}
-                        >
-                            close
-                        </button>
+                        <div className="flex items-center gap-1">
+                            <button
+                                className="material-symbols-outlined hover:bg-white/10 rounded-full p-1 text-[20px]"
+                                title="채팅방 나가기"
+                                onClick={handleLeaveRoom}
+                            >
+                                exit_to_app
+                            </button>
+                            <button
+                                className="material-symbols-outlined hover:bg-white/10 rounded-full p-1"
+                                onClick={() => setView('closed')}
+                            >
+                                close
+                            </button>
+                        </div>
                     </div>
 
                     <div

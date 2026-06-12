@@ -28,10 +28,19 @@ public class ChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final MemberRepository memberRepository;
 
-    // 내 채팅방 목록 조회 (트레이너로 참여하거나 유저로 참여한 방 모두)
+    // 채팅방 나가기 (숨김 처리)
+    @Transactional
+    public void hideChatRoom(Long roomId, Long memberId) {
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        room.hideBy(memberId);
+    }
+
+    // 내 채팅방 목록 조회 (숨김 방 제외)
     public List<ChatRoomResponseDto> getChatRooms(Long memberId) {
         return chatRoomRepository.findByTrainerIdOrUserIdOrderByLastMessageAtDesc(memberId, memberId)
                 .stream()
+                .filter(room -> !room.isHiddenFor(memberId))
                 .map(room -> {
                     String lastMessage = chatMessageRepository
                             .findTopByChatRoomIdOrderByCreatedAtDesc(room.getId())
@@ -76,7 +85,11 @@ public class ChatService {
     public ChatRoomResponseDto getOrCreateChatRoom(Long trainerId, Long userId) {
         // 이미 존재하는 채팅방이면 그대로 반환
         return chatRoomRepository.findByTrainerIdAndUserId(trainerId, userId)
-                .map(ChatRoomResponseDto::from)
+                .map(room -> {
+                    room.unhideBy(trainerId);
+                    room.unhideBy(userId);
+                    return ChatRoomResponseDto.from(room);
+                })
                 .orElseGet(() -> {
                     Member trainer = memberRepository.findById(trainerId)
                             .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
