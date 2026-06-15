@@ -218,6 +218,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/alerts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createAlert"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/members/me": {
         parameters: {
             query?: never;
@@ -515,6 +531,29 @@ export interface components {
         LoginRequest: {
             userId: string;
             password: string;
+        };
+        AlertRequest: {
+            /** Format: int64 */
+            receiverId?: number;
+            /** @enum {string} */
+            type?: "MESSAGE" | "REVIEW" | "MATCHING";
+            /** Format: int64 */
+            targetId?: number;
+            content?: string;
+        };
+        AlertResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            receiverId?: number;
+            /** @enum {string} */
+            type?: "MESSAGE" | "REVIEW" | "MATCHING";
+            /** Format: int64 */
+            targetId?: number;
+            content?: string;
+            isRead?: boolean;
+            /** Format: date-time */
+            createdAt?: string;
         };
         MemberUpdateRequest: {
             nickname?: string;
@@ -1039,6 +1078,30 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["LoginResponse"];
+                };
+            };
+        };
+    };
+    createAlert: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AlertRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["AlertResponse"];
                 };
             };
         };
