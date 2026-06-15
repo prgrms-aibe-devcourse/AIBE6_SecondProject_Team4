@@ -72,4 +72,12 @@ public class ReviewController {
     ) {
         return ResponseEntity.ok(reviewService.getMyReviews(reviewerId));
     }
+
+    // 트레이너가 받은 후기 조회 (MYP-07)
+    @GetMapping("/received")
+    public ResponseEntity<List<ReviewResponse>> getReceivedReviews(
+            @RequestParam Long trainerId
+    ) {
+        return ResponseEntity.ok(reviewService.getReceivedReviews(trainerId));
+    }
 }
