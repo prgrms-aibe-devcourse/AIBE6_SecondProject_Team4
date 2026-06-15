@@ -12,6 +12,7 @@ import java.util.List;
 
 import com.fitmate.member.dto.MemberResponse;
 import com.fitmate.member.dto.MemberUpdateRequest;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,6 +37,13 @@ public class MemberController {
                                        @Valid @RequestBody MemberUpdateRequest request) {
         String userId = authentication.getName();
         return memberService.updateMyInfo(userId, request);
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteMyAccount(Authentication authentication) {
+        String userId = authentication.getName();
+        memberService.deleteMyAccount(userId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/trainers")

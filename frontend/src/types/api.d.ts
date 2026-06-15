@@ -110,7 +110,7 @@ export interface paths {
         get: operations["getMyInfo"];
         put?: never;
         post?: never;
-        delete?: never;
+        delete: operations["deleteMyAccount"];
         options?: never;
         head?: never;
         patch: operations["updateMyInfo"];
@@ -434,6 +434,24 @@ export interface operations {
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["MemberResponse"];
                 };
+            };
+        };
+    };
+    deleteMyAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

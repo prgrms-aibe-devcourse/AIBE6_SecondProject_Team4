@@ -2,6 +2,7 @@ package com.fitmate.member.service;
 
 import com.fitmate.member.dto.MemberResponse;
 import com.fitmate.member.dto.MemberUpdateRequest;
+import com.fitmate.auth.repository.RefreshTokenRepository;
 import com.fitmate.global.exception.CustomException;
 import com.fitmate.global.exception.ErrorCode;
 import com.fitmate.member.dto.TrainerSummaryDto;
@@ -21,6 +22,7 @@ import java.util.List;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public Member findById(Long id) {
         return memberRepository.findById(id)
@@ -55,5 +57,14 @@ public class MemberService {
                 .stream()
                 .map(TrainerSummaryDto::from)
                 .toList();
+    }
+
+    @Transactional
+    public void deleteMyAccount(String userId) {
+        Member member = memberRepository.findByUserIdAndDeletedAtIsNull(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        member.delete();
+        refreshTokenRepository.deleteByUserId(userId);
     }
 }
