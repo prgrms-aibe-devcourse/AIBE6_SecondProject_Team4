@@ -183,6 +183,7 @@ export interface components {
             message?: string;
             /** Format: date-time */
             sentAt?: string;
+            isRead?: boolean;
         };
     };
     responses: never;

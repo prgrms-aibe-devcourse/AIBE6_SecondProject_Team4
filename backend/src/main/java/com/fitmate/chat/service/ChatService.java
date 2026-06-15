@@ -11,6 +11,7 @@ import com.fitmate.global.exception.ErrorCode;
 import com.fitmate.member.entity.Member;
 import com.fitmate.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,7 @@ public class ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final MemberRepository memberRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     // 채팅방 나가기 (숨김 처리)
     @Transactional
@@ -53,10 +55,11 @@ public class ChatService {
                 .toList();
     }
 
-    // 채팅방 입장 시 상대방 메시지 읽음 처리
+    // 채팅방 입장 시 상대방 메시지 읽음 처리 + 발신자에게 읽음 알림
     @Transactional
     public void markAsRead(Long roomId, Long memberId) {
         chatMessageRepository.markAsRead(roomId, memberId);
+        messagingTemplate.convertAndSend("/sub/read/" + roomId, roomId);
     }
 
     // 채팅방 메시지 히스토리 조회 (커서 기반 페이지네이션)
@@ -75,7 +78,8 @@ public class ChatService {
                         msg.getChatRoom().getId(),
                         msg.getSender().getId(),
                         msg.getMessage(),
-                        msg.getCreatedAt()
+                        msg.getCreatedAt(),
+                        msg.getIsRead()
                 ))
                 .toList();
     }

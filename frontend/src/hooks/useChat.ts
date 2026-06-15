@@ -12,6 +12,7 @@ export interface ChatMessage {
   senderId: number
   message: string
   sentAt: string
+  isRead?: boolean
 }
 
 /**
@@ -34,6 +35,10 @@ export function useChat({ roomId, myId }: { roomId: number; myId: number }) {
   const clientRef = useRef<Client | null>(null)
 
   const clearMessages = useCallback(() => setMessages([]), [])
+
+  const markAllRead = useCallback((myId: number) => {
+    setMessages((prev) => prev.map((m) => m.senderId === myId ? { ...m, isRead: true } : m))
+  }, [])
 
   useEffect(() => {
     if (!roomId || !myId) return  // 로그인 전 or 채팅방 미선택 시 연결 안 함
@@ -96,5 +101,5 @@ export function useChat({ roomId, myId }: { roomId: number; myId: number }) {
     [roomId, myId],
   )
 
-  return { messages, sendMessage, connected, clearMessages }
+  return { messages, sendMessage, connected, clearMessages, markAllRead }
 }

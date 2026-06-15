@@ -74,7 +74,8 @@ public class StompChatController {
                 dto.chatRoomId(),
                 dto.senderId(),
                 dto.message(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                false
         );
 
         // 4. /sub/chat/{roomId} 를 구독 중인 클라이언트 전원에게 브로드캐스트

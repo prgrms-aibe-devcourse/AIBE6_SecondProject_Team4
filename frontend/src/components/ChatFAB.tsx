@@ -105,6 +105,7 @@ export default function ChatFAB() {
     const [hasMore, setHasMore] = useState(false)
     const [loadingMore, setLoadingMore] = useState(false)
     const shouldScrollRef = useRef(false)
+    const selectedChatRef = useRef<ChatEntry | null>(null)
     const [trainers, setTrainers] = useState<TrainerDto[]>([])
     const [trainerSearch, setTrainerSearch] = useState('')
     const [unread, setUnread] = useState(0)
@@ -116,7 +117,9 @@ export default function ChatFAB() {
     const authHeaders = (): Record<string, string> =>
         user ? { Authorization: `Bearer ${user.token}` } : {}
 
-    const { messages, sendMessage, connected, clearMessages } = useChat({
+    useEffect(() => { selectedChatRef.current = selectedChat }, [selectedChat])
+
+    const { messages, sendMessage, connected, clearMessages, markAllRead } = useChat({
         roomId: selectedChat?.roomId ?? 0,
         myId: user?.memberId ?? 0,
     })
@@ -158,12 +161,20 @@ export default function ChatFAB() {
         const client = new Client({
             webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
             onConnect: () => {
-                client.subscribe(`/sub/notify/${user.memberId}`, (frame) => {
-                    setUnread(JSON.parse(frame.body) as number)
-                    // chatList도 갱신해야 entry.unread가 정확해짐
+                client.subscribe(`/sub/notify/${user.memberId}`, () => {
                     apiClient
                         .GET('/api/chat', { params: { query: { memberId: user.memberId } }, headers: { Authorization: `Bearer ${user.token}` } })
-                        .then(({ data }) => { if (data) setChatList(sortByRecent(data.map((dto) => toEntry(dto, user.memberId)))) })
+                        .then(({ data }) => {
+                            if (!data) return
+                            const currentRoomId = selectedChatRef.current?.roomId
+                            // 현재 보고 있는 채팅방은 이미 읽는 중이므로 unread=0으로 처리
+                            const list = sortByRecent(data.map((dto) => {
+                                const entry = toEntry(dto, user.memberId)
+                                return entry.roomId === currentRoomId ? { ...entry, unread: 0 } : entry
+                            }))
+                            setChatList(list)
+                            setUnread(list.reduce((s, c) => s + c.unread, 0))
+                        })
                         .catch(() => {})
                 })
             },
@@ -171,6 +182,24 @@ export default function ChatFAB() {
         client.activate()
         return () => { client.deactivate() }
     }, [user])
+
+    // 채팅방 열릴 때 /sub/read/{roomId} 구독 — 상대방이 읽으면 내 메시지 isRead 갱신
+    useEffect(() => {
+        if (!selectedChat || !user) return
+        const client = new Client({
+            webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+            onConnect: () => {
+                client.subscribe(`/sub/read/${selectedChat.roomId}`, () => {
+                    setHistory((prev) => prev.map((m) =>
+                        m.senderId === user.memberId ? { ...m, isRead: true } : m
+                    ))
+                    markAllRead(user.memberId)
+                })
+            },
+        })
+        client.activate()
+        return () => { client.deactivate() }
+    }, [selectedChat?.roomId])
 
     // 채팅 목록 조회
     useEffect(() => {
@@ -509,19 +538,24 @@ export default function ChatFAB() {
                                             <div className="flex-1 h-px bg-outline-variant/40" />
                                         </div>
                                     )}
-                                    <div className={`flex flex-col gap-1 max-w-[85%] ${isMine ? 'items-end ml-auto' : 'items-start'}`}>
-                                        <div className={`p-3 text-body-sm ${
-                                            isMine
-                                                ? 'bg-primary text-on-primary rounded-2xl rounded-tr-none'
-                                                : 'bg-surface-container-highest text-on-surface rounded-2xl rounded-tl-none'
-                                        }`}>
-                                            {msg.message}
+                                    <div className={`flex items-end gap-1 max-w-[85%] ${isMine ? 'ml-auto flex-row-reverse' : ''}`}>
+                                        <div className={`flex flex-col gap-1 ${isMine ? 'items-end' : 'items-start'}`}>
+                                            <div className={`p-3 text-body-sm ${
+                                                isMine
+                                                    ? 'bg-primary text-on-primary rounded-2xl rounded-tr-none'
+                                                    : 'bg-surface-container-highest text-on-surface rounded-2xl rounded-tl-none'
+                                            }`}>
+                                                {msg.message}
+                                            </div>
+                                            <span className={`text-[10px] text-secondary ${isMine ? 'mr-1' : 'ml-1'}`}>
+                                                {msg.sentAt
+                                                    ? new Date(msg.sentAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+                                                    : ''}
+                                            </span>
                                         </div>
-                                        <span className={`text-[10px] text-secondary ${isMine ? 'mr-1' : 'ml-1'}`}>
-                                            {msg.sentAt
-                                                ? new Date(msg.sentAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
-                                                : ''}
-                                        </span>
+                                        {isMine && !msg.isRead && (
+                                            <span className="text-[10px] text-primary font-bold mb-5 shrink-0">1</span>
+                                        )}
                                     </div>
                                 </div>
                             )

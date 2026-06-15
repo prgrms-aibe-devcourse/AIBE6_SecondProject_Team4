@@ -11,5 +11,6 @@ public record ChatResponseDto(
         Long chatRoomId,
         Long senderId,
         String message,
-        LocalDateTime sentAt
+        LocalDateTime sentAt,
+        Boolean isRead
 ) {}
