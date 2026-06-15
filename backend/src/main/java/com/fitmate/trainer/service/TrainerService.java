@@ -3,6 +3,7 @@ package com.fitmate.trainer.service;
 import com.fitmate.global.exception.CustomException;
 import com.fitmate.global.exception.ErrorCode;
 import com.fitmate.member.entity.Member;
+import com.fitmate.member.entity.Role;
 import com.fitmate.member.repository.MemberRepository;
 import com.fitmate.trainer.dto.TrainerProfileRequest;
 import com.fitmate.trainer.dto.TrainerProfileResponse;
@@ -43,6 +44,10 @@ public class TrainerService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
+        if (member.getRole() != Role.TRAINER) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
         if (trainerProfileRepository.findByMemberId(memberId).isPresent()) {
             throw new CustomException(ErrorCode.TRAINER_PROFILE_ALREADY_EXISTS);
         }
@@ -72,5 +77,14 @@ public class TrainerService {
         }
 
         trainerProfileRepository.delete(profile);
+    }
+
+    public TrainerProfileResponse getMyTrainerProfile(String userId) {
+        Member member = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        TrainerProfile profile = trainerProfileRepository.findByMemberId(member.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.TRAINER_PROFILE_NOT_FOUND));
+
+        return TrainerProfileResponse.from(profile);
     }
 }

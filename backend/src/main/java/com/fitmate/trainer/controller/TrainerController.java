@@ -11,7 +11,7 @@ import com.fitmate.trainer.service.TrainerService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,6 +39,15 @@ public class TrainerController {
     }
 
     @Transactional(readOnly = true)
+    @GetMapping("/me")
+    @Operation(summary = "내 트레이너 프로필 조회")
+    public ResponseEntity<TrainerProfileResponse> getMyTrainerProfile(Authentication authentication) {
+        String userId = authentication.getName();
+
+        return ResponseEntity.ok(trainerService.getMyTrainerProfile(userId));
+    }
+
+    @Transactional(readOnly = true)
     @GetMapping("/{id}")
     @Operation(summary = "트레이너 프로필 상세 조회")
     public ResponseEntity<TrainerProfileResponse> getTrainerProfile(@PathVariable Long id) {
@@ -49,8 +58,9 @@ public class TrainerController {
     @PostMapping
     @Operation(summary = "트레이너 프로필 등록")
     public ResponseEntity<TrainerProfileResponse> createTrainerProfile(
-            @RequestBody TrainerProfileRequest request) {
-        String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            @RequestBody TrainerProfileRequest request,
+            Authentication authentication) {
+        String userId = authentication.getName();
         Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
@@ -62,8 +72,9 @@ public class TrainerController {
     @Operation(summary = "트레이너 프로필 수정")
     public ResponseEntity<TrainerProfileResponse> updateTrainerProfile(
             @PathVariable Long id,
-            @RequestBody TrainerProfileUpdateRequest request) {
-        String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            @RequestBody TrainerProfileUpdateRequest request,
+            Authentication authentication) {
+        String userId = authentication.getName();
         Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
@@ -73,8 +84,8 @@ public class TrainerController {
     @Transactional
     @DeleteMapping("/{id}")
     @Operation(summary = "트레이너 프로필 삭제")
-    public ResponseEntity<Void> deleteTrainerProfile(@PathVariable Long id) {
-        String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public ResponseEntity<Void> deleteTrainerProfile(@PathVariable Long id, Authentication authentication) {
+        String userId = authentication.getName();
         Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         trainerService.deleteTrainerProfile(id, member.getId());

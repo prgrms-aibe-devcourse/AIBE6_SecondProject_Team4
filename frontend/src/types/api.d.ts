@@ -190,6 +190,40 @@ export interface paths {
         patch: operations["updateMyInfo"];
         trace?: never;
     };
+    "/api/users/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 내 사용자 프로필 조회 */
+        get: operations["getMyUserProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/trainers/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 내 트레이너 프로필 조회 */
+        get: operations["getMyTrainerProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/members/trainers": {
         parameters: {
             query?: never;
@@ -572,9 +606,7 @@ export interface operations {
     };
     createUserProfile: {
         parameters: {
-            query: {
-                memberId: number;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -818,6 +850,46 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["MemberResponse"];
+                };
+            };
+        };
+    };
+    getMyUserProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["UserProfileResponse"];
+                };
+            };
+        };
+    };
+    getMyTrainerProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["TrainerProfileResponse"];
                 };
             };
         };
