@@ -45,7 +45,7 @@ public class AuthService {
 
         saveOrUpdateRefreshToken(member.getUserId(), refreshToken);
 
-        return new LoginResult(accessToken, refreshToken);
+        return new LoginResult(member.getId(), member.getUserName(), member.getRole().name(), accessToken, refreshToken);
     }
 
     private void saveOrUpdateRefreshToken(String userId, String refreshToken) {

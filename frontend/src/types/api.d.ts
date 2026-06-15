@@ -52,6 +52,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/auth/reissue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["reissue"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/login": {
         parameters: {
             query?: never;
@@ -66,6 +98,22 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/members/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getMyInfo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["updateMyInfo"];
         trace?: never;
     };
     "/api/members/trainers": {
@@ -155,10 +203,6 @@ export interface components {
             role: "USER" | "TRAINER" | "ADMIN";
             phone: string;
         };
-        LoginRequest: {
-            userId: string;
-            password: string;
-        };
         LoginResponse: {
             /** Format: int64 */
             memberId?: number;
@@ -166,6 +210,31 @@ export interface components {
             role?: string;
             accessToken?: string;
             tokenType?: string;
+        };
+        LoginRequest: {
+            userId: string;
+            password: string;
+        };
+        MemberUpdateRequest: {
+            nickname?: string;
+            profileImage?: string;
+            region?: string;
+            introduction?: string;
+            phone?: string;
+        };
+        MemberResponse: {
+            /** Format: int64 */
+            id?: number;
+            userId?: string;
+            userName?: string;
+            nickname?: string;
+            email?: string;
+            /** @enum {string} */
+            role?: "USER" | "TRAINER" | "ADMIN";
+            profileImage?: string;
+            region?: string;
+            introduction?: string;
+            phone?: string;
         };
         TrainerSummaryDto: {
             /** Format: int64 */
@@ -284,6 +353,46 @@ export interface operations {
             };
         };
     };
+    reissue: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                refreshToken?: string;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["LoginResponse"];
+                };
+            };
+        };
+    };
+    logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     login: {
         parameters: {
             query?: never;
@@ -304,6 +413,50 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["LoginResponse"];
+                };
+            };
+        };
+    };
+    getMyInfo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["MemberResponse"];
+                };
+            };
+        };
+    };
+    updateMyInfo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MemberUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["MemberResponse"];
                 };
             };
         };
