@@ -38,7 +38,7 @@ public class AuthService {
             throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
         }
 
-        String accessToken = jwtProvider.generateToken(member.getUserId(), member.getRole().name());
+        String accessToken = jwtProvider.generateToken(member.getUserId(), member.getRole().name(), member.getId());
         String refreshToken = jwtProvider.generateRefreshToken(member.getUserId());
 
         saveOrUpdateRefreshToken(member.getUserId(), refreshToken);

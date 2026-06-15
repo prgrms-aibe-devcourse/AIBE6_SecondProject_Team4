@@ -228,7 +228,7 @@ export interface paths {
         get: operations["getAlerts"];
         put?: never;
         post: operations["createAlert"];
-        delete?: never;
+        delete: operations["deleteAllAlerts"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1100,9 +1100,7 @@ export interface operations {
     };
     getAlerts: {
         parameters: {
-            query: {
-                memberId: number;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -1141,6 +1139,24 @@ export interface operations {
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["AlertResponse"];
                 };
+            };
+        };
+    };
+    deleteAllAlerts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

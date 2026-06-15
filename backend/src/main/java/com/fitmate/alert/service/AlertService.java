@@ -38,6 +38,11 @@ public class AlertService {
     }
 
     @Transactional
+    public void deleteAllAlerts(Long memberId) {
+        alertRepository.deleteByReceiverId(memberId);
+    }
+
+    @Transactional
     public AlertResponse createAlert(AlertRequest request) {
         Member receiver = memberRepository.findById(request.receiverId())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
