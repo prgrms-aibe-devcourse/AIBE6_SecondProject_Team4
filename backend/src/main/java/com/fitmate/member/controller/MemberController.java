@@ -5,10 +5,31 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fitmate.member.dto.MemberResponse;
+import com.fitmate.member.dto.MemberUpdateRequest;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/members")
 @RequiredArgsConstructor
 public class MemberController {
 
     private final MemberService memberService;
+
+    @GetMapping("/me")
+    public MemberResponse getMyInfo(Authentication authentication) {
+        String userId = authentication.getName();
+        return memberService.getMyInfo(userId);
+    }
+
+    @PatchMapping("/me")
+    public MemberResponse updateMyInfo(Authentication authentication,
+                                       @Valid @RequestBody MemberUpdateRequest request) {
+        String userId = authentication.getName();
+        return memberService.updateMyInfo(userId, request);
+    }
 }
