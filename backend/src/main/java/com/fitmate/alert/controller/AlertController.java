@@ -7,12 +7,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/alerts")
 @RequiredArgsConstructor
 public class AlertController {
 
     private final AlertService alertService;
+
+    @GetMapping
+    public ResponseEntity<List<AlertResponse>> getAlerts(@RequestParam Long memberId) {
+        return ResponseEntity.ok(alertService.getAlerts(memberId));
+    }
 
     @PostMapping
     public ResponseEntity<AlertResponse> createAlert(@RequestBody AlertRequest request) {

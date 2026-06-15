@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -19,6 +21,13 @@ public class AlertService {
 
     private final AlertRepository alertRepository;
     private final MemberRepository memberRepository;
+
+    public List<AlertResponse> getAlerts(Long memberId) {
+        return alertRepository.findByReceiverIdOrderByCreatedAtDesc(memberId)
+                .stream()
+                .map(AlertResponse::from)
+                .toList();
+    }
 
     @Transactional
     public AlertResponse createAlert(AlertRequest request) {
