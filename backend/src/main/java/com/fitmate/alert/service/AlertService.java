@@ -38,6 +38,11 @@ public class AlertService {
     }
 
     @Transactional
+    public void markAllAsRead(Long memberId) {
+        alertRepository.markAllAsRead(memberId);
+    }
+
+    @Transactional
     public void deleteAllAlerts(Long memberId) {
         alertRepository.deleteByReceiverId(memberId);
     }

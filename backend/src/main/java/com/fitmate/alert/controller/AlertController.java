@@ -24,6 +24,13 @@ public class AlertController {
         return ResponseEntity.ok(alertService.getAlerts(memberId));
     }
 
+    @PatchMapping("/read")
+    public ResponseEntity<Void> markAllAsRead(Authentication authentication) {
+        Long memberId = (Long) ((UsernamePasswordAuthenticationToken) authentication).getDetails();
+        alertService.markAllAsRead(memberId);
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping
     public ResponseEntity<Void> deleteAllAlerts(Authentication authentication) {
         Long memberId = (Long) ((UsernamePasswordAuthenticationToken) authentication).getDetails();
