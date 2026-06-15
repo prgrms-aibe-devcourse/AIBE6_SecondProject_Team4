@@ -38,12 +38,12 @@ public class AuthService {
             throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
         }
 
-        String accessToken = jwtProvider.generateToken(member.getUserId(), member.getRole().name(), member.getId());
+        String accessToken = jwtProvider.generateToken(member.getUserId(), member.getRole().name());
         String refreshToken = jwtProvider.generateRefreshToken(member.getUserId());
 
         saveOrUpdateRefreshToken(member.getUserId(), refreshToken);
 
-        return new LoginResult(member.getId(), member.getUserName(), member.getRole().name(), accessToken, refreshToken);
+        return new LoginResult(accessToken, refreshToken);
     }
 
     private void saveOrUpdateRefreshToken(String userId, String refreshToken) {

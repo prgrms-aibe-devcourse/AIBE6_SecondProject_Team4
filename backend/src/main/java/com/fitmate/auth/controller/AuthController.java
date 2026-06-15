@@ -36,7 +36,7 @@ public class AuthController {
         refreshCookie.setMaxAge((int) (jwtProvider.getRefreshExpirationMs() / 1000));
         response.addCookie(refreshCookie);
 
-        return ResponseEntity.ok(LoginResponse.of(result.memberId(), result.userName(), result.role(), result.accessToken()));
+        return ResponseEntity.ok(LoginResponse.of(result.accessToken()));
     }
 
     @PostMapping("/signup")
