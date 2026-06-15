@@ -30,6 +30,14 @@ public class AlertService {
     }
 
     @Transactional
+    public void deleteAlert(Long alertId) {
+        if (!alertRepository.existsById(alertId)) {
+            throw new CustomException(ErrorCode.ALERT_NOT_FOUND);
+        }
+        alertRepository.deleteById(alertId);
+    }
+
+    @Transactional
     public AlertResponse createAlert(AlertRequest request) {
         Member receiver = memberRepository.findById(request.receiverId())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));

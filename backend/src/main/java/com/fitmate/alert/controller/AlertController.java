@@ -21,6 +21,12 @@ public class AlertController {
         return ResponseEntity.ok(alertService.getAlerts(memberId));
     }
 
+    @DeleteMapping("/{alertId}")
+    public ResponseEntity<Void> deleteAlert(@PathVariable Long alertId) {
+        alertService.deleteAlert(alertId);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping
     public ResponseEntity<AlertResponse> createAlert(@RequestBody AlertRequest request) {
         return ResponseEntity.ok(alertService.createAlert(request));
