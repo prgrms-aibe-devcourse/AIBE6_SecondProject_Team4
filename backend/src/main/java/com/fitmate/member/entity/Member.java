@@ -42,4 +42,12 @@ public class Member extends BaseEntity {
 
     @Column(nullable = false, length = 20)
     private String phone;
+
+    public void updateProfile(String nickname, String profileImage, String region, String introduction, String phone) {
+        if (nickname != null) this.nickname = nickname;
+        if (profileImage != null) this.profileImage = profileImage;
+        if (region != null) this.region = region;
+        if (introduction != null) this.introduction = introduction;
+        if (phone != null) this.phone = phone;
+    }
 }

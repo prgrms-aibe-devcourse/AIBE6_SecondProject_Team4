@@ -14,14 +14,17 @@ import java.util.Date;
 public class JwtProvider {
 
     private final SecretKey secretKey;
-    private final long expirationMs;
+    private final long accessExpirationMs;
+    private final long refreshExpirationMs;
 
     public JwtProvider(
             @Value("${custom.jwt.secretKey}") String secret,
-            @Value("${custom.accessToken.expireSeconds}") long expireSeconds
+            @Value("${custom.accessToken.expireSeconds}") long accessExpireSeconds,
+            @Value("${custom.refreshToken.expireSeconds}") long refreshExpireSeconds
     ) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-        this.expirationMs = expireSeconds * 1000;
+        this.accessExpirationMs = accessExpireSeconds * 1000;
+        this.refreshExpirationMs = refreshExpireSeconds * 1000;
     }
 
     public String generateToken(String userId, String role) {
@@ -29,9 +32,22 @@ public class JwtProvider {
                 .subject(userId)
                 .claim("role", role)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expirationMs))
+                .expiration(new Date(System.currentTimeMillis() + accessExpirationMs))
                 .signWith(secretKey)
                 .compact();
+    }
+
+    public String generateRefreshToken(String userId) {
+        return Jwts.builder()
+                .subject(userId)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + refreshExpirationMs))
+                .signWith(secretKey)
+                .compact();
+    }
+
+    public long getRefreshExpirationMs() {
+        return refreshExpirationMs;
     }
 
     public Claims parseClaims(String token) {
