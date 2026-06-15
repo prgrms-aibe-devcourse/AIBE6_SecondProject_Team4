@@ -1,5 +1,7 @@
+import ChatFAB from '@/components/ChatFAB'
 import Footer from '@/components/layout/Footer'
 import Header from '@/components/layout/Header'
+import { AuthProvider } from '@/context/AuthContext'
 import type { Metadata } from 'next'
 
 import './globals.css'
@@ -27,9 +29,12 @@ export default function RootLayout({
                 />
             </head>
             <body className="min-h-full flex flex-col bg-background text-on-surface overflow-x-hidden">
-                <Header />
-                {children}
-                <Footer />
+                <AuthProvider>
+                    <Header />
+                    {children}
+                    <Footer />
+                    <ChatFAB />
+                </AuthProvider>
             </body>
         </html>
     )

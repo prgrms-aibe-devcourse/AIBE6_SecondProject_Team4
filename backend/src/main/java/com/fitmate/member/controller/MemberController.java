@@ -1,17 +1,16 @@
 package com.fitmate.member.controller;
 
-import com.fitmate.member.service.MemberService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.fitmate.member.dto.MemberResponse;
 import com.fitmate.member.dto.MemberUpdateRequest;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
+import com.fitmate.member.dto.TrainerSummaryDto;
+import com.fitmate.member.service.MemberService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/members")
@@ -31,5 +30,10 @@ public class MemberController {
                                        @Valid @RequestBody MemberUpdateRequest request) {
         String userId = authentication.getName();
         return memberService.updateMyInfo(userId, request);
+    }
+
+    @GetMapping("/trainers")
+    public ResponseEntity<List<TrainerSummaryDto>> getTrainers() {
+        return ResponseEntity.ok(memberService.getTrainers());
     }
 }

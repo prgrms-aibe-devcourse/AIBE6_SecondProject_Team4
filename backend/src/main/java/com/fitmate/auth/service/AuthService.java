@@ -1,10 +1,8 @@
 package com.fitmate.auth.service;
 
-import com.fitmate.auth.dto.ReissueResponse;
-import com.fitmate.auth.dto.ReissueResult;
 import com.fitmate.auth.dto.LoginRequest;
 import com.fitmate.auth.dto.LoginResult;
-import com.fitmate.auth.dto.LoginResponse;
+import com.fitmate.auth.dto.ReissueResult;
 import com.fitmate.auth.dto.SignupRequest;
 import com.fitmate.auth.entity.RefreshToken;
 import com.fitmate.auth.repository.RefreshTokenRepository;
@@ -45,7 +43,7 @@ public class AuthService {
 
         saveOrUpdateRefreshToken(member.getUserId(), refreshToken);
 
-        return new LoginResult(accessToken, refreshToken);
+        return new LoginResult(member.getId(), member.getUserName(), member.getRole().name(), accessToken, refreshToken);
     }
 
     private void saveOrUpdateRefreshToken(String userId, String refreshToken) {
