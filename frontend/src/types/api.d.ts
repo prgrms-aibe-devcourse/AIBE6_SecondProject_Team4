@@ -116,6 +116,22 @@ export interface paths {
         patch: operations["updateMyInfo"];
         trace?: never;
     };
+    "/api/members/me/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["changePassword"];
+        trace?: never;
+    };
     "/api/members/trainers": {
         parameters: {
             query?: never;
@@ -235,6 +251,10 @@ export interface components {
             region?: string;
             introduction?: string;
             phone?: string;
+        };
+        PasswordChangeRequest: {
+            currentPassword: string;
+            newPassword: string;
         };
         TrainerSummaryDto: {
             /** Format: int64 */
@@ -476,6 +496,28 @@ export interface operations {
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["MemberResponse"];
                 };
+            };
+        };
+    };
+    changePassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordChangeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

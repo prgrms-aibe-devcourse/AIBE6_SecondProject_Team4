@@ -12,6 +12,7 @@ import java.util.List;
 
 import com.fitmate.member.dto.MemberResponse;
 import com.fitmate.member.dto.MemberUpdateRequest;
+import com.fitmate.member.dto.PasswordChangeRequest;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.security.core.Authentication;
@@ -44,6 +45,14 @@ public class MemberController {
         String userId = authentication.getName();
         memberService.deleteMyAccount(userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/me/password")
+    public ResponseEntity<Void> changePassword(Authentication authentication,
+                                               @Valid @RequestBody PasswordChangeRequest request) {
+        String userId = authentication.getName();
+        memberService.changePassword(userId, request);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/trainers")

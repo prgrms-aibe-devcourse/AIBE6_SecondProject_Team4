@@ -2,6 +2,7 @@ package com.fitmate.member.service;
 
 import com.fitmate.member.dto.MemberResponse;
 import com.fitmate.member.dto.MemberUpdateRequest;
+import com.fitmate.member.dto.PasswordChangeRequest;
 import com.fitmate.auth.repository.RefreshTokenRepository;
 import com.fitmate.global.exception.CustomException;
 import com.fitmate.global.exception.ErrorCode;
@@ -11,7 +12,9 @@ import com.fitmate.member.entity.Role;
 import com.fitmate.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
+
 
 
 import java.util.List;
@@ -23,6 +26,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public Member findById(Long id) {
         return memberRepository.findById(id)
@@ -66,5 +70,18 @@ public class MemberService {
 
         member.delete();
         refreshTokenRepository.deleteByUserId(userId);
+    }
+
+    @Transactional
+    public void changePassword(String userId, PasswordChangeRequest request) {
+
+        Member member = memberRepository.findByUserIdAndDeletedAtIsNull(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if (!passwordEncoder.matches(request.currentPassword(), member.getPassword())) {
+            throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
+        }
+
+        member.changePassword(passwordEncoder.encode(request.newPassword()));
     }
 }
