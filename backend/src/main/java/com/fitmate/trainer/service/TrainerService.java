@@ -51,16 +51,26 @@ public class TrainerService {
         return TrainerProfileResponse.from(saved);
     }
 
-    public TrainerProfileResponse updateTrainerProfile(Long id, TrainerProfileUpdateRequest request) {
+    public TrainerProfileResponse updateTrainerProfile(Long id, Long memberId, TrainerProfileUpdateRequest request) {
         TrainerProfile profile = trainerProfileRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.TRAINER_PROFILE_NOT_FOUND));
+
+        if (!profile.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
         profile.update(request);
         return TrainerProfileResponse.from(profile);
     }
 
-    public void deleteTrainerProfile(Long id) {
+    public void deleteTrainerProfile(Long id, Long memberId) {
         TrainerProfile profile = trainerProfileRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.TRAINER_PROFILE_NOT_FOUND));
+
+        if (!profile.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
         trainerProfileRepository.delete(profile);
     }
 }
