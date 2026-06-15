@@ -109,4 +109,11 @@ public class ReviewService {
 
         reviewRepository.delete(review);
     }
+
+    // 내가 작성한 후기 조회
+    public List<ReviewResponse> getMyReviews(Long reviewerId) {
+        return reviewRepository.findByReviewerId(reviewerId).stream()
+                .map(ReviewResponse::from)
+                .toList();
+    }
 }

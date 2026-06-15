@@ -22,4 +22,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     // 트레이너별 후기 개수
     long countByTrainerId(Long trainerId);
 
+    // ReviewRepository에 추가
+    List<Review> findByReviewerId(Long reviewerId);
+
 }

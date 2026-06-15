@@ -64,4 +64,12 @@ public class ReviewController {
         reviewService.deleteReview(reviewId, reviewerId);
         return ResponseEntity.ok().build();
     }
+
+    // 내가 작성한 후기 조회 (MYP-04)
+    @GetMapping("/my")
+    public ResponseEntity<List<ReviewResponse>> getMyReviews(
+            @RequestParam Long reviewerId
+    ) {
+        return ResponseEntity.ok(reviewService.getMyReviews(reviewerId));
+    }
 }
