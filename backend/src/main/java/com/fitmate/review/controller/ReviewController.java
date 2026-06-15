@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.List;
 
@@ -22,10 +23,10 @@ public class ReviewController {
     // 후기 작성
     @PostMapping
     public ResponseEntity<Long> createReview(
-            @RequestParam Long reviewerId,
+            @AuthenticationPrincipal String userId,
             @Valid @RequestBody ReviewRequest request
     ) {
-        return ResponseEntity.ok(reviewService.createReview(reviewerId, request));
+        return ResponseEntity.ok(reviewService.createReview(userId, request));
     }
 
     // 트레이너별 후기 조회
@@ -36,7 +37,7 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getReviewsByTrainer(trainerId));
     }
 
-    // 트레이너 평균 평점
+    // 평점
     @GetMapping("/trainer/{trainerId}/rating")
     public ResponseEntity<TrainerRatingResponse> getTrainerRating(
             @PathVariable Long trainerId
@@ -44,14 +45,30 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getTrainerRating(trainerId));
     }
 
+    // 내가 작성한 후기 (MYP-04)
+    @GetMapping("/my")
+    public ResponseEntity<List<ReviewResponse>> getMyReviews(
+            @AuthenticationPrincipal String userId
+    ) {
+        return ResponseEntity.ok(reviewService.getMyReviews(userId));
+    }
+
+    // 받은 후기 (MYP-07 )
+    @GetMapping("/received")
+    public ResponseEntity<List<ReviewResponse>> getReceivedReviews(
+            @RequestParam Long trainerId
+    ) {
+        return ResponseEntity.ok(reviewService.getReceivedReviews(trainerId));
+    }
+
     // 후기 수정 (REV-06)
     @PutMapping("/{reviewId}")
     public ResponseEntity<Void> updateReview(
             @PathVariable Long reviewId,
-            @RequestParam Long reviewerId,
+            @AuthenticationPrincipal String userId,
             @Valid @RequestBody ReviewUpdateRequest request
     ) {
-        reviewService.updateReview(reviewId, reviewerId, request);
+        reviewService.updateReview(reviewId, userId, request);
         return ResponseEntity.ok().build();
     }
 
@@ -59,25 +76,9 @@ public class ReviewController {
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<Void> deleteReview(
             @PathVariable Long reviewId,
-            @RequestParam Long reviewerId
+            @AuthenticationPrincipal String userId
     ) {
-        reviewService.deleteReview(reviewId, reviewerId);
+        reviewService.deleteReview(reviewId, userId);
         return ResponseEntity.ok().build();
-    }
-
-    // 내가 작성한 후기 조회 (MYP-04)
-    @GetMapping("/my")
-    public ResponseEntity<List<ReviewResponse>> getMyReviews(
-            @RequestParam Long reviewerId
-    ) {
-        return ResponseEntity.ok(reviewService.getMyReviews(reviewerId));
-    }
-
-    // 트레이너가 받은 후기 조회 (MYP-07)
-    @GetMapping("/received")
-    public ResponseEntity<List<ReviewResponse>> getReceivedReviews(
-            @RequestParam Long trainerId
-    ) {
-        return ResponseEntity.ok(reviewService.getReceivedReviews(trainerId));
     }
 }

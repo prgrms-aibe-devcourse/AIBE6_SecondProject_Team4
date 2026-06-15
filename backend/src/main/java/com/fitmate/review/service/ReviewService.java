@@ -31,15 +31,14 @@ public class ReviewService {
 
     // 후기 작성
     @Transactional
-    public Long createReview(Long reviewerId, ReviewRequest request) {
-        // 중복 방지 (REV-05)
+    public Long createReview(String userId, ReviewRequest request) {
+        Member reviewer = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
         reviewRepository.findByMatchingRequestId(request.matchingId())
                 .ifPresent(r -> {
                     throw new CustomException(ErrorCode.REVIEW_ALREADY_EXISTS);
                 });
-
-        Member reviewer = memberRepository.findById(reviewerId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         Member trainer = memberRepository.findById(request.trainerId())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -58,6 +57,46 @@ public class ReviewService {
         return reviewRepository.save(review).getId();
     }
 
+    // 내가 작성한 후기 조회 (MYP-04)
+    public List<ReviewResponse> getMyReviews(String userId) {
+        Member reviewer = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        return reviewRepository.findByReviewerId(reviewer.getId()).stream()
+                .map(ReviewResponse::from)
+                .toList();
+    }
+
+    // 후기 수정 (REV-06)
+    @Transactional
+    public void updateReview(Long reviewId, String userId, ReviewUpdateRequest request) {
+        Member reviewer = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+
+        if (!review.getReviewer().getId().equals(reviewer.getId())) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        review.update(request.rating(), request.content());
+    }
+
+    // 후기 삭제 (REV-07)
+    @Transactional
+    public void deleteReview(Long reviewId, String userId) {
+        Member reviewer = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+
+        if (!review.getReviewer().getId().equals(reviewer.getId())) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        reviewRepository.delete(review);
+    }
     // 트레이너별 후기 조회
     public List<ReviewResponse> getReviewsByTrainer(Long trainerId) {
         return reviewRepository.findByTrainerId(trainerId).stream()
@@ -84,43 +123,10 @@ public class ReviewService {
         return new TrainerRatingResponse(trainerId, average, count, distribution);
     }
 
-    // 내가 작성한 후기 조회 (MYP-04)
-    public List<ReviewResponse> getMyReviews(Long reviewerId) {
-        return reviewRepository.findByReviewerId(reviewerId).stream()
-                .map(ReviewResponse::from)
-                .toList();
-    }
-
     // 트레이너가 받은 후기 조회 (MYP-07)
     public List<ReviewResponse> getReceivedReviews(Long trainerId) {
         return reviewRepository.findByTrainerId(trainerId).stream()
                 .map(ReviewResponse::from)
                 .toList();
-    }
-
-    // 후기 수정 (REV-06)
-    @Transactional
-    public void updateReview(Long reviewId, Long reviewerId, ReviewUpdateRequest request) {
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
-
-        if (!review.getReviewer().getId().equals(reviewerId)) {
-            throw new CustomException(ErrorCode.FORBIDDEN);
-        }
-
-        review.update(request.rating(), request.content());
-    }
-
-    // 후기 삭제 (REV-07)
-    @Transactional
-    public void deleteReview(Long reviewId, Long reviewerId) {
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
-
-        if (!review.getReviewer().getId().equals(reviewerId)) {
-            throw new CustomException(ErrorCode.FORBIDDEN);
-        }
-
-        reviewRepository.delete(review);
     }
 }
