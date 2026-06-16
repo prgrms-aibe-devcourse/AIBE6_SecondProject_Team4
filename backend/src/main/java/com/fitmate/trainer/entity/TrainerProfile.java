@@ -2,6 +2,7 @@ package com.fitmate.trainer.entity;
 
 import com.fitmate.global.entity.BaseEntity;
 import com.fitmate.member.entity.Member;
+import com.fitmate.trainer.dto.TrainerProfileUpdateRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,4 +25,13 @@ public class TrainerProfile extends BaseEntity {
     private String lessonType;
 
     private Integer price;
+
+    private Integer careerYears;
+
+    public void update(TrainerProfileUpdateRequest request) {
+        if (request.sports() != null) this.sports = request.sports();
+        if (request.lessonType() != null) this.lessonType = request.lessonType();
+        if (request.price() != null) this.price = request.price();
+        if (request.careerYears() != null) this.careerYears = request.careerYears();
+    }
 }

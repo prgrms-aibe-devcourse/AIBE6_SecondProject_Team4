@@ -1,8 +1,8 @@
-package com.fitmate.trainer.dto;
+package com.fitmate.member.dto;
 
-import com.fitmate.trainer.entity.TrainerProfile;
+import com.fitmate.member.entity.UserProfile;
 
-public record TrainerProfileResponse(
+public record UserProfileResponse(
         Long id,
         Long memberId,
         String nickname,
@@ -10,12 +10,11 @@ public record TrainerProfileResponse(
         String introduction,
         String region,
         String sports,
-        String lessonType,
-        Integer price,
-        Integer careerYears
+        String level,
+        String goal
 ) {
-    public static TrainerProfileResponse from(TrainerProfile profile) {
-        return new TrainerProfileResponse(
+    public static UserProfileResponse from(UserProfile profile) {
+        return new UserProfileResponse(
                 profile.getId(),
                 profile.getMember().getId(),
                 profile.getMember().getNickname(),
@@ -23,9 +22,8 @@ public record TrainerProfileResponse(
                 profile.getMember().getIntroduction(),
                 profile.getMember().getRegion(),
                 profile.getSports(),
-                profile.getLessonType(),
-                profile.getPrice(),
-                profile.getCareerYears()
+                profile.getLevel(),
+                profile.getGoal()
         );
     }
 }
