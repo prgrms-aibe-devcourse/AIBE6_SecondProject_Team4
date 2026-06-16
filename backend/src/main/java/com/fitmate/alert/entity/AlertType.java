@@ -1,5 +1,5 @@
 package com.fitmate.alert.entity;
 
 public enum AlertType {
-    MESSAGE, REVIEW
+    MESSAGE, REVIEW, MATCHING
 }
