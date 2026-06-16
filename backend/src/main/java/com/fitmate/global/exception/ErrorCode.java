@@ -34,6 +34,9 @@ public enum ErrorCode {
     // Chat
     CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "404-5", "채팅방을 찾을 수 없습니다."),
 
+    // Alert
+    ALERT_NOT_FOUND(HttpStatus.NOT_FOUND, "404-6", "알림을 찾을 수 없습니다."),
+
     // Common
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "400-1", "잘못된 입력값입니다."),
 

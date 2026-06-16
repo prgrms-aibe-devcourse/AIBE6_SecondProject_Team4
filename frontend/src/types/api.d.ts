@@ -218,6 +218,34 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/alerts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 알림 목록 조회
+         * @description 로그인한 사용자의 알림 목록을 최신순으로 조회합니다.
+         */
+        get: operations["getAlerts"];
+        put?: never;
+        /**
+         * 알림 생성
+         * @description 새로운 알림을 생성합니다.
+         */
+        post: operations["createAlert"];
+        /**
+         * 알림 일괄 삭제
+         * @description 로그인한 사용자의 모든 알림을 삭제합니다.
+         */
+        delete: operations["deleteAllAlerts"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/members/me": {
         parameters: {
             query?: never;
@@ -232,6 +260,46 @@ export interface paths {
         options?: never;
         head?: never;
         patch: operations["updateMyInfo"];
+        trace?: never;
+    };
+    "/api/alerts/{alertId}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * 알림 단일 읽음 처리
+         * @description 특정 알림을 읽음 상태로 변경합니다.
+         */
+        patch: operations["markAsRead_1"];
+        trace?: never;
+    };
+    "/api/alerts/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * 알림 일괄 읽음 처리
+         * @description 로그인한 사용자의 모든 알림을 읽음 상태로 변경합니다.
+         */
+        patch: operations["markAllAsRead"];
         trace?: never;
     };
     "/api/users/me": {
@@ -396,6 +464,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/alerts/{alertId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * 알림 단일 삭제
+         * @description 특정 알림을 삭제합니다.
+         */
+        delete: operations["deleteAlert"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -515,6 +603,29 @@ export interface components {
         LoginRequest: {
             userId: string;
             password: string;
+        };
+        AlertRequest: {
+            /** Format: int64 */
+            receiverId?: number;
+            /** @enum {string} */
+            type?: "MESSAGE" | "REVIEW" | "MATCHING";
+            /** Format: int64 */
+            targetId?: number;
+            content?: string;
+        };
+        AlertResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            receiverId?: number;
+            /** @enum {string} */
+            type?: "MESSAGE" | "REVIEW" | "MATCHING";
+            /** Format: int64 */
+            targetId?: number;
+            content?: string;
+            isRead?: boolean;
+            /** Format: date-time */
+            createdAt?: string;
         };
         MemberUpdateRequest: {
             nickname?: string;
@@ -1044,6 +1155,68 @@ export interface operations {
             };
         };
     };
+    getAlerts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["AlertResponse"][];
+                };
+            };
+        };
+    };
+    createAlert: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AlertRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["AlertResponse"];
+                };
+            };
+        };
+    };
+    deleteAllAlerts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getMyInfo: {
         parameters: {
             query?: never;
@@ -1085,6 +1258,44 @@ export interface operations {
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["MemberResponse"];
                 };
+            };
+        };
+    };
+    markAsRead_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                alertId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    markAllAsRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -1267,6 +1478,26 @@ export interface operations {
             header?: never;
             path: {
                 roomId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    deleteAlert: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                alertId: number;
             };
             cookie?: never;
         };
