@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.List;
 
 @Service
@@ -27,24 +28,29 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
-        String provider = userRequest.getClientRegistration().getRegistrationId(); // "kakao"
+        String provider = userRequest.getClientRegistration().getRegistrationId(); // "kakao" 또는 "google"
         OAuth2UserInfo userInfo = getOAuth2UserInfo(provider, oAuth2User.getAttributes());
 
-        String userId = provider + "_" + userInfo.getId(); // kakao_12345678
+        String userId = provider + "_" + userInfo.getId();
 
         Member member = memberRepository.findByUserIdAndDeletedAtIsNull(userId)
                 .orElseGet(() -> registerNewMember(userId, userInfo));
 
+        String nameAttributeKey = provider.equals("google") ? "sub" : "id";
+
         return new DefaultOAuth2User(
                 List.of(new SimpleGrantedAuthority("ROLE_" + member.getRole().name())),
                 oAuth2User.getAttributes(),
-                "id"
+                nameAttributeKey
         );
     }
 
-    private OAuth2UserInfo getOAuth2UserInfo(String provider, java.util.Map<String, Object> attributes) {
+    private OAuth2UserInfo getOAuth2UserInfo(String provider, Map<String, Object> attributes) {
         if ("kakao".equals(provider)) {
             return new KakaoOAuth2UserInfo(attributes);
+        }
+        if ("google".equals(provider)) {
+            return new GoogleOAuth2UserInfo(attributes);
         }
         throw new OAuth2AuthenticationException("지원하지 않는 소셜 로그인입니다: " + provider);
     }

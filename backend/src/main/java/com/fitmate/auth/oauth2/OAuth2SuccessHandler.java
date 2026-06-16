@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -33,12 +34,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
 
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String userId = String.valueOf(oAuth2User.getAttributes().get("id"));
+        OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+        String provider = oauthToken.getAuthorizedClientRegistrationId(); // "kakao" 또는 "google"
 
-        // CustomOAuth2UserService에서 만든 userId 형식과 맞추기 위해 provider 접두사 필요
-        // 여기서는 attributes에 직접 접근하므로, principal에서 가져온 값이 카카오 raw id이므로 재조합 필요
-        String fullUserId = "kakao_" + userId;
+        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        String rawId = String.valueOf(oAuth2User.getAttributes().get(provider.equals("google") ? "sub" : "id"));
+        String fullUserId = provider + "_" + rawId;
 
         Member member = memberRepository.findByUserIdAndDeletedAtIsNull(fullUserId)
                 .orElseThrow(() -> new IllegalStateException("회원을 찾을 수 없습니다."));
