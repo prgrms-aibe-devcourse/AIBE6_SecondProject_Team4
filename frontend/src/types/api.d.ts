@@ -4,6 +4,44 @@
  */
 
 export interface paths {
+    "/api/users/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 사용자 프로필 상세 조회 */
+        get: operations["getUserProfile"];
+        /** 사용자 프로필 수정 */
+        put: operations["updateUserProfile"];
+        post?: never;
+        /** 사용자 프로필 삭제 */
+        delete: operations["deleteUserProfile"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/trainers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 트레이너 프로필 상세 조회 */
+        get: operations["getTrainerProfile"];
+        /** 트레이너 프로필 수정 */
+        put: operations["updateTrainerProfile"];
+        post?: never;
+        /** 트레이너 프로필 삭제 */
+        delete: operations["deleteTrainerProfile"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/reviews/{reviewId}": {
         parameters: {
             query?: never;
@@ -12,8 +50,16 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
+        /**
+         * 후기 수정
+         * @description 작성자 본인이 후기의 별점·내용을 수정합니다.
+         */
         put: operations["updateReview"];
         post?: never;
+        /**
+         * 후기 삭제
+         * @description 작성자 본인이 후기를 삭제합니다.
+         */
         delete: operations["deleteReview"];
         options?: never;
         head?: never;
@@ -36,6 +82,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 사용자 프로필 목록 조회 */
+        get: operations["getUserProfiles"];
+        put?: never;
+        /** 사용자 프로필 등록 */
+        post: operations["createUserProfile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/trainers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 트레이너 목록 조회 및 필터링 */
+        get: operations["getTrainerProfiles"];
+        put?: never;
+        /** 트레이너 프로필 등록 */
+        post: operations["createTrainerProfile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/reviews": {
         parameters: {
             query?: never;
@@ -45,6 +127,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * 후기 작성
+         * @description 매칭 완료 후 트레이너에게 후기와 별점을 작성합니다.
+         */
         post: operations["createReview"];
         delete?: never;
         options?: never;
@@ -132,6 +218,34 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/alerts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 알림 목록 조회
+         * @description 로그인한 사용자의 알림 목록을 최신순으로 조회합니다.
+         */
+        get: operations["getAlerts"];
+        put?: never;
+        /**
+         * 알림 생성
+         * @description 새로운 알림을 생성합니다.
+         */
+        post: operations["createAlert"];
+        /**
+         * 알림 일괄 삭제
+         * @description 로그인한 사용자의 모든 알림을 삭제합니다.
+         */
+        delete: operations["deleteAllAlerts"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/members/me": {
         parameters: {
             query?: never;
@@ -148,6 +262,80 @@ export interface paths {
         patch: operations["updateMyInfo"];
         trace?: never;
     };
+    "/api/alerts/{alertId}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * 알림 단일 읽음 처리
+         * @description 특정 알림을 읽음 상태로 변경합니다.
+         */
+        patch: operations["markAsRead_1"];
+        trace?: never;
+    };
+    "/api/alerts/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * 알림 일괄 읽음 처리
+         * @description 로그인한 사용자의 모든 알림을 읽음 상태로 변경합니다.
+         */
+        patch: operations["markAllAsRead"];
+        trace?: never;
+    };
+    "/api/users/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 내 사용자 프로필 조회 */
+        get: operations["getMyUserProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/trainers/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 내 트레이너 프로필 조회 */
+        get: operations["getMyTrainerProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/reviews/trainer/{trainerId}": {
         parameters: {
             query?: never;
@@ -155,6 +343,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 트레이너별 후기 목록 조회
+         * @description 특정 트레이너가 받은 후기 목록을 조회합니다.
+         */
         get: operations["getReviewsByTrainer"];
         put?: never;
         post?: never;
@@ -171,6 +363,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 트레이너 평점 조회
+         * @description 트레이너의 평균 평점, 후기 수, 별점 분포를 조회합니다.
+         */
         get: operations["getTrainerRating"];
         put?: never;
         post?: never;
@@ -187,6 +383,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 받은 후기 조회
+         * @description 트레이너가 자신이 받은 후기 목록을 조회합니다.
+         */
         get: operations["getReceivedReviews"];
         put?: never;
         post?: never;
@@ -203,6 +403,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 내가 작성한 후기 조회
+         * @description 로그인한 사용자가 작성한 후기 목록을 조회합니다.
+         */
         get: operations["getMyReviews"];
         put?: never;
         post?: never;
@@ -260,14 +464,89 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/alerts/{alertId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * 알림 단일 삭제
+         * @description 특정 알림을 삭제합니다.
+         */
+        delete: operations["deleteAlert"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        UserProfileUpdateRequest: {
+            sports?: string;
+            level?: string;
+            goal?: string;
+        };
+        UserProfileResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            memberId?: number;
+            nickname?: string;
+            profileImage?: string;
+            introduction?: string;
+            region?: string;
+            sports?: string;
+            level?: string;
+            goal?: string;
+        };
+        TrainerProfileUpdateRequest: {
+            sports?: string;
+            lessonType?: string;
+            /** Format: int32 */
+            price?: number;
+            /** Format: int32 */
+            careerYears?: number;
+        };
+        TrainerProfileResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            memberId?: number;
+            nickname?: string;
+            profileImage?: string;
+            introduction?: string;
+            region?: string;
+            sports?: string;
+            lessonType?: string;
+            /** Format: int32 */
+            price?: number;
+            /** Format: int32 */
+            careerYears?: number;
+        };
         ReviewUpdateRequest: {
             /** Format: int32 */
             rating?: number;
             content: string;
+        };
+        UserProfileRequest: {
+            sports?: string;
+            level?: string;
+            goal?: string;
+        };
+        TrainerProfileRequest: {
+            sports?: string;
+            lessonType?: string;
+            /** Format: int32 */
+            price?: number;
+            /** Format: int32 */
+            careerYears?: number;
         };
         ReviewRequest: {
             /** Format: int64 */
@@ -324,6 +603,29 @@ export interface components {
         LoginRequest: {
             userId: string;
             password: string;
+        };
+        AlertRequest: {
+            /** Format: int64 */
+            receiverId?: number;
+            /** @enum {string} */
+            type?: "MESSAGE" | "REVIEW" | "MATCHING";
+            /** Format: int64 */
+            targetId?: number;
+            content?: string;
+        };
+        AlertResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            receiverId?: number;
+            /** @enum {string} */
+            type?: "MESSAGE" | "REVIEW" | "MATCHING";
+            /** Format: int64 */
+            targetId?: number;
+            content?: string;
+            isRead?: boolean;
+            /** Format: date-time */
+            createdAt?: string;
         };
         MemberUpdateRequest: {
             nickname?: string;
@@ -400,6 +702,142 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    getUserProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["UserProfileResponse"];
+                };
+            };
+        };
+    };
+    updateUserProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserProfileUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["UserProfileResponse"];
+                };
+            };
+        };
+    };
+    deleteUserProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getTrainerProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["TrainerProfileResponse"];
+                };
+            };
+        };
+    };
+    updateTrainerProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TrainerProfileUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["TrainerProfileResponse"];
+                };
+            };
+        };
+    };
+    deleteTrainerProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     updateReview: {
         parameters: {
             query?: never;
@@ -463,6 +901,100 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    getUserProfiles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["UserProfileResponse"][];
+                };
+            };
+        };
+    };
+    createUserProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserProfileRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["UserProfileResponse"];
+                };
+            };
+        };
+    };
+    getTrainerProfiles: {
+        parameters: {
+            query?: {
+                sport?: string;
+                lessonType?: string;
+                minPrice?: number;
+                maxPrice?: number;
+                region?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["TrainerProfileResponse"][];
+                };
+            };
+        };
+    };
+    createTrainerProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TrainerProfileRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["TrainerProfileResponse"];
+                };
             };
         };
     };
@@ -622,6 +1154,68 @@ export interface operations {
             };
         };
     };
+    getAlerts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["AlertResponse"][];
+                };
+            };
+        };
+    };
+    createAlert: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AlertRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["AlertResponse"];
+                };
+            };
+        };
+    };
+    deleteAllAlerts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getMyInfo: {
         parameters: {
             query?: never;
@@ -662,6 +1256,84 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["MemberResponse"];
+                };
+            };
+        };
+    };
+    markAsRead_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                alertId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    markAllAsRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getMyUserProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["UserProfileResponse"];
+                };
+            };
+        };
+    };
+    getMyTrainerProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["TrainerProfileResponse"];
                 };
             };
         };
@@ -805,6 +1477,26 @@ export interface operations {
             header?: never;
             path: {
                 roomId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    deleteAlert: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                alertId: number;
             };
             cookie?: never;
         };

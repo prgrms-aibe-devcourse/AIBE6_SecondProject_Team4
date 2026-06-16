@@ -31,15 +31,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(token) && jwtProvider.isValid(token)) {
             String userId = jwtProvider.getUserId(token);
             String role = jwtProvider.parseClaims(token).get("role", String.class);
-            Long memberId = jwtProvider.getMemberId(token);
 
+            // TODO: 필요 시 UserDetailsService로 실제 유저 조회 로직 추가
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             userId,
                             null,
                             List.of(new SimpleGrantedAuthority("ROLE_" + role))
                     );
-            authentication.setDetails(memberId);
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

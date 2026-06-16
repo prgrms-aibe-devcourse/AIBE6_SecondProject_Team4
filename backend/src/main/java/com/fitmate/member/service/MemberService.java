@@ -2,13 +2,17 @@ package com.fitmate.member.service;
 
 import com.fitmate.member.dto.MemberResponse;
 import com.fitmate.member.dto.MemberUpdateRequest;
+import com.fitmate.member.dto.TrainerSummaryDto;
 import com.fitmate.global.exception.CustomException;
 import com.fitmate.global.exception.ErrorCode;
 import com.fitmate.member.entity.Member;
+import com.fitmate.member.entity.Role;
 import com.fitmate.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 
 @Service
@@ -44,5 +48,12 @@ public class MemberService {
         );
 
         return MemberResponse.from(member);
+    }
+
+    public List<TrainerSummaryDto> getTrainers() {
+        return memberRepository.findByRole(Role.TRAINER)
+                .stream()
+                .map(TrainerSummaryDto::from)
+                .toList();
     }
 }
