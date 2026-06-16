@@ -14,19 +14,24 @@ type ChatRoomDto = components['schemas']['ChatRoomResponseDto']
 type TrainerDto = components['schemas']['TrainerSummaryDto']
 type ChatMessageDto = components['schemas']['ChatResponseDto']
 
-const AVATAR_FALLBACK =
-    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23bfc3d4'%3E%3Ccircle cx='12' cy='8' r='4'/%3E%3Cpath d='M4 20c0-4 3.6-7 8-7s8 3 8 7'/%3E%3C/svg%3E"
-
 function Avatar({ src, alt, className }: { src?: string; alt: string; className?: string }) {
+    const [failed, setFailed] = useState(false)
+
+    if (!src || failed) {
+        return (
+            <div className={`bg-primary-fixed text-primary flex items-center justify-center ${className}`}>
+                <span className="material-symbols-outlined text-2xl">person</span>
+            </div>
+        )
+    }
+
     return (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-            src={src || AVATAR_FALLBACK}
+            src={src}
             alt={alt}
             className={className}
-            onError={(e) => {
-                e.currentTarget.src = AVATAR_FALLBACK
-            }}
+            onError={() => setFailed(true)}
         />
     )
 }
@@ -148,6 +153,24 @@ export default function ChatFAB() {
             shouldScrollRef.current = false
         }
     }, [allMessages.length])
+
+    // 알림에서 채팅방 열기 이벤트 수신
+    useEffect(() => {
+        const handler = async (e: Event) => {
+            const { roomId } = (e as CustomEvent).detail
+            if (!user || !roomId) return
+            const { data: rooms } = await apiClient.GET('/api/chat', {
+                params: { query: { memberId: user.memberId } },
+                headers: { Authorization: `Bearer ${user.token}` },
+            })
+            const room = rooms?.find(r => r.chatRoomId === roomId)
+            if (room) {
+                await openChat(toEntry(room, user.memberId))
+            }
+        }
+        window.addEventListener('open-chat-room', handler)
+        return () => window.removeEventListener('open-chat-room', handler)
+    }, [user])
 
     // 로그인 시 초기 배지 + WebSocket 실시간 구독
     useEffect(() => {

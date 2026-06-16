@@ -9,6 +9,7 @@ import com.fitmate.global.exception.ErrorCode;
 import com.fitmate.member.entity.Member;
 import com.fitmate.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ public class AlertService {
 
     private final AlertRepository alertRepository;
     private final MemberRepository memberRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public List<AlertResponse> getAlerts(Long memberId) {
         return alertRepository.findByReceiverIdOrderByCreatedAtDesc(memberId)
@@ -35,6 +37,13 @@ public class AlertService {
             throw new CustomException(ErrorCode.ALERT_NOT_FOUND);
         }
         alertRepository.deleteById(alertId);
+    }
+
+    @Transactional
+    public void markAsRead(Long alertId) {
+        Alert alert = alertRepository.findById(alertId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ALERT_NOT_FOUND));
+        alert.markAsRead();
     }
 
     @Transactional
@@ -60,6 +69,8 @@ public class AlertService {
                 .isRead(false)
                 .build();
 
-        return AlertResponse.from(alertRepository.save(alert));
+        AlertResponse response = AlertResponse.from(alertRepository.save(alert));
+        messagingTemplate.convertAndSend("/sub/alert/" + receiver.getId(), response);
+        return response;
     }
 }
