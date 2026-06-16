@@ -38,6 +38,11 @@ public class UserProfileService {
     public UserProfileResponse createUserProfile(String userId, UserProfileRequest request) {
         Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if (userProfileRepository.findByMemberId(member.getId()).isPresent()) {
+            throw new CustomException(ErrorCode.USER_PROFILE_ALREADY_EXISTS);
+        }
+
         UserProfile saved = userProfileRepository.save(request.toEntity(member));
 
         return UserProfileResponse.from(saved);
