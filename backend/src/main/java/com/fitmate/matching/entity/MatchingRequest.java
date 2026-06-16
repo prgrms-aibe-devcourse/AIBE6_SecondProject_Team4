@@ -34,4 +34,7 @@ public class MatchingRequest extends BaseEntity {
 
     @Column(name = "budget_max", nullable = false)
     private Integer budgetMax;
+
+    @Column(name = "lesson_content", length = 500)
+    private String lessonContent;
 }
