@@ -1,5 +1,6 @@
 'use client'
 
+import { setTokenRefreshHandler } from '@/utils/apiClient'
 import { createContext, useContext, useEffect, useState } from 'react'
 
 export interface AuthUser {
@@ -40,6 +41,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null)
         localStorage.removeItem('fitmate_user')
     }
+
+    useEffect(() => {
+        // 토큰 재발급 시 새 토큰을 상태에 반영
+        setTokenRefreshHandler((newToken: string) => {
+            setUser(prev => {
+                if (!prev) return prev
+                const updated = { ...prev, token: newToken }
+                localStorage.setItem('fitmate_user', JSON.stringify(updated))
+                return updated
+            })
+        })
+
+        // 재발급 실패 시 로그아웃
+        const handleAuthLogout = () => logout()
+        window.addEventListener('auth:logout', handleAuthLogout)
+        return () => window.removeEventListener('auth:logout', handleAuthLogout)
+    }, [])
 
     return (
         <AuthContext.Provider value={{ user, login, logout }}>
