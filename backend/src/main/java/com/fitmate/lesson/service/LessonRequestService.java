@@ -89,7 +89,59 @@ public class LessonRequestService {
 
         return toResponse(lessonRequest);
     }
+    // 트레이너가 레슨 요청서를 수락
+    @Transactional
+    public LessonRequestResponse acceptLessonRequest(Long lessonRequestId, String trainerUserId) {
+        LessonRequest lessonRequest = lessonRequestRepository.findById(lessonRequestId)
+                .orElseThrow(() -> new CustomException(ErrorCode.LESSON_REQUEST_NOT_FOUND));
 
+        // 요청서를 받은 트레이너 본인인지 확인
+        validateTrainerOwner(lessonRequest, trainerUserId);
+
+        // 아직 대기중인 요청서인지 확인
+        validatePendingStatus(lessonRequest);
+
+        // 상태를 ACCEPTED로 변경
+        lessonRequest.accept();
+
+        return toResponse(lessonRequest);
+    }
+
+    // 트레이너가 레슨 요청서를 거절
+    @Transactional
+    public LessonRequestResponse rejectLessonRequest(Long lessonRequestId, String trainerUserId) {
+        LessonRequest lessonRequest = lessonRequestRepository.findById(lessonRequestId)
+                .orElseThrow(() -> new CustomException(ErrorCode.LESSON_REQUEST_NOT_FOUND));
+
+        // 요청서를 받은 트레이너 본인인지 확인
+        validateTrainerOwner(lessonRequest, trainerUserId);
+
+        // 아직 대기중인 요청서인지 확인
+        validatePendingStatus(lessonRequest);
+
+        // 상태를 REJECTED로 변경
+        lessonRequest.reject();
+
+        return toResponse(lessonRequest);
+    }
+
+    // 현재 로그인한 트레이너가 이 요청서를 받은 트레이너인지 확인
+    private void validateTrainerOwner(LessonRequest lessonRequest, String trainerUserId) {
+        String ownerUserId = lessonRequest.getTrainerProfile()
+                .getMember()
+                .getUserId();
+
+        if (!ownerUserId.equals(trainerUserId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+    }
+
+    // 요청서가 아직 PENDING 상태인지 확인
+    private void validatePendingStatus(LessonRequest lessonRequest) {
+        if (lessonRequest.getStatus() != LessonRequestStatus.PENDING) {
+            throw new CustomException(ErrorCode.LESSON_REQUEST_ALREADY_PROCESSED);
+        }
+    }
     // 매칭 결과의 주인이 현재 로그인한 사용자인지 확인
     private void validateOwner(Member member, MatchingResult matchingResult) {
         Member requestMember = matchingResult.getMatchingRequest().getMember();
@@ -156,5 +208,6 @@ public class LessonRequestService {
 
                 lessonRequest.getCreatedAt()
         );
+
     }
 }

@@ -49,4 +49,28 @@ public class LessonRequestController {
     ) {
         return ResponseEntity.ok(lessonRequestService.getLessonRequest(lessonRequestId));
     }
+
+    // 트레이너가 레슨 요청서를 수락
+    @Operation(summary = "레슨 요청서 수락")
+    @PatchMapping("/api/lesson-requests/{lessonRequestId}/accept")
+    public ResponseEntity<LessonRequestResponse> acceptLessonRequest(
+            @PathVariable Long lessonRequestId,
+            Authentication authentication
+    ) {
+        String trainerUserId = authentication.getName();
+
+        return ResponseEntity.ok(lessonRequestService.acceptLessonRequest(lessonRequestId, trainerUserId));
+    }
+
+    // 트레이너가 레슨 요청서를 거절
+    @Operation(summary = "레슨 요청서 거절")
+    @PatchMapping("/api/lesson-requests/{lessonRequestId}/reject")
+    public ResponseEntity<LessonRequestResponse> rejectLessonRequest(
+            @PathVariable Long lessonRequestId,
+            Authentication authentication
+    ) {
+        String trainerUserId = authentication.getName();
+
+        return ResponseEntity.ok(lessonRequestService.rejectLessonRequest(lessonRequestId, trainerUserId));
+    }
 }
