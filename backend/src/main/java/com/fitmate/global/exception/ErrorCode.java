@@ -26,6 +26,12 @@ public enum ErrorCode {
 
     // Matching
     MATCHING_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "404-3", "매칭 요청을 찾을 수 없습니다."),
+    MATCHING_RESULT_NOT_FOUND(HttpStatus.NOT_FOUND, "404-7", "매칭 결과를 찾을 수 없습니다."),
+
+    // Lesson
+    LESSON_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "404-8", "레슨 요청을 찾을 수 없습니다."),
+    LESSON_REQUEST_ALREADY_EXISTS(HttpStatus.CONFLICT, "409-6", "이미 요청서를 보낸 매칭 결과입니다."),
+    LESSON_REQUEST_ALREADY_PROCESSED(HttpStatus.CONFLICT, "409-7", "이미 처리된 레슨 요청입니다."),
 
     // Review
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "404-4", "리뷰를 찾을 수 없습니다."),

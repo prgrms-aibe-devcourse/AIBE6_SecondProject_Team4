@@ -1,0 +1,48 @@
+package com.fitmate.lesson.controller;
+
+import com.fitmate.lesson.dto.LessonRequestCreateRequest;
+import com.fitmate.lesson.dto.LessonRequestResponse;
+import com.fitmate.lesson.service.LessonRequestService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+public class LessonRequestController {
+
+    private final LessonRequestService lessonRequestService;
+
+    // 사용자가 추천 결과를 선택해서 트레이너에게 요청서를 보냄
+    @PostMapping("/api/lesson-requests")
+    public ResponseEntity<LessonRequestResponse> createLessonRequest(
+            @Valid @RequestBody LessonRequestCreateRequest request,
+            Authentication authentication
+    ) {
+        String userId = authentication.getName();
+
+        return ResponseEntity.ok(lessonRequestService.createLessonRequest(userId, request));
+    }
+
+    // 로그인한 트레이너가 받은 요청서 목록을 조회함
+    @GetMapping("/api/trainers/me/lesson-requests")
+    public ResponseEntity<List<LessonRequestResponse>> getTrainerLessonRequests(
+            Authentication authentication
+    ) {
+        String trainerUserId = authentication.getName();
+
+        return ResponseEntity.ok(lessonRequestService.getTrainerLessonRequests(trainerUserId));
+    }
+
+    // 요청서 상세 내용을 조회함
+    @GetMapping("/api/lesson-requests/{lessonRequestId}")
+    public ResponseEntity<LessonRequestResponse> getLessonRequest(
+            @PathVariable Long lessonRequestId
+    ) {
+        return ResponseEntity.ok(lessonRequestService.getLessonRequest(lessonRequestId));
+    }
+}

@@ -16,20 +16,24 @@ import java.util.List;
 public class MatchingController {
 
     private final MatchingService matchingService;
-
+    // 매칭 요청 생성 API
+    // POST /api/matching
     @PostMapping
     public ResponseEntity<MatchingCreateResponse> createMatchingRequest(
             @Valid @RequestBody MatchingRequestDto requestDto
     ) {
         return ResponseEntity.ok(matchingService.createMatchingRequest(requestDto));
     }
+    // 매칭 결과 생성 API
+    // POST /api/matching/{matchingId}/results
     @PostMapping("/{matchingId}/results")
     public ResponseEntity<List<MatchingResultResponse>> createMatchingResults(
             @PathVariable Long matchingId
     ) {
         return ResponseEntity.ok(matchingService.createMatchingResults(matchingId));
     }
-
+    // 매칭 결과 조회 API
+    // GET /api/matching/{matchingId}/results
     @GetMapping("/{matchingId}/results")
     public ResponseEntity<List<MatchingResultResponse>> getMatchingResults(
             @PathVariable Long matchingId
