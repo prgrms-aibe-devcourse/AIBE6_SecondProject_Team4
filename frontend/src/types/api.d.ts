@@ -552,6 +552,7 @@ export interface components {
             content?: string;
             /** Format: date-time */
             createdAt?: string;
+            edited?: boolean;
         };
         TrainerRatingResponse: {
             /** Format: int64 */

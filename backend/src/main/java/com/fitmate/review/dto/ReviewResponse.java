@@ -10,20 +10,26 @@ public record ReviewResponse(
         Long reviewerId,
         String reviewerNickname,
         Long trainerId,
-        int rating,
+        Integer rating,
         String content,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        boolean edited            // ← 추가
 ) {
     public static ReviewResponse from(Review review) {
+        // updatedAt이 createdAt보다 나중이면 수정된 것
+        boolean edited = review.getUpdatedAt() != null
+                && review.getUpdatedAt().isAfter(review.getCreatedAt());
+
         return new ReviewResponse(
                 review.getId(),
                 review.getMatchingRequest().getId(),
                 review.getReviewer().getId(),
-                review.getReviewer().getNickname(),  // Member에 getNickname()이 있다고 가정
+                review.getReviewer().getNickname(),
                 review.getTrainer().getId(),
                 review.getRating(),
                 review.getContent(),
-                review.getCreatedAt()  // BaseEntity에 createdAt이 있다고 가정
+                review.getCreatedAt(),
+                edited                // ← 추가
         );
     }
 }
