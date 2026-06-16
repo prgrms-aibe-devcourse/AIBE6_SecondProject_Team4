@@ -42,6 +42,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/reviews/{reviewId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * 후기 수정
+         * @description 작성자 본인이 후기의 별점·내용을 수정합니다.
+         */
+        put: operations["updateReview"];
+        post?: never;
+        /**
+         * 후기 삭제
+         * @description 작성자 본인이 후기를 삭제합니다.
+         */
+        delete: operations["deleteReview"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/chat/{roomId}/read": {
         parameters: {
             query?: never;
@@ -88,6 +112,26 @@ export interface paths {
         put?: never;
         /** 트레이너 프로필 등록 */
         post: operations["createTrainerProfile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 후기 작성
+         * @description 매칭 완료 후 트레이너에게 후기와 별점을 작성합니다.
+         */
+        post: operations["createReview"];
         delete?: never;
         options?: never;
         head?: never;
@@ -224,6 +268,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/reviews/trainer/{trainerId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 트레이너별 후기 목록 조회
+         * @description 특정 트레이너가 받은 후기 목록을 조회합니다.
+         */
+        get: operations["getReviewsByTrainer"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reviews/trainer/{trainerId}/rating": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 트레이너 평점 조회
+         * @description 트레이너의 평균 평점, 후기 수, 별점 분포를 조회합니다.
+         */
+        get: operations["getTrainerRating"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reviews/received": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 받은 후기 조회
+         * @description 트레이너가 자신이 받은 후기 목록을 조회합니다.
+         */
+        get: operations["getReceivedReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reviews/my": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 내가 작성한 후기 조회
+         * @description 로그인한 사용자가 작성한 후기 목록을 조회합니다.
+         */
+        get: operations["getMyReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/members/trainers": {
         parameters: {
             query?: never;
@@ -318,6 +442,11 @@ export interface components {
             /** Format: int32 */
             careerYears?: number;
         };
+        ReviewUpdateRequest: {
+            /** Format: int32 */
+            rating?: number;
+            content: string;
+        };
         UserProfileRequest: {
             sports?: string;
             level?: string;
@@ -330,6 +459,15 @@ export interface components {
             price?: number;
             /** Format: int32 */
             careerYears?: number;
+        };
+        ReviewRequest: {
+            /** Format: int64 */
+            matchingId: number;
+            /** Format: int64 */
+            trainerId: number;
+            /** Format: int32 */
+            rating?: number;
+            content: string;
         };
         ChatRoomRequest: {
             /** Format: int64 */
@@ -398,6 +536,33 @@ export interface components {
             region?: string;
             introduction?: string;
             phone?: string;
+        };
+        ReviewResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            matchingId?: number;
+            /** Format: int64 */
+            reviewerId?: number;
+            reviewerNickname?: string;
+            /** Format: int64 */
+            trainerId?: number;
+            /** Format: int32 */
+            rating?: number;
+            content?: string;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        TrainerRatingResponse: {
+            /** Format: int64 */
+            trainerId?: number;
+            /** Format: double */
+            averageRating?: number;
+            /** Format: int64 */
+            reviewCount?: number;
+            ratingDistribution?: {
+                [key: string]: number;
+            };
         };
         TrainerSummaryDto: {
             /** Format: int64 */
@@ -562,6 +727,50 @@ export interface operations {
             };
         };
     };
+    updateReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reviewId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    deleteReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reviewId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     markAsRead: {
         parameters: {
             query: {
@@ -674,6 +883,30 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["TrainerProfileResponse"];
+                };
+            };
+        };
+    };
+    createReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": number;
                 };
             };
         };
@@ -890,6 +1123,92 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["TrainerProfileResponse"];
+                };
+            };
+        };
+    };
+    getReviewsByTrainer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                trainerId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["ReviewResponse"][];
+                };
+            };
+        };
+    };
+    getTrainerRating: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                trainerId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["TrainerRatingResponse"];
+                };
+            };
+        };
+    };
+    getReceivedReviews: {
+        parameters: {
+            query: {
+                trainerId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["ReviewResponse"][];
+                };
+            };
+        };
+    };
+    getMyReviews: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["ReviewResponse"][];
                 };
             };
         };
