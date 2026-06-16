@@ -3,11 +3,13 @@ package com.fitmate.member.controller;
 import com.fitmate.member.dto.MemberResponse;
 import com.fitmate.member.dto.MemberUpdateRequest;
 import com.fitmate.member.dto.TrainerSummaryDto;
+import com.fitmate.member.dto.PasswordChangeRequest;
 import com.fitmate.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

@@ -247,7 +247,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch: operations["updateMyInfo"];
+        patch: operations["changePassword"];
         trace?: never;
     };
     "/api/users/me": {
