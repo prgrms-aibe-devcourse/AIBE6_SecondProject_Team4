@@ -37,6 +37,21 @@ public class JwtProvider {
                 .compact();
     }
 
+    public String generateToken(String userId, String role, Long memberId) {
+        return Jwts.builder()
+                .subject(userId)
+                .claim("role", role)
+                .claim("memberId", memberId)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + accessExpirationMs))
+                .signWith(secretKey)
+                .compact();
+    }
+
+    public Long getMemberId(String token) {
+        return parseClaims(token).get("memberId", Long.class);
+    }
+
     public String generateRefreshToken(String userId) {
         return Jwts.builder()
                 .subject(userId)

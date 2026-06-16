@@ -28,22 +28,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = resolveToken(request);
 
-        if (StringUtils.hasText(token) && jwtProvider.isValid(token)) {
+        if (StringUtils.hasText(token)) {
+            if (!jwtProvider.isValid(token)) {
+                // 토큰이 있지만 만료됐을 때 → 401로 응답해야 프론트 미들웨어가 재발급 시도
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
             String userId = jwtProvider.getUserId(token);
             String role = jwtProvider.parseClaims(token).get("role", String.class);
+            Long memberId = jwtProvider.getMemberId(token);
 
-            // TODO: 필요 시 UserDetailsService로 실제 유저 조회 로직 추가
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             userId,
                             null,
                             List.of(new SimpleGrantedAuthority("ROLE_" + role))
                     );
+            authentication.setDetails(memberId);
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/api/auth/") || path.startsWith("/ws/") ||
+               path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs");
     }
 
     private String resolveToken(HttpServletRequest request) {
