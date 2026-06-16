@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class LessonRequestController {
     private final LessonRequestService lessonRequestService;
 
     // 사용자가 추천 결과를 선택해서 트레이너에게 요청서를 보냄
+    @Operation(summary = "레슨 요청서 생성")
     @PostMapping("/api/lesson-requests")
     public ResponseEntity<LessonRequestResponse> createLessonRequest(
             @Valid @RequestBody LessonRequestCreateRequest request,
@@ -29,6 +31,7 @@ public class LessonRequestController {
     }
 
     // 로그인한 트레이너가 받은 요청서 목록을 조회함
+    @Operation(summary = "받은 요청서 목록 조회")
     @GetMapping("/api/trainers/me/lesson-requests")
     public ResponseEntity<List<LessonRequestResponse>> getTrainerLessonRequests(
             Authentication authentication
@@ -39,6 +42,7 @@ public class LessonRequestController {
     }
 
     // 요청서 상세 내용을 조회함
+    @Operation(summary = "레슨 요청서 상세 조회")
     @GetMapping("/api/lesson-requests/{lessonRequestId}")
     public ResponseEntity<LessonRequestResponse> getLessonRequest(
             @PathVariable Long lessonRequestId
