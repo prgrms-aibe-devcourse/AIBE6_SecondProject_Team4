@@ -4,17 +4,39 @@
  */
 
 export interface paths {
-    "/api/reviews/{reviewId}": {
+    "/api/users/{id}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put: operations["updateReview"];
+        /** 사용자 프로필 상세 조회 */
+        get: operations["getUserProfile"];
+        /** 사용자 프로필 수정 */
+        put: operations["updateUserProfile"];
         post?: never;
-        delete: operations["deleteReview"];
+        /** 사용자 프로필 삭제 */
+        delete: operations["deleteUserProfile"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/trainers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 트레이너 프로필 상세 조회 */
+        get: operations["getTrainerProfile"];
+        /** 트레이너 프로필 수정 */
+        put: operations["updateTrainerProfile"];
+        post?: never;
+        /** 트레이너 프로필 삭제 */
+        delete: operations["deleteTrainerProfile"];
         options?: never;
         head?: never;
         patch?: never;
@@ -36,16 +58,36 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/reviews": {
+    "/api/users": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** 사용자 프로필 목록 조회 */
+        get: operations["getUserProfiles"];
         put?: never;
-        post: operations["createReview"];
+        /** 사용자 프로필 등록 */
+        post: operations["createUserProfile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/trainers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 트레이너 목록 조회 및 필터링 */
+        get: operations["getTrainerProfiles"];
+        put?: never;
+        /** 트레이너 프로필 등록 */
+        post: operations["createTrainerProfile"];
         delete?: never;
         options?: never;
         head?: never;
@@ -148,14 +190,15 @@ export interface paths {
         patch: operations["updateMyInfo"];
         trace?: never;
     };
-    "/api/reviews/trainer/{trainerId}": {
+    "/api/users/me": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["getReviewsByTrainer"];
+        /** 내 사용자 프로필 조회 */
+        get: operations["getMyUserProfile"];
         put?: never;
         post?: never;
         delete?: never;
@@ -164,46 +207,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/reviews/trainer/{trainerId}/rating": {
+    "/api/trainers/me": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["getTrainerRating"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/reviews/received": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getReceivedReviews"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/reviews/my": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getMyReviews"];
+        /** 내 트레이너 프로필 조회 */
+        get: operations["getMyTrainerProfile"];
         put?: never;
         post?: never;
         delete?: never;
@@ -264,19 +276,60 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        ReviewUpdateRequest: {
-            /** Format: int32 */
-            rating?: number;
-            content: string;
+        UserProfileUpdateRequest: {
+            sports?: string;
+            level?: string;
+            goal?: string;
         };
-        ReviewRequest: {
+        UserProfileResponse: {
             /** Format: int64 */
-            matchingId: number;
+            id?: number;
             /** Format: int64 */
-            trainerId: number;
+            memberId?: number;
+            nickname?: string;
+            profileImage?: string;
+            introduction?: string;
+            region?: string;
+            sports?: string;
+            level?: string;
+            goal?: string;
+        };
+        TrainerProfileUpdateRequest: {
+            sports?: string;
+            lessonType?: string;
             /** Format: int32 */
-            rating?: number;
-            content: string;
+            price?: number;
+            /** Format: int32 */
+            careerYears?: number;
+        };
+        TrainerProfileResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            memberId?: number;
+            nickname?: string;
+            profileImage?: string;
+            introduction?: string;
+            region?: string;
+            sports?: string;
+            lessonType?: string;
+            /** Format: int32 */
+            price?: number;
+            /** Format: int32 */
+            careerYears?: number;
+        };
+        UserProfileRequest: {
+            sports?: string;
+            level?: string;
+            goal?: string;
+        };
+        TrainerProfileRequest: {
+            sports?: string;
+            lessonType?: string;
+            /** Format: int32 */
+            price?: number;
+            /** Format: int32 */
+            careerYears?: number;
         };
         ChatRoomRequest: {
             /** Format: int64 */
@@ -346,33 +399,6 @@ export interface components {
             introduction?: string;
             phone?: string;
         };
-        ReviewResponse: {
-            /** Format: int64 */
-            id?: number;
-            /** Format: int64 */
-            matchingId?: number;
-            /** Format: int64 */
-            reviewerId?: number;
-            reviewerNickname?: string;
-            /** Format: int64 */
-            trainerId?: number;
-            /** Format: int32 */
-            rating?: number;
-            content?: string;
-            /** Format: date-time */
-            createdAt?: string;
-        };
-        TrainerRatingResponse: {
-            /** Format: int64 */
-            trainerId?: number;
-            /** Format: double */
-            averageRating?: number;
-            /** Format: int64 */
-            reviewCount?: number;
-            ratingDistribution?: {
-                [key: string]: number;
-            };
-        };
         TrainerSummaryDto: {
             /** Format: int64 */
             id?: number;
@@ -400,20 +426,64 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    updateReview: {
+    getUserProfile: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                reviewId: number;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["UserProfileResponse"];
+                };
+            };
+        };
+    };
+    updateUserProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ReviewUpdateRequest"];
+                "application/json": components["schemas"]["UserProfileUpdateRequest"];
             };
         };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["UserProfileResponse"];
+                };
+            };
+        };
+    };
+    deleteUserProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
@@ -424,12 +494,60 @@ export interface operations {
             };
         };
     };
-    deleteReview: {
+    getTrainerProfile: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                reviewId: number;
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["TrainerProfileResponse"];
+                };
+            };
+        };
+    };
+    updateTrainerProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TrainerProfileUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["TrainerProfileResponse"];
+                };
+            };
+        };
+    };
+    deleteTrainerProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
             };
             cookie?: never;
         };
@@ -466,7 +584,27 @@ export interface operations {
             };
         };
     };
-    createReview: {
+    getUserProfiles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["UserProfileResponse"][];
+                };
+            };
+        };
+    };
+    createUserProfile: {
         parameters: {
             query?: never;
             header?: never;
@@ -475,7 +613,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ReviewRequest"];
+                "application/json": components["schemas"]["UserProfileRequest"];
             };
         };
         responses: {
@@ -485,7 +623,57 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": number;
+                    "application/json;charset=UTF-8": components["schemas"]["UserProfileResponse"];
+                };
+            };
+        };
+    };
+    getTrainerProfiles: {
+        parameters: {
+            query?: {
+                sport?: string;
+                lessonType?: string;
+                minPrice?: number;
+                maxPrice?: number;
+                region?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["TrainerProfileResponse"][];
+                };
+            };
+        };
+    };
+    createTrainerProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TrainerProfileRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["TrainerProfileResponse"];
                 };
             };
         };
@@ -666,73 +854,7 @@ export interface operations {
             };
         };
     };
-    getReviewsByTrainer: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                trainerId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": components["schemas"]["ReviewResponse"][];
-                };
-            };
-        };
-    };
-    getTrainerRating: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                trainerId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": components["schemas"]["TrainerRatingResponse"];
-                };
-            };
-        };
-    };
-    getReceivedReviews: {
-        parameters: {
-            query: {
-                trainerId: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": components["schemas"]["ReviewResponse"][];
-                };
-            };
-        };
-    };
-    getMyReviews: {
+    getMyUserProfile: {
         parameters: {
             query?: never;
             header?: never;
@@ -747,7 +869,27 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["ReviewResponse"][];
+                    "application/json;charset=UTF-8": components["schemas"]["UserProfileResponse"];
+                };
+            };
+        };
+    };
+    getMyTrainerProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["TrainerProfileResponse"];
                 };
             };
         };
