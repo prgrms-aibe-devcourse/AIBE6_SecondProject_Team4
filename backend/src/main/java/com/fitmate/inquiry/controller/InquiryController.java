@@ -35,4 +35,10 @@ public class InquiryController {
         Long memberId = (Long) ((UsernamePasswordAuthenticationToken) authentication).getDetails();
         return ResponseEntity.ok(inquiryService.createInquiry(memberId, request));
     }
+
+    @DeleteMapping("/{inquiryId}")
+    public ResponseEntity<Void> deleteInquiry(@PathVariable Long inquiryId) {
+        inquiryService.deleteInquiry(inquiryId);
+        return ResponseEntity.ok().build();
+    }
 }

@@ -49,4 +49,12 @@ public class InquiryService {
 
         return InquiryResponse.from(inquiryRepository.save(inquiry));
     }
+
+    @Transactional
+    public void deleteInquiry(Long inquiryId) {
+        if (!inquiryRepository.existsById(inquiryId)) {
+            throw new CustomException(ErrorCode.INQUIRY_NOT_FOUND);
+        }
+        inquiryRepository.deleteById(inquiryId);
+    }
 }
