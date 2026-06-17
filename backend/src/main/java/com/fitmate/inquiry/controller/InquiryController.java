@@ -44,8 +44,9 @@ public class InquiryController {
     }
 
     @DeleteMapping("/{inquiryId}")
-    public ResponseEntity<Void> deleteInquiry(@PathVariable Long inquiryId) {
-        inquiryService.deleteInquiry(inquiryId);
+    public ResponseEntity<Void> deleteInquiry(@PathVariable Long inquiryId, Authentication authentication) {
+        Long memberId = (Long) ((UsernamePasswordAuthenticationToken) authentication).getDetails();
+        inquiryService.deleteInquiry(inquiryId, memberId);
         return ResponseEntity.ok().build();
     }
 }

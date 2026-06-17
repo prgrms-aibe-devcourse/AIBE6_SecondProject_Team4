@@ -64,10 +64,12 @@ public class InquiryService {
     }
 
     @Transactional
-    public void deleteInquiry(Long inquiryId) {
-        if (!inquiryRepository.existsById(inquiryId)) {
-            throw new CustomException(ErrorCode.INQUIRY_NOT_FOUND);
+    public void deleteInquiry(Long inquiryId, Long memberId) {
+        Inquiry inquiry = inquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> new CustomException(ErrorCode.INQUIRY_NOT_FOUND));
+        if (!inquiry.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
         }
-        inquiryRepository.deleteById(inquiryId);
+        inquiryRepository.delete(inquiry);
     }
 }
