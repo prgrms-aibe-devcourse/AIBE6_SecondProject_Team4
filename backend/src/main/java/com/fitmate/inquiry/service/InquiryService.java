@@ -22,6 +22,19 @@ public class InquiryService {
     private final InquiryRepository inquiryRepository;
     private final MemberRepository memberRepository;
 
+    public List<InquiryResponse> getMyInquiries(Long memberId) {
+        return inquiryRepository.findByMemberIdOrderByCreatedAtDesc(memberId)
+                .stream()
+                .map(InquiryResponse::from)
+                .toList();
+    }
+
+    public InquiryResponse getInquiry(Long inquiryId) {
+        Inquiry inquiry = inquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> new CustomException(ErrorCode.INQUIRY_NOT_FOUND));
+        return InquiryResponse.from(inquiry);
+    }
+
     @Transactional
     public InquiryResponse createInquiry(Long memberId, InquiryRequest request) {
         Member member = memberRepository.findById(memberId)
