@@ -23,6 +23,7 @@ import java.util.List;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
@@ -123,13 +124,26 @@ public class MatchingService {
                 .map(this::toMatchingResultResponse)
                 .toList();
     }
-    //사용자 조건과 트레이너 조건 비교
+    // 사용자 요청 조건과 트레이너 프로필 조건 비교
     private boolean matchesBasicConditions(MatchingRequest matchingRequest, TrainerProfile trainerProfile) {
         return Objects.equals(matchingRequest.getSports(), trainerProfile.getSports())
+                && matchesLessonLevel(matchingRequest, trainerProfile)
                 && Objects.equals(matchingRequest.getLessonType(), trainerProfile.getLessonType())
                 && Objects.equals(matchingRequest.getRegion(), trainerProfile.getMember().getRegion())
                 && isPriceInBudget(trainerProfile.getPrice(), matchingRequest.getBudgetMin(), matchingRequest.getBudgetMax());
     }
+
+    // 트레이너가 여러 레벨을 담당할 수 있으므로 "중급,고급" 같은 문자열을 나눠서 비교
+    private boolean matchesLessonLevel(MatchingRequest matchingRequest, TrainerProfile trainerProfile) {
+        if (matchingRequest.getLevel() == null || trainerProfile.getLessonLevel() == null) {
+            return false;
+        }
+
+        return Arrays.stream(trainerProfile.getLessonLevel().split(","))
+                .map(String::trim)
+                .anyMatch(level -> level.equals(matchingRequest.getLevel()));
+    }
+
    // 가격 비교
     private boolean isPriceInBudget(Integer price, Integer budgetMin, Integer budgetMax) {
         if (price == null) {
@@ -173,6 +187,7 @@ public class MatchingService {
                 trainerMember.getIntroduction(),
                 trainerProfile.getSports(),
                 trainerProfile.getLessonType(),
+                trainerProfile.getLessonLevel(),
                 trainerMember.getRegion(),
                 trainerProfile.getPrice(),
                 preferredTime.getDayOfWeek(),

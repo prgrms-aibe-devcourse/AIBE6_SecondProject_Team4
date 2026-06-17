@@ -10,6 +10,7 @@ public record MatchingResultResponse(
         String introduction,
         String sports,
         String lessonType,
+        String lessonLevel,
         String region,
         Integer price,
         String dayOfWeek,
