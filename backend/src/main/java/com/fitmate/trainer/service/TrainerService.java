@@ -8,11 +8,15 @@ import com.fitmate.member.repository.MemberRepository;
 import com.fitmate.trainer.dto.TrainerProfileRequest;
 import com.fitmate.trainer.dto.TrainerProfileResponse;
 import com.fitmate.trainer.dto.TrainerProfileUpdateRequest;
-import com.fitmate.trainer.entity.TrainerProfile;
-import com.fitmate.trainer.repository.TrainerProfileRepository;
 import com.fitmate.trainer.entity.TrainerAvailableTime;
+import com.fitmate.trainer.entity.TrainerProfile;
 import com.fitmate.trainer.repository.TrainerAvailableTimeRepository;
+import com.fitmate.trainer.repository.TrainerProfileRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,22 +41,31 @@ public class TrainerService {
         return TrainerProfileResponse.from(profile, availableTimes);
     }
 
-    public List<TrainerProfileResponse> getTrainerProfilesByFilter(
+    public Page<TrainerProfileResponse> getTrainerProfilesByFilter(
             String sport,
             String lessonType,
             Integer minPrice,
             Integer maxPrice,
-            String region) {
-        return trainerProfileRepository.findByFilters(sport, lessonType, minPrice, maxPrice, region)
-                .stream()
+            String region,
+            int page,
+            int size,
+            String sort) {
+
+        Sort sortObj = switch (sort) {
+            case "priceAsc" -> Sort.by("price").ascending();
+            case "priceDesc" -> Sort.by("price").descending();
+            case "careerDesc" -> Sort.by("careerYears").descending();
+            default -> Sort.by("id").descending();
+        };
+
+        Pageable pageable = PageRequest.of(page, size, sortObj);
+
+        return trainerProfileRepository.findByFilters(sport, lessonType, minPrice, maxPrice, region, pageable)
                 .map(profile -> {
-                    // 각 트레이너 프로필마다 등록된 가능 시간 목록을 조회
                     List<TrainerAvailableTime> availableTimes =
                             trainerAvailableTimeRepository.findByTrainerProfileId(profile.getId());
-                    // 트레이너 프로필 정보와 가능 시간 목록을 함께 응답으로 변환
                     return TrainerProfileResponse.from(profile, availableTimes);
-                })
-                .toList();
+                });
     }
 
     public TrainerProfileResponse createTrainerProfile(Long memberId, TrainerProfileRequest request) {
@@ -95,7 +108,24 @@ public class TrainerService {
         }
 
         profile.update(request);
-        return TrainerProfileResponse.from(profile);
+
+        // 활동 시간 수정 - 기존 삭제 후 새로 저장
+        if (request.availableTimes() != null) {
+            trainerAvailableTimeRepository.deleteByTrainerProfileId(profile.getId());
+            List<TrainerAvailableTime> availableTimes = request.availableTimes().stream()
+                    .map(time -> TrainerAvailableTime.builder()
+                            .trainerProfile(profile)
+                            .dayOfWeek(time.dayOfWeek())
+                            .startTime(time.startTime())
+                            .endTime(time.endTime())
+                            .build())
+                    .toList();
+            trainerAvailableTimeRepository.saveAll(availableTimes);
+        }
+
+        List<TrainerAvailableTime> availableTimes =
+                trainerAvailableTimeRepository.findByTrainerProfileId(profile.getId());
+        return TrainerProfileResponse.from(profile, availableTimes);
     }
 
     public void deleteTrainerProfile(Long id, Long memberId) {
