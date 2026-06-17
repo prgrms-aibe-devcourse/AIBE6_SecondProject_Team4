@@ -194,6 +194,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/inquiries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getMyInquiries"];
+        put?: never;
+        post: operations["createInquiry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/chat": {
         parameters: {
             query?: never;
@@ -310,6 +326,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/inquiries/{inquiryId}/answer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["writeAnswer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/members/me": {
         parameters: {
             query?: never;
@@ -358,6 +390,22 @@ export interface paths {
         head?: never;
         /** 레슨 요청서 수락 */
         patch: operations["acceptLessonRequest"];
+        trace?: never;
+    };
+    "/api/inquiries/{inquiryId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getInquiry"];
+        put?: never;
+        post?: never;
+        delete: operations["deleteInquiry"];
+        options?: never;
+        head?: never;
+        patch: operations["updateInquiry"];
         trace?: never;
     };
     "/api/alerts/{alertId}/read": {
@@ -584,6 +632,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/inquiries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAllInquiries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/chat/{roomId}": {
         parameters: {
             query?: never;
@@ -802,6 +866,25 @@ export interface components {
             /** Format: date-time */
             createdAt?: string;
         };
+        InquiryRequest: {
+            /** @enum {string} */
+            type?: "MATCHING" | "PAYMENT" | "TRAINER" | "ETC";
+            title?: string;
+            content?: string;
+        };
+        InquiryResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** @enum {string} */
+            type?: "MATCHING" | "PAYMENT" | "TRAINER" | "ETC";
+            title?: string;
+            content?: string;
+            /** @enum {string} */
+            status?: "PENDING" | "RESOLVED";
+            answer?: string;
+            /** Format: date-time */
+            createdAt?: string;
+        };
         ChatRoomRequest: {
             /** Format: int64 */
             trainerId: number;
@@ -853,7 +936,7 @@ export interface components {
             /** Format: int64 */
             receiverId?: number;
             /** @enum {string} */
-            type?: "MESSAGE" | "REVIEW" | "MATCHING";
+            type?: "MESSAGE" | "REVIEW" | "MATCHING" | "INQUIRY";
             /** Format: int64 */
             targetId?: number;
             content?: string;
@@ -864,13 +947,16 @@ export interface components {
             /** Format: int64 */
             receiverId?: number;
             /** @enum {string} */
-            type?: "MESSAGE" | "REVIEW" | "MATCHING";
+            type?: "MESSAGE" | "REVIEW" | "MATCHING" | "INQUIRY";
             /** Format: int64 */
             targetId?: number;
             content?: string;
             isRead?: boolean;
             /** Format: date-time */
             createdAt?: string;
+        };
+        InquiryAnswerRequest: {
+            answer?: string;
         };
         MemberUpdateRequest: {
             nickname?: string;
@@ -893,11 +979,17 @@ export interface components {
             introduction?: string;
             phone?: string;
         };
+        InquiryUpdateRequest: {
+            /** @enum {string} */
+            type?: "MATCHING" | "PAYMENT" | "TRAINER" | "ETC";
+            title?: string;
+            content?: string;
+        };
         PageTrainerProfileResponse: {
-            /** Format: int64 */
-            totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
+            /** Format: int64 */
+            totalElements?: number;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["TrainerProfileResponse"][];
@@ -915,11 +1007,11 @@ export interface components {
             /** Format: int64 */
             offset?: number;
             /** Format: int32 */
-            pageSize?: number;
-            /** Format: int32 */
             pageNumber?: number;
-            paged?: boolean;
+            /** Format: int32 */
+            pageSize?: number;
             sort?: components["schemas"]["SortObject"];
+            paged?: boolean;
             unpaged?: boolean;
         };
         SortObject: {
@@ -1396,6 +1488,50 @@ export interface operations {
             };
         };
     };
+    getMyInquiries: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["InquiryResponse"][];
+                };
+            };
+        };
+    };
+    createInquiry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InquiryRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["InquiryResponse"];
+                };
+            };
+        };
+    };
     getChatRooms: {
         parameters: {
             query: {
@@ -1590,6 +1726,32 @@ export interface operations {
             };
         };
     };
+    writeAnswer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                inquiryId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InquiryAnswerRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["InquiryResponse"];
+                };
+            };
+        };
+    };
     getMyInfo: {
         parameters: {
             query?: never;
@@ -1674,6 +1836,74 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["LessonRequestResponse"];
+                };
+            };
+        };
+    };
+    getInquiry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                inquiryId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["InquiryResponse"];
+                };
+            };
+        };
+    };
+    deleteInquiry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                inquiryId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateInquiry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                inquiryId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InquiryUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["InquiryResponse"];
                 };
             };
         };
@@ -1925,6 +2155,26 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["ChatResponseDto"][];
+                };
+            };
+        };
+    };
+    getAllInquiries: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["InquiryResponse"][];
                 };
             };
         };
