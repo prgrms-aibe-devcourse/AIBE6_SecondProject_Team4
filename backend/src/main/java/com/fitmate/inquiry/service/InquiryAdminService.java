@@ -10,10 +10,10 @@ import com.fitmate.inquiry.dto.InquiryResponse;
 import com.fitmate.inquiry.entity.Inquiry;
 import com.fitmate.inquiry.repository.InquiryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,11 +23,9 @@ public class InquiryAdminService {
     private final InquiryRepository inquiryRepository;
     private final AlertService alertService;
 
-    public List<InquiryResponse> getAllInquiries() {
-        return inquiryRepository.findAllByOrderByCreatedAtDesc()
-                .stream()
-                .map(InquiryResponse::from)
-                .toList();
+    public Page<InquiryResponse> getAllInquiries(Pageable pageable) {
+        return inquiryRepository.findAllByOrderByCreatedAtAsc(pageable)
+                .map(InquiryResponse::from);
     }
 
     @Transactional

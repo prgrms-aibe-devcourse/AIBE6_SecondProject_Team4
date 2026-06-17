@@ -1,5 +1,5 @@
 package com.fitmate.inquiry.entity;
 
 public enum InquiryType {
-    MATCHING, PAYMENT, TRAINER, ETC
+    MATCHING, TRAINER, ETC
 }

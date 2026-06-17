@@ -5,12 +5,14 @@ import com.fitmate.inquiry.dto.InquiryResponse;
 import com.fitmate.inquiry.dto.InquiryUpdateRequest;
 import com.fitmate.inquiry.service.InquiryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/inquiries")
@@ -20,9 +22,11 @@ public class InquiryController {
     private final InquiryService inquiryService;
 
     @GetMapping
-    public ResponseEntity<List<InquiryResponse>> getMyInquiries(Authentication authentication) {
+    public ResponseEntity<Page<InquiryResponse>> getMyInquiries(
+            Authentication authentication,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Long memberId = (Long) ((UsernamePasswordAuthenticationToken) authentication).getDetails();
-        return ResponseEntity.ok(inquiryService.getMyInquiries(memberId));
+        return ResponseEntity.ok(inquiryService.getMyInquiries(memberId, pageable));
     }
 
     @GetMapping("/{inquiryId}")

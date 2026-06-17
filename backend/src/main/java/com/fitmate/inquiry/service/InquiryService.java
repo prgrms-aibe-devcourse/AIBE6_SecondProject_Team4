@@ -11,10 +11,10 @@ import com.fitmate.inquiry.repository.InquiryRepository;
 import com.fitmate.member.entity.Member;
 import com.fitmate.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,11 +24,9 @@ public class InquiryService {
     private final InquiryRepository inquiryRepository;
     private final MemberRepository memberRepository;
 
-    public List<InquiryResponse> getMyInquiries(Long memberId) {
-        return inquiryRepository.findByMemberIdOrderByCreatedAtDesc(memberId)
-                .stream()
-                .map(InquiryResponse::from)
-                .toList();
+    public Page<InquiryResponse> getMyInquiries(Long memberId, Pageable pageable) {
+        return inquiryRepository.findByMemberIdOrderByCreatedAtDesc(memberId, pageable)
+                .map(InquiryResponse::from);
     }
 
     public InquiryResponse getInquiry(Long inquiryId) {

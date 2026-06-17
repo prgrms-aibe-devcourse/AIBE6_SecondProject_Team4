@@ -1,11 +1,12 @@
 package com.fitmate.inquiry.repository;
 
 import com.fitmate.inquiry.entity.Inquiry;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
 
 public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
-    List<Inquiry> findByMemberIdOrderByCreatedAtDesc(Long memberId);
-    List<Inquiry> findAllByOrderByCreatedAtDesc();
+    Page<Inquiry> findByMemberIdOrderByCreatedAtDesc(Long memberId, Pageable pageable);
+    Page<Inquiry> findAllByOrderByCreatedAtAsc(Pageable pageable);
 }

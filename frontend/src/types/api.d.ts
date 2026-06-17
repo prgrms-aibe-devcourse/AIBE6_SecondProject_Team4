@@ -868,7 +868,7 @@ export interface components {
         };
         InquiryRequest: {
             /** @enum {string} */
-            type?: "MATCHING" | "PAYMENT" | "TRAINER" | "ETC";
+            type?: "MATCHING" | "TRAINER" | "ETC";
             title?: string;
             content?: string;
         };
@@ -876,7 +876,7 @@ export interface components {
             /** Format: int64 */
             id?: number;
             /** @enum {string} */
-            type?: "MATCHING" | "PAYMENT" | "TRAINER" | "ETC";
+            type?: "MATCHING" | "TRAINER" | "ETC";
             title?: string;
             content?: string;
             /** @enum {string} */
@@ -981,7 +981,7 @@ export interface components {
         };
         InquiryUpdateRequest: {
             /** @enum {string} */
-            type?: "MATCHING" | "PAYMENT" | "TRAINER" | "ETC";
+            type?: "MATCHING" | "TRAINER" | "ETC";
             title?: string;
             content?: string;
         };
@@ -999,19 +999,19 @@ export interface components {
             last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
             sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             empty?: boolean;
         };
         PageableObject: {
             /** Format: int64 */
             offset?: number;
-            /** Format: int32 */
-            pageNumber?: number;
-            /** Format: int32 */
-            pageSize?: number;
             sort?: components["schemas"]["SortObject"];
             paged?: boolean;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            pageNumber?: number;
             unpaged?: boolean;
         };
         SortObject: {
@@ -1051,6 +1051,31 @@ export interface components {
             id?: number;
             userName?: string;
             profileImage?: string;
+        };
+        Pageable: {
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            sort?: string[];
+        };
+        PageInquiryResponse: {
+            /** Format: int32 */
+            totalPages?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            size?: number;
+            content?: components["schemas"]["InquiryResponse"][];
+            /** Format: int32 */
+            number?: number;
+            first?: boolean;
+            last?: boolean;
+            /** Format: int32 */
+            numberOfElements?: number;
+            sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
+            empty?: boolean;
         };
         ChatResponseDto: {
             /** Format: int64 */
@@ -1490,7 +1515,9 @@ export interface operations {
     };
     getMyInquiries: {
         parameters: {
-            query?: never;
+            query: {
+                pageable: components["schemas"]["Pageable"];
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1503,7 +1530,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["InquiryResponse"][];
+                    "application/json;charset=UTF-8": components["schemas"]["PageInquiryResponse"];
                 };
             };
         };
@@ -2161,7 +2188,9 @@ export interface operations {
     };
     getAllInquiries: {
         parameters: {
-            query?: never;
+            query: {
+                pageable: components["schemas"]["Pageable"];
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2174,7 +2203,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["InquiryResponse"][];
+                    "application/json;charset=UTF-8": components["schemas"]["PageInquiryResponse"];
                 };
             };
         };
