@@ -74,6 +74,10 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
+        /**
+         * 메시지 읽음 처리
+         * @description 채팅방 입장 시 안읽은 메시지를 읽음 처리합니다.
+         */
         put: operations["markAsRead"];
         post?: never;
         delete?: never;
@@ -145,8 +149,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 채팅방 목록 조회
+         * @description 사용자의 채팅방 목록을 조회합니다.
+         */
         get: operations["getChatRooms"];
         put?: never;
+        /**
+         * 채팅방 생성 또는 조회
+         * @description 트레이너와의 채팅방을 생성하거나 기존 채팅방을 반환합니다.
+         */
         post: operations["getOrCreateChatRoom"];
         delete?: never;
         options?: never;
@@ -439,6 +451,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 메시지 히스토리 조회
+         * @description 초기 채팅 20개 조회, 상단 스크롤시 20개씩 추가조회.
+         */
         get: operations["getMessages"];
         put?: never;
         post?: never;
@@ -458,6 +474,10 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
+        /**
+         * 채팅방 나가기
+         * @description 채팅방을 숨김 처리합니다.
+         */
         delete: operations["hideChatRoom"];
         options?: never;
         head?: never;
