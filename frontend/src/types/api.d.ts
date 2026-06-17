@@ -668,13 +668,6 @@ export interface components {
             startTime?: string;
             endTime?: string;
         };
-        AvailableTimeResponse: {
-            /** Format: int64 */
-            id?: number;
-            dayOfWeek?: string;
-            startTime?: string;
-            endTime?: string;
-        };
         TrainerProfileResponse: {
             /** Format: int64 */
             id?: number;
@@ -702,11 +695,6 @@ export interface components {
             sports?: string;
             level?: string;
             goal?: string;
-        };
-        AvailableTimeRequest: {
-            dayOfWeek?: string;
-            startTime?: string;
-            endTime?: string;
         };
         TrainerProfileRequest: {
             sports?: string;
@@ -910,13 +898,13 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["TrainerProfileResponse"][];
             /** Format: int32 */
             number?: number;
-            first?: boolean;
-            last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
             pageable?: components["schemas"]["PageableObject"];
@@ -926,18 +914,18 @@ export interface components {
         PageableObject: {
             /** Format: int64 */
             offset?: number;
-            /** Format: int32 */
-            pageSize?: number;
+            unpaged?: boolean;
+            paged?: boolean;
             /** Format: int32 */
             pageNumber?: number;
-            paged?: boolean;
+            /** Format: int32 */
+            pageSize?: number;
             sort?: components["schemas"]["SortObject"];
-            unpaged?: boolean;
         };
         SortObject: {
             empty?: boolean;
-            sorted?: boolean;
             unsorted?: boolean;
+            sorted?: boolean;
         };
         ReviewResponse: {
             /** Format: int64 */
