@@ -37,8 +37,8 @@ public class MatchingService {
     private final TrainerAvailableTimeRepository trainerAvailableTimeRepository;
 
     @Transactional
-    public MatchingCreateResponse createMatchingRequest(MatchingRequestDto requestDto) {
-        Member member = memberRepository.findById(requestDto.memberId())
+    public MatchingCreateResponse createMatchingRequest(String userId, MatchingRequestDto requestDto) {
+        Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
         MatchingRequest matchingRequest = MatchingRequest.builder()
