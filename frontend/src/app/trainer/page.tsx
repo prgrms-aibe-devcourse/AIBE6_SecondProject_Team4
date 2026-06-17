@@ -15,6 +15,10 @@ export default function ExplorePage() {
     const router = useRouter()
     const [trainers, setTrainers] = useState<Trainer[]>([])
     const [loading, setLoading] = useState(true)
+    const [currentPage, setCurrentPage] = useState(0)
+    const [totalPages, setTotalPages] = useState(0)
+    const [totalElements, setTotalElements] = useState(0)
+    const [sort, setSort] = useState('latest')
     const [filters, setFilters] = useState({
         sport: '',
         lessonType: '',
@@ -23,7 +27,7 @@ export default function ExplorePage() {
         region: '',
     })
 
-    const fetchTrainers = async () => {
+    const fetchTrainers = async (page = 0) => {
         setLoading(true)
         const client = getAuthClient()
         const { data } = await client.GET('/api/trainers', {
@@ -34,28 +38,53 @@ export default function ExplorePage() {
                     minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
                     maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
                     region: filters.region || undefined,
+                    page,
+                    size: 8,
+                    sort,
                 },
             },
         })
-        setTrainers(data ?? [])
+        if (data) {
+            setTrainers((data as any).content ?? [])
+            setTotalPages((data as any).totalPages ?? 0)
+            setTotalElements((data as any).totalElements ?? 0)
+            setCurrentPage(page)
+        }
         setLoading(false)
     }
 
     useEffect(() => {
-        fetchTrainers()
-    }, [])
+        fetchTrainers(0)
+    }, [sort])
+
+    const handleSearch = () => {
+        setCurrentPage(0)
+        fetchTrainers(0)
+    }
+
+    const handlePageChange = (page: number) => {
+        fetchTrainers(page)
+    }
+
+    const getPageNumbers = () => {
+        const pages = []
+        const start = Math.max(0, currentPage - 1)
+        const end = Math.min(totalPages - 1, start + 2)
+        for (let i = start; i <= end; i++) pages.push(i)
+        return pages
+    }
 
     return (
         <main className="pt-16 md:pt-20">
             <div className="max-w-[1440px] mx-auto px-margin-desktop py-lg">
                 {/* 필터 */}
-                <div className="flex flex-wrap items-end gap-md mb-lg">
-                    <div className="space-y-xs">
-                        <label className="block text-label-md font-label-md text-on-surface-variant">
+                <div className="flex flex-wrap items-center gap-sm mb-lg">
+                    <div className="flex flex-col gap-xs">
+                        <label className="text-label-md font-label-md text-on-surface-variant">
                             종목
                         </label>
                         <select
-                            className="bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-body-md min-w-[160px]"
+                            className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-36"
                             value={filters.sport}
                             onChange={(e) =>
                                 setFilters((f) => ({
@@ -69,12 +98,12 @@ export default function ExplorePage() {
                             ))}
                         </select>
                     </div>
-                    <div className="space-y-xs">
-                        <label className="block text-label-md font-label-md text-on-surface-variant">
+                    <div className="flex flex-col gap-xs">
+                        <label className="text-label-md font-label-md text-on-surface-variant">
                             지역
                         </label>
                         <select
-                            className="bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm text-body-md min-w-[160px]"
+                            className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-36"
                             value={filters.region}
                             onChange={(e) =>
                                 setFilters((f) => ({
@@ -88,11 +117,11 @@ export default function ExplorePage() {
                             ))}
                         </select>
                     </div>
-                    <div className="space-y-xs">
-                        <label className="block text-label-md font-label-md text-on-surface-variant">
+                    <div className="flex flex-col gap-xs">
+                        <label className="text-label-md font-label-md text-on-surface-variant">
                             레슨 형태
                         </label>
-                        <div className="flex gap-xs">
+                        <div className="flex gap-xs h-11">
                             {[
                                 { label: '전체', value: '' },
                                 { label: '1:1', value: 'ONE_TO_ONE' },
@@ -100,10 +129,10 @@ export default function ExplorePage() {
                             ].map(({ label, value }) => (
                                 <button
                                     key={label}
-                                    className={`px-md py-sm rounded-lg text-label-bold font-label-bold transition-all ${
+                                    className={`px-md h-11 rounded-lg text-label-bold font-label-bold transition-all border ${
                                         filters.lessonType === value
-                                            ? 'bg-primary text-on-primary'
-                                            : 'bg-surface-container-low border border-outline-variant text-on-surface-variant hover:bg-surface-container'
+                                            ? 'bg-primary text-on-primary border-primary'
+                                            : 'bg-surface-container-low border-outline-variant text-on-surface-variant hover:bg-surface-container'
                                     }`}
                                     onClick={() => setFilters((f) => ({ ...f, lessonType: value }))}
                                 >
@@ -112,13 +141,13 @@ export default function ExplorePage() {
                             ))}
                         </div>
                     </div>
-                    <div className="space-y-xs">
-                        <label className="block text-label-md font-label-md text-on-surface-variant">
+                    <div className="flex flex-col gap-xs">
+                        <label className="text-label-md font-label-md text-on-surface-variant">
                             가격 범위
                         </label>
                         <div className="flex items-center gap-xs">
                             <input
-                                className="bg-surface-container-low border border-outline-variant rounded-lg px-sm py-sm text-body-md w-28"
+                                className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-24"
                                 placeholder="최소"
                                 type="number"
                                 value={filters.minPrice}
@@ -128,7 +157,7 @@ export default function ExplorePage() {
                             />
                             <span className="text-on-surface-variant">-</span>
                             <input
-                                className="bg-surface-container-low border border-outline-variant rounded-lg px-sm py-sm text-body-md w-28"
+                                className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-24"
                                 placeholder="최대"
                                 type="number"
                                 value={filters.maxPrice}
@@ -138,28 +167,37 @@ export default function ExplorePage() {
                             />
                         </div>
                     </div>
-                    <button
-                        className="bg-primary text-on-primary px-md py-sm rounded-lg font-label-bold hover:shadow-lg active:scale-95 transition-all"
-                        onClick={fetchTrainers}
-                    >
-                        검색
-                    </button>
+                    <div className="flex flex-col gap-xs">
+                        <label className="text-label-md font-label-md text-transparent select-none">
+                            검색
+                        </label>
+                        <button
+                            className="bg-primary text-on-primary px-md h-11 rounded-lg font-label-bold hover:shadow-lg active:scale-95 transition-all"
+                            onClick={handleSearch}
+                        >
+                            검색
+                        </button>
+                    </div>
                 </div>
 
                 {/* 결과 수 + 정렬 */}
                 {!loading && (
                     <div className="flex justify-between items-center mb-md">
                         <p className="text-body-md text-on-surface">
-                            <span className="font-bold">{trainers.length}명</span>의 트레이너를
+                            <span className="font-bold">{totalElements}명</span>의 트레이너를
                             찾았습니다
                         </p>
                         <div className="flex items-center gap-xs">
                             <span className="text-body-sm text-on-surface-variant">정렬:</span>
-                            <select className="bg-surface-container-low border border-outline-variant rounded-lg px-sm py-xs text-body-sm">
-                                <option>인기순</option>
-                                <option>가격 낮은순</option>
-                                <option>가격 높은순</option>
-                                <option>경력순</option>
+                            <select
+                                className="bg-surface-container-low border border-outline-variant rounded-lg px-sm py-xs text-body-sm"
+                                value={sort}
+                                onChange={(e) => setSort(e.target.value)}
+                            >
+                                <option value="latest">최신순</option>
+                                <option value="priceAsc">가격 낮은순</option>
+                                <option value="priceDesc">가격 높은순</option>
+                                <option value="careerDesc">경력순</option>
                             </select>
                         </div>
                     </div>
@@ -185,7 +223,7 @@ export default function ExplorePage() {
                             {trainers.map((trainer) => (
                                 <div
                                     key={trainer.id}
-                                    className="group rounded-xl overflow-hidden border border-outline-variant bg-surface-container-lowest cursor-pointer transition-all"
+                                    className="group rounded-xl overflow-hidden border border-outline-variant bg-surface-container-lowest cursor-pointer flex flex-col"
                                     style={{
                                         boxShadow: '0 4px 20px rgba(116,119,129,0.08)',
                                         transition: 'transform 0.2s ease, box-shadow 0.2s ease',
@@ -204,9 +242,8 @@ export default function ExplorePage() {
                                             '0 4px 20px rgba(116,119,129,0.08)'
                                     }}
                                 >
-                                    {/* 이미지 */}
                                     <div
-                                        className="w-full bg-surface-container flex items-center justify-center overflow-hidden relative"
+                                        className="w-full bg-surface-container flex items-center justify-center overflow-hidden relative flex-shrink-0"
                                         style={{ height: '200px' }}
                                     >
                                         {trainer.profileImage ? (
@@ -220,23 +257,13 @@ export default function ExplorePage() {
                                                 person
                                             </span>
                                         )}
-                                        <button
-                                            className="absolute top-3 right-3 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center hover:bg-white transition"
-                                            onClick={(e) => e.stopPropagation()}
-                                        >
-                                            <span className="material-symbols-outlined text-sm text-on-surface-variant">
-                                                favorite
-                                            </span>
-                                        </button>
                                     </div>
-
-                                    {/*카드 정보 부분*/}
-                                    <div className="p-md flex flex-col h-[200px]">
+                                    <div className="p-md flex flex-col flex-grow">
                                         <div className="flex items-center justify-between mb-xs">
                                             <p className="font-headline-sm text-headline-sm text-on-surface truncate">
                                                 {trainer.nickname}
                                             </p>
-                                            <div className="flex items-center gap-xs flex-shrink-0">
+                                            <div className="flex items-center gap-xs flex-shrink-0 ml-xs">
                                                 <span
                                                     className="material-symbols-outlined text-sm text-tertiary"
                                                     style={{ fontVariationSettings: '"FILL" 1' }}
@@ -246,15 +273,33 @@ export default function ExplorePage() {
                                                 <span className="text-body-sm font-bold">4.9</span>
                                             </div>
                                         </div>
-                                        <p className="text-body-sm text-on-surface-variant line-clamp-2 mb-sm flex-shrink-0 min-h-[40px]">
+                                        <p
+                                            className="text-body-sm text-on-surface-variant mb-sm"
+                                            style={{
+                                                display: '-webkit-box',
+                                                WebkitLineClamp: 2,
+                                                WebkitBoxOrient: 'vertical',
+                                                overflow: 'hidden',
+                                                minHeight: '40px',
+                                            }}
+                                        >
                                             {trainer.introduction ?? '소개가 없습니다.'}
                                         </p>
-                                        <div className="flex gap-xs flex-wrap mb-sm flex-shrink-0 min-h-[28px]">
-                                            {trainer.sports && (
-                                                <span className="text-label-md font-label-md bg-primary-fixed text-on-primary-fixed px-sm py-xs rounded truncate max-w-[120px]">
-                                                    {trainer.sports}
-                                                </span>
-                                            )}
+                                        <div
+                                            className="flex gap-xs flex-wrap mb-sm"
+                                            style={{ minHeight: '28px' }}
+                                        >
+                                            {trainer.sports
+                                                ?.split(',')
+                                                .slice(0, 2)
+                                                .map((s, i) => (
+                                                    <span
+                                                        key={i}
+                                                        className="text-label-md font-label-md bg-primary-fixed text-on-primary-fixed px-sm py-xs rounded"
+                                                    >
+                                                        {s.trim()}
+                                                    </span>
+                                                ))}
                                             {trainer.lessonType && (
                                                 <span className="text-label-md font-label-md bg-surface-container text-on-surface-variant px-sm py-xs rounded">
                                                     {trainer.lessonType === 'ONE_TO_ONE'
@@ -263,17 +308,17 @@ export default function ExplorePage() {
                                                 </span>
                                             )}
                                         </div>
-                                        <div className="flex items-center justify-between mt-auto">
-                                            <div>
+                                        <div className="flex items-center justify-between mt-auto pt-sm border-t border-outline-variant">
+                                            <div className="min-w-0">
                                                 <p className="text-label-md font-label-md text-on-surface-variant">
                                                     최당 가격
                                                 </p>
-                                                <p className="text-headline-sm font-headline-sm text-on-surface">
+                                                <p className="text-body-md font-bold text-on-surface truncate">
                                                     {trainer.price?.toLocaleString()}원
                                                 </p>
                                             </div>
                                             <button
-                                                className="bg-primary text-on-primary px-md py-sm rounded-lg text-label-bold font-label-bold hover:shadow active:scale-95 transition-all flex-shrink-0"
+                                                className="bg-primary text-on-primary px-md py-sm rounded-lg text-label-bold font-label-bold hover:shadow active:scale-95 transition-all flex-shrink-0 ml-sm"
                                                 onClick={(e) => {
                                                     e.stopPropagation()
                                                     router.push(`/trainer/${trainer.id}`)
@@ -288,36 +333,54 @@ export default function ExplorePage() {
                         </div>
 
                         {/* 페이징 */}
-                        <div className="flex justify-center gap-xs mt-lg">
-                            <button className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center hover:bg-surface-container text-on-surface-variant transition">
-                                <span className="material-symbols-outlined text-sm">
-                                    chevron_left
-                                </span>
-                            </button>
-                            {[1, 2, 3].map((page) => (
+                        {totalPages > 1 && (
+                            <div className="flex justify-center gap-xs mt-lg">
                                 <button
-                                    key={page}
-                                    className={`w-9 h-9 rounded-lg flex items-center justify-center text-label-bold font-label-bold transition-all ${
-                                        page === 1
-                                            ? 'bg-primary text-on-primary'
-                                            : 'border border-outline-variant hover:bg-surface-container text-on-surface'
-                                    }`}
+                                    className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center hover:bg-surface-container text-on-surface-variant transition disabled:opacity-50"
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 0}
                                 >
-                                    {page}
+                                    <span className="material-symbols-outlined text-sm">
+                                        chevron_left
+                                    </span>
                                 </button>
-                            ))}
-                            <span className="w-9 h-9 flex items-center justify-center text-on-surface-variant">
-                                ...
-                            </span>
-                            <button className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center text-label-bold font-label-bold hover:bg-surface-container text-on-surface transition">
-                                12
-                            </button>
-                            <button className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center hover:bg-surface-container text-on-surface-variant transition">
-                                <span className="material-symbols-outlined text-sm">
-                                    chevron_right
-                                </span>
-                            </button>
-                        </div>
+                                {getPageNumbers().map((page) => (
+                                    <button
+                                        key={page}
+                                        className={`w-9 h-9 rounded-lg flex items-center justify-center text-label-bold font-label-bold transition-all ${
+                                            page === currentPage
+                                                ? 'bg-primary text-on-primary'
+                                                : 'border border-outline-variant hover:bg-surface-container text-on-surface'
+                                        }`}
+                                        onClick={() => handlePageChange(page)}
+                                    >
+                                        {page + 1}
+                                    </button>
+                                ))}
+                                {totalPages > 3 && currentPage < totalPages - 2 && (
+                                    <>
+                                        <span className="w-9 h-9 flex items-center justify-center text-on-surface-variant">
+                                            ...
+                                        </span>
+                                        <button
+                                            className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center text-label-bold font-label-bold hover:bg-surface-container text-on-surface transition"
+                                            onClick={() => handlePageChange(totalPages - 1)}
+                                        >
+                                            {totalPages}
+                                        </button>
+                                    </>
+                                )}
+                                <button
+                                    className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center hover:bg-surface-container text-on-surface-variant transition disabled:opacity-50"
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === totalPages - 1}
+                                >
+                                    <span className="material-symbols-outlined text-sm">
+                                        chevron_right
+                                    </span>
+                                </button>
+                            </div>
+                        )}
                     </>
                 )}
             </div>

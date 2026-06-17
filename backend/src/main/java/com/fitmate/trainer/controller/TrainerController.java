@@ -10,12 +10,11 @@ import com.fitmate.trainer.dto.TrainerProfileUpdateRequest;
 import com.fitmate.trainer.service.TrainerService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/trainers")
@@ -25,19 +24,20 @@ public class TrainerController {
     private final TrainerService trainerService;
     private final MemberRepository memberRepository;
 
-
-    @Transactional(readOnly = true)
     @GetMapping
     @Operation(summary = "트레이너 목록 조회 및 필터링")
-    public ResponseEntity<List<TrainerProfileResponse>> getTrainerProfiles(
+    public ResponseEntity<Page<TrainerProfileResponse>> getTrainerProfiles(
             @RequestParam(required = false) String sport,
             @RequestParam(required = false) String lessonType,
             @RequestParam(required = false) Integer minPrice,
             @RequestParam(required = false) Integer maxPrice,
-            @RequestParam(required = false) String region) {
-        return ResponseEntity.ok(trainerService.getTrainerProfilesByFilter(sport, lessonType, minPrice, maxPrice, region));
+            @RequestParam(required = false) String region,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size,
+            @RequestParam(defaultValue = "latest") String sort) {
+        return ResponseEntity.ok(trainerService.getTrainerProfilesByFilter(sport, lessonType, minPrice, maxPrice, region, page, size, sort));
     }
-
+    
     @Transactional(readOnly = true)
     @GetMapping("/me")
     @Operation(summary = "내 트레이너 프로필 조회")
