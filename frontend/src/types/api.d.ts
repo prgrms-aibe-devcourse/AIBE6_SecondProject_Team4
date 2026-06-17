@@ -142,6 +142,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/matching": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** AI 매칭 요청 생성 */
+        post: operations["createMatchingRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/matching/{matchingId}/results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** AI 매칭 결과 조회 */
+        get: operations["getMatchingResults"];
+        put?: never;
+        /** AI 매칭 결과 생성 */
+        post: operations["createMatchingResults"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lesson-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 레슨 요청서 생성 */
+        post: operations["createLessonRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/chat": {
         parameters: {
             query?: never;
@@ -274,6 +326,40 @@ export interface paths {
         patch: operations["updateMyInfo"];
         trace?: never;
     };
+    "/api/lesson-requests/{lessonRequestId}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** 레슨 요청서 거절 */
+        patch: operations["rejectLessonRequest"];
+        trace?: never;
+    };
+    "/api/lesson-requests/{lessonRequestId}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** 레슨 요청서 수락 */
+        patch: operations["acceptLessonRequest"];
+        trace?: never;
+    };
     "/api/alerts/{alertId}/read": {
         parameters: {
             query?: never;
@@ -340,6 +426,23 @@ export interface paths {
         };
         /** 내 트레이너 프로필 조회 */
         get: operations["getMyTrainerProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/trainers/me/lesson-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 받은 요청서 목록 조회 */
+        get: operations["getTrainerLessonRequests"];
         put?: never;
         post?: never;
         delete?: never;
@@ -444,6 +547,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/lesson-requests/{lessonRequestId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 레슨 요청서 상세 조회 */
+        get: operations["getLessonRequest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/chat/{roomId}/messages": {
         parameters: {
             query?: never;
@@ -534,6 +654,13 @@ export interface components {
             /** Format: int32 */
             careerYears?: number;
         };
+        AvailableTimeResponse: {
+            /** Format: int64 */
+            id?: number;
+            dayOfWeek?: string;
+            startTime?: string;
+            endTime?: string;
+        };
         TrainerProfileResponse: {
             /** Format: int64 */
             id?: number;
@@ -549,6 +676,7 @@ export interface components {
             price?: number;
             /** Format: int32 */
             careerYears?: number;
+            availableTimes?: components["schemas"]["AvailableTimeResponse"][];
         };
         ReviewUpdateRequest: {
             /** Format: int32 */
@@ -560,6 +688,11 @@ export interface components {
             level?: string;
             goal?: string;
         };
+        AvailableTimeRequest: {
+            dayOfWeek?: string;
+            startTime?: string;
+            endTime?: string;
+        };
         TrainerProfileRequest: {
             sports?: string;
             lessonType?: string;
@@ -567,6 +700,7 @@ export interface components {
             price?: number;
             /** Format: int32 */
             careerYears?: number;
+            availableTimes?: components["schemas"]["AvailableTimeRequest"][];
         };
         ReviewRequest: {
             /** Format: int64 */
@@ -576,6 +710,93 @@ export interface components {
             /** Format: int32 */
             rating?: number;
             content: string;
+        };
+        MatchingRequestDto: {
+            /** Format: int64 */
+            memberId: number;
+            level: string;
+            sports: string;
+            lessonType: string;
+            region: string;
+            /** Format: int32 */
+            budgetMin: number;
+            /** Format: int32 */
+            budgetMax: number;
+            lessonContent?: string;
+            preferredTimes: components["schemas"]["PreferredTimeDto"][];
+        };
+        PreferredTimeDto: {
+            dayOfWeek: string;
+            startTime: string;
+            endTime: string;
+        };
+        MatchingCreateResponse: {
+            /** Format: int64 */
+            matchingId?: number;
+        };
+        MatchingResultResponse: {
+            /** Format: int64 */
+            matchingResultId?: number;
+            /** Format: int64 */
+            trainerProfileId?: number;
+            trainerName?: string;
+            profileImage?: string;
+            introduction?: string;
+            sports?: string;
+            lessonType?: string;
+            region?: string;
+            /** Format: int32 */
+            price?: number;
+            dayOfWeek?: string;
+            preferredStartTime?: string;
+            preferredEndTime?: string;
+            trainerStartTime?: string;
+            trainerEndTime?: string;
+        };
+        LessonRequestCreateRequest: {
+            /** Format: int64 */
+            matchingResultId: number;
+            /** @enum {string} */
+            lessonPassType: "ONE_TIME" | "REGULAR";
+            /** Format: int32 */
+            weeklyCount?: number;
+            /** Format: date */
+            requestedDate: string;
+            requestedStartTime: string;
+            requestedEndTime: string;
+            message?: string;
+        };
+        LessonRequestResponse: {
+            /** Format: int64 */
+            lessonRequestId?: number;
+            /** Format: int64 */
+            matchingResultId?: number;
+            /** Format: int64 */
+            memberId?: number;
+            memberName?: string;
+            memberProfileImage?: string;
+            /** Format: int64 */
+            trainerProfileId?: number;
+            trainerName?: string;
+            trainerProfileImage?: string;
+            sports?: string;
+            lessonType?: string;
+            region?: string;
+            /** Format: int32 */
+            price?: number;
+            /** @enum {string} */
+            lessonPassType?: "ONE_TIME" | "REGULAR";
+            /** Format: int32 */
+            weeklyCount?: number;
+            /** Format: date */
+            requestedDate?: string;
+            requestedStartTime?: string;
+            requestedEndTime?: string;
+            message?: string;
+            /** @enum {string} */
+            status?: "PENDING" | "ACCEPTED" | "REJECTED" | "CANCELED";
+            /** Format: date-time */
+            createdAt?: string;
         };
         ChatRoomRequest: {
             /** Format: int64 */
@@ -678,6 +899,7 @@ export interface components {
             reviewerNickname?: string;
             /** Format: int64 */
             trainerId?: number;
+            trainerNickname?: string;
             /** Format: int32 */
             rating?: number;
             content?: string;
@@ -1043,6 +1265,98 @@ export interface operations {
             };
         };
     };
+    createMatchingRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MatchingRequestDto"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["MatchingCreateResponse"];
+                };
+            };
+        };
+    };
+    getMatchingResults: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                matchingId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["MatchingResultResponse"][];
+                };
+            };
+        };
+    };
+    createMatchingResults: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                matchingId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["MatchingResultResponse"][];
+                };
+            };
+        };
+    };
+    createLessonRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LessonRequestCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["LessonRequestResponse"];
+                };
+            };
+        };
+    };
     getChatRooms: {
         parameters: {
             query: {
@@ -1281,6 +1595,50 @@ export interface operations {
             };
         };
     };
+    rejectLessonRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                lessonRequestId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["LessonRequestResponse"];
+                };
+            };
+        };
+    };
+    acceptLessonRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                lessonRequestId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["LessonRequestResponse"];
+                };
+            };
+        };
+    };
     markAsRead_1: {
         parameters: {
             query?: never;
@@ -1355,6 +1713,26 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["TrainerProfileResponse"];
+                };
+            };
+        };
+    };
+    getTrainerLessonRequests: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["LessonRequestResponse"][];
                 };
             };
         };
@@ -1459,6 +1837,28 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["TrainerSummaryDto"][];
+                };
+            };
+        };
+    };
+    getLessonRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                lessonRequestId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["LessonRequestResponse"];
                 };
             };
         };

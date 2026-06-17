@@ -11,6 +11,7 @@ export interface Review {
     reviewerId: number
     reviewerNickname: string
     trainerId: number
+    trainerNickname: string
     rating: number
     content: string
     createdAt: string

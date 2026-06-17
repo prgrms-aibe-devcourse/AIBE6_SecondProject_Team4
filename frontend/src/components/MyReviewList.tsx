@@ -1,8 +1,9 @@
 'use client'
 
-import { useAuth } from '@/context/AuthContext'
-import { Review, useMyReviews } from '@/hooks/useMyReviews'
-import { useState } from 'react'
+import WritableReviewList from '@/components/WritableReviewList';
+import { useAuth } from '@/context/AuthContext';
+import { Review, useMyReviews } from '@/hooks/useMyReviews';
+import { useState } from 'react';
 
 // 별점 표시 — 머티리얼 아이콘 star (채움/빈)
 function StarRating({ rating }: { rating: number }) {
@@ -14,8 +15,8 @@ function StarRating({ rating }: { rating: number }) {
                     className="material-symbols-outlined text-[18px]"
                     style={i <= rating ? { fontVariationSettings: "'FILL' 1" } : undefined}
                 >
-                    star
-                </span>
+          star
+        </span>
             ))}
         </div>
     )
@@ -28,11 +29,11 @@ function formatDate(iso: string) {
 
 // 후기 카드 한 장
 function ReviewCard({
-    review,
-    isTrainer,
-    onEdit,
-    onDelete,
-}: {
+                        review,
+                        isTrainer,
+                        onEdit,
+                        onDelete,
+                    }: {
     review: Review
     isTrainer: boolean
     onEdit: (r: Review) => void
@@ -47,16 +48,8 @@ function ReviewCard({
                     <div>
                         <div className="flex items-center gap-2">
                             <span className="text-body-md font-bold text-on-surface">
-                                {isTrainer
-                                    ? review.reviewerNickname
-                                    : `트레이너 #${review.trainerId}`}
+                                {isTrainer ? review.reviewerNickname : review.trainerNickname}
                             </span>
-                            {/* 사용자 화면에서 내가 쓴 후기 표시 뱃지 */}
-                            {!isTrainer && (
-                                <span className="rounded-full bg-secondary-container px-2 py-0.5 text-[10px] font-bold text-on-secondary-container">
-                                    나의 리뷰
-                                </span>
-                            )}
                         </div>
                         <div className="mt-1 flex items-center gap-2">
                             <StarRating rating={review.rating} />
@@ -98,10 +91,10 @@ function ReviewCard({
 
 // 수정 모달
 function EditModal({
-    review,
-    onSave,
-    onClose,
-}: {
+                       review,
+                       onSave,
+                       onClose,
+                   }: {
     review: Review
     onSave: (rating: number, content: string) => void
     onClose: () => void
@@ -183,7 +176,9 @@ export default function MyReviewList() {
     const [editing, setEditing] = useState<Review | null>(null)
 
     const sorted = [...reviews].sort((a, b) =>
-        sort === 'latest' ? b.createdAt.localeCompare(a.createdAt) : b.rating - a.rating
+        sort === 'latest'
+            ? b.createdAt.localeCompare(a.createdAt)
+            : b.rating - a.rating,
     )
 
     const handleDelete = async (id: number) => {
@@ -231,22 +226,14 @@ export default function MyReviewList() {
                     <div className="mb-2 flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-4 py-1.5 text-label-md">
                         <button
                             onClick={() => setSort('latest')}
-                            className={
-                                sort === 'latest'
-                                    ? 'text-primary font-semibold'
-                                    : 'text-on-surface-variant'
-                            }
+                            className={sort === 'latest' ? 'text-primary font-semibold' : 'text-on-surface-variant'}
                         >
                             최신순
                         </button>
                         <span className="text-outline-variant">|</span>
                         <button
                             onClick={() => setSort('rating')}
-                            className={
-                                sort === 'rating'
-                                    ? 'text-primary font-semibold'
-                                    : 'text-on-surface-variant'
-                            }
+                            className={sort === 'rating' ? 'text-primary font-semibold' : 'text-on-surface-variant'}
                         >
                             별점 높은순
                         </button>
@@ -279,15 +266,15 @@ export default function MyReviewList() {
                 ))}
 
             {/* 작성 가능한 후기 탭 (사용자만) */}
-            {tab === 'writable' && !isTrainer && (
-                <p className="py-xl text-center text-outline">
-                    작성 가능한 후기 기능은 준비 중입니다.
-                </p>
-            )}
+            {tab === 'writable' && !isTrainer && <WritableReviewList />}
 
             {/* 수정 모달 */}
             {editing && (
-                <EditModal review={editing} onSave={handleSave} onClose={() => setEditing(null)} />
+                <EditModal
+                    review={editing}
+                    onSave={handleSave}
+                    onClose={() => setEditing(null)}
+                />
             )}
         </div>
     )
