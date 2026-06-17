@@ -7,7 +7,6 @@ import com.fitmate.global.exception.CustomException;
 import com.fitmate.global.exception.ErrorCode;
 import com.fitmate.inquiry.dto.InquiryAnswerRequest;
 import com.fitmate.inquiry.dto.InquiryResponse;
-import com.fitmate.inquiry.dto.InquiryStatusRequest;
 import com.fitmate.inquiry.entity.Inquiry;
 import com.fitmate.inquiry.repository.InquiryRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,14 +28,6 @@ public class InquiryAdminService {
                 .stream()
                 .map(InquiryResponse::from)
                 .toList();
-    }
-
-    @Transactional
-    public InquiryResponse changeStatus(Long inquiryId, InquiryStatusRequest request) {
-        Inquiry inquiry = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new CustomException(ErrorCode.INQUIRY_NOT_FOUND));
-        inquiry.updateStatus(request.status());
-        return InquiryResponse.from(inquiry);
     }
 
     @Transactional

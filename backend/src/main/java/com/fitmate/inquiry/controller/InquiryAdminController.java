@@ -2,7 +2,6 @@ package com.fitmate.inquiry.controller;
 
 import com.fitmate.inquiry.dto.InquiryAnswerRequest;
 import com.fitmate.inquiry.dto.InquiryResponse;
-import com.fitmate.inquiry.dto.InquiryStatusRequest;
 import com.fitmate.inquiry.service.InquiryAdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +21,6 @@ public class InquiryAdminController {
     @GetMapping
     public ResponseEntity<List<InquiryResponse>> getAllInquiries() {
         return ResponseEntity.ok(inquiryAdminService.getAllInquiries());
-    }
-
-    @PatchMapping("/{inquiryId}/status")
-    public ResponseEntity<InquiryResponse> changeStatus(@PathVariable Long inquiryId,
-                                                         @RequestBody InquiryStatusRequest request) {
-        return ResponseEntity.ok(inquiryAdminService.changeStatus(inquiryId, request));
     }
 
     @PostMapping("/{inquiryId}/answer")
