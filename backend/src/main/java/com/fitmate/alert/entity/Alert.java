@@ -29,4 +29,8 @@ public class Alert extends BaseEntity {
 
     @Column(name = "is_read", nullable = false)
     private Boolean isRead;
+
+    public void markAsRead() {
+        this.isRead = true;
+    }
 }

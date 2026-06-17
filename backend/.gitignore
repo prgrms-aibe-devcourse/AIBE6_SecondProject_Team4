@@ -43,3 +43,4 @@ db_dev.trace.db
 db_dev.trace.db
 
 application-secret.yml
+.DS_Store
