@@ -35,6 +35,12 @@ public class Inquiry extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String answer;
 
+    public void update(InquiryType type, String title, String content) {
+        this.type = type;
+        this.title = title;
+        this.content = content;
+    }
+
     public void answer(String answer) {
         this.answer = answer;
         this.status = InquiryStatus.RESOLVED;

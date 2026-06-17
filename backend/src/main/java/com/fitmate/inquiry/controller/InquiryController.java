@@ -2,6 +2,7 @@ package com.fitmate.inquiry.controller;
 
 import com.fitmate.inquiry.dto.InquiryRequest;
 import com.fitmate.inquiry.dto.InquiryResponse;
+import com.fitmate.inquiry.dto.InquiryUpdateRequest;
 import com.fitmate.inquiry.service.InquiryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,12 @@ public class InquiryController {
                                                           Authentication authentication) {
         Long memberId = (Long) ((UsernamePasswordAuthenticationToken) authentication).getDetails();
         return ResponseEntity.ok(inquiryService.createInquiry(memberId, request));
+    }
+
+    @PatchMapping("/{inquiryId}")
+    public ResponseEntity<InquiryResponse> updateInquiry(@PathVariable Long inquiryId,
+                                                          @RequestBody InquiryUpdateRequest request) {
+        return ResponseEntity.ok(inquiryService.updateInquiry(inquiryId, request));
     }
 
     @DeleteMapping("/{inquiryId}")

@@ -4,7 +4,9 @@ import com.fitmate.global.exception.CustomException;
 import com.fitmate.global.exception.ErrorCode;
 import com.fitmate.inquiry.dto.InquiryRequest;
 import com.fitmate.inquiry.dto.InquiryResponse;
+import com.fitmate.inquiry.dto.InquiryUpdateRequest;
 import com.fitmate.inquiry.entity.Inquiry;
+import com.fitmate.inquiry.entity.InquiryStatus;
 import com.fitmate.inquiry.repository.InquiryRepository;
 import com.fitmate.member.entity.Member;
 import com.fitmate.member.repository.MemberRepository;
@@ -48,6 +50,17 @@ public class InquiryService {
                 .build();
 
         return InquiryResponse.from(inquiryRepository.save(inquiry));
+    }
+
+    @Transactional
+    public InquiryResponse updateInquiry(Long inquiryId, InquiryUpdateRequest request) {
+        Inquiry inquiry = inquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> new CustomException(ErrorCode.INQUIRY_NOT_FOUND));
+        if (inquiry.getStatus() != InquiryStatus.PENDING) {
+            throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
+        inquiry.update(request.type(), request.title(), request.content());
+        return InquiryResponse.from(inquiry);
     }
 
     @Transactional
