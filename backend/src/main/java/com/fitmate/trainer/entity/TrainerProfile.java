@@ -24,6 +24,9 @@ public class TrainerProfile extends BaseEntity {
     @Column(name = "lesson_type", length = 50)
     private String lessonType;
 
+    @Column(name = "lesson_level", length = 100)
+    private String lessonLevel;
+
     private Integer price;
 
     private Integer careerYears;
@@ -33,5 +36,6 @@ public class TrainerProfile extends BaseEntity {
         if (request.lessonType() != null) this.lessonType = request.lessonType();
         if (request.price() != null) this.price = request.price();
         if (request.careerYears() != null) this.careerYears = request.careerYears();
+        if (request.lessonLevel() != null) this.lessonLevel = request.lessonLevel();
     }
 }

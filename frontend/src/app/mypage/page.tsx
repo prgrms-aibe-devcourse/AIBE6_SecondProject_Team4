@@ -1,95 +1,266 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 import MyReviewList from '@/components/MyReviewList'
 import { useAuth } from '@/context/AuthContext'
+import type { components } from '@/types/api'
+import { getAuthClient } from '@/utils/apiClient'
 
-// 사이드바 메뉴 (머티리얼 심볼 아이콘)
-const MENUS = [
-    { key: 'matching', label: '매칭 관리', icon: 'handshake' },
-    { key: 'review', label: '리뷰 관리', icon: 'rate_review' },
-    { key: 'account', label: '계정 설정', icon: 'manage_accounts' },
-] as const
-
-type MenuKey = (typeof MENUS)[number]['key']
+type TrainerProfile = components['schemas']['TrainerProfileResponse']
+type UserProfile = components['schemas']['UserProfileResponse']
 
 export default function MyPage() {
-    const { user } = useAuth()
-    const [activeMenu, setActiveMenu] = useState<MenuKey>('review')
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const { user, logout } = useAuth()
+    const [trainerProfile, setTrainerProfile] = useState<TrainerProfile | null>(null)
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [activeTab, setActiveTab] = useState('matching')
+
+    useEffect(() => {
+        if (!user) {
+            router.push('/auth/login')
+            return
+        }
+        fetchMyProfile()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user, searchParams])
+
+    const fetchMyProfile = async () => {
+        const client = getAuthClient()
+        setLoading(true)
+        try {
+            if (user?.role === 'TRAINER') {
+                const { data, response } = await client.GET('/api/trainers/me')
+                setTrainerProfile(response.ok && data ? data : null)
+            } else {
+                const { data, response } = await client.GET('/api/users/me')
+                setUserProfile(response.ok && data ? data : null)
+            }
+        } catch {
+            setTrainerProfile(null)
+            setUserProfile(null)
+        }
+        setLoading(false)
+    }
+
+    const profile = user?.role === 'TRAINER' ? trainerProfile : userProfile
+
+    if (loading) {
+        return (
+            <main className="flex justify-center py-20 pt-16 md:pt-20">
+        <span className="material-symbols-outlined animate-spin text-4xl text-primary">
+          progress_activity
+        </span>
+            </main>
+        )
+    }
 
     return (
-        <main className="min-h-screen bg-background pt-16 md:pt-20">
-            <div className="mx-auto max-w-screen-xl px-margin-mobile py-md md:px-margin-desktop">
-                {/* 프로필 헤더 */}
-                <section className="mb-md flex items-center justify-between rounded-xl bg-surface-container-low p-md shadow-sm transition-all duration-200 hover:shadow-md">
-                    <div className="flex items-center gap-md">
-                        <div className="relative">
-                            <div className="h-24 w-24 rounded-full border-4 border-white bg-gradient-to-br from-primary-fixed to-primary-fixed-dim shadow-sm" />
-                            <button className="absolute bottom-0 right-0 rounded-full border-2 border-white bg-primary p-1.5 text-on-primary shadow-lg transition-transform hover:scale-110">
-                                <span className="material-symbols-outlined text-[18px]">edit</span>
-                            </button>
-                        </div>
-                        <div>
-                            <h1 className="text-headline-md font-headline-md text-on-surface">
-                                {user?.userName ?? '사용자'}
-                            </h1>
-                            <p className="flex items-center gap-xs text-body-md text-on-surface-variant">
-                <span className="material-symbols-outlined text-[16px]">
-                  fitness_center
+        <main className="mx-auto flex w-full max-w-[1440px] flex-grow flex-col gap-md px-margin-mobile pb-lg pt-20 md:px-margin-desktop">
+            {/* 프로필 헤더 */}
+            <div
+                className="flex items-center justify-between rounded-xl bg-surface-container-low p-md"
+                style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
+            >
+                <div className="flex items-center gap-md">
+                    <div className="relative">
+                        <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-surface-container shadow-sm">
+                            {profile?.profileImage ? (
+                                <img
+                                    src={profile.profileImage}
+                                    alt=""
+                                    className="h-full w-full object-cover"
+                                />
+                            ) : (
+                                <span className="material-symbols-outlined text-4xl text-outline">
+                  person
                 </span>
-                                근력 트레이닝 매니아
-                            </p>
+                            )}
                         </div>
+                        <button
+                            className="absolute bottom-0 right-0 rounded-full border-2 border-white bg-primary p-1.5 text-white shadow-lg transition-transform hover:scale-110"
+                            onClick={() => router.push('/mypage/edit')}
+                        >
+                            <span className="material-symbols-outlined text-[18px]">edit</span>
+                        </button>
                     </div>
-                    <button className="flex items-center gap-xs rounded-lg border border-outline-variant bg-surface-container-high px-md py-3 text-label-bold font-label-bold text-on-surface transition-all hover:bg-surface-container-highest">
-                        <span className="material-symbols-outlined">settings</span>
-                        프로필 설정
-                    </button>
-                </section>
+                    <div>
+                        <h1 className="text-headline-md font-headline-md text-on-surface">
+                            {user?.userName}
+                        </h1>
+                        <p className="flex items-center gap-xs text-body-md text-on-surface-variant">
+              <span className="material-symbols-outlined text-[16px]">
+                fitness_center
+              </span>
+                            {user?.role === 'TRAINER' ? '트레이너' : '일반 회원'}
+                        </p>
+                    </div>
+                </div>
+                <button
+                    className="flex items-center gap-xs rounded-lg border border-outline-variant bg-surface-container-high px-md py-sm font-label-bold text-on-surface transition-all hover:bg-surface-container-highest"
+                    onClick={() => router.push('/mypage/edit')}
+                >
+                    <span className="material-symbols-outlined">settings</span>
+                    프로필 설정
+                </button>
+            </div>
 
-                {/* 본문: 사이드바 + 컨텐츠 */}
-                <div className="flex flex-col gap-lg md:flex-row">
-                    {/* 좌측 사이드바 */}
-                    <aside className="w-full flex-shrink-0 md:w-64">
-                        <nav className="flex flex-col gap-3">
-                            {MENUS.map((menu) => (
-                                <button
-                                    key={menu.key}
-                                    onClick={() => setActiveMenu(menu.key)}
-                                    className={`group flex items-center gap-md rounded-lg px-md py-3 text-label-bold font-label-bold transition-all ${
-                                        activeMenu === menu.key
-                                            ? 'bg-primary-container text-on-primary-container'
-                                            : 'text-on-surface-variant hover:bg-surface-container-low'
-                                    }`}
+            {/* 사이드바 + 콘텐츠 */}
+            <div className="flex flex-grow flex-col gap-md lg:flex-row">
+                {/* 사이드바 */}
+                <aside className="flex-shrink-0 lg:w-64">
+                    <nav className="space-y-xs">
+                        {[
+                            { id: 'matching', icon: 'handshake', label: '매칭 관리' },
+                            { id: 'reviews', icon: 'rate_review', label: '리뷰 관리' },
+                            { id: 'account', icon: 'manage_accounts', label: '계정 설정' },
+                        ].map(({ id, icon, label }) => (
+                            <button
+                                key={id}
+                                className={`flex w-full items-center gap-md rounded-lg px-md py-sm font-label-bold transition-all ${
+                                    activeTab === id
+                                        ? 'bg-primary-container text-on-primary-container'
+                                        : 'text-on-surface-variant hover:bg-surface-container-low'
+                                }`}
+                                onClick={() => setActiveTab(id)}
+                            >
+                                <span className="material-symbols-outlined">{icon}</span>
+                                {label}
+                            </button>
+                        ))}
+                    </nav>
+                </aside>
+
+                {/* 메인 콘텐츠 */}
+                <div className="flex-grow space-y-md">
+                    {activeTab === 'matching' && (
+                        <section className="space-y-md">
+                            <h2 className="text-headline-sm font-headline-sm text-on-surface">
+                                매칭 관리
+                            </h2>
+                            <div className="grid grid-cols-1 gap-md md:grid-cols-3">
+                                <div
+                                    className="flex flex-col gap-sm rounded-xl border border-outline-variant bg-surface-container-lowest p-md"
+                                    style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
                                 >
-                  <span
-                      className={`material-symbols-outlined ${
-                          activeMenu === menu.key ? '' : 'group-hover:text-primary'
-                      }`}
-                  >
-                    {menu.icon}
-                  </span>
-                                    {menu.label}
-                                </button>
-                            ))}
-                        </nav>
-                    </aside>
+                                    <div className="flex items-center gap-sm text-primary">
+                                        <span className="material-symbols-outlined">outgoing_mail</span>
+                                        <span className="text-label-bold">보낸 요청</span>
+                                    </div>
+                                    <div className="flex-grow py-sm">
+                                        <p className="py-4 text-center text-body-sm text-secondary">
+                                            보낸 요청이 없습니다.
+                                        </p>
+                                    </div>
+                                    <button className="w-full py-2 font-label-bold text-primary hover:underline">
+                                        모든 요청 보기
+                                    </button>
+                                </div>
+                                <div
+                                    className="flex flex-col gap-sm rounded-xl border border-outline-variant bg-surface-container-lowest p-md"
+                                    style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
+                                >
+                                    <div className="flex items-center gap-sm text-tertiary">
+                                        <span className="material-symbols-outlined">inbox</span>
+                                        <span className="text-label-bold">받은 요청</span>
+                                    </div>
+                                    <div className="flex-grow py-sm">
+                                        <p className="py-4 text-center text-body-sm text-secondary">
+                                            받은 요청이 없습니다.
+                                        </p>
+                                    </div>
+                                    <button className="w-full py-2 font-label-bold text-primary hover:underline">
+                                        수신함 관리
+                                    </button>
+                                </div>
+                                <div
+                                    className="flex flex-col gap-sm rounded-xl border border-outline-variant bg-surface-container-lowest p-md"
+                                    style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
+                                >
+                                    <div className="flex items-center gap-sm text-secondary">
+                                        <span className="material-symbols-outlined">verified</span>
+                                        <span className="text-label-bold">매칭 완료 내역</span>
+                                    </div>
+                                    <div className="flex-grow py-sm">
+                                        <p className="py-4 text-center text-body-sm text-secondary">
+                                            매칭 내역이 없습니다.
+                                        </p>
+                                    </div>
+                                    <button className="w-full py-2 font-label-bold text-primary hover:underline">
+                                        히스토리 보기
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+                    )}
 
-                    {/* 우측 컨텐츠 */}
-                    <div className="flex-1">
-                        {activeMenu === 'review' && <MyReviewList />}
-                        {activeMenu === 'matching' && (
-                            <div className="py-xl text-center text-on-surface-variant">
-                                매칭 관리는 준비 중입니다.
+                    {/* 리뷰 관리 — 실제 후기 목록/통계/수정·삭제 (역할별 분기) */}
+                    {activeTab === 'reviews' && (
+                        <section className="space-y-md">
+                            <h2 className="text-headline-sm font-headline-sm text-on-surface">
+                                리뷰 관리
+                            </h2>
+                            <MyReviewList />
+                        </section>
+                    )}
+
+                    {activeTab === 'account' && (
+                        <section className="space-y-md">
+                            <h2 className="text-headline-sm font-headline-sm text-on-surface">
+                                계정 설정
+                            </h2>
+                            <div
+                                className="overflow-hidden rounded-xl border border-outline-variant"
+                                style={{
+                                    backgroundColor: '#f1f3ff',
+                                    boxShadow: 'inset 0 2px 4px rgba(116,119,129,0.08)',
+                                }}
+                            >
+                                <button className="flex w-full items-center justify-between border-b border-outline-variant p-md transition-colors hover:bg-white/50">
+                                    <div className="flex items-center gap-md">
+                    <span className="material-symbols-outlined text-on-surface-variant">
+                      lock
+                    </span>
+                                        <div className="text-left">
+                                            <p className="text-label-bold text-on-surface">
+                                                비밀번호 및 보안
+                                            </p>
+                                            <p className="text-body-sm text-on-surface-variant">
+                                                비밀번호 변경 및 2단계 인증 설정
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <span className="material-symbols-outlined text-outline">
+                    chevron_right
+                  </span>
+                                </button>
+                                <button
+                                    className="group flex w-full items-center justify-between p-md transition-colors hover:bg-error-container/20"
+                                    onClick={() => {
+                                        logout()
+                                        router.push('/auth/login')
+                                    }}
+                                >
+                                    <div className="flex items-center gap-md text-error">
+                                        <span className="material-symbols-outlined">logout</span>
+                                        <div className="text-left">
+                                            <p className="text-label-bold">로그아웃</p>
+                                            <p className="text-body-sm opacity-80">
+                                                계정에서 안전하게 로그아웃합니다
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <span className="material-symbols-outlined text-error opacity-0 transition-opacity group-hover:opacity-100">
+                    arrow_forward
+                  </span>
+                                </button>
                             </div>
-                        )}
-                        {activeMenu === 'account' && (
-                            <div className="py-xl text-center text-on-surface-variant">
-                                계정 설정은 준비 중입니다.
-                            </div>
-                        )}
-                    </div>
+                        </section>
+                    )}
                 </div>
             </div>
         </main>

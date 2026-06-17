@@ -646,13 +646,27 @@ export interface components {
             level?: string;
             goal?: string;
         };
+        AvailableTimeRequest: {
+            dayOfWeek?: string;
+            startTime?: string;
+            endTime?: string;
+        };
         TrainerProfileUpdateRequest: {
             sports?: string;
             lessonType?: string;
+            lessonLevel?: string;
             /** Format: int32 */
             price?: number;
             /** Format: int32 */
             careerYears?: number;
+            availableTimes?: components["schemas"]["AvailableTimeRequest"][];
+        };
+        AvailableTimeResponse: {
+            /** Format: int64 */
+            id?: number;
+            dayOfWeek?: string;
+            startTime?: string;
+            endTime?: string;
         };
         AvailableTimeResponse: {
             /** Format: int64 */
@@ -672,6 +686,7 @@ export interface components {
             region?: string;
             sports?: string;
             lessonType?: string;
+            lessonLevel?: string;
             /** Format: int32 */
             price?: number;
             /** Format: int32 */
@@ -696,6 +711,7 @@ export interface components {
         TrainerProfileRequest: {
             sports?: string;
             lessonType?: string;
+            lessonLevel?: string;
             /** Format: int32 */
             price?: number;
             /** Format: int32 */
@@ -888,6 +904,40 @@ export interface components {
             region?: string;
             introduction?: string;
             phone?: string;
+        };
+        PageTrainerProfileResponse: {
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            /** Format: int32 */
+            size?: number;
+            content?: components["schemas"]["TrainerProfileResponse"][];
+            /** Format: int32 */
+            number?: number;
+            first?: boolean;
+            last?: boolean;
+            /** Format: int32 */
+            numberOfElements?: number;
+            pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
+            empty?: boolean;
+        };
+        PageableObject: {
+            /** Format: int64 */
+            offset?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            pageNumber?: number;
+            paged?: boolean;
+            sort?: components["schemas"]["SortObject"];
+            unpaged?: boolean;
+        };
+        SortObject: {
+            empty?: boolean;
+            sorted?: boolean;
+            unsorted?: boolean;
         };
         ReviewResponse: {
             /** Format: int64 */
@@ -1199,6 +1249,9 @@ export interface operations {
                 minPrice?: number;
                 maxPrice?: number;
                 region?: string;
+                page?: number;
+                size?: number;
+                sort?: string;
             };
             header?: never;
             path?: never;
@@ -1212,7 +1265,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["TrainerProfileResponse"][];
+                    "application/json;charset=UTF-8": components["schemas"]["PageTrainerProfileResponse"];
                 };
             };
         };
