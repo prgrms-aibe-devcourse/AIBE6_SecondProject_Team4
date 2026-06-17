@@ -1,9 +1,11 @@
 'use client'
 
-import WritableReviewList from '@/components/WritableReviewList';
-import { useAuth } from '@/context/AuthContext';
-import { Review, useMyReviews } from '@/hooks/useMyReviews';
-import { useState } from 'react';
+import { useState } from 'react'
+
+import { useAuth } from '@/context/AuthContext'
+import { Review, useMyReviews } from '@/hooks/useMyReviews'
+import WritableReviewList from '@/components/WritableReviewList'
+import TrainerRatingStats from '@/components/TrainerRatingStats'
 
 // 별점 표시 — 머티리얼 아이콘 star (채움/빈)
 function StarRating({ rating }: { rating: number }) {
@@ -46,16 +48,14 @@ function ReviewCard({
                 <div className="flex items-center gap-4">
                     <div className="h-12 w-12 flex-shrink-0 rounded-full bg-gradient-to-br from-primary-fixed to-primary-fixed-dim" />
                     <div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-body-md font-bold text-on-surface">
-                                {isTrainer ? review.reviewerNickname : review.trainerNickname}
-                            </span>
-                        </div>
+            <span className="text-body-md font-bold text-on-surface">
+              {isTrainer ? review.reviewerNickname : review.trainerNickname}
+            </span>
                         <div className="mt-1 flex items-center gap-2">
                             <StarRating rating={review.rating} />
                             <span className="text-label-md text-outline">
-                                {formatDate(review.createdAt)}
-                            </span>
+                {formatDate(review.createdAt)}
+              </span>
                             {review.edited && (
                                 <span className="text-label-md text-outline">(수정됨)</span>
                             )}
@@ -84,7 +84,9 @@ function ReviewCard({
             </div>
 
             {/* 후기 내용 */}
-            <p className="text-body-md leading-relaxed text-on-surface-variant">{review.content}</p>
+            <p className="text-body-md leading-relaxed text-on-surface-variant">
+                {review.content}
+            </p>
         </div>
     )
 }
@@ -240,6 +242,9 @@ export default function MyReviewList() {
                     </div>
                 )}
             </div>
+
+            {/* 트레이너: 받은 후기 위에 평점 통계 */}
+            {tab === 'all' && isTrainer && <TrainerRatingStats />}
 
             {/* 전체/받은 후기 탭 */}
             {tab === 'all' &&
