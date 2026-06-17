@@ -1,29 +1,20 @@
 'use client'
 
-import { Review, useMyReviews } from '@/hooks/useMyReviews';
-import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext'
+import { Review, useMyReviews } from '@/hooks/useMyReviews'
+import { useState } from 'react'
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// 별점 표시 (채워진 별 + 빈 별) — tertiary 색이 디자인의 별점 주황
+// 별점 표시 — 머티리얼 아이콘 star (채움/빈)
 function StarRating({ rating }: { rating: number }) {
     return (
-        <div className="flex gap-0.5">
+        <div className="flex text-tertiary">
             {[1, 2, 3, 4, 5].map((i) => (
-                <span key={i} className={i <= rating ? 'text-tertiary' : 'text-outline-variant'}>
-                    ★
+                <span
+                    key={i}
+                    className="material-symbols-outlined text-[18px]"
+                    style={i <= rating ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                >
+                    star
                 </span>
             ))}
         </div>
@@ -38,23 +29,35 @@ function formatDate(iso: string) {
 // 후기 카드 한 장
 function ReviewCard({
     review,
+    isTrainer,
     onEdit,
     onDelete,
 }: {
     review: Review
+    isTrainer: boolean
     onEdit: (r: Review) => void
     onDelete: (id: number) => void
 }) {
     return (
-        <div className="flex flex-col gap-md rounded-xl border border-outline-variant bg-surface-container-lowest p-md shadow-sm">
-            {/* 상단: 프로필 + 별점 + 수정/삭제 */}
-            <div className="flex items-start justify-between">
-                <div className="flex items-center gap-md">
+        <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+            {/* 상단: 프로필 + 별점 + (수정/삭제) */}
+            <div className="mb-4 flex items-start justify-between">
+                <div className="flex items-center gap-4">
                     <div className="h-12 w-12 flex-shrink-0 rounded-full bg-gradient-to-br from-primary-fixed to-primary-fixed-dim" />
                     <div>
-                        <p className="text-body-md font-semibold text-on-surface">
-                            트레이너 #{review.trainerId}
-                        </p>
+                        <div className="flex items-center gap-2">
+                            <span className="text-body-md font-bold text-on-surface">
+                                {isTrainer
+                                    ? review.reviewerNickname
+                                    : `트레이너 #${review.trainerId}`}
+                            </span>
+                            {/* 사용자 화면에서 내가 쓴 후기 표시 뱃지 */}
+                            {!isTrainer && (
+                                <span className="rounded-full bg-secondary-container px-2 py-0.5 text-[10px] font-bold text-on-secondary-container">
+                                    나의 리뷰
+                                </span>
+                            )}
+                        </div>
                         <div className="mt-1 flex items-center gap-2">
                             <StarRating rating={review.rating} />
                             <span className="text-label-md text-outline">
@@ -66,20 +69,25 @@ function ReviewCard({
                         </div>
                     </div>
                 </div>
-                <div className="flex gap-md">
-                    <button
-                        onClick={() => onEdit(review)}
-                        className="text-label-md text-on-surface-variant hover:underline"
-                    >
-                        수정
-                    </button>
-                    <button
-                        onClick={() => onDelete(review.id)}
-                        className="text-label-md text-error hover:underline"
-                    >
-                        삭제
-                    </button>
-                </div>
+
+                {/* 수정/삭제는 내가 쓴 후기(사용자)만 */}
+                {!isTrainer && (
+                    <div className="flex items-center gap-4 text-label-md">
+                        <button
+                            onClick={() => onEdit(review)}
+                            className="text-on-surface-variant hover:text-primary"
+                        >
+                            수정
+                        </button>
+                        <span className="text-outline-variant">|</span>
+                        <button
+                            onClick={() => onDelete(review.id)}
+                            className="text-error hover:opacity-80"
+                        >
+                            삭제
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* 후기 내용 */}
@@ -102,24 +110,26 @@ function EditModal({
     const [content, setContent] = useState(review.content)
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
             <div
-                className="w-[90%] max-w-[400px] rounded-xl bg-surface-container-lowest p-6"
-                style={{ minWidth: '320px' }}
+                className="w-full rounded-xl bg-surface-container-lowest p-6"
+                style={{ maxWidth: '420px' }}
             >
                 <h3 className="mb-md text-headline-sm font-headline-sm text-on-surface">
                     후기 수정
                 </h3>
 
-                {/* 별점 선택 */}
-                <div className="mb-md flex gap-1 text-2xl">
+                {/* 별점 선택 (머티리얼 아이콘) */}
+                <div className="mb-md flex gap-1 text-tertiary">
                     {[1, 2, 3, 4, 5].map((i) => (
                         <button
                             key={i}
+                            type="button"
                             onClick={() => setRating(i)}
-                            className={i <= rating ? 'text-tertiary' : 'text-outline-variant'}
+                            className="material-symbols-outlined text-[28px]"
+                            style={i <= rating ? { fontVariationSettings: "'FILL' 1" } : undefined}
                         >
-                            ★
+                            star
                         </button>
                     ))}
                 </div>
@@ -136,15 +146,17 @@ function EditModal({
                 {/* 버튼 */}
                 <div className="mt-md flex justify-end gap-2">
                     <button
+                        type="button"
                         onClick={onClose}
-                        className="rounded-lg border border-outline-variant px-md py-2 text-body-md text-on-surface-variant"
+                        className="rounded-lg border border-outline-variant px-5 py-2 text-body-md text-on-surface-variant"
                     >
                         취소
                     </button>
                     <button
+                        type="button"
                         onClick={() => onSave(rating, content)}
                         disabled={!content.trim()}
-                        className="rounded-lg bg-primary px-md py-2 text-body-md text-on-primary disabled:opacity-50"
+                        className="rounded-lg bg-primary px-5 py-2 text-body-md text-on-primary disabled:opacity-50"
                     >
                         저장
                     </button>
@@ -158,10 +170,13 @@ type Tab = 'all' | 'writable'
 
 /**
  * 리뷰 관리 (마이페이지)
- * - 전체 후기: 내가 쓴 후기 (API 연결)
- * - 작성 가능한 후기: 매칭 완료 후 미작성 (매칭 연동 후 구현 예정)
+ * - 사용자: 내가 쓴 후기 (수정/삭제 가능)
+ * - 트레이너: 내가 받은 후기 (조회만)
  */
 export default function MyReviewList() {
+    const { user } = useAuth()
+    const isTrainer = user?.role === 'TRAINER'
+
     const { reviews, loading, error, updateReview, deleteReview } = useMyReviews()
     const [tab, setTab] = useState<Tab>('all')
     const [sort, setSort] = useState<'latest' | 'rating'>('latest')
@@ -197,34 +212,40 @@ export default function MyReviewList() {
                                 : 'text-on-surface-variant'
                         }`}
                     >
-                        전체 후기
+                        {isTrainer ? '받은 후기' : '전체 후기'}
                     </button>
-                    <button
-                        onClick={() => setTab('writable')}
-                        className={`px-2 pb-2.5 text-headline-sm font-headline-sm ${
-                            tab === 'writable'
-                                ? 'border-b-2 border-primary text-primary'
-                                : 'text-on-surface-variant'
-                        }`}
-                    >
-                        작성 가능한 후기
-                    </button>
+                    {!isTrainer && (
+                        <button
+                            onClick={() => setTab('writable')}
+                            className={`px-2 pb-2.5 text-headline-sm font-headline-sm ${
+                                tab === 'writable'
+                                    ? 'border-b-2 border-primary text-primary'
+                                    : 'text-on-surface-variant'
+                            }`}
+                        >
+                            작성 가능한 후기
+                        </button>
+                    )}
                 </div>
                 {tab === 'all' && (
                     <div className="mb-2 flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-4 py-1.5 text-label-md">
                         <button
                             onClick={() => setSort('latest')}
                             className={
-                                sort === 'latest' ? 'text-primary' : 'text-on-surface-variant'
+                                sort === 'latest'
+                                    ? 'text-primary font-semibold'
+                                    : 'text-on-surface-variant'
                             }
                         >
                             최신순
                         </button>
-                        <span className="text-outline-variant">·</span>
+                        <span className="text-outline-variant">|</span>
                         <button
                             onClick={() => setSort('rating')}
                             className={
-                                sort === 'rating' ? 'text-primary' : 'text-on-surface-variant'
+                                sort === 'rating'
+                                    ? 'text-primary font-semibold'
+                                    : 'text-on-surface-variant'
                             }
                         >
                             별점 높은순
@@ -233,20 +254,23 @@ export default function MyReviewList() {
                 )}
             </div>
 
-            {/* 전체 후기 탭 */}
+            {/* 전체/받은 후기 탭 */}
             {tab === 'all' &&
                 (loading ? (
                     <p className="py-xl text-center text-outline">불러오는 중...</p>
                 ) : error ? (
                     <p className="py-xl text-center text-error">{error}</p>
                 ) : sorted.length === 0 ? (
-                    <p className="py-xl text-center text-outline">작성한 후기가 없습니다.</p>
+                    <p className="py-xl text-center text-outline">
+                        {isTrainer ? '받은 후기가 없습니다.' : '작성한 후기가 없습니다.'}
+                    </p>
                 ) : (
                     <div className="flex flex-col gap-md">
                         {sorted.map((review) => (
                             <ReviewCard
                                 key={review.id}
                                 review={review}
+                                isTrainer={isTrainer}
                                 onEdit={setEditing}
                                 onDelete={handleDelete}
                             />
@@ -254,8 +278,8 @@ export default function MyReviewList() {
                     </div>
                 ))}
 
-            {/* 작성 가능한 후기 탭 (매칭 연동 후 구현) */}
-            {tab === 'writable' && (
+            {/* 작성 가능한 후기 탭 (사용자만) */}
+            {tab === 'writable' && !isTrainer && (
                 <p className="py-xl text-center text-outline">
                     작성 가능한 후기 기능은 준비 중입니다.
                 </p>

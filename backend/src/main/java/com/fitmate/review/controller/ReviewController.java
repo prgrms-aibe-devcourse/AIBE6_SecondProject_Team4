@@ -54,12 +54,12 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getMyReviews(userId));
     }
 
-    @Operation(summary = "받은 후기 조회", description = "트레이너가 자신이 받은 후기 목록을 조회합니다.")
+    @Operation(summary = "받은 후기 조회"  ,description = "트레이너가 자신이 받은 후기 목록을 조회합니다.")
     @GetMapping("/received")
     public ResponseEntity<List<ReviewResponse>> getReceivedReviews(
-            @RequestParam Long trainerId
+            @AuthenticationPrincipal String userId      // ← @RequestParam Long trainerId 에서 변경
     ) {
-        return ResponseEntity.ok(reviewService.getReceivedReviews(trainerId));
+        return ResponseEntity.ok(reviewService.getReceivedReviews(userId));
     }
 
     @Operation(summary = "후기 수정", description = "작성자 본인이 후기의 별점·내용을 수정합니다.")

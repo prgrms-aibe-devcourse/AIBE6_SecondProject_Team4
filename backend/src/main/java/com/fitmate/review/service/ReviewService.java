@@ -1,5 +1,8 @@
 package com.fitmate.review.service;
 
+import com.fitmate.alert.dto.AlertRequest;
+import com.fitmate.alert.entity.AlertType;
+import com.fitmate.alert.service.AlertService;
 import com.fitmate.global.exception.CustomException;
 import com.fitmate.global.exception.ErrorCode;
 import com.fitmate.matching.entity.MatchingRequest;
@@ -15,6 +18,8 @@ import com.fitmate.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.fitmate.alert.dto.AlertRequest;
+import com.fitmate.alert.entity.AlertType;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -28,6 +33,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final MemberRepository memberRepository;
     private final MatchingRequestRepository matchingRequestRepository;
+    private final AlertService alertService;
 
     // 후기 작성
     @Transactional
@@ -54,7 +60,17 @@ public class ReviewService {
                 .content(request.content())
                 .build();
 
-        return reviewRepository.save(review).getId();
+        Long reviewId = reviewRepository.save(review).getId();
+
+        // 트레이너에게 후기 알림 발송
+        alertService.createAlert(new AlertRequest(
+                trainer.getId(),                                  // 받는 사람 = 트레이너
+                AlertType.REVIEW,                                 // 알림 타입
+                trainer.getId(),                                  // targetId (트레이너 페이지 라우팅용)
+                reviewer.getNickname() + "님이 후기를 남겼습니다."   // 내용
+        ));
+
+        return reviewId;
     }
 
     // 내가 작성한 후기 조회 (MYP-04)
@@ -124,8 +140,10 @@ public class ReviewService {
     }
 
     // 트레이너가 받은 후기 조회 (MYP-07)
-    public List<ReviewResponse> getReceivedReviews(Long trainerId) {
-        return reviewRepository.findByTrainerId(trainerId).stream()
+    public List<ReviewResponse> getReceivedReviews(String userId) {
+        Member trainer = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        return reviewRepository.findByTrainerId(trainer.getId()).stream()
                 .map(ReviewResponse::from)
                 .toList();
     }

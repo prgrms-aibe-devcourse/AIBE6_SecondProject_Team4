@@ -37,13 +37,17 @@ export function useMyReviews() {
     // 토큰을 Authorization 헤더로 싣기 위한 공통 옵션
     const authHeader = user ? { Authorization: `Bearer ${user.token}` } : undefined
 
-    // ── 내 후기 목록 불러오기 ──────────────────────────────
+    // ── 후기 목록 불러오기 (role에 따라 분기) ──────────────
     const fetchMyReviews = useCallback(async () => {
         if (!user) return
         setLoading(true)
         setError(null)
         try {
-            const { data, error } = await apiClient.GET('/api/reviews/my', {
+            // 트레이너 → 받은 후기 / 일반 사용자 → 내가 쓴 후기
+            const endpoint =
+                user.role === 'TRAINER' ? '/api/reviews/received' : '/api/reviews/my'
+
+            const { data, error } = await apiClient.GET(endpoint, {
                 headers: { Authorization: `Bearer ${user.token}` },
             })
             if (error) throw new Error('후기를 불러오지 못했습니다.')

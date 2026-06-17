@@ -1385,9 +1385,7 @@ export interface operations {
     };
     getReceivedReviews: {
         parameters: {
-            query: {
-                trainerId: number;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
