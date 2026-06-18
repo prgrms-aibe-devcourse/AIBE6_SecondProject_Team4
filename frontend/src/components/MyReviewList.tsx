@@ -1,11 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-
+import TrainerRatingStats from '@/components/TrainerRatingStats'
+import WritableReviewList from '@/components/WritableReviewList'
 import { useAuth } from '@/context/AuthContext'
 import { Review, useMyReviews } from '@/hooks/useMyReviews'
-import WritableReviewList from '@/components/WritableReviewList'
-import TrainerRatingStats from '@/components/TrainerRatingStats'
+import { useState } from 'react'
 
 // 별점 표시 — 머티리얼 아이콘 star (채움/빈)
 function StarRating({ rating }: { rating: number }) {
@@ -17,8 +16,8 @@ function StarRating({ rating }: { rating: number }) {
                     className="material-symbols-outlined text-[18px]"
                     style={i <= rating ? { fontVariationSettings: "'FILL' 1" } : undefined}
                 >
-          star
-        </span>
+                    star
+                </span>
             ))}
         </div>
     )
@@ -31,11 +30,11 @@ function formatDate(iso: string) {
 
 // 후기 카드 한 장
 function ReviewCard({
-                        review,
-                        isTrainer,
-                        onEdit,
-                        onDelete,
-                    }: {
+    review,
+    isTrainer,
+    onEdit,
+    onDelete,
+}: {
     review: Review
     isTrainer: boolean
     onEdit: (r: Review) => void
@@ -48,14 +47,14 @@ function ReviewCard({
                 <div className="flex items-center gap-4">
                     <div className="h-12 w-12 flex-shrink-0 rounded-full bg-gradient-to-br from-primary-fixed to-primary-fixed-dim" />
                     <div>
-            <span className="text-body-md font-bold text-on-surface">
-              {isTrainer ? review.reviewerNickname : review.trainerNickname}
-            </span>
+                        <span className="text-body-md font-bold text-on-surface">
+                            {isTrainer ? review.reviewerNickname : review.trainerNickname}
+                        </span>
                         <div className="mt-1 flex items-center gap-2">
                             <StarRating rating={review.rating} />
                             <span className="text-label-md text-outline">
-                {formatDate(review.createdAt)}
-              </span>
+                                {formatDate(review.createdAt)}
+                            </span>
                             {review.edited && (
                                 <span className="text-label-md text-outline">(수정됨)</span>
                             )}
@@ -84,19 +83,17 @@ function ReviewCard({
             </div>
 
             {/* 후기 내용 */}
-            <p className="text-body-md leading-relaxed text-on-surface-variant">
-                {review.content}
-            </p>
+            <p className="text-body-md leading-relaxed text-on-surface-variant">{review.content}</p>
         </div>
     )
 }
 
 // 수정 모달
 function EditModal({
-                       review,
-                       onSave,
-                       onClose,
-                   }: {
+    review,
+    onSave,
+    onClose,
+}: {
     review: Review
     onSave: (rating: number, content: string) => void
     onClose: () => void
@@ -161,27 +158,79 @@ function EditModal({
     )
 }
 
+// 페이지네이션 (← 1 2 3 →)
+function Pagination({
+    page,
+    totalPages,
+    onChange,
+}: {
+    page: number
+    totalPages: number
+    onChange: (p: number) => void
+}) {
+    if (totalPages <= 1) return null // 한 페이지면 안 보임
+
+    return (
+        <div className="mt-md flex items-center justify-center gap-2">
+            <button
+                onClick={() => onChange(page - 1)}
+                disabled={page === 0}
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant transition-colors hover:bg-surface-container-low disabled:opacity-40"
+            >
+                <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                    key={i}
+                    onClick={() => onChange(i)}
+                    className={`h-9 w-9 rounded-lg text-label-bold transition-colors ${
+                        i === page
+                            ? 'bg-primary text-on-primary'
+                            : 'border border-outline-variant text-on-surface-variant hover:bg-surface-container-low'
+                    }`}
+                >
+                    {i + 1}
+                </button>
+            ))}
+
+            <button
+                onClick={() => onChange(page + 1)}
+                disabled={page === totalPages - 1}
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant transition-colors hover:bg-surface-container-low disabled:opacity-40"
+            >
+                <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+            </button>
+        </div>
+    )
+}
+
 type Tab = 'all' | 'writable'
 
 /**
  * 리뷰 관리 (마이페이지)
  * - 사용자: 내가 쓴 후기 (수정/삭제 가능)
  * - 트레이너: 내가 받은 후기 (조회만)
+ * 목록은 백엔드 페이징 (최신순, 5개씩)
  */
 export default function MyReviewList() {
     const { user } = useAuth()
     const isTrainer = user?.role === 'TRAINER'
 
-    const { reviews, loading, error, updateReview, deleteReview } = useMyReviews()
+    const {
+        reviews,
+        loading,
+        error,
+        page,
+        totalPages,
+        setPage,
+        sort,
+        setSort,
+        updateReview,
+        deleteReview,
+    } = useMyReviews()
     const [tab, setTab] = useState<Tab>('all')
-    const [sort, setSort] = useState<'latest' | 'rating'>('latest')
     const [editing, setEditing] = useState<Review | null>(null)
-
-    const sorted = [...reviews].sort((a, b) =>
-        sort === 'latest'
-            ? b.createdAt.localeCompare(a.createdAt)
-            : b.rating - a.rating,
-    )
 
     const handleDelete = async (id: number) => {
         if (confirm('이 후기를 삭제할까요?')) {
@@ -198,7 +247,7 @@ export default function MyReviewList() {
 
     return (
         <div className="flex flex-col gap-md">
-            {/* 헤더: 탭 + 정렬 */}
+            {/* 헤더: 탭 */}
             <div className="flex items-end justify-between border-b border-outline-variant">
                 <div className="flex gap-md">
                     <button
@@ -228,14 +277,22 @@ export default function MyReviewList() {
                     <div className="mb-2 flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-4 py-1.5 text-label-md">
                         <button
                             onClick={() => setSort('latest')}
-                            className={sort === 'latest' ? 'text-primary font-semibold' : 'text-on-surface-variant'}
+                            className={
+                                sort === 'latest'
+                                    ? 'font-semibold text-primary'
+                                    : 'text-on-surface-variant'
+                            }
                         >
                             최신순
                         </button>
                         <span className="text-outline-variant">|</span>
                         <button
                             onClick={() => setSort('rating')}
-                            className={sort === 'rating' ? 'text-primary font-semibold' : 'text-on-surface-variant'}
+                            className={
+                                sort === 'rating'
+                                    ? 'font-semibold text-primary'
+                                    : 'text-on-surface-variant'
+                            }
                         >
                             별점 높은순
                         </button>
@@ -252,22 +309,25 @@ export default function MyReviewList() {
                     <p className="py-xl text-center text-outline">불러오는 중...</p>
                 ) : error ? (
                     <p className="py-xl text-center text-error">{error}</p>
-                ) : sorted.length === 0 ? (
+                ) : reviews.length === 0 ? (
                     <p className="py-xl text-center text-outline">
                         {isTrainer ? '받은 후기가 없습니다.' : '작성한 후기가 없습니다.'}
                     </p>
                 ) : (
-                    <div className="flex flex-col gap-md">
-                        {sorted.map((review) => (
-                            <ReviewCard
-                                key={review.id}
-                                review={review}
-                                isTrainer={isTrainer}
-                                onEdit={setEditing}
-                                onDelete={handleDelete}
-                            />
-                        ))}
-                    </div>
+                    <>
+                        <div className="flex flex-col gap-md">
+                            {reviews.map((review) => (
+                                <ReviewCard
+                                    key={review.id}
+                                    review={review}
+                                    isTrainer={isTrainer}
+                                    onEdit={setEditing}
+                                    onDelete={handleDelete}
+                                />
+                            ))}
+                        </div>
+                        <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+                    </>
                 ))}
 
             {/* 작성 가능한 후기 탭 (사용자만) */}
@@ -275,11 +335,7 @@ export default function MyReviewList() {
 
             {/* 수정 모달 */}
             {editing && (
-                <EditModal
-                    review={editing}
-                    onSave={handleSave}
-                    onClose={() => setEditing(null)}
-                />
+                <EditModal review={editing} onSave={handleSave} onClose={() => setEditing(null)} />
             )}
         </div>
     )

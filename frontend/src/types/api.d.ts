@@ -875,6 +875,8 @@ export interface components {
         InquiryResponse: {
             /** Format: int64 */
             id?: number;
+            /** Format: int64 */
+            memberId?: number;
             /** @enum {string} */
             type?: "MATCHING" | "TRAINER" | "ETC";
             title?: string;
@@ -986,38 +988,38 @@ export interface components {
             content?: string;
         };
         PageTrainerProfileResponse: {
-            /** Format: int32 */
-            totalPages?: number;
             /** Format: int64 */
             totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["TrainerProfileResponse"][];
             /** Format: int32 */
             number?: number;
-            first?: boolean;
-            last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            sort?: components["schemas"]["SortObject"];
             pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
         };
         PageableObject: {
             /** Format: int64 */
             offset?: number;
-            sort?: components["schemas"]["SortObject"];
+            unpaged?: boolean;
             paged?: boolean;
             /** Format: int32 */
-            pageSize?: number;
-            /** Format: int32 */
             pageNumber?: number;
-            unpaged?: boolean;
+            /** Format: int32 */
+            pageSize?: number;
+            sort?: components["schemas"]["SortObject"];
         };
         SortObject: {
             empty?: boolean;
-            sorted?: boolean;
             unsorted?: boolean;
+            sorted?: boolean;
         };
         ReviewResponse: {
             /** Format: int64 */
@@ -1029,11 +1031,13 @@ export interface components {
             reviewerNickname?: string;
             /** Format: int64 */
             trainerId?: number;
+            trainerNickname?: string;
             /** Format: int32 */
             rating?: number;
             content?: string;
             /** Format: date-time */
             createdAt?: string;
+            edited?: boolean;
         };
         TrainerRatingResponse: {
             /** Format: int64 */
@@ -1046,12 +1050,6 @@ export interface components {
                 [key: string]: number;
             };
         };
-        TrainerSummaryDto: {
-            /** Format: int64 */
-            id?: number;
-            userName?: string;
-            profileImage?: string;
-        };
         Pageable: {
             /** Format: int32 */
             page?: number;
@@ -1059,22 +1057,46 @@ export interface components {
             size?: number;
             sort?: string[];
         };
-        PageInquiryResponse: {
-            /** Format: int32 */
-            totalPages?: number;
+        PageReviewResponse: {
             /** Format: int64 */
             totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            first?: boolean;
+            last?: boolean;
+            /** Format: int32 */
+            size?: number;
+            content?: components["schemas"]["ReviewResponse"][];
+            /** Format: int32 */
+            number?: number;
+            /** Format: int32 */
+            numberOfElements?: number;
+            pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
+            empty?: boolean;
+        };
+        TrainerSummaryDto: {
+            /** Format: int64 */
+            id?: number;
+            userName?: string;
+            profileImage?: string;
+        };
+        PageInquiryResponse: {
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["InquiryResponse"][];
             /** Format: int32 */
             number?: number;
-            first?: boolean;
-            last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            sort?: components["schemas"]["SortObject"];
             pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
         };
         ChatResponseDto: {
@@ -2080,7 +2102,7 @@ export interface operations {
     getReceivedReviews: {
         parameters: {
             query: {
-                trainerId: number;
+                pageable: components["schemas"]["Pageable"];
             };
             header?: never;
             path?: never;
@@ -2094,14 +2116,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["ReviewResponse"][];
+                    "application/json;charset=UTF-8": components["schemas"]["PageReviewResponse"];
                 };
             };
         };
     };
     getMyReviews: {
         parameters: {
-            query?: never;
+            query: {
+                pageable: components["schemas"]["Pageable"];
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2114,7 +2138,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["ReviewResponse"][];
+                    "application/json;charset=UTF-8": components["schemas"]["PageReviewResponse"];
                 };
             };
         };

@@ -1,8 +1,9 @@
 'use client'
 
+import { useCallback, useEffect, useState } from 'react'
+
 import { useAuth } from '@/context/AuthContext'
 import { apiClient } from '@/utils/apiClient'
-import { useCallback, useEffect, useState } from 'react'
 
 // 서버에서 받는 후기 형태 (ReviewResponse 와 일치)
 export interface Review {
@@ -18,54 +19,70 @@ export interface Review {
     edited: boolean
 }
 
+export type SortOption = 'latest' | 'rating'
+
+const PAGE_SIZE = 5
+
 /**
- * 내가 작성한 후기 관리 훅
+ * 후기 관리 훅 (역할별 분기 + 페이징 + 정렬)
  *
- * ── 사용법 ──────────────────────────────────────────────
- * const { reviews, loading, updateReview, deleteReview } = useMyReviews()
- * ────────────────────────────────────────────────────────
+ * - 사용자(USER):   GET /api/reviews/my        내가 쓴 후기
+ * - 트레이너(TRAINER): GET /api/reviews/received  받은 후기
+ * - PUT/DELETE /api/reviews/{reviewId}  수정/삭제 (사용자 전용)
  *
- * - GET    /api/reviews/my          내가 쓴 후기 목록 (인증 필요)
- * - PUT    /api/reviews/{reviewId}  후기 수정 (본인만)
- * - DELETE /api/reviews/{reviewId}  후기 삭제 (본인만)
+ * 정렬은 백엔드에서 처리 (페이징과 호환): 최신순 / 별점 높은순
  */
 export function useMyReviews() {
     const { user } = useAuth()
     const [reviews, setReviews] = useState<Review[]>([])
+    const [page, setPage] = useState(0) // 0-based
+    const [totalPages, setTotalPages] = useState(0)
+    const [sort, setSortState] = useState<SortOption>('latest')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    // 토큰을 Authorization 헤더로 싣기 위한 공통 옵션
-    const authHeader = user ? { Authorization: `Bearer ${user.token}` } : undefined
+    // 정렬 변경 시 첫 페이지로 리셋
+    const setSort = useCallback((next: SortOption) => {
+        setSortState(next)
+        setPage(0)
+    }, [])
 
-    // ── 후기 목록 불러오기 (role에 따라 분기) ──────────────
+    // ── 후기 목록 불러오기 (role 분기 + 페이지 + 정렬) ──────
     const fetchMyReviews = useCallback(async () => {
         if (!user) return
         setLoading(true)
         setError(null)
         try {
-            // 트레이너 → 받은 후기 / 일반 사용자 → 내가 쓴 후기
             const endpoint =
                 user.role === 'TRAINER' ? '/api/reviews/received' : '/api/reviews/my'
 
+            // 백엔드 정렬 파라미터: 필드,방향
+            const sortParam = sort === 'latest' ? 'createdAt,desc' : 'rating,desc'
+
             const { data, error } = await apiClient.GET(endpoint, {
+                params: { query: { page, size: PAGE_SIZE, sort: sortParam } } as never,
                 headers: { Authorization: `Bearer ${user.token}` },
             })
             if (error) throw new Error('후기를 불러오지 못했습니다.')
-            setReviews((data as Review[]) ?? [])
+
+            const pageData = data as {
+                content?: Review[]
+                totalPages?: number
+            }
+            setReviews(pageData?.content ?? [])
+            setTotalPages(pageData?.totalPages ?? 0)
         } catch (e) {
             setError(e instanceof Error ? e.message : '알 수 없는 오류')
         } finally {
             setLoading(false)
         }
-    }, [user])
+    }, [user, page, sort])
 
-    // 마운트 시 + 로그인 상태 바뀔 때 불러오기
     useEffect(() => {
         fetchMyReviews()
     }, [fetchMyReviews])
 
-    // ── 후기 수정 ──────────────────────────────────────────
+    // ── 후기 수정 (사용자 전용) ────────────────────────────
     const updateReview = useCallback(
         async (reviewId: number, rating: number, content: string) => {
             if (!user) return
@@ -78,13 +95,13 @@ export function useMyReviews() {
                 setError('후기 수정에 실패했습니다.')
                 return false
             }
-            await fetchMyReviews() // 수정 후 목록 새로고침
+            await fetchMyReviews()
             return true
         },
         [user, fetchMyReviews]
     )
 
-    // ── 후기 삭제 ──────────────────────────────────────────
+    // ── 후기 삭제 (사용자 전용) ────────────────────────────
     const deleteReview = useCallback(
         async (reviewId: number) => {
             if (!user) return
@@ -96,12 +113,23 @@ export function useMyReviews() {
                 setError('후기 삭제에 실패했습니다.')
                 return false
             }
-            // 삭제된 후기를 목록에서 즉시 제거 (낙관적 업데이트)
-            setReviews((prev) => prev.filter((r) => r.id !== reviewId))
+            await fetchMyReviews()
             return true
         },
-        [user]
+        [user, fetchMyReviews]
     )
 
-    return { reviews, loading, error, updateReview, deleteReview, refetch: fetchMyReviews }
+    return {
+        reviews,
+        loading,
+        error,
+        page,
+        totalPages,
+        setPage,
+        sort,
+        setSort,
+        updateReview,
+        deleteReview,
+        refetch: fetchMyReviews,
+    }
 }

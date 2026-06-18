@@ -16,10 +16,10 @@ import com.fitmate.review.dto.TrainerRatingResponse;
 import com.fitmate.review.entity.Review;
 import com.fitmate.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.fitmate.alert.dto.AlertRequest;
-import com.fitmate.alert.entity.AlertType;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -73,13 +73,12 @@ public class ReviewService {
         return reviewId;
     }
 
-    // 내가 작성한 후기 조회 (MYP-04)
-    public List<ReviewResponse> getMyReviews(String userId) {
+    // 내가 작성한 후기 조회 (MYP-04) — 페이징
+    public Page<ReviewResponse> getMyReviews(String userId, Pageable pageable) {
         Member reviewer = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        return reviewRepository.findByReviewerId(reviewer.getId()).stream()
-                .map(ReviewResponse::from)
-                .toList();
+        return reviewRepository.findByReviewerId(reviewer.getId(), pageable)
+                .map(ReviewResponse::from);
     }
 
     // 후기 수정 (REV-06)
@@ -113,7 +112,8 @@ public class ReviewService {
 
         reviewRepository.delete(review);
     }
-    // 트레이너별 후기 조회
+
+    // 트레이너별 후기 조회 (공개 목록)
     public List<ReviewResponse> getReviewsByTrainer(Long trainerId) {
         return reviewRepository.findByTrainerId(trainerId).stream()
                 .map(ReviewResponse::from)
@@ -139,12 +139,11 @@ public class ReviewService {
         return new TrainerRatingResponse(trainerId, average, count, distribution);
     }
 
-    // 트레이너가 받은 후기 조회 (MYP-07)
-    public List<ReviewResponse> getReceivedReviews(String userId) {
+    // 트레이너가 받은 후기 조회 (MYP-07) — 페이징
+    public Page<ReviewResponse> getReceivedReviews(String userId, Pageable pageable) {
         Member trainer = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        return reviewRepository.findByTrainerId(trainer.getId()).stream()
-                .map(ReviewResponse::from)
-                .toList();
+        return reviewRepository.findByTrainerId(trainer.getId(), pageable)
+                .map(ReviewResponse::from);
     }
 }
