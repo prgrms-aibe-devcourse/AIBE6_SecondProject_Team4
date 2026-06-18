@@ -1,46 +1,31 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { useAuth } from '@/context/AuthContext'
+import { apiClient } from '@/utils/apiClient'
 
 /**
  * 작성 가능한 후기 (매칭 성사 후 미작성 트레이너)
  *
- * ⚠️ 데이터 연동 대기 중:
- *   매칭 "성사 완료"(요구사항 37번)가 구현되면, 성사된 매칭 중
- *   아직 후기를 안 쓴 트레이너 목록을 불러와 연결한다.
- *   예상 흐름: GET /api/reviews/writable
- *     → 백엔드에서 (성사된 매칭의 트레이너) - (이미 후기 쓴 트레이너) 필터
- *   현재는 매칭 성사 API가 없어 더미 데이터로 화면만 구성.
+ * GET  /api/reviews/writable  → 성사(ACCEPTED)된 레슨 중 후기 미작성 트레이너 목록
+ * POST /api/reviews           → 후기 작성 (matchingId, trainerId 전달)
  */
 
-// 작성 가능한 후기 대상 (매칭 성사된 트레이너) — 임시 타입
+// 작성 가능한 후기 대상 (WritableReviewResponse 와 일치)
 interface WritableTarget {
-    matchingId: number // 후기 작성 시 필요 (어떤 매칭에 대한 후기인지)
-    trainerId: number
-    trainerName: string
-    sports: string // 종목
-    endedAt: string // 수업 종료일 (YYYY.MM.DD)
+    lessonRequestId: number
+    matchingId: number   // 후기 작성 시 필요
+    trainerId: number    // 후기 작성 시 필요
+    trainerNickname: string
+    sports: string
+    lessonDate: string   // 수업 날짜 (YYYY-MM-DD)
 }
 
-// TODO: 매칭 성사 API 나오면 이 더미를 실제 fetch 결과로 교체
-const DUMMY_TARGETS: WritableTarget[] = [
-    {
-        matchingId: 101,
-        trainerId: 11,
-        trainerName: '이민수 트레이너',
-        sports: '웨이트 트레이닝',
-        endedAt: '2024.05.20',
-    },
-    {
-        matchingId: 102,
-        trainerId: 12,
-        trainerName: '박서연 코치',
-        sports: '요가 & 필라테스',
-        endedAt: '2024.05.15',
-    },
-]
+// 날짜 포맷 (2026-06-15 → 2026.06.15)
+function formatDate(iso: string) {
+    return iso?.slice(0, 10).replace(/-/g, '.') ?? ''
+}
 
 // 별점 입력 (머티리얼 아이콘, 클릭으로 선택)
 function StarInput({
@@ -95,15 +80,15 @@ function WritableCard({
                     <div className="h-16 w-16 flex-shrink-0 rounded-xl bg-gradient-to-br from-primary-fixed to-primary-fixed-dim shadow-sm" />
                     <div className="flex flex-col gap-xs">
                         <h3 className="text-headline-sm font-headline-sm text-on-surface">
-                            {target.trainerName}
+                            {target.trainerNickname}
                         </h3>
                         <div className="flex items-center gap-sm">
-              <span className="rounded-full bg-secondary-container px-2 py-0.5 text-label-md font-label-bold text-on-secondary-container">
-                {target.sports}
-              </span>
+                            <span className="rounded-full bg-secondary-container px-2 py-0.5 text-label-md font-label-bold text-on-secondary-container">
+                                {target.sports}
+                            </span>
                             <span className="text-body-sm text-on-surface-variant">
-                {target.endedAt} 종료
-              </span>
+                                {formatDate(target.lessonDate)} 수업
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -130,24 +115,24 @@ function WritableCard({
                     <div className="mx-auto flex max-w-2xl flex-col gap-md">
                         {/* 별점 */}
                         <div className="flex items-center gap-md">
-              <span className="text-label-bold font-label-bold text-on-surface">
-                별점 선택
-              </span>
+                            <span className="text-label-bold font-label-bold text-on-surface">
+                                별점 선택
+                            </span>
                             <StarInput rating={rating} onChange={setRating} />
                         </div>
 
                         {/* 내용 */}
                         <div className="relative">
-              <textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value.slice(0, 500))}
-                  rows={4}
-                  placeholder="트레이너님과의 운동 경험을 공유해주세요. (최소 10자 이상)"
-                  className="w-full resize-none rounded-lg border border-outline-variant bg-surface-container-lowest p-md text-body-md placeholder:text-outline-variant focus:border-primary focus:outline-none"
-              />
+                            <textarea
+                                value={content}
+                                onChange={(e) => setContent(e.target.value.slice(0, 500))}
+                                rows={4}
+                                placeholder="트레이너님과의 운동 경험을 공유해주세요. (최소 10자 이상)"
+                                className="w-full resize-none rounded-lg border border-outline-variant bg-surface-container-lowest p-md text-body-md placeholder:text-outline-variant focus:border-primary focus:outline-none"
+                            />
                             <span className="absolute bottom-2 right-3 text-label-md text-on-surface-variant">
-                {content.length} / 500
-              </span>
+                                {content.length} / 500
+                            </span>
                         </div>
 
                         {/* 버튼 */}
@@ -178,9 +163,29 @@ function WritableCard({
 
 export default function WritableReviewList() {
     const { user } = useAuth()
+    const [targets, setTargets] = useState<WritableTarget[]>([])
+    const [loading, setLoading] = useState(false)
 
-    // TODO: 매칭 성사 API 연동 시 useState + useEffect fetch 로 교체
-    const [targets, setTargets] = useState<WritableTarget[]>(DUMMY_TARGETS)
+    // 작성 가능한 후기 목록 불러오기
+    const fetchWritable = useCallback(async () => {
+        if (!user) return
+        setLoading(true)
+        try {
+            const { data, error } = await apiClient.GET('/api/reviews/writable', {
+                headers: { Authorization: `Bearer ${user.token}` },
+            })
+            if (error) throw new Error('목록을 불러오지 못했습니다.')
+            setTargets((data as WritableTarget[]) ?? [])
+        } catch {
+            setTargets([])
+        } finally {
+            setLoading(false)
+        }
+    }, [user])
+
+    useEffect(() => {
+        fetchWritable()
+    }, [fetchWritable])
 
     // 후기 등록 핸들러
     const handleSubmit = async (
@@ -190,23 +195,27 @@ export default function WritableReviewList() {
     ) => {
         if (!user) return
 
-        // 실제 후기 작성 API 호출 (이건 이미 구현된 POST /api/reviews 사용 가능)
-        // TODO: 매칭 성사 API 연동 후, matchingId/trainerId 를 실제 값으로 전달
-        //
-        // const { error } = await apiClient.POST('/api/reviews', {
-        //   headers: { Authorization: `Bearer ${user.token}` },
-        //   body: {
-        //     matchingId: target.matchingId,
-        //     trainerId: target.trainerId,
-        //     rating,
-        //     content,
-        //   },
-        // })
-        // if (error) { alert('후기 작성 실패'); return }
+        const { error } = await apiClient.POST('/api/reviews', {
+            headers: { Authorization: `Bearer ${user.token}` },
+            body: {
+                matchingId: target.matchingId,
+                trainerId: target.trainerId,
+                rating,
+                content,
+            },
+        })
+        if (error) {
+            alert('후기 작성에 실패했습니다.')
+            return
+        }
 
-        // 데모: 등록되면 목록에서 제거
-        alert(`[데모] ${target.trainerName}에게 후기 등록\n별점 ${rating} / ${content}`)
-        setTargets((prev) => prev.filter((t) => t.matchingId !== target.matchingId))
+        // 등록 성공 → 목록에서 제거 (후기 작성됨 = 더 이상 작성 가능 아님)
+        setTargets((prev) => prev.filter((t) => t.lessonRequestId !== target.lessonRequestId))
+        alert('후기가 등록되었습니다.')
+    }
+
+    if (loading) {
+        return <p className="py-xl text-center text-outline">불러오는 중...</p>
     }
 
     // 빈 상태
@@ -215,7 +224,7 @@ export default function WritableReviewList() {
             <div className="mt-lg flex flex-col items-center gap-md rounded-xl border-2 border-dashed border-outline-variant p-xl opacity-40">
                 <span className="material-symbols-outlined text-[48px]">history_edu</span>
                 <p className="text-body-md font-label-bold">
-                    더 이상 작성할 후기가 없습니다.
+                    작성 가능한 후기가 없습니다.
                 </p>
             </div>
         )
@@ -225,7 +234,7 @@ export default function WritableReviewList() {
         <div className="flex flex-col gap-md">
             {targets.map((target) => (
                 <WritableCard
-                    key={target.matchingId}
+                    key={target.lessonRequestId}
                     target={target}
                     onSubmit={handleSubmit}
                 />

@@ -275,3 +275,52 @@ SELECT (SELECT id FROM matching_request WHERE lesson_content = '[더미페이지
        (SELECT id FROM members WHERE user_id = 'user03'),
        (SELECT id FROM members WHERE user_id = 'trainer01'),
        5, '부상 부위를 조심스럽게 잘 다뤄주셨어요. 감사합니다.', NOW() - INTERVAL 30 DAY, NOW() - INTERVAL 30 DAY;
+
+-- =============================================
+-- [작성 가능한 후기 테스트용] 매칭 성사(ACCEPTED 레슨) 더미
+-- 흐름: matching_request → preferred_time + available_time → matching_result → lesson_request(ACCEPTED)
+-- user02 가 trainer02(정코치)와 매칭 성사 → 아직 후기 미작성 → writable 에 떠야 함
+-- 기존 후기 더미와 겹치지 않게 새 매칭(lesson_content '[더미작성가능]')으로 구성
+-- =============================================
+
+-- 1) 매칭 요청 (user02)
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '초급', '수영', '1:1', '부산', 40000, 80000, '[더미작성가능] 접영 배우고 싶어요', NOW(), NOW()
+FROM members WHERE user_id = 'user02';
+
+-- 2) 사용자 희망 시간 (matching_preferred_times → 위 매칭 참조)
+INSERT IGNORE INTO matching_preferred_times (matching_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능] 접영 배우고 싶어요' LIMIT 1),
+       'MONDAY', '10:00:00', '11:00:00', NOW(), NOW();
+
+-- 3) 트레이너 가능 시간 (trainer_available_times → trainer02 프로필 참조)
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'MONDAY', '09:00:00', '18:00:00', NOW(), NOW()
+FROM trainer_profiles tp
+         JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer02';
+
+-- 4) 매칭 결과 (matching_results → 위 매칭/시간/트레이너 연결)
+INSERT IGNORE INTO matching_results (matching_id, preferred_time_id, trainer_available_time_id, trainer_profile_id, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능] 접영 배우고 싶어요' LIMIT 1),
+    (SELECT pt.id FROM matching_preferred_times pt
+        WHERE pt.matching_id = (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능] 접영 배우고 싶어요' LIMIT 1)
+        LIMIT 1),
+    (SELECT at.id FROM trainer_available_times at
+        JOIN trainer_profiles tp ON at.trainer_profile_id = tp.id
+        JOIN members m ON tp.user_id = m.id
+        WHERE m.user_id = 'trainer02' AND at.start_time = '09:00:00'
+        LIMIT 1),
+    (SELECT tp.id FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer02' LIMIT 1),
+    NOW(), NOW();
+
+-- 5) 레슨 요청 (lesson_requests → ACCEPTED = 성사!)
+INSERT IGNORE INTO lesson_requests (matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count, requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at)
+SELECT
+    (SELECT mr.id FROM matching_results mr
+     WHERE mr.matching_id = (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능] 접영 배우고 싶어요' LIMIT 1)
+        LIMIT 1),
+    (SELECT id FROM members WHERE user_id = 'user02'),
+                                (SELECT tp.id FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer02' LIMIT 1),
+    'ONE_TIME', NULL, '2026-06-15', '10:00:00', '11:00:00', '잘 부탁드립니다!', 'ACCEPTED', NOW(), NOW();

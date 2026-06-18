@@ -4,17 +4,18 @@ import com.fitmate.review.dto.ReviewRequest;
 import com.fitmate.review.dto.ReviewResponse;
 import com.fitmate.review.dto.ReviewUpdateRequest;
 import com.fitmate.review.dto.TrainerRatingResponse;
+import com.fitmate.review.dto.WritableReviewResponse;
 import com.fitmate.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
 
 import java.util.List;
 
@@ -66,6 +67,14 @@ public class ReviewController {
             @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return ResponseEntity.ok(reviewService.getReceivedReviews(userId, pageable));
+    }
+
+    @Operation(summary = "작성 가능한 후기 조회", description = "매칭 성사(레슨 수락) 후 아직 후기를 작성하지 않은 트레이너 목록을 조회합니다.")
+    @GetMapping("/writable")
+    public ResponseEntity<List<WritableReviewResponse>> getWritableReviews(
+            @AuthenticationPrincipal String userId
+    ) {
+        return ResponseEntity.ok(reviewService.getWritableReviews(userId));
     }
 
     @Operation(summary = "후기 수정", description = "작성자 본인이 후기의 별점·내용을 수정합니다.")

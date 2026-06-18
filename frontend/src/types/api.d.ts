@@ -499,6 +499,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/reviews/writable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 작성 가능한 후기 조회
+         * @description 매칭 성사(레슨 수락) 후 아직 후기를 작성하지 않은 트레이너 목록을 조회합니다.
+         */
+        get: operations["getWritableReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/reviews/trainer/{trainerId}": {
         parameters: {
             query?: never;
@@ -999,10 +1019,10 @@ export interface components {
             content?: components["schemas"]["TrainerProfileResponse"][];
             /** Format: int32 */
             number?: number;
-            /** Format: int32 */
-            numberOfElements?: number;
             pageable?: components["schemas"]["PageableObject"];
             sort?: components["schemas"]["SortObject"];
+            /** Format: int32 */
+            numberOfElements?: number;
             empty?: boolean;
         };
         PageableObject: {
@@ -1020,6 +1040,18 @@ export interface components {
             empty?: boolean;
             unsorted?: boolean;
             sorted?: boolean;
+        };
+        WritableReviewResponse: {
+            /** Format: int64 */
+            lessonRequestId?: number;
+            /** Format: int64 */
+            matchingId?: number;
+            /** Format: int64 */
+            trainerId?: number;
+            trainerNickname?: string;
+            sports?: string;
+            /** Format: date */
+            lessonDate?: string;
         };
         ReviewResponse: {
             /** Format: int64 */
@@ -1069,10 +1101,10 @@ export interface components {
             content?: components["schemas"]["ReviewResponse"][];
             /** Format: int32 */
             number?: number;
-            /** Format: int32 */
-            numberOfElements?: number;
             pageable?: components["schemas"]["PageableObject"];
             sort?: components["schemas"]["SortObject"];
+            /** Format: int32 */
+            numberOfElements?: number;
             empty?: boolean;
         };
         TrainerSummaryDto: {
@@ -1093,10 +1125,10 @@ export interface components {
             content?: components["schemas"]["InquiryResponse"][];
             /** Format: int32 */
             number?: number;
-            /** Format: int32 */
-            numberOfElements?: number;
             pageable?: components["schemas"]["PageableObject"];
             sort?: components["schemas"]["SortObject"];
+            /** Format: int32 */
+            numberOfElements?: number;
             empty?: boolean;
         };
         ChatResponseDto: {
@@ -2051,6 +2083,26 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["LessonRequestResponse"][];
+                };
+            };
+        };
+    };
+    getWritableReviews: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["WritableReviewResponse"][];
                 };
             };
         };
