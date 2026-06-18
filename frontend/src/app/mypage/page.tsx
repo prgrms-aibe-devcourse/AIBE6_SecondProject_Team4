@@ -380,6 +380,11 @@ export default function MyPage() {
     }, [])
 
     useEffect(() => {
+        const tab = searchParams.get('tab')
+        if (tab) setActiveTab(tab)
+    }, [searchParams])
+
+    useEffect(() => {
         if (!hydrated) return
         if (!user) {
             router.push('/auth/login')
