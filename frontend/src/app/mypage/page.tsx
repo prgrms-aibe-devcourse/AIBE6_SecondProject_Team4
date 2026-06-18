@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-
 import MyReviewList from '@/components/MyReviewList'
 import { useAuth } from '@/context/AuthContext'
 import type { components } from '@/types/api'
-import { getAuthClient } from '@/utils/apiClient'
+import { getAuthClient, getImageUrl } from '@/utils/apiClient'
+import { useEffect, useRef, useState } from 'react'
+
+import { useRouter, useSearchParams } from 'next/navigation'
 
 type TrainerProfile = components['schemas']['TrainerProfileResponse']
 type UserProfile = components['schemas']['UserProfileResponse']
@@ -14,11 +14,13 @@ type UserProfile = components['schemas']['UserProfileResponse']
 export default function MyPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const { user, logout } = useAuth()
+    const { user, logout, updateProfileImage } = useAuth()
     const [trainerProfile, setTrainerProfile] = useState<TrainerProfile | null>(null)
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
     const [loading, setLoading] = useState(true)
     const [activeTab, setActiveTab] = useState('matching')
+    const fileInputRef = useRef<HTMLInputElement>(null)
+    const [uploadingImage, setUploadingImage] = useState(false)
 
     useEffect(() => {
         if (!user) {
@@ -52,11 +54,53 @@ export default function MyPage() {
     if (loading) {
         return (
             <main className="flex justify-center py-20 pt-16 md:pt-20">
-        <span className="material-symbols-outlined animate-spin text-4xl text-primary">
-          progress_activity
-        </span>
+                <span className="material-symbols-outlined animate-spin text-4xl text-primary">
+                    progress_activity
+                </span>
             </main>
         )
+    }
+
+    const handleProfileImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        setUploadingImage(true)
+        const client = getAuthClient()
+
+        const formData = new FormData()
+        formData.append('file', file)
+
+        try {
+            const uploadRes = await fetch('http://localhost:8080/api/files/upload', {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${JSON.parse(localStorage.getItem('fitmate_user') ?? '{}').token}`,
+                },
+                body: formData,
+            })
+
+            if (!uploadRes.ok) {
+                alert('이미지 업로드에 실패했습니다.')
+                return
+            }
+
+            const { url } = await uploadRes.json()
+
+            await client.PATCH('/api/members/me', {
+                body: { profileImage: url },
+            })
+
+            updateProfileImage(url)
+
+            await fetchMyProfile()
+        } catch (err) {
+            console.error(err)
+            alert('이미지 업로드 중 오류가 발생했습니다.')
+        } finally {
+            setUploadingImage(false)
+            e.target.value = ''
+        }
     }
 
     return (
@@ -71,21 +115,35 @@ export default function MyPage() {
                         <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-surface-container shadow-sm">
                             {profile?.profileImage ? (
                                 <img
-                                    src={profile.profileImage}
+                                    src={getImageUrl(profile.profileImage)}
                                     alt=""
                                     className="h-full w-full object-cover"
                                 />
                             ) : (
                                 <span className="material-symbols-outlined text-4xl text-outline">
-                  person
-                </span>
+                                    person
+                                </span>
                             )}
                         </div>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/jpeg,image/png,image/jpg,image/webp"
+                            className="hidden"
+                            onChange={handleProfileImageChange}
+                        />
                         <button
-                            className="absolute bottom-0 right-0 rounded-full border-2 border-white bg-primary p-1.5 text-white shadow-lg transition-transform hover:scale-110"
-                            onClick={() => router.push('/mypage/edit')}
+                            className="absolute bottom-0 right-0 bg-primary text-white p-1.5 rounded-full shadow-lg border-2 border-white hover:scale-110 transition-transform disabled:opacity-50"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={uploadingImage}
                         >
-                            <span className="material-symbols-outlined text-[18px]">edit</span>
+                            {uploadingImage ? (
+                                <span className="material-symbols-outlined text-[18px] animate-spin">
+                                    progress_activity
+                                </span>
+                            ) : (
+                                <span className="material-symbols-outlined text-[18px]">edit</span>
+                            )}
                         </button>
                     </div>
                     <div>
@@ -93,9 +151,9 @@ export default function MyPage() {
                             {user?.userName}
                         </h1>
                         <p className="flex items-center gap-xs text-body-md text-on-surface-variant">
-              <span className="material-symbols-outlined text-[16px]">
-                fitness_center
-              </span>
+                            <span className="material-symbols-outlined text-[16px]">
+                                fitness_center
+                            </span>
                             {user?.role === 'TRAINER' ? '트레이너' : '일반 회원'}
                         </p>
                     </div>
@@ -148,7 +206,9 @@ export default function MyPage() {
                                     style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
                                 >
                                     <div className="flex items-center gap-sm text-primary">
-                                        <span className="material-symbols-outlined">outgoing_mail</span>
+                                        <span className="material-symbols-outlined">
+                                            outgoing_mail
+                                        </span>
                                         <span className="text-label-bold">보낸 요청</span>
                                     </div>
                                     <div className="flex-grow py-sm">
@@ -222,9 +282,9 @@ export default function MyPage() {
                             >
                                 <button className="flex w-full items-center justify-between border-b border-outline-variant p-md transition-colors hover:bg-white/50">
                                     <div className="flex items-center gap-md">
-                    <span className="material-symbols-outlined text-on-surface-variant">
-                      lock
-                    </span>
+                                        <span className="material-symbols-outlined text-on-surface-variant">
+                                            lock
+                                        </span>
                                         <div className="text-left">
                                             <p className="text-label-bold text-on-surface">
                                                 비밀번호 및 보안
@@ -235,8 +295,8 @@ export default function MyPage() {
                                         </div>
                                     </div>
                                     <span className="material-symbols-outlined text-outline">
-                    chevron_right
-                  </span>
+                                        chevron_right
+                                    </span>
                                 </button>
                                 <button
                                     className="group flex w-full items-center justify-between p-md transition-colors hover:bg-error-container/20"
@@ -255,8 +315,8 @@ export default function MyPage() {
                                         </div>
                                     </div>
                                     <span className="material-symbols-outlined text-error opacity-0 transition-opacity group-hover:opacity-100">
-                    arrow_forward
-                  </span>
+                                        arrow_forward
+                                    </span>
                                 </button>
                             </div>
                         </section>

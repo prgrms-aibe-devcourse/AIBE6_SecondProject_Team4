@@ -50,3 +50,6 @@ logging:
     org.hibernate.orm.jdbc.extract: TRACE
     org.springframework.transaction.interceptor: TRACE
     com.fitmate: DEBUG
+
+file:
+  upload-dir: ./uploads

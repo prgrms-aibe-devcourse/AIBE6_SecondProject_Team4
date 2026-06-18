@@ -20,23 +20,23 @@ VALUES
 -- 사용자 프로필 (user_profiles)
 -- =============================================
 INSERT IGNORE INTO user_profiles (user_id, sports, level, goal, created_at, updated_at)
-SELECT id, '헬스', '초급', '다이어트' , NOW(), NOW() FROM members WHERE user_id = 'user01';
+SELECT id, '헬스', '입문/초보', '다이어트', NOW(), NOW() FROM members WHERE user_id = 'user01';
 
 INSERT IGNORE INTO user_profiles (user_id, sports, level, goal, created_at, updated_at)
-SELECT id, '수영', '초급', '체력 향상', NOW(), NOW() FROM members WHERE user_id = 'user02';
+SELECT id, '수영', '입문/초보', '체형 교정', NOW(), NOW() FROM members WHERE user_id = 'user02';
 
 INSERT IGNORE INTO user_profiles (user_id, sports, level, goal, created_at, updated_at)
-SELECT id, '헬스', '중급', '근육 증가', NOW(), NOW() FROM members WHERE user_id = 'user03';
+SELECT id, '헬스', '중급', '근력 향상', NOW(), NOW() FROM members WHERE user_id = 'user03';
 
 -- =============================================
 -- 트레이너 프로필 (trainer_profiles)
 -- =============================================
 INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
-SELECT id, '헬스, 크로스핏', '1:1 PT', '초급, 중급, 고급', 80000, 10, NOW(), NOW()
+SELECT id, '헬스,크로스핏', 'ONE_TO_ONE', '입문/초보,중급,고급/대회준비', 80000, 10, NOW(), NOW()
 FROM members WHERE user_id = 'trainer01';
 
 INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
-SELECT id, '수영, 필라테스', '그룹, 1:1', '초급, 중급', 60000, 5, NOW(), NOW()
+SELECT id, '수영,필라테스', 'GROUP', '입문/초보,중급', 60000, 5, NOW(), NOW()
 FROM members WHERE user_id = 'trainer02';
 
 -- =============================================

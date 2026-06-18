@@ -1,6 +1,7 @@
 package com.fitmate.trainer.dto;
 
 import com.fitmate.trainer.entity.TrainerAvailableTime;
+import com.fitmate.trainer.entity.TrainerLessonPhoto;
 import com.fitmate.trainer.entity.TrainerProfile;
 
 import java.time.LocalTime;
@@ -18,7 +19,8 @@ public record TrainerProfileResponse(
         String lessonLevel,
         Integer price,
         Integer careerYears,
-        List<AvailableTimeResponse> availableTimes
+        List<AvailableTimeResponse> availableTimes,
+        List<String> lessonPhotos
 ) {
     public static TrainerProfileResponse from(TrainerProfile profile) {
         return new TrainerProfileResponse(
@@ -33,13 +35,15 @@ public record TrainerProfileResponse(
                 profile.getLessonLevel(),
                 profile.getPrice(),
                 profile.getCareerYears(),
+                List.of(),
                 List.of()
         );
     }
 
     public static TrainerProfileResponse from(
             TrainerProfile profile,
-            List<TrainerAvailableTime> availableTimes
+            List<TrainerAvailableTime> availableTimes,
+            List<TrainerLessonPhoto> lessonPhotos
     ) {
         return new TrainerProfileResponse(
                 profile.getId(),
@@ -55,6 +59,9 @@ public record TrainerProfileResponse(
                 profile.getCareerYears(),
                 availableTimes.stream()
                         .map(AvailableTimeResponse::from)
+                        .toList(),
+                lessonPhotos.stream()
+                        .map(TrainerLessonPhoto::getImageUrl)
                         .toList()
         );
     }

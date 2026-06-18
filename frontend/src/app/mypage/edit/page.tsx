@@ -1,12 +1,12 @@
 'use client'
 
 import { useAuth } from '@/context/AuthContext'
-import { getAuthClient } from '@/utils/apiClient'
+import { getAuthClient, getImageUrl } from '@/utils/apiClient'
 import { useEffect, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
-const SPORTS_LIST = ['PT', '필라테스', '요가', '크로스핏', '테니스', '골프', '수영', '댄스']
+const SPORTS_LIST = ['헬스', '필라테스', '요가', '크로스핏', '테니스', '골프', '수영', '댄스']
 const LESSON_LEVELS = ['입문/초보', '중급', '고급/대회준비']
 const LESSON_TYPES = ['1:1', '그룹', '온라인']
 const GOALS = ['다이어트', '근력 향상', '체형 교정', '재활', '유연성', '스트레스 해소', '건강 유지']
@@ -29,6 +29,7 @@ export default function ProfileEditPage() {
         region: '',
         introduction: '',
         availableTimes: [] as { dayOfWeek: string; startTime: string; endTime: string }[],
+        lessonPhotos: [] as string[],
     })
 
     // 유저 폼
@@ -40,6 +41,8 @@ export default function ProfileEditPage() {
         region: '',
         introduction: '',
     })
+
+    const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
 
     useEffect(() => {
         if (!user) {
@@ -71,6 +74,7 @@ export default function ProfileEditPage() {
                             startTime: t.startTime ?? '09:00',
                             endTime: t.endTime ?? '22:00',
                         })) ?? [],
+                    lessonPhotos: data.lessonPhotos ?? [],
                 })
             }
         } else {
@@ -114,6 +118,50 @@ export default function ProfileEditPage() {
         }))
     }
 
+    const handleLessonPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        setIsUploadingPhoto(true)
+
+        const formData = new FormData()
+        formData.append('file', file)
+
+        try {
+            const res = await fetch('http://localhost:8080/api/files/upload', {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${JSON.parse(localStorage.getItem('fitmate_user') ?? '{}').token}`,
+                },
+                body: formData,
+            })
+
+            if (!res.ok) {
+                alert('이미지 업로드에 실패했습니다.')
+                return
+            }
+
+            const { url } = await res.json()
+            setTrainerForm((f) => ({
+                ...f,
+                lessonPhotos: [...f.lessonPhotos, url],
+            }))
+        } catch (err) {
+            console.error(err)
+            alert('이미지 업로드 중 오류가 발생했습니다.')
+        } finally {
+            setIsUploadingPhoto(false)
+            e.target.value = ''
+        }
+    }
+
+    const removeLessonPhoto = (index: number) => {
+        setTrainerForm((f) => ({
+            ...f,
+            lessonPhotos: f.lessonPhotos.filter((_, i) => i !== index),
+        }))
+    }
+
     const handleSave = async () => {
         setSaving(true)
         console.log('availableTimes:', trainerForm.availableTimes) // 추가
@@ -139,6 +187,7 @@ export default function ProfileEditPage() {
                     startTime: t.startTime,
                     endTime: t.endTime,
                 })),
+                lessonPhotoUrls: trainerForm.lessonPhotos,
             }
             if (trainerId) {
                 await client.PUT('/api/trainers/{id}', {
@@ -595,6 +644,66 @@ export default function ProfileEditPage() {
                                             />
                                         </div>
                                     </div>
+                                    {/* 레슨 사진 */}
+                                    <div className="space-y-sm">
+                                        <label className="block text-label-md font-label-md text-on-surface-variant">
+                                            레슨 사진
+                                        </label>
+                                        <div className="grid grid-cols-4 gap-sm">
+                                            {trainerForm.lessonPhotos.map((photoUrl, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="relative aspect-square bg-surface-container-low border border-outline-variant rounded-lg overflow-hidden"
+                                                >
+                                                    <img
+                                                        src={getImageUrl(photoUrl)}
+                                                        alt={`레슨 사진 ${index + 1}`}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                    <button
+                                                        className="absolute top-1 right-1 bg-error text-on-primary rounded-full w-6 h-6 flex items-center justify-center"
+                                                        onClick={() => removeLessonPhoto(index)}
+                                                    >
+                                                        <span className="material-symbols-outlined text-sm">
+                                                            close
+                                                        </span>
+                                                    </button>
+                                                </div>
+                                            ))}
+
+                                            {/* 업로드 버튼 - 항상 마지막에 표시 */}
+                                            {trainerForm.lessonPhotos.length < 10 && (
+                                                <div className="relative aspect-square bg-surface-container-low border border-outline-variant rounded-lg overflow-hidden">
+                                                    <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-surface-container transition-colors">
+                                                        {isUploadingPhoto ? (
+                                                            <span className="material-symbols-outlined animate-spin text-primary">
+                                                                progress_activity
+                                                            </span>
+                                                        ) : (
+                                                            <>
+                                                                <span className="material-symbols-outlined text-on-surface-variant">
+                                                                    photo_camera
+                                                                </span>
+                                                                <span className="text-label-md font-label-md text-on-surface-variant mt-1">
+                                                                    업로드
+                                                                </span>
+                                                            </>
+                                                        )}
+                                                        <input
+                                                            type="file"
+                                                            accept="image/jpeg,image/png,image/jpg,image/webp"
+                                                            className="hidden"
+                                                            onChange={handleLessonPhotoUpload}
+                                                            disabled={isUploadingPhoto}
+                                                        />
+                                                    </label>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <p className="text-label-md font-label-md text-on-surface-variant">
+                                            최대 10장까지 등록 가능합니다.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -613,23 +722,19 @@ export default function ProfileEditPage() {
                                         레벨
                                     </label>
                                     <div className="grid grid-cols-3 gap-sm">
-                                        {[
-                                            { label: '초급', value: 'BEGINNER' },
-                                            { label: '중급', value: 'INTERMEDIATE' },
-                                            { label: '고급', value: 'ADVANCED' },
-                                        ].map(({ label, value }) => (
+                                        {LESSON_LEVELS.map((level) => (
                                             <button
-                                                key={value}
+                                                key={level}
                                                 className={`py-sm rounded-lg text-label-bold font-label-bold border transition-all ${
-                                                    userForm.level === value
+                                                    userForm.level === level
                                                         ? 'bg-primary text-on-primary border-primary'
                                                         : 'bg-surface-container-low border-outline-variant text-on-surface-variant hover:border-primary'
                                                 }`}
                                                 onClick={() =>
-                                                    setUserForm((f) => ({ ...f, level: value }))
+                                                    setUserForm((f) => ({ ...f, level }))
                                                 }
                                             >
-                                                {label}
+                                                {level}
                                             </button>
                                         ))}
                                     </div>
