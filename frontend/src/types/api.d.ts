@@ -4,2479 +4,2543 @@
  */
 
 export interface paths {
-    '/api/users/{id}': {
+    "/api/users/{id}": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /** 사용자 프로필 상세 조회 */
-        get: operations['getUserProfile']
+        get: operations["getUserProfile"];
         /** 사용자 프로필 수정 */
-        put: operations['updateUserProfile']
-        post?: never
+        put: operations["updateUserProfile"];
+        post?: never;
         /** 사용자 프로필 삭제 */
-        delete: operations['deleteUserProfile']
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/trainers/{id}': {
+        delete: operations["deleteUserProfile"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/trainers/{id}": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /** 트레이너 프로필 상세 조회 */
-        get: operations['getTrainerProfile']
+        get: operations["getTrainerProfile"];
         /** 트레이너 프로필 수정 */
-        put: operations['updateTrainerProfile']
-        post?: never
+        put: operations["updateTrainerProfile"];
+        post?: never;
         /** 트레이너 프로필 삭제 */
-        delete: operations['deleteTrainerProfile']
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/reviews/{reviewId}': {
+        delete: operations["deleteTrainerProfile"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reviews/{reviewId}": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
         /**
          * 후기 수정
          * @description 작성자 본인이 후기의 별점·내용을 수정합니다.
          */
-        put: operations['updateReview']
-        post?: never
+        put: operations["updateReview"];
+        post?: never;
         /**
          * 후기 삭제
          * @description 작성자 본인이 후기를 삭제합니다.
          */
-        delete: operations['deleteReview']
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/chat/{roomId}/read': {
+        delete: operations["deleteReview"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/chat/{roomId}/read": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
         /**
          * 메시지 읽음 처리
          * @description 채팅방 입장 시 안읽은 메시지를 읽음 처리합니다.
          */
-        put: operations['markAsRead']
-        post?: never
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/users': {
+        put: operations["markAsRead"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /** 사용자 프로필 목록 조회 */
-        get: operations['getUserProfiles']
-        put?: never
+        get: operations["getUserProfiles"];
+        put?: never;
         /** 사용자 프로필 등록 */
-        post: operations['createUserProfile']
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/trainers': {
+        post: operations["createUserProfile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/trainers": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /** 트레이너 목록 조회 및 필터링 */
-        get: operations['getTrainerProfiles']
-        put?: never
+        get: operations["getTrainerProfiles"];
+        put?: never;
         /** 트레이너 프로필 등록 */
-        post: operations['createTrainerProfile']
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/reviews': {
+        post: operations["createTrainerProfile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reviews": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get?: never
-        put?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
         /**
          * 후기 작성
          * @description 매칭 완료 후 트레이너에게 후기와 별점을 작성합니다.
          */
-        post: operations['createReview']
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/matching': {
+        post: operations["createReview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/matching": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get?: never
-        put?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
         /** AI 매칭 요청 생성 */
-        post: operations['createMatchingRequest']
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/matching/{matchingId}/results': {
+        post: operations["createMatchingRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/matching/{matchingId}/results": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /** AI 매칭 결과 조회 */
-        get: operations['getMatchingResults']
-        put?: never
+        get: operations["getMatchingResults"];
+        put?: never;
         /** AI 매칭 결과 생성 */
-        post: operations['createMatchingResults']
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/lesson-requests': {
+        post: operations["createMatchingResults"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lesson-requests": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get?: never
-        put?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
         /** 레슨 요청서 생성 */
-        post: operations['createLessonRequest']
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/inquiries': {
+        post: operations["createLessonRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inquiries": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get: operations['getMyInquiries']
-        put?: never
-        post: operations['createInquiry']
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/files/upload': {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getMyInquiries"];
+        put?: never;
+        post: operations["createInquiry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/files/upload": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get?: never
-        put?: never
-        post: operations['uploadFile']
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/chat': {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["uploadFile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/chat": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /**
          * 채팅방 목록 조회
          * @description 사용자의 채팅방 목록을 조회합니다.
          */
-        get: operations['getChatRooms']
-        put?: never
+        get: operations["getChatRooms"];
+        put?: never;
         /**
          * 채팅방 생성 또는 조회
          * @description 트레이너와의 채팅방을 생성하거나 기존 채팅방을 반환합니다.
          */
-        post: operations['getOrCreateChatRoom']
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/auth/signup': {
+        post: operations["getOrCreateChatRoom"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/signup": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get?: never
-        put?: never
-        post: operations['signup']
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/auth/reissue': {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["signup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/reissue": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get?: never
-        put?: never
-        post: operations['reissue']
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/auth/logout': {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["reissue"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/logout": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get?: never
-        put?: never
-        post: operations['logout']
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/auth/login': {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/login": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get?: never
-        put?: never
-        post: operations['login']
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/alerts': {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/alerts": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /**
          * 알림 목록 조회
          * @description 로그인한 사용자의 알림 목록을 최신순으로 조회합니다.
          */
-        get: operations['getAlerts']
-        put?: never
+        get: operations["getAlerts"];
+        put?: never;
         /**
          * 알림 생성
          * @description 새로운 알림을 생성합니다.
          */
-        post: operations['createAlert']
+        post: operations["createAlert"];
         /**
          * 알림 일괄 삭제
          * @description 로그인한 사용자의 모든 알림을 삭제합니다.
          */
-        delete: operations['deleteAllAlerts']
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/admin/inquiries/{inquiryId}/answer': {
+        delete: operations["deleteAllAlerts"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ai/matching/parse": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get?: never
-        put?: never
-        post: operations['writeAnswer']
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/members/me': {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** AI 한 줄 매칭 조건 해석 */
+        post: operations["parseMatchingQuery"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/inquiries/{inquiryId}/answer": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get: operations['getMyInfo']
-        put?: never
-        post?: never
-        delete: operations['deleteMyAccount']
-        options?: never
-        head?: never
-        patch: operations['updateMyInfo']
-        trace?: never
-    }
-    '/api/members/me/role': {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["writeAnswer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/members/me": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get?: never
-        put?: never
-        post?: never
-        delete?: never
-        options?: never
-        head?: never
-        patch: operations['changeRole']
-        trace?: never
-    }
-    '/api/members/me/password': {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getMyInfo"];
+        put?: never;
+        post?: never;
+        delete: operations["deleteMyAccount"];
+        options?: never;
+        head?: never;
+        patch: operations["updateMyInfo"];
+        trace?: never;
+    };
+    "/api/members/me/role": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get?: never
-        put?: never
-        post?: never
-        delete?: never
-        options?: never
-        head?: never
-        patch: operations['changePassword']
-        trace?: never
-    }
-    '/api/lesson-requests/{lessonRequestId}/reject': {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["changeRole"];
+        trace?: never;
+    };
+    "/api/members/me/password": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get?: never
-        put?: never
-        post?: never
-        delete?: never
-        options?: never
-        head?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["changePassword"];
+        trace?: never;
+    };
+    "/api/lesson-requests/{lessonRequestId}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
         /** 레슨 요청서 거절 */
-        patch: operations['rejectLessonRequest']
-        trace?: never
-    }
-    '/api/lesson-requests/{lessonRequestId}/accept': {
+        patch: operations["rejectLessonRequest"];
+        trace?: never;
+    };
+    "/api/lesson-requests/{lessonRequestId}/accept": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get?: never
-        put?: never
-        post?: never
-        delete?: never
-        options?: never
-        head?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
         /** 레슨 요청서 수락 */
-        patch: operations['acceptLessonRequest']
-        trace?: never
-    }
-    '/api/inquiries/{inquiryId}': {
+        patch: operations["acceptLessonRequest"];
+        trace?: never;
+    };
+    "/api/inquiries/{inquiryId}": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get: operations['getInquiry']
-        put?: never
-        post?: never
-        delete: operations['deleteInquiry']
-        options?: never
-        head?: never
-        patch: operations['updateInquiry']
-        trace?: never
-    }
-    '/api/alerts/{alertId}/read': {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getInquiry"];
+        put?: never;
+        post?: never;
+        delete: operations["deleteInquiry"];
+        options?: never;
+        head?: never;
+        patch: operations["updateInquiry"];
+        trace?: never;
+    };
+    "/api/alerts/{alertId}/read": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get?: never
-        put?: never
-        post?: never
-        delete?: never
-        options?: never
-        head?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
         /**
          * 알림 단일 읽음 처리
          * @description 특정 알림을 읽음 상태로 변경합니다.
          */
-        patch: operations['markAsRead_1']
-        trace?: never
-    }
-    '/api/alerts/read': {
+        patch: operations["markAsRead_1"];
+        trace?: never;
+    };
+    "/api/alerts/read": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get?: never
-        put?: never
-        post?: never
-        delete?: never
-        options?: never
-        head?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
         /**
          * 알림 일괄 읽음 처리
          * @description 로그인한 사용자의 모든 알림을 읽음 상태로 변경합니다.
          */
-        patch: operations['markAllAsRead']
-        trace?: never
-    }
-    '/api/users/me': {
+        patch: operations["markAllAsRead"];
+        trace?: never;
+    };
+    "/api/users/me": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /** 내 사용자 프로필 조회 */
-        get: operations['getMyUserProfile']
-        put?: never
-        post?: never
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/trainers/me': {
+        get: operations["getMyUserProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/trainers/me": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /** 내 트레이너 프로필 조회 */
-        get: operations['getMyTrainerProfile']
-        put?: never
-        post?: never
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/trainers/me/lesson-requests': {
+        get: operations["getMyTrainerProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/trainers/me/lesson-requests": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /** 받은 요청서 목록 조회 */
-        get: operations['getTrainerLessonRequests']
-        put?: never
-        post?: never
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/reviews/writable': {
+        get: operations["getTrainerLessonRequests"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reviews/writable": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /**
          * 작성 가능한 후기 조회
          * @description 매칭 성사(레슨 수락) 후 아직 후기를 작성하지 않은 트레이너 목록을 조회합니다.
          */
-        get: operations['getWritableReviews']
-        put?: never
-        post?: never
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/reviews/trainer/{trainerId}': {
+        get: operations["getWritableReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reviews/trainer/{trainerId}": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /**
          * 트레이너별 후기 목록 조회
          * @description 특정 트레이너가 받은 후기 목록을 조회합니다.
          */
-        get: operations['getReviewsByTrainer']
-        put?: never
-        post?: never
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/reviews/trainer/{trainerId}/rating': {
+        get: operations["getReviewsByTrainer"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reviews/trainer/{trainerId}/rating": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /**
          * 트레이너 평점 조회
          * @description 트레이너의 평균 평점, 후기 수, 별점 분포를 조회합니다.
          */
-        get: operations['getTrainerRating']
-        put?: never
-        post?: never
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/reviews/received': {
+        get: operations["getTrainerRating"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reviews/received": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /**
          * 받은 후기 조회
          * @description 트레이너가 자신이 받은 후기 목록을 조회합니다.
          */
-        get: operations['getReceivedReviews']
-        put?: never
-        post?: never
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/reviews/my': {
+        get: operations["getReceivedReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reviews/my": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /**
          * 내가 작성한 후기 조회
          * @description 로그인한 사용자가 작성한 후기 목록을 조회합니다.
          */
-        get: operations['getMyReviews']
-        put?: never
-        post?: never
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/members/trainers': {
+        get: operations["getMyReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/members/trainers": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get: operations['getTrainers']
-        put?: never
-        post?: never
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/lesson-requests/{lessonRequestId}': {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getTrainers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lesson-requests/{lessonRequestId}": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /** 레슨 요청서 상세 조회 */
-        get: operations['getLessonRequest']
-        put?: never
-        post?: never
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/chat/{roomId}/messages': {
+        get: operations["getLessonRequest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/chat/{roomId}/messages": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /**
          * 메시지 히스토리 조회
          * @description 초기 채팅 20개 조회, 상단 스크롤시 20개씩 추가조회.
          */
-        get: operations['getMessages']
-        put?: never
-        post?: never
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/admin/inquiries': {
+        get: operations["getMessages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/inquiries": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get: operations['getAllInquiries']
-        put?: never
-        post?: never
-        delete?: never
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/chat/{roomId}': {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAllInquiries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/chat/{roomId}": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get?: never
-        put?: never
-        post?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
         /**
          * 채팅방 나가기
          * @description 채팅방을 숨김 처리합니다.
          */
-        delete: operations['hideChatRoom']
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
-    '/api/alerts/{alertId}': {
+        delete: operations["hideChatRoom"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/alerts/{alertId}": {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        get?: never
-        put?: never
-        post?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
         /**
          * 알림 단일 삭제
          * @description 특정 알림을 삭제합니다.
          */
-        delete: operations['deleteAlert']
-        options?: never
-        head?: never
-        patch?: never
-        trace?: never
-    }
+        delete: operations["deleteAlert"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
-export type webhooks = Record<string, never>
+export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         UserProfileUpdateRequest: {
-            sports?: string
-            level?: string
-            goal?: string
-        }
+            sports?: string;
+            level?: string;
+            goal?: string;
+        };
         UserProfileResponse: {
             /** Format: int64 */
-            id?: number
+            id?: number;
             /** Format: int64 */
-            memberId?: number
-            nickname?: string
-            profileImage?: string
-            introduction?: string
-            region?: string
-            sports?: string
-            level?: string
-            goal?: string
-        }
+            memberId?: number;
+            nickname?: string;
+            profileImage?: string;
+            introduction?: string;
+            region?: string;
+            sports?: string;
+            level?: string;
+            goal?: string;
+        };
         AvailableTimeRequest: {
             /** Format: int64 */
-            id?: number
-            dayOfWeek?: string
-            startTime?: string
-            endTime?: string
-        }
+            id?: number;
+            dayOfWeek?: string;
+            startTime?: string;
+            endTime?: string;
+        };
         TrainerProfileUpdateRequest: {
-            sports?: string
-            lessonType?: string
-            lessonLevel?: string
+            sports?: string;
+            lessonType?: string;
+            lessonLevel?: string;
             /** Format: int32 */
-            price?: number
+            price?: number;
             /** Format: int32 */
-            careerYears?: number
-            availableTimes?: components['schemas']['AvailableTimeRequest'][]
-            lessonPhotoUrls?: string[]
-        }
+            careerYears?: number;
+            availableTimes?: components["schemas"]["AvailableTimeRequest"][];
+            lessonPhotoUrls?: string[];
+        };
         AvailableTimeResponse: {
             /** Format: int64 */
-            id?: number
-            dayOfWeek?: string
-            startTime?: string
-            endTime?: string
-        }
+            id?: number;
+            dayOfWeek?: string;
+            startTime?: string;
+            endTime?: string;
+        };
         TrainerProfileResponse: {
             /** Format: int64 */
-            id?: number
+            id?: number;
             /** Format: int64 */
-            memberId?: number
-            nickname?: string
-            profileImage?: string
-            introduction?: string
-            region?: string
-            sports?: string
-            lessonType?: string
-            lessonLevel?: string
+            memberId?: number;
+            nickname?: string;
+            profileImage?: string;
+            introduction?: string;
+            region?: string;
+            sports?: string;
+            lessonType?: string;
+            lessonLevel?: string;
             /** Format: int32 */
-            price?: number
+            price?: number;
             /** Format: int32 */
-            careerYears?: number
-            availableTimes?: components['schemas']['AvailableTimeResponse'][]
-            lessonPhotos?: string[]
-        }
+            careerYears?: number;
+            availableTimes?: components["schemas"]["AvailableTimeResponse"][];
+            lessonPhotos?: string[];
+        };
         ReviewUpdateRequest: {
             /** Format: int32 */
-            rating?: number
-            content: string
-        }
+            rating?: number;
+            content: string;
+        };
         UserProfileRequest: {
-            sports?: string
-            level?: string
-            goal?: string
-        }
+            sports?: string;
+            level?: string;
+            goal?: string;
+        };
         TrainerProfileRequest: {
-            sports?: string
-            lessonType?: string
-            lessonLevel?: string
+            sports?: string;
+            lessonType?: string;
+            lessonLevel?: string;
             /** Format: int32 */
-            price?: number
+            price?: number;
             /** Format: int32 */
-            careerYears?: number
-            availableTimes?: components['schemas']['AvailableTimeRequest'][]
-            lessonPhotoUrls?: string[]
-        }
+            careerYears?: number;
+            availableTimes?: components["schemas"]["AvailableTimeRequest"][];
+            lessonPhotoUrls?: string[];
+        };
         ReviewRequest: {
             /** Format: int64 */
-            matchingId: number
+            matchingId: number;
             /** Format: int64 */
-            trainerId: number
+            trainerId: number;
             /** Format: int32 */
-            rating?: number
-            content: string
-        }
+            rating?: number;
+            content: string;
+        };
         MatchingRequestDto: {
-            level: string
-            sports: string
-            lessonType: string
-            region: string
+            level: string;
+            sports: string;
+            lessonType: string;
+            region: string;
             /** Format: int32 */
-            budgetMin: number
+            budgetMin: number;
             /** Format: int32 */
-            budgetMax: number
-            lessonContent?: string
-            preferredTimes: components['schemas']['PreferredTimeDto'][]
-        }
+            budgetMax: number;
+            lessonContent?: string;
+            preferredTimes: components["schemas"]["PreferredTimeDto"][];
+        };
         PreferredTimeDto: {
-            dayOfWeek: string
-            startTime: string
-            endTime: string
-        }
+            dayOfWeek: string;
+            startTime: string;
+            endTime: string;
+        };
         MatchingCreateResponse: {
             /** Format: int64 */
-            matchingId?: number
-        }
+            matchingId?: number;
+        };
         MatchingResultResponse: {
             /** Format: int64 */
-            matchingResultId?: number
+            matchingResultId?: number;
             /** Format: int64 */
-            trainerProfileId?: number
-            trainerName?: string
-            profileImage?: string
-            introduction?: string
-            sports?: string
-            lessonType?: string
-            lessonLevel?: string
-            region?: string
+            trainerProfileId?: number;
+            trainerName?: string;
+            profileImage?: string;
+            introduction?: string;
+            sports?: string;
+            lessonType?: string;
+            lessonLevel?: string;
+            region?: string;
             /** Format: int32 */
-            price?: number
-            dayOfWeek?: string
-            preferredStartTime?: string
-            preferredEndTime?: string
-            trainerStartTime?: string
-            trainerEndTime?: string
-        }
+            price?: number;
+            dayOfWeek?: string;
+            preferredStartTime?: string;
+            preferredEndTime?: string;
+            trainerStartTime?: string;
+            trainerEndTime?: string;
+            /** Format: int32 */
+            aiRank?: number;
+            aiReason?: string;
+        };
         LessonRequestCreateRequest: {
             /** Format: int64 */
-            matchingResultId: number
+            matchingResultId: number;
             /** @enum {string} */
-            lessonPassType: 'ONE_TIME' | 'REGULAR'
+            lessonPassType: "ONE_TIME" | "REGULAR";
             /** Format: int32 */
-            weeklyCount?: number
+            weeklyCount?: number;
             /** Format: date */
-            requestedDate: string
-            requestedStartTime: string
-            requestedEndTime: string
-            message?: string
-        }
+            requestedDate: string;
+            requestedStartTime: string;
+            requestedEndTime: string;
+            message?: string;
+        };
         LessonRequestResponse: {
             /** Format: int64 */
-            lessonRequestId?: number
+            lessonRequestId?: number;
             /** Format: int64 */
-            matchingResultId?: number
+            matchingResultId?: number;
             /** Format: int64 */
-            memberId?: number
-            memberName?: string
-            memberProfileImage?: string
+            memberId?: number;
+            memberName?: string;
+            memberProfileImage?: string;
             /** Format: int64 */
-            trainerProfileId?: number
-            trainerName?: string
-            trainerProfileImage?: string
-            sports?: string
-            lessonType?: string
-            region?: string
+            trainerProfileId?: number;
+            trainerName?: string;
+            trainerProfileImage?: string;
+            sports?: string;
+            lessonType?: string;
+            region?: string;
             /** Format: int32 */
-            price?: number
+            price?: number;
             /** @enum {string} */
-            lessonPassType?: 'ONE_TIME' | 'REGULAR'
+            lessonPassType?: "ONE_TIME" | "REGULAR";
             /** Format: int32 */
-            weeklyCount?: number
+            weeklyCount?: number;
             /** Format: date */
-            requestedDate?: string
-            requestedStartTime?: string
-            requestedEndTime?: string
-            message?: string
+            requestedDate?: string;
+            requestedStartTime?: string;
+            requestedEndTime?: string;
+            message?: string;
             /** @enum {string} */
-            status?: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CANCELED'
+            status?: "PENDING" | "ACCEPTED" | "REJECTED" | "CANCELED";
             /** Format: date-time */
-            createdAt?: string
-        }
+            createdAt?: string;
+        };
         InquiryRequest: {
             /** @enum {string} */
-            type?: 'MATCHING' | 'TRAINER' | 'ETC'
-            title?: string
-            content?: string
-        }
+            type?: "MATCHING" | "TRAINER" | "ETC";
+            title?: string;
+            content?: string;
+        };
         InquiryResponse: {
             /** Format: int64 */
-            id?: number
+            id?: number;
             /** Format: int64 */
-            memberId?: number
+            memberId?: number;
             /** @enum {string} */
-            type?: 'MATCHING' | 'TRAINER' | 'ETC'
-            title?: string
-            content?: string
+            type?: "MATCHING" | "TRAINER" | "ETC";
+            title?: string;
+            content?: string;
             /** @enum {string} */
-            status?: 'PENDING' | 'RESOLVED'
-            answer?: string
+            status?: "PENDING" | "RESOLVED";
+            answer?: string;
             /** Format: date-time */
-            createdAt?: string
-        }
+            createdAt?: string;
+        };
         ChatRoomRequest: {
             /** Format: int64 */
-            trainerId: number
+            trainerId: number;
             /** Format: int64 */
-            userId: number
-        }
+            userId: number;
+        };
         ChatRoomResponseDto: {
             /** Format: int64 */
-            chatRoomId?: number
+            chatRoomId?: number;
             /** Format: int64 */
-            trainerId?: number
-            trainerName?: string
-            trainerProfile?: string
+            trainerId?: number;
+            trainerName?: string;
+            trainerProfile?: string;
             /** Format: int64 */
-            userId?: number
-            userName?: string
+            userId?: number;
+            userName?: string;
             /** Format: date-time */
-            createdAt?: string
+            createdAt?: string;
             /** Format: date-time */
-            lastMessageAt?: string
-            lastMessage?: string
+            lastMessageAt?: string;
+            lastMessage?: string;
             /** Format: int32 */
-            unreadCount?: number
-        }
+            unreadCount?: number;
+        };
         SignupRequest: {
-            userId: string
-            userName: string
-            password: string
-            nickname: string
+            userId: string;
+            userName: string;
+            password: string;
+            nickname: string;
             /** Format: email */
-            email: string
+            email: string;
             /** @enum {string} */
-            role: 'USER' | 'TRAINER' | 'ADMIN'
-            phone: string
-        }
+            role: "USER" | "TRAINER" | "ADMIN";
+            phone: string;
+        };
         LoginResponse: {
             /** Format: int64 */
-            memberId?: number
-            userName?: string
-            role?: string
-            accessToken?: string
-            tokenType?: string
-        }
+            memberId?: number;
+            userName?: string;
+            role?: string;
+            accessToken?: string;
+            tokenType?: string;
+        };
         LoginRequest: {
-            userId: string
-            password: string
-        }
+            userId: string;
+            password: string;
+        };
         AlertRequest: {
             /** Format: int64 */
-            receiverId?: number
+            receiverId?: number;
             /** @enum {string} */
-            type?: 'MESSAGE' | 'REVIEW' | 'MATCHING' | 'INQUIRY'
+            type?: "MESSAGE" | "REVIEW" | "MATCHING" | "INQUIRY";
             /** Format: int64 */
-            targetId?: number
-            content?: string
-        }
+            targetId?: number;
+            content?: string;
+        };
         AlertResponse: {
             /** Format: int64 */
-            id?: number
+            id?: number;
             /** Format: int64 */
-            receiverId?: number
+            receiverId?: number;
             /** @enum {string} */
-            type?: 'MESSAGE' | 'REVIEW' | 'MATCHING' | 'INQUIRY'
+            type?: "MESSAGE" | "REVIEW" | "MATCHING" | "INQUIRY";
             /** Format: int64 */
-            targetId?: number
-            content?: string
-            isRead?: boolean
+            targetId?: number;
+            content?: string;
+            isRead?: boolean;
             /** Format: date-time */
-            createdAt?: string
-        }
+            createdAt?: string;
+        };
+        AiMatchingParseRequest: {
+            query: string;
+        };
+        AiMatchingParseResponse: {
+            sports?: string;
+            level?: string;
+            lessonType?: string;
+            region?: string;
+            /** Format: int32 */
+            budgetMin?: number;
+            /** Format: int32 */
+            budgetMax?: number;
+            preferredTimes?: components["schemas"]["PreferredTime"][];
+            lessonContent?: string;
+        };
+        PreferredTime: {
+            dayOfWeek?: string;
+            startTime?: string;
+            endTime?: string;
+        };
         InquiryAnswerRequest: {
-            answer?: string
-        }
+            answer?: string;
+        };
         MemberUpdateRequest: {
-            nickname?: string
-            profileImage?: string
-            region?: string
-            introduction?: string
-            phone?: string
+            nickname?: string;
+            profileImage?: string;
+            region?: string;
+            introduction?: string;
+            phone?: string;
             /** Format: email */
-            email?: string
-        }
+            email?: string;
+        };
         MemberResponse: {
             /** Format: int64 */
-            id?: number
-            userId?: string
-            userName?: string
-            nickname?: string
-            email?: string
+            id?: number;
+            userId?: string;
+            userName?: string;
+            nickname?: string;
+            email?: string;
             /** @enum {string} */
-            role?: 'USER' | 'TRAINER' | 'ADMIN'
-            profileImage?: string
-            region?: string
-            introduction?: string
-            phone?: string
-        }
+            role?: "USER" | "TRAINER" | "ADMIN";
+            profileImage?: string;
+            region?: string;
+            introduction?: string;
+            phone?: string;
+        };
         RoleChangeRequest: {
             /** @enum {string} */
-            role: 'USER' | 'TRAINER'
-        }
+            role: "USER" | "TRAINER";
+        };
         PasswordChangeRequest: {
-            currentPassword: string
-            newPassword: string
-        }
+            currentPassword: string;
+            newPassword: string;
+        };
         InquiryUpdateRequest: {
             /** @enum {string} */
-            type?: 'MATCHING' | 'TRAINER' | 'ETC'
-            title?: string
-            content?: string
-        }
+            type?: "MATCHING" | "TRAINER" | "ETC";
+            title?: string;
+            content?: string;
+        };
         PageTrainerProfileResponse: {
             /** Format: int64 */
-            totalElements?: number
+            totalElements?: number;
             /** Format: int32 */
-            totalPages?: number
-            first?: boolean
-            last?: boolean
+            totalPages?: number;
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
-            size?: number
-            content?: components['schemas']['TrainerProfileResponse'][]
+            size?: number;
+            content?: components["schemas"]["TrainerProfileResponse"][];
             /** Format: int32 */
-            number?: number
-            pageable?: components['schemas']['PageableObject']
-            sort?: components['schemas']['SortObject']
+            number?: number;
+            sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
-            numberOfElements?: number
-            empty?: boolean
-        }
+            numberOfElements?: number;
+            empty?: boolean;
+        };
         PageableObject: {
             /** Format: int64 */
-            offset?: number
-            unpaged?: boolean
-            paged?: boolean
+            offset?: number;
+            sort?: components["schemas"]["SortObject"];
+            unpaged?: boolean;
+            paged?: boolean;
             /** Format: int32 */
-            pageNumber?: number
+            pageNumber?: number;
             /** Format: int32 */
-            pageSize?: number
-            sort?: components['schemas']['SortObject']
-        }
+            pageSize?: number;
+        };
         SortObject: {
-            empty?: boolean
-            sorted?: boolean
-            unsorted?: boolean
-        }
+            empty?: boolean;
+            sorted?: boolean;
+            unsorted?: boolean;
+        };
         WritableReviewResponse: {
             /** Format: int64 */
-            lessonRequestId?: number
+            lessonRequestId?: number;
             /** Format: int64 */
-            matchingId?: number
+            matchingId?: number;
             /** Format: int64 */
-            trainerId?: number
-            trainerNickname?: string
-            sports?: string
+            trainerId?: number;
+            trainerNickname?: string;
+            sports?: string;
             /** Format: date */
-            lessonDate?: string
-        }
+            lessonDate?: string;
+        };
         ReviewResponse: {
             /** Format: int64 */
-            id?: number
+            id?: number;
             /** Format: int64 */
-            matchingId?: number
+            matchingId?: number;
             /** Format: int64 */
-            reviewerId?: number
-            reviewerNickname?: string
+            reviewerId?: number;
+            reviewerNickname?: string;
             /** Format: int64 */
-            trainerId?: number
-            trainerNickname?: string
+            trainerId?: number;
+            trainerNickname?: string;
             /** Format: int32 */
-            rating?: number
-            content?: string
+            rating?: number;
+            content?: string;
             /** Format: date-time */
-            createdAt?: string
-            edited?: boolean
-        }
+            createdAt?: string;
+            edited?: boolean;
+        };
         TrainerRatingResponse: {
             /** Format: int64 */
-            trainerId?: number
+            trainerId?: number;
             /** Format: double */
-            averageRating?: number
+            averageRating?: number;
             /** Format: int64 */
-            reviewCount?: number
+            reviewCount?: number;
             ratingDistribution?: {
-                [key: string]: number
-            }
-        }
+                [key: string]: number;
+            };
+        };
         Pageable: {
             /** Format: int32 */
-            page?: number
+            page?: number;
             /** Format: int32 */
-            size?: number
-            sort?: string[]
-        }
+            size?: number;
+            sort?: string[];
+        };
         PageReviewResponse: {
             /** Format: int64 */
-            totalElements?: number
+            totalElements?: number;
             /** Format: int32 */
-            totalPages?: number
-            first?: boolean
-            last?: boolean
+            totalPages?: number;
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
-            size?: number
-            content?: components['schemas']['ReviewResponse'][]
+            size?: number;
+            content?: components["schemas"]["ReviewResponse"][];
             /** Format: int32 */
-            number?: number
-            pageable?: components['schemas']['PageableObject']
-            sort?: components['schemas']['SortObject']
+            number?: number;
+            sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
-            numberOfElements?: number
-            empty?: boolean
-        }
+            numberOfElements?: number;
+            empty?: boolean;
+        };
         TrainerSummaryDto: {
             /** Format: int64 */
-            id?: number
-            userName?: string
-            profileImage?: string
-        }
+            id?: number;
+            userName?: string;
+            profileImage?: string;
+        };
         PageInquiryResponse: {
             /** Format: int64 */
-            totalElements?: number
+            totalElements?: number;
             /** Format: int32 */
-            totalPages?: number
-            first?: boolean
-            last?: boolean
+            totalPages?: number;
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
-            size?: number
-            content?: components['schemas']['InquiryResponse'][]
+            size?: number;
+            content?: components["schemas"]["InquiryResponse"][];
             /** Format: int32 */
-            number?: number
-            pageable?: components['schemas']['PageableObject']
-            sort?: components['schemas']['SortObject']
+            number?: number;
+            sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
-            numberOfElements?: number
-            empty?: boolean
-        }
+            numberOfElements?: number;
+            empty?: boolean;
+        };
         ChatResponseDto: {
             /** Format: int64 */
-            id?: number
+            id?: number;
             /** Format: int64 */
-            chatRoomId?: number
+            chatRoomId?: number;
             /** Format: int64 */
-            senderId?: number
-            message?: string
+            senderId?: number;
+            message?: string;
             /** Format: date-time */
-            sentAt?: string
-            isRead?: boolean
-        }
-    }
-    responses: never
-    parameters: never
-    requestBodies: never
-    headers: never
-    pathItems: never
+            sentAt?: string;
+            isRead?: boolean;
+        };
+    };
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 }
-export type $defs = Record<string, never>
+export type $defs = Record<string, never>;
 export interface operations {
     getUserProfile: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                id: number
-            }
-            cookie?: never
-        }
-        requestBody?: never
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['UserProfileResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["UserProfileResponse"];
+                };
+            };
+        };
+    };
     updateUserProfile: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                id: number
-            }
-            cookie?: never
-        }
+                id: number;
+            };
+            cookie?: never;
+        };
         requestBody: {
             content: {
-                'application/json': components['schemas']['UserProfileUpdateRequest']
-            }
-        }
+                "application/json": components["schemas"]["UserProfileUpdateRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['UserProfileResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["UserProfileResponse"];
+                };
+            };
+        };
+    };
     deleteUserProfile: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                id: number
-            }
-            cookie?: never
-        }
-        requestBody?: never
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
-                content?: never
-            }
-        }
-    }
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getTrainerProfile: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                id: number
-            }
-            cookie?: never
-        }
-        requestBody?: never
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['TrainerProfileResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["TrainerProfileResponse"];
+                };
+            };
+        };
+    };
     updateTrainerProfile: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                id: number
-            }
-            cookie?: never
-        }
+                id: number;
+            };
+            cookie?: never;
+        };
         requestBody: {
             content: {
-                'application/json': components['schemas']['TrainerProfileUpdateRequest']
-            }
-        }
+                "application/json": components["schemas"]["TrainerProfileUpdateRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['TrainerProfileResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["TrainerProfileResponse"];
+                };
+            };
+        };
+    };
     deleteTrainerProfile: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                id: number
-            }
-            cookie?: never
-        }
-        requestBody?: never
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
-                content?: never
-            }
-        }
-    }
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     updateReview: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                reviewId: number
-            }
-            cookie?: never
-        }
+                reviewId: number;
+            };
+            cookie?: never;
+        };
         requestBody: {
             content: {
-                'application/json': components['schemas']['ReviewUpdateRequest']
-            }
-        }
+                "application/json": components["schemas"]["ReviewUpdateRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
-                content?: never
-            }
-        }
-    }
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     deleteReview: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                reviewId: number
-            }
-            cookie?: never
-        }
-        requestBody?: never
+                reviewId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
-                content?: never
-            }
-        }
-    }
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     markAsRead: {
         parameters: {
             query: {
-                memberId: number
-            }
-            header?: never
+                memberId: number;
+            };
+            header?: never;
             path: {
-                roomId: number
-            }
-            cookie?: never
-        }
-        requestBody?: never
+                roomId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
-                content?: never
-            }
-        }
-    }
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getUserProfiles: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        requestBody?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['UserProfileResponse'][]
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["UserProfileResponse"][];
+                };
+            };
+        };
+    };
     createUserProfile: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         requestBody: {
             content: {
-                'application/json': components['schemas']['UserProfileRequest']
-            }
-        }
+                "application/json": components["schemas"]["UserProfileRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['UserProfileResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["UserProfileResponse"];
+                };
+            };
+        };
+    };
     getTrainerProfiles: {
         parameters: {
             query?: {
-                sport?: string
-                lessonType?: string
-                minPrice?: number
-                maxPrice?: number
-                region?: string
-                page?: number
-                size?: number
-                sort?: string
-            }
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        requestBody?: never
+                sport?: string;
+                lessonType?: string;
+                minPrice?: number;
+                maxPrice?: number;
+                region?: string;
+                page?: number;
+                size?: number;
+                sort?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['PageTrainerProfileResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["PageTrainerProfileResponse"];
+                };
+            };
+        };
+    };
     createTrainerProfile: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         requestBody: {
             content: {
-                'application/json': components['schemas']['TrainerProfileRequest']
-            }
-        }
+                "application/json": components["schemas"]["TrainerProfileRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['TrainerProfileResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["TrainerProfileResponse"];
+                };
+            };
+        };
+    };
     createReview: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         requestBody: {
             content: {
-                'application/json': components['schemas']['ReviewRequest']
-            }
-        }
+                "application/json": components["schemas"]["ReviewRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': number
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": number;
+                };
+            };
+        };
+    };
     createMatchingRequest: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         requestBody: {
             content: {
-                'application/json': components['schemas']['MatchingRequestDto']
-            }
-        }
+                "application/json": components["schemas"]["MatchingRequestDto"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['MatchingCreateResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["MatchingCreateResponse"];
+                };
+            };
+        };
+    };
     getMatchingResults: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                matchingId: number
-            }
-            cookie?: never
-        }
-        requestBody?: never
+                matchingId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['MatchingResultResponse'][]
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["MatchingResultResponse"][];
+                };
+            };
+        };
+    };
     createMatchingResults: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                matchingId: number
-            }
-            cookie?: never
-        }
-        requestBody?: never
+                matchingId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['MatchingResultResponse'][]
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["MatchingResultResponse"][];
+                };
+            };
+        };
+    };
     createLessonRequest: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         requestBody: {
             content: {
-                'application/json': components['schemas']['LessonRequestCreateRequest']
-            }
-        }
+                "application/json": components["schemas"]["LessonRequestCreateRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['LessonRequestResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["LessonRequestResponse"];
+                };
+            };
+        };
+    };
     getMyInquiries: {
         parameters: {
             query: {
-                pageable: components['schemas']['Pageable']
-            }
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        requestBody?: never
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['PageInquiryResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["PageInquiryResponse"];
+                };
+            };
+        };
+    };
     createInquiry: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         requestBody: {
             content: {
-                'application/json': components['schemas']['InquiryRequest']
-            }
-        }
+                "application/json": components["schemas"]["InquiryRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['InquiryResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["InquiryResponse"];
+                };
+            };
+        };
+    };
     uploadFile: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         requestBody?: {
             content: {
-                'application/json': {
+                "application/json": {
                     /** Format: binary */
-                    file: string
-                }
-            }
-        }
+                    file: string;
+                };
+            };
+        };
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': {
-                        [key: string]: string
-                    }
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": {
+                        [key: string]: string;
+                    };
+                };
+            };
+        };
+    };
     getChatRooms: {
         parameters: {
             query: {
-                memberId: number
-            }
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        requestBody?: never
+                memberId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['ChatRoomResponseDto'][]
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["ChatRoomResponseDto"][];
+                };
+            };
+        };
+    };
     getOrCreateChatRoom: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         requestBody: {
             content: {
-                'application/json': components['schemas']['ChatRoomRequest']
-            }
-        }
+                "application/json": components["schemas"]["ChatRoomRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['ChatRoomResponseDto']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["ChatRoomResponseDto"];
+                };
+            };
+        };
+    };
     signup: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         requestBody: {
             content: {
-                'application/json': components['schemas']['SignupRequest']
-            }
-        }
+                "application/json": components["schemas"]["SignupRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
-                content?: never
-            }
-        }
-    }
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     reissue: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
+            query?: never;
+            header?: never;
+            path?: never;
             cookie?: {
-                refreshToken?: string
-            }
-        }
-        requestBody?: never
+                refreshToken?: string;
+            };
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['LoginResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["LoginResponse"];
+                };
+            };
+        };
+    };
     logout: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        requestBody?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
-                content?: never
-            }
-        }
-    }
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     login: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         requestBody: {
             content: {
-                'application/json': components['schemas']['LoginRequest']
-            }
-        }
+                "application/json": components["schemas"]["LoginRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['LoginResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["LoginResponse"];
+                };
+            };
+        };
+    };
     getAlerts: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        requestBody?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['AlertResponse'][]
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["AlertResponse"][];
+                };
+            };
+        };
+    };
     createAlert: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         requestBody: {
             content: {
-                'application/json': components['schemas']['AlertRequest']
-            }
-        }
+                "application/json": components["schemas"]["AlertRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['AlertResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["AlertResponse"];
+                };
+            };
+        };
+    };
     deleteAllAlerts: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        requestBody?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
-                content?: never
-            }
-        }
-    }
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    parseMatchingQuery: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiMatchingParseRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["AiMatchingParseResponse"];
+                };
+            };
+        };
+    };
     writeAnswer: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                inquiryId: number
-            }
-            cookie?: never
-        }
+                inquiryId: number;
+            };
+            cookie?: never;
+        };
         requestBody: {
             content: {
-                'application/json': components['schemas']['InquiryAnswerRequest']
-            }
-        }
+                "application/json": components["schemas"]["InquiryAnswerRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['InquiryResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["InquiryResponse"];
+                };
+            };
+        };
+    };
     getMyInfo: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        requestBody?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['MemberResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["MemberResponse"];
+                };
+            };
+        };
+    };
     deleteMyAccount: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        requestBody?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
-                content?: never
-            }
-        }
-    }
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     updateMyInfo: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         requestBody: {
             content: {
-                'application/json': components['schemas']['MemberUpdateRequest']
-            }
-        }
+                "application/json": components["schemas"]["MemberUpdateRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['MemberResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["MemberResponse"];
+                };
+            };
+        };
+    };
     changeRole: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         requestBody: {
             content: {
-                'application/json': components['schemas']['RoleChangeRequest']
-            }
-        }
+                "application/json": components["schemas"]["RoleChangeRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
-                content?: never
-            }
-        }
-    }
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     changePassword: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         requestBody: {
             content: {
-                'application/json': components['schemas']['PasswordChangeRequest']
-            }
-        }
+                "application/json": components["schemas"]["PasswordChangeRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
-                content?: never
-            }
-        }
-    }
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     rejectLessonRequest: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                lessonRequestId: number
-            }
-            cookie?: never
-        }
-        requestBody?: never
+                lessonRequestId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['LessonRequestResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["LessonRequestResponse"];
+                };
+            };
+        };
+    };
     acceptLessonRequest: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                lessonRequestId: number
-            }
-            cookie?: never
-        }
-        requestBody?: never
+                lessonRequestId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['LessonRequestResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["LessonRequestResponse"];
+                };
+            };
+        };
+    };
     getInquiry: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                inquiryId: number
-            }
-            cookie?: never
-        }
-        requestBody?: never
+                inquiryId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['InquiryResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["InquiryResponse"];
+                };
+            };
+        };
+    };
     deleteInquiry: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                inquiryId: number
-            }
-            cookie?: never
-        }
-        requestBody?: never
+                inquiryId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
-                content?: never
-            }
-        }
-    }
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     updateInquiry: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                inquiryId: number
-            }
-            cookie?: never
-        }
+                inquiryId: number;
+            };
+            cookie?: never;
+        };
         requestBody: {
             content: {
-                'application/json': components['schemas']['InquiryUpdateRequest']
-            }
-        }
+                "application/json": components["schemas"]["InquiryUpdateRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['InquiryResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["InquiryResponse"];
+                };
+            };
+        };
+    };
     markAsRead_1: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                alertId: number
-            }
-            cookie?: never
-        }
-        requestBody?: never
+                alertId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
-                content?: never
-            }
-        }
-    }
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     markAllAsRead: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        requestBody?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
-                content?: never
-            }
-        }
-    }
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getMyUserProfile: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        requestBody?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['UserProfileResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["UserProfileResponse"];
+                };
+            };
+        };
+    };
     getMyTrainerProfile: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        requestBody?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['TrainerProfileResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["TrainerProfileResponse"];
+                };
+            };
+        };
+    };
     getTrainerLessonRequests: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        requestBody?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['LessonRequestResponse'][]
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["LessonRequestResponse"][];
+                };
+            };
+        };
+    };
     getWritableReviews: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        requestBody?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['WritableReviewResponse'][]
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["WritableReviewResponse"][];
+                };
+            };
+        };
+    };
     getReviewsByTrainer: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                trainerId: number
-            }
-            cookie?: never
-        }
-        requestBody?: never
+                trainerId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['ReviewResponse'][]
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["ReviewResponse"][];
+                };
+            };
+        };
+    };
     getTrainerRating: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                trainerId: number
-            }
-            cookie?: never
-        }
-        requestBody?: never
+                trainerId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['TrainerRatingResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["TrainerRatingResponse"];
+                };
+            };
+        };
+    };
     getReceivedReviews: {
         parameters: {
             query: {
-                pageable: components['schemas']['Pageable']
-            }
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        requestBody?: never
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['PageReviewResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["PageReviewResponse"];
+                };
+            };
+        };
+    };
     getMyReviews: {
         parameters: {
             query: {
-                pageable: components['schemas']['Pageable']
-            }
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        requestBody?: never
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['PageReviewResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["PageReviewResponse"];
+                };
+            };
+        };
+    };
     getTrainers: {
         parameters: {
-            query?: never
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        requestBody?: never
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['TrainerSummaryDto'][]
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["TrainerSummaryDto"][];
+                };
+            };
+        };
+    };
     getLessonRequest: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                lessonRequestId: number
-            }
-            cookie?: never
-        }
-        requestBody?: never
+                lessonRequestId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['LessonRequestResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["LessonRequestResponse"];
+                };
+            };
+        };
+    };
     getMessages: {
         parameters: {
             query?: {
-                before?: number
-                size?: number
-            }
-            header?: never
+                before?: number;
+                size?: number;
+            };
+            header?: never;
             path: {
-                roomId: number
-            }
-            cookie?: never
-        }
-        requestBody?: never
+                roomId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['ChatResponseDto'][]
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["ChatResponseDto"][];
+                };
+            };
+        };
+    };
     getAllInquiries: {
         parameters: {
             query: {
-                pageable: components['schemas']['Pageable']
-            }
-            header?: never
-            path?: never
-            cookie?: never
-        }
-        requestBody?: never
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
+                    [name: string]: unknown;
+                };
                 content: {
-                    'application/json;charset=UTF-8': components['schemas']['PageInquiryResponse']
-                }
-            }
-        }
-    }
+                    "application/json;charset=UTF-8": components["schemas"]["PageInquiryResponse"];
+                };
+            };
+        };
+    };
     hideChatRoom: {
         parameters: {
             query: {
-                memberId: number
-            }
-            header?: never
+                memberId: number;
+            };
+            header?: never;
             path: {
-                roomId: number
-            }
-            cookie?: never
-        }
-        requestBody?: never
+                roomId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
-                content?: never
-            }
-        }
-    }
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     deleteAlert: {
         parameters: {
-            query?: never
-            header?: never
+            query?: never;
+            header?: never;
             path: {
-                alertId: number
-            }
-            cookie?: never
-        }
-        requestBody?: never
+                alertId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
-                    [name: string]: unknown
-                }
-                content?: never
-            }
-        }
-    }
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
 }
