@@ -306,7 +306,25 @@ export default function MyReviewList() {
             {/* 전체/받은 후기 탭 */}
             {tab === 'all' &&
                 (loading ? (
-                    <p className="py-xl text-center text-outline">불러오는 중...</p>
+                    <div className="flex flex-col gap-md">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
+                                <div className="mb-4 flex items-start justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-12 w-12 flex-shrink-0 rounded-full bg-surface-container animate-pulse" />
+                                        <div className="space-y-2">
+                                            <div className="h-4 w-24 rounded bg-surface-container animate-pulse" />
+                                            <div className="h-4 w-32 rounded bg-surface-container animate-pulse" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="h-3 rounded bg-surface-container animate-pulse" style={{ width: `${70 + (i * 11) % 25}%` }} />
+                                    <div className="h-3 rounded bg-surface-container animate-pulse" style={{ width: `${50 + (i * 17) % 30}%` }} />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 ) : error ? (
                     <p className="py-xl text-center text-error">{error}</p>
                 ) : reviews.length === 0 ? (
