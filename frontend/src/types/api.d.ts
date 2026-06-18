@@ -368,10 +368,42 @@ export interface paths {
         get: operations["getMyInfo"];
         put?: never;
         post?: never;
-        delete?: never;
+        delete: operations["deleteMyAccount"];
         options?: never;
         head?: never;
         patch: operations["updateMyInfo"];
+        trace?: never;
+    };
+    "/api/members/me/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["changeRole"];
+        trace?: never;
+    };
+    "/api/members/me/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["changePassword"];
         trace?: never;
     };
     "/api/lesson-requests/{lessonRequestId}/reject": {
@@ -1004,6 +1036,8 @@ export interface components {
             region?: string;
             introduction?: string;
             phone?: string;
+            /** Format: email */
+            email?: string;
         };
         MemberResponse: {
             /** Format: int64 */
@@ -1019,6 +1053,14 @@ export interface components {
             introduction?: string;
             phone?: string;
         };
+        RoleChangeRequest: {
+            /** @enum {string} */
+            role: "USER" | "TRAINER";
+        };
+        PasswordChangeRequest: {
+            currentPassword: string;
+            newPassword: string;
+        };
         InquiryUpdateRequest: {
             /** @enum {string} */
             type?: "MATCHING" | "TRAINER" | "ETC";
@@ -1026,10 +1068,10 @@ export interface components {
             content?: string;
         };
         PageTrainerProfileResponse: {
-            /** Format: int64 */
-            totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
+            /** Format: int64 */
+            totalElements?: number;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["TrainerProfileResponse"][];
@@ -1039,19 +1081,19 @@ export interface components {
             last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
             sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             empty?: boolean;
         };
         PageableObject: {
             /** Format: int64 */
             offset?: number;
+            paged?: boolean;
+            sort?: components["schemas"]["SortObject"];
             /** Format: int32 */
             pageNumber?: number;
             /** Format: int32 */
             pageSize?: number;
-            paged?: boolean;
-            sort?: components["schemas"]["SortObject"];
             unpaged?: boolean;
         };
         SortObject: {
@@ -1108,10 +1150,10 @@ export interface components {
             sort?: string[];
         };
         PageReviewResponse: {
-            /** Format: int64 */
-            totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
+            /** Format: int64 */
+            totalElements?: number;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["ReviewResponse"][];
@@ -1121,8 +1163,8 @@ export interface components {
             last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
             sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             empty?: boolean;
         };
         TrainerSummaryDto: {
@@ -1132,10 +1174,10 @@ export interface components {
             profileImage?: string;
         };
         PageInquiryResponse: {
-            /** Format: int64 */
-            totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
+            /** Format: int64 */
+            totalElements?: number;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["InquiryResponse"][];
@@ -1145,8 +1187,8 @@ export interface components {
             last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
             sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             empty?: boolean;
         };
         ChatResponseDto: {
@@ -1900,6 +1942,24 @@ export interface operations {
             };
         };
     };
+    deleteMyAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     updateMyInfo: {
         parameters: {
             query?: never;
@@ -1921,6 +1981,50 @@ export interface operations {
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["MemberResponse"];
                 };
+            };
+        };
+    };
+    changeRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoleChangeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    changePassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordChangeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

@@ -4,7 +4,7 @@ import type { components } from '@/types/api'
 import { getAuthClient, getImageUrl } from '@/utils/apiClient'
 import { useEffect, useState } from 'react'
 
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 type Trainer = components['schemas']['TrainerProfileResponse']
 
@@ -23,6 +23,7 @@ const REGIONS = ['모든 지역', '서울', '경기', '부산', '대구', '인�
 
 export default function ExplorePage() {
     const router = useRouter()
+    const searchParams = useSearchParams()
     const [trainers, setTrainers] = useState<Trainer[]>([])
     const [loading, setLoading] = useState(true)
     const [currentPage, setCurrentPage] = useState(0)
@@ -30,11 +31,11 @@ export default function ExplorePage() {
     const [totalElements, setTotalElements] = useState(0)
     const [sort, setSort] = useState('latest')
     const [filters, setFilters] = useState({
-        sport: '',
+        sport: searchParams.get('sport') ?? '',
         lessonType: '',
         minPrice: '',
         maxPrice: '',
-        region: '',
+        region: searchParams.get('region') ?? '',
     })
 
     const fetchTrainers = async (page = 0) => {

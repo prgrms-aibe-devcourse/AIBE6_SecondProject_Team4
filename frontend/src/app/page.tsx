@@ -1,6 +1,11 @@
+'use client'
+
+import { useState } from 'react'
+
+import { useRouter } from 'next/navigation'
 
 const categories = [
-    { icon: 'fitness_center', label: 'PT', active: true },
+    { icon: 'fitness_center', label: '헬스', active: true },
     { icon: 'self_improvement', label: '필라테스' },
     { icon: 'air', label: '요가' },
     { icon: 'timer', label: '크로스핏' },
@@ -77,6 +82,23 @@ function StarRating() {
 }
 
 export default function Home() {
+    const router = useRouter()
+    const [sport, setSport] = useState('')
+    const [region, setRegion] = useState('')
+    const [level, setLevel] = useState('')
+
+    const handleSearch = () => {
+        const params = new URLSearchParams()
+        if (sport) params.set('sport', sport)
+        if (region) params.set('region', region)
+        if (level) params.set('level', level)
+        router.push(`/trainer?${params.toString()}`)
+    }
+
+    const handleCategoryClick = (label: string) => {
+        router.push(`/trainer?sport=${encodeURIComponent(label)}`)
+    }
+
     return (
         <main className="pt-16 md:pt-20">
             {/* Hero Section */}
@@ -112,9 +134,13 @@ export default function Home() {
                                 <label className="block font-label-md text-secondary ml-1">
                                     종목
                                 </label>
-                                <select className="w-full bg-surface-container border-none rounded-xl text-body-md px-4 py-3 focus:ring-2 focus:ring-primary">
+                                <select
+                                    className="w-full bg-surface-container border-none rounded-xl text-body-md px-4 py-3 focus:ring-2 focus:ring-primary"
+                                    value={sport}
+                                    onChange={(e) => setSport(e.target.value)}
+                                >
                                     <option value="">전체</option>
-                                    <option>PT</option>
+                                    <option>헬스</option>
                                     <option>필라테스</option>
                                     <option>요가</option>
                                     <option>크로스핏</option>
@@ -128,39 +154,40 @@ export default function Home() {
                                 <label className="block font-label-md text-secondary ml-1">
                                     지역
                                 </label>
-                                <select className="w-full bg-surface-container border-none rounded-xl text-body-md px-4 py-3 focus:ring-2 focus:ring-primary">
+                                <select
+                                    className="w-full bg-surface-container border-none rounded-xl text-body-md px-4 py-3 focus:ring-2 focus:ring-primary"
+                                    value={region}
+                                    onChange={(e) => setRegion(e.target.value)}
+                                >
                                     <option value="">전체</option>
-                                    <option>서울특별시</option>
-                                    <option>부산광역시</option>
-                                    <option>대구광역시</option>
-                                    <option>인천광역시</option>
-                                    <option>광주광역시</option>
-                                    <option>대전광역시</option>
-                                    <option>울산광역시</option>
-                                    <option>세종특별자치시</option>
-                                    <option>경기도</option>
-                                    <option>강원도</option>
-                                    <option>충청북도</option>
-                                    <option>충청남도</option>
-                                    <option>전라북도</option>
-                                    <option>전라남도</option>
-                                    <option>경상북도</option>
-                                    <option>경상남도</option>
-                                    <option>제주특별자치도</option>
+                                    <option>서울</option>
+                                    <option>부산</option>
+                                    <option>대구</option>
+                                    <option>인천</option>
+                                    <option>광주</option>
+                                    <option>대전</option>
                                 </select>
                             </div>
                             <div className="space-y-1">
                                 <label className="block font-label-md text-secondary ml-1">
                                     난이도
                                 </label>
-                                <select className="w-full bg-surface-container border-none rounded-xl text-body-md px-4 py-3 focus:ring-2 focus:ring-primary">
-                                    <option>초급</option>
+                                <select
+                                    className="w-full bg-surface-container border-none rounded-xl text-body-md px-4 py-3 focus:ring-2 focus:ring-primary"
+                                    value={level}
+                                    onChange={(e) => setLevel(e.target.value)}
+                                >
+                                    <option value="">전체</option>
+                                    <option>입문/초보</option>
                                     <option>중급</option>
-                                    <option>고급</option>
+                                    <option>고급/대회준비</option>
                                 </select>
                             </div>
                             <div className="flex items-end">
-                                <button className="w-full h-[52px] bg-primary text-on-primary rounded-xl font-label-bold text-label-bold flex items-center justify-center gap-2 hover:bg-primary-container hover:shadow-lg active:scale-[0.98] transition-all">
+                                <button
+                                    className="w-full h-[52px] bg-primary text-on-primary rounded-xl font-label-bold text-label-bold flex items-center justify-center gap-2 hover:bg-primary-container hover:shadow-lg active:scale-[0.98] transition-all"
+                                    onClick={handleSearch}
+                                >
                                     <span className="material-symbols-outlined">search</span>
                                     트레이너 찾기
                                 </button>
@@ -175,7 +202,11 @@ export default function Home() {
                 <section className="py-xl">
                     <div className="grid grid-cols-4 md:grid-cols-8 gap-gutter">
                         {categories.map(({ icon, label, active }) => (
-                            <div key={label} className="flex flex-col items-center gap-3 group">
+                            <div
+                                key={label}
+                                className="flex flex-col items-center gap-3 group cursor-pointer"
+                                onClick={() => handleCategoryClick(label)}
+                            >
                                 <div
                                     className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center group-hover:scale-110 transition-all cursor-pointer shadow-sm ${
                                         active
@@ -310,7 +341,6 @@ export default function Home() {
                     </div>
                 </section>
             </div>
-
         </main>
     )
 }
