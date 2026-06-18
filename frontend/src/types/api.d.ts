@@ -201,8 +201,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 내 문의 목록 조회
+         * @description 로그인한 회원의 문의 목록을 페이징하여 반환합니다.
+         */
         get: operations["getMyInquiries"];
         put?: never;
+        /**
+         * 문의 작성
+         * @description 새 문의를 등록합니다.
+         */
         post: operations["createInquiry"];
         delete?: never;
         options?: never;
@@ -368,6 +376,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * 문의 답변 작성
+         * @description 특정 문의에 관리자 답변을 등록하고 상태를 RESOLVED로 변경합니다.
+         */
         post: operations["writeAnswer"];
         delete?: never;
         options?: never;
@@ -464,12 +476,24 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 문의 단건 조회
+         * @description 문의 ID로 특정 문의를 조회합니다.
+         */
         get: operations["getInquiry"];
         put?: never;
         post?: never;
+        /**
+         * 문의 삭제
+         * @description 본인 소유 문의를 삭제합니다.
+         */
         delete: operations["deleteInquiry"];
         options?: never;
         head?: never;
+        /**
+         * 문의 수정
+         * @description 답변 대기(PENDING) 상태인 문의의 유형·제목·내용을 수정합니다.
+         */
         patch: operations["updateInquiry"];
         trace?: never;
     };
@@ -724,6 +748,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 전체 문의 목록 조회
+         * @description 모든 회원의 문의를 오래된 순으로 페이징하여 반환합니다.
+         */
         get: operations["getAllInquiries"];
         put?: never;
         post?: never;
