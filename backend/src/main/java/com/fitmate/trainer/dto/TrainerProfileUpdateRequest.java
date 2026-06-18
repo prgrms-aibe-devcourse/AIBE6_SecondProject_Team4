@@ -9,11 +9,13 @@ public record TrainerProfileUpdateRequest(
         String lessonLevel,
         Integer price,
         Integer careerYears,
-        List<AvailableTimeRequest> availableTimes
+        List<AvailableTimeRequest> availableTimes,
+        List<String> lessonPhotoUrls
 ) {
     public record AvailableTimeRequest(
             String dayOfWeek,
             LocalTime startTime,
             LocalTime endTime
-    ) {}
+    ) {
+    }
 }

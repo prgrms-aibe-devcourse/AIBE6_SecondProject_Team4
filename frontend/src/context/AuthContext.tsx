@@ -8,12 +8,14 @@ export interface AuthUser {
     userName: string
     role: string
     token: string
+    profileImage?: string | null
 }
 
 interface AuthContextType {
     user: AuthUser | null
     login: (user: AuthUser) => void
     logout: () => void
+    updateProfileImage: (url: string | null) => void
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -45,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         // 토큰 재발급 시 새 토큰을 상태에 반영
         setTokenRefreshHandler((newToken: string) => {
-            setUser(prev => {
+            setUser((prev) => {
                 if (!prev) return prev
                 const updated = { ...prev, token: newToken }
                 localStorage.setItem('fitmate_user', JSON.stringify(updated))
@@ -59,8 +61,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return () => window.removeEventListener('auth:logout', handleAuthLogout)
     }, [])
 
+    const updateProfileImage = (url: string | null) => {
+        setUser((prev) => {
+            if (!prev) return prev
+            const updated = { ...prev, profileImage: url }
+            localStorage.setItem('fitmate_user', JSON.stringify(updated))
+            return updated
+        })
+    }
+
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, login, logout, updateProfileImage }}>
             {children}
         </AuthContext.Provider>
     )

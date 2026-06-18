@@ -12,7 +12,8 @@ public record TrainerProfileRequest(
         String lessonLevel,
         Integer price,
         Integer careerYears,
-        List<AvailableTimeRequest> availableTimes
+        List<AvailableTimeRequest> availableTimes,
+        List<String> lessonPhotoUrls
 ) {
     public TrainerProfile toEntity(Member member) {
         return TrainerProfile.builder()

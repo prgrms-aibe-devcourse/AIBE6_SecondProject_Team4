@@ -51,7 +51,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login", "/api/auth/signup", "/api/auth/reissue",
-                                "/ws/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                                "/ws/**", "/swagger-ui/**", "/v3/api-docs/**", "/uploads/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/trainer/**").permitAll()  // ← 추가
                         .anyRequest().authenticated()
                 )

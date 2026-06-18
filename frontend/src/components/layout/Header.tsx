@@ -1,17 +1,22 @@
 'use client'
 
 import { useAuth } from '@/context/AuthContext'
-import { useAlert, type AlertItem } from '@/hooks/useAlert'
+import { type AlertItem, useAlert } from '@/hooks/useAlert'
+import { getImageUrl } from '@/utils/apiClient'
+import { useEffect, useRef, useState } from 'react'
+
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
 
 function getAlertHref(alert: AlertItem): string {
     if (!alert.targetId) return '#'
     switch (alert.type) {
-        case 'MATCHING': return `/matching/${alert.targetId}`
-        case 'REVIEW':   return `/trainer/${alert.targetId}`
-        default:         return '#'
+        case 'MATCHING':
+            return `/matching/${alert.targetId}`
+        case 'REVIEW':
+            return `/trainer/${alert.targetId}`
+        default:
+            return '#'
     }
 }
 
@@ -25,7 +30,6 @@ function formatRelativeTime(dateStr?: string): string {
     if (hr < 24) return `${hr}시간 전`
     return `${Math.floor(hr / 24)}일 전`
 }
-
 
 const NAV_LINKS = [
     { label: '트레이너 찾기', href: '/trainer' },
@@ -93,11 +97,14 @@ export default function Header() {
                             <div className="relative flex items-center" ref={alertRef}>
                                 <button
                                     className="material-symbols-outlined text-secondary md:hover:text-primary transition-colors flex items-center cursor-pointer leading-none w-9 h-9 rounded-full justify-center md:hover:bg-primary-fixed"
-                                    onClick={() => setAlertOpen(prev => !prev)}
+                                    onClick={() => setAlertOpen((prev) => !prev)}
                                 >
                                     notifications
                                     {unreadCount > 0 && (
-                                        <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] px-[3px] bg-error text-on-primary text-[10px] font-bold rounded-full flex items-center justify-center leading-none" style={{ fontFamily: 'Inter, sans-serif' }}>
+                                        <span
+                                            className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] px-[3px] bg-error text-on-primary text-[10px] font-bold rounded-full flex items-center justify-center leading-none"
+                                            style={{ fontFamily: 'Inter, sans-serif' }}
+                                        >
                                             {unreadCount > 9 ? '9+' : unreadCount}
                                         </span>
                                     )}
@@ -107,7 +114,9 @@ export default function Header() {
                                     <div className="absolute right-0 top-full mt-3 w-80 bg-surface-container-lowest shadow-2xl rounded-2xl border border-outline-variant overflow-hidden z-50">
                                         {/* 헤더 */}
                                         <div className="px-4 py-3 border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
-                                            <h4 className="font-label-bold text-on-surface">알림</h4>
+                                            <h4 className="font-label-bold text-on-surface">
+                                                알림
+                                            </h4>
                                             <div className="flex gap-3">
                                                 <button
                                                     onClick={markAllRead}
@@ -127,9 +136,11 @@ export default function Header() {
                                         {/* 알림 목록 */}
                                         <div className="max-h-96 overflow-y-auto">
                                             {alerts.length === 0 ? (
-                                                <p className="text-center text-secondary text-body-sm py-8">알림이 없습니다.</p>
+                                                <p className="text-center text-secondary text-body-sm py-8">
+                                                    알림이 없습니다.
+                                                </p>
                                             ) : (
-                                                alerts.map(alert => (
+                                                alerts.map((alert) => (
                                                     <div
                                                         key={alert.id}
                                                         className="px-4 py-3 border-b border-outline-variant hover:bg-surface-container transition-colors relative group"
@@ -139,14 +150,34 @@ export default function Header() {
                                                                 className="flex gap-3 w-full text-left cursor-pointer"
                                                                 onClick={() => {
                                                                     setAlertOpen(false)
-                                                                    if (!alert.isRead && alert.id) markOneRead(alert.id)
-                                                                    window.dispatchEvent(new CustomEvent('open-chat-room', { detail: { roomId: alert.targetId } }))
+                                                                    if (!alert.isRead && alert.id)
+                                                                        markOneRead(alert.id)
+                                                                    window.dispatchEvent(
+                                                                        new CustomEvent(
+                                                                            'open-chat-room',
+                                                                            {
+                                                                                detail: {
+                                                                                    roomId: alert.targetId,
+                                                                                },
+                                                                            }
+                                                                        )
+                                                                    )
                                                                 }}
                                                             >
-                                                                <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${alert.isRead ? '' : 'bg-primary'}`} />
+                                                                <div
+                                                                    className={`w-2 h-2 rounded-full mt-2 shrink-0 ${alert.isRead ? '' : 'bg-primary'}`}
+                                                                />
                                                                 <div className="flex-1 min-w-0">
-                                                                    <p className={`text-body-sm ${alert.isRead ? 'text-on-surface-variant' : 'text-on-surface'}`}>{alert.content}</p>
-                                                                    <p className="text-xs text-secondary mt-0.5">{formatRelativeTime(alert.createdAt)}</p>
+                                                                    <p
+                                                                        className={`text-body-sm ${alert.isRead ? 'text-on-surface-variant' : 'text-on-surface'}`}
+                                                                    >
+                                                                        {alert.content}
+                                                                    </p>
+                                                                    <p className="text-xs text-secondary mt-0.5">
+                                                                        {formatRelativeTime(
+                                                                            alert.createdAt
+                                                                        )}
+                                                                    </p>
                                                                 </div>
                                                             </button>
                                                         ) : (
@@ -154,19 +185,33 @@ export default function Header() {
                                                                 href={getAlertHref(alert)}
                                                                 onClick={() => {
                                                                     setAlertOpen(false)
-                                                                    if (!alert.isRead && alert.id) markOneRead(alert.id)
+                                                                    if (!alert.isRead && alert.id)
+                                                                        markOneRead(alert.id)
                                                                 }}
                                                                 className="flex gap-3"
                                                             >
-                                                                <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${alert.isRead ? '' : 'bg-primary'}`} />
+                                                                <div
+                                                                    className={`w-2 h-2 rounded-full mt-2 shrink-0 ${alert.isRead ? '' : 'bg-primary'}`}
+                                                                />
                                                                 <div className="flex-1 min-w-0">
-                                                                    <p className={`text-body-sm ${alert.isRead ? 'text-on-surface-variant' : 'text-on-surface'}`}>{alert.content}</p>
-                                                                    <p className="text-xs text-secondary mt-0.5">{formatRelativeTime(alert.createdAt)}</p>
+                                                                    <p
+                                                                        className={`text-body-sm ${alert.isRead ? 'text-on-surface-variant' : 'text-on-surface'}`}
+                                                                    >
+                                                                        {alert.content}
+                                                                    </p>
+                                                                    <p className="text-xs text-secondary mt-0.5">
+                                                                        {formatRelativeTime(
+                                                                            alert.createdAt
+                                                                        )}
+                                                                    </p>
                                                                 </div>
                                                             </Link>
                                                         )}
                                                         <button
-                                                            onClick={(e) => { e.stopPropagation(); alert.id && deleteOne(alert.id) }}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                alert.id && deleteOne(alert.id)
+                                                            }}
                                                             className="absolute right-3 top-3 material-symbols-outlined text-sm text-secondary opacity-0 group-hover:opacity-100 hover:text-error transition-all"
                                                         >
                                                             close
@@ -179,26 +224,44 @@ export default function Header() {
                                 )}
                             </div>
                             <div className="hidden md:flex items-center gap-3 group relative">
-                                <Link href="/mypage" className="font-label-bold text-on-surface hover:text-primary transition-colors">{user.userName} 님</Link>
-                                <Link href="/mypage" className="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary overflow-hidden border border-outline-variant cursor-pointer">
-                                    <span className="material-symbols-outlined text-2xl">person</span>
+                                <Link
+                                    href="/mypage"
+                                    className="font-label-bold text-on-surface hover:text-primary transition-colors"
+                                >
+                                    {user.userName} 님
+                                </Link>
+                                <Link
+                                    href="/mypage"
+                                    className="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary overflow-hidden border border-outline-variant cursor-pointer"
+                                >
+                                    {user.profileImage ? (
+                                        <img
+                                            src={getImageUrl(user.profileImage)}
+                                            alt=""
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <span className="material-symbols-outlined text-2xl">
+                                            person
+                                        </span>
+                                    )}
                                 </Link>
                                 {/* 호버 드롭다운 */}
                                 <div className="absolute right-0 top-full pt-2 w-36 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity">
-                                <div className="bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant overflow-hidden">
-                                    <Link
-                                        href="/mypage"
-                                        className="block px-4 py-3 text-body-sm text-on-surface hover:bg-surface-container transition-colors"
-                                    >
-                                        마이페이지
-                                    </Link>
-                                    <button
-                                        onClick={handleLogout}
-                                        className="w-full text-left px-4 py-3 text-body-sm text-error hover:bg-surface-container transition-colors"
-                                    >
-                                        로그아웃
-                                    </button>
-                                </div>
+                                    <div className="bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant overflow-hidden">
+                                        <Link
+                                            href="/mypage"
+                                            className="block px-4 py-3 text-body-sm text-on-surface hover:bg-surface-container transition-colors"
+                                        >
+                                            마이페이지
+                                        </Link>
+                                        <button
+                                            onClick={handleLogout}
+                                            className="w-full text-left px-4 py-3 text-body-sm text-error hover:bg-surface-container transition-colors"
+                                        >
+                                            로그아웃
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </>
@@ -215,7 +278,7 @@ export default function Header() {
                     <div className="md:hidden flex items-center">
                         <button
                             className="material-symbols-outlined text-secondary hover:text-primary transition-colors cursor-pointer leading-none"
-                            onClick={() => setMenuOpen(prev => !prev)}
+                            onClick={() => setMenuOpen((prev) => !prev)}
                         >
                             {menuOpen ? 'close' : 'menu'}
                         </button>
@@ -244,13 +307,28 @@ export default function Header() {
                                     onClick={() => setMenuOpen(false)}
                                     className="px-margin-mobile py-4 flex items-center gap-3 border-b border-outline-variant/40 hover:bg-surface-container transition-colors"
                                 >
-                                    <div className="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary border border-outline-variant">
-                                        <span className="material-symbols-outlined text-lg">person</span>
+                                    <div className="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary border border-outline-variant overflow-hidden">
+                                        {user.profileImage ? (
+                                            <img
+                                                src={getImageUrl(user.profileImage)}
+                                                alt=""
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <span className="material-symbols-outlined text-lg">
+                                                person
+                                            </span>
+                                        )}
                                     </div>
-                                    <span className="font-label-bold text-on-surface">{user.userName} 님</span>
+                                    <span className="font-label-bold text-on-surface">
+                                        {user.userName} 님
+                                    </span>
                                 </Link>
                                 <button
-                                    onClick={() => { setMenuOpen(false); handleLogout() }}
+                                    onClick={() => {
+                                        setMenuOpen(false)
+                                        handleLogout()
+                                    }}
                                     className="px-margin-mobile py-4 text-left font-label-bold text-error hover:bg-surface-container transition-colors"
                                 >
                                     로그아웃

@@ -9,8 +9,10 @@ import com.fitmate.trainer.dto.TrainerProfileRequest;
 import com.fitmate.trainer.dto.TrainerProfileResponse;
 import com.fitmate.trainer.dto.TrainerProfileUpdateRequest;
 import com.fitmate.trainer.entity.TrainerAvailableTime;
+import com.fitmate.trainer.entity.TrainerLessonPhoto;
 import com.fitmate.trainer.entity.TrainerProfile;
 import com.fitmate.trainer.repository.TrainerAvailableTimeRepository;
+import com.fitmate.trainer.repository.TrainerLessonPhotoRepository;
 import com.fitmate.trainer.repository.TrainerProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,18 +29,17 @@ public class TrainerService {
 
     private final TrainerProfileRepository trainerProfileRepository;
     private final MemberRepository memberRepository;
-
-    // 트레이너 가능 시간을 trainer_available_times 테이블에 저장하기 위한 Repository
     private final TrainerAvailableTimeRepository trainerAvailableTimeRepository;
+    private final TrainerLessonPhotoRepository trainerLessonPhotoRepository;
 
     public TrainerProfileResponse getTrainerProfile(Long id) {
         TrainerProfile profile = trainerProfileRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.TRAINER_PROFILE_NOT_FOUND));
-        // 해당 트레이너 프로필에 등록된 가능 시간 목록을 조회
         List<TrainerAvailableTime> availableTimes =
                 trainerAvailableTimeRepository.findByTrainerProfileId(profile.getId());
-        // 트레이너 프로필 정보와 가능 시간 목록을 함께 응답으로 변환
-        return TrainerProfileResponse.from(profile, availableTimes);
+        List<TrainerLessonPhoto> lessonPhotos =
+                trainerLessonPhotoRepository.findByTrainerProfileId(profile.getId());
+        return TrainerProfileResponse.from(profile, availableTimes, lessonPhotos);
     }
 
     public Page<TrainerProfileResponse> getTrainerProfilesByFilter(
@@ -64,7 +65,9 @@ public class TrainerService {
                 .map(profile -> {
                     List<TrainerAvailableTime> availableTimes =
                             trainerAvailableTimeRepository.findByTrainerProfileId(profile.getId());
-                    return TrainerProfileResponse.from(profile, availableTimes);
+                    List<TrainerLessonPhoto> lessonPhotos =
+                            trainerLessonPhotoRepository.findByTrainerProfileId(profile.getId());
+                    return TrainerProfileResponse.from(profile, availableTimes, lessonPhotos);
                 });
     }
 
@@ -82,18 +85,27 @@ public class TrainerService {
 
         TrainerProfile saved = trainerProfileRepository.save(request.toEntity(member));
 
-        // 요청에 가능한 시간이 포함되어 있으면, 트레이너 프로필 저장 후 가능 시간도 함께 저장
         if (request.availableTimes() != null && !request.availableTimes().isEmpty()) {
             List<TrainerAvailableTime> availableTimes = request.availableTimes().stream()
                     .map(time -> TrainerAvailableTime.builder()
-                            .trainerProfile(saved) // 방금 저장한 트레이너 프로필과 연결
+                            .trainerProfile(saved)
                             .dayOfWeek(time.dayOfWeek())
                             .startTime(time.startTime())
                             .endTime(time.endTime())
                             .build())
                     .toList();
-            // 여러 개의 가능 시간을 trainer_available_times 테이블에 한 번에 저장
             trainerAvailableTimeRepository.saveAll(availableTimes);
+        }
+
+        // 레슨 사진 저장
+        if (request.lessonPhotoUrls() != null && !request.lessonPhotoUrls().isEmpty()) {
+            List<TrainerLessonPhoto> photos = request.lessonPhotoUrls().stream()
+                    .map(url -> TrainerLessonPhoto.builder()
+                            .trainerProfile(saved)
+                            .imageUrl(url)
+                            .build())
+                    .toList();
+            trainerLessonPhotoRepository.saveAll(photos);
         }
 
         return TrainerProfileResponse.from(saved);
@@ -109,7 +121,6 @@ public class TrainerService {
 
         profile.update(request);
 
-        // 활동 시간 수정 - 기존 삭제 후 새로 저장
         if (request.availableTimes() != null) {
             trainerAvailableTimeRepository.deleteByTrainerProfileId(profile.getId());
             List<TrainerAvailableTime> availableTimes = request.availableTimes().stream()
@@ -123,9 +134,23 @@ public class TrainerService {
             trainerAvailableTimeRepository.saveAll(availableTimes);
         }
 
+        // 레슨 사진 수정 - 기존 삭제 후 새로 저장
+        if (request.lessonPhotoUrls() != null) {
+            trainerLessonPhotoRepository.deleteByTrainerProfileId(profile.getId());
+            List<TrainerLessonPhoto> photos = request.lessonPhotoUrls().stream()
+                    .map(url -> TrainerLessonPhoto.builder()
+                            .trainerProfile(profile)
+                            .imageUrl(url)
+                            .build())
+                    .toList();
+            trainerLessonPhotoRepository.saveAll(photos);
+        }
+
         List<TrainerAvailableTime> availableTimes =
                 trainerAvailableTimeRepository.findByTrainerProfileId(profile.getId());
-        return TrainerProfileResponse.from(profile, availableTimes);
+        List<TrainerLessonPhoto> lessonPhotos =
+                trainerLessonPhotoRepository.findByTrainerProfileId(profile.getId());
+        return TrainerProfileResponse.from(profile, availableTimes, lessonPhotos);
     }
 
     public void deleteTrainerProfile(Long id, Long memberId) {
@@ -144,10 +169,10 @@ public class TrainerService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         TrainerProfile profile = trainerProfileRepository.findByMemberId(member.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.TRAINER_PROFILE_NOT_FOUND));
-        // 내 트레이너 프로필에 등록된 가능 시간 목록을 조회
         List<TrainerAvailableTime> availableTimes =
                 trainerAvailableTimeRepository.findByTrainerProfileId(profile.getId());
-        // 내 트레이너 프로필 정보와 가능 시간 목록을 함께 응답으로 변환
-        return TrainerProfileResponse.from(profile, availableTimes);
+        List<TrainerLessonPhoto> lessonPhotos =
+                trainerLessonPhotoRepository.findByTrainerProfileId(profile.getId());
+        return TrainerProfileResponse.from(profile, availableTimes, lessonPhotos);
     }
 }
