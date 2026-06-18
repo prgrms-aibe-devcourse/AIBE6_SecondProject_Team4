@@ -216,11 +216,20 @@ public class MatchingService {
                 && !availableEndTime.isBefore(preferredEndTime);
     }
 
-    private MatchingResultResponse toMatchingResultResponse(MatchingResult matchingResult) {
-        TrainerProfile trainerProfile = matchingResult.getTrainerProfile();
-        Member trainerMember = trainerProfile.getMember();
-        MatchingPreferredTime preferredTime = matchingResult.getPreferredTime();
-        TrainerAvailableTime trainerAvailableTime = matchingResult.getTrainerAvailableTime();
+    private MatchingResultResponse toMatchingResultResponse(
+            MatchingResult matchingResult
+    ) {
+        TrainerProfile trainerProfile =
+                matchingResult.getTrainerProfile();
+
+        Member trainerMember =
+                trainerProfile.getMember();
+
+        MatchingPreferredTime preferredTime =
+                matchingResult.getPreferredTime();
+
+        TrainerAvailableTime trainerAvailableTime =
+                matchingResult.getTrainerAvailableTime();
 
         return new MatchingResultResponse(
                 matchingResult.getId(),
@@ -237,7 +246,11 @@ public class MatchingService {
                 preferredTime.getStartTime(),
                 preferredTime.getEndTime(),
                 trainerAvailableTime.getStartTime(),
-                trainerAvailableTime.getEndTime()
+                trainerAvailableTime.getEndTime(),
+
+                // matching_results에 저장된 AI 추천 정보
+                matchingResult.getAiRank(),
+                matchingResult.getAiReason()
         );
     }
 

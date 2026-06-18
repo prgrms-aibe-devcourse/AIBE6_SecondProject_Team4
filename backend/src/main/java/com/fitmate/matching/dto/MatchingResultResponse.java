@@ -17,6 +17,10 @@ public record MatchingResultResponse(
         LocalTime preferredStartTime,
         LocalTime preferredEndTime,
         LocalTime trainerStartTime,
-        LocalTime trainerEndTime
+        LocalTime trainerEndTime,
+
+        // Gemini 추천 정보
+        Integer aiRank,
+        String aiReason
 ) {
 }
