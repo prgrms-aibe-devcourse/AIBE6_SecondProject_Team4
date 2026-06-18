@@ -131,3 +131,196 @@ SELECT id, 'TRAINER', '수업 후기가 삭제되었어요.', '작성한 트레�
 
 INSERT IGNORE INTO inquiries (member_id, type, title, content, status, answer, created_at, updated_at)
 SELECT id, 'MATCHING', '매칭 완료 후 환불이 가능한가요?', '사정이 생겨 수업을 받지 못할 것 같습니다.', 'PENDING', NULL, NOW(), NOW() FROM members WHERE user_id = 'user02';
+
+-- =============================================
+-- 후기용 매칭 요청 추가
+-- 후기는 matching_id UNIQUE 제약이 있어 매칭 1개당 후기 1개.
+-- trainer01에게 후기를 다양하게 쌓기 위해 매칭을 추가한다.
+-- lesson_content를 고유한 문구로 지정해 후기 연결 시 정확히 찾도록 함.
+-- =============================================
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '초급', '헬스', '1:1 PT', '서울', 50000, 100000, '[더미후기] 자세 교정 위주로 배우고 싶습니다.', NOW(), NOW()
+FROM members WHERE user_id = 'user02';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '중급', '헬스', '1:1 PT', '인천', 60000, 120000, '[더미후기] 벌크업이 목표입니다.', NOW(), NOW()
+FROM members WHERE user_id = 'user03';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '초급', '수영', '그룹', '부산', 30000, 60000, '[더미후기] 생존 수영을 배우고 싶어요.', NOW(), NOW()
+FROM members WHERE user_id = 'user01';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '중급', '수영', '1:1', '부산', 40000, 80000, '[더미후기] 자유형 교정을 원합니다.', NOW(), NOW()
+FROM members WHERE user_id = 'user03';
+
+-- =============================================
+-- 후기 (review)
+-- reviewer = 작성 회원, trainer = 받는 트레이너, matching_id = 연결 매칭(UNIQUE)
+-- trainer01: 5,4,5,3 / trainer02: 4,5  → 별점 분포가 다양하게 보이도록 구성
+-- =============================================
+
+-- [trainer01] user01의 기존 헬스 매칭에 대한 후기 (5점)
+INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content = '체중 감량과 기초 체력 향상을 원합니다.' LIMIT 1),
+    (SELECT id FROM members WHERE user_id = 'user01'),
+    (SELECT id FROM members WHERE user_id = 'trainer01'),
+    5, '자세를 꼼꼼하게 잡아주셔서 운동이 훨씬 수월해졌어요. 강력 추천합니다!', NOW() - INTERVAL 10 DAY, NOW() - INTERVAL 10 DAY;
+
+-- [trainer01] user02의 추가 헬스 매칭에 대한 후기 (4점)
+INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content = '[더미후기] 자세 교정 위주로 배우고 싶습니다.' LIMIT 1),
+    (SELECT id FROM members WHERE user_id = 'user02'),
+    (SELECT id FROM members WHERE user_id = 'trainer01'),
+    4, '친절하시고 운동 효과도 좋았습니다. 다만 시간이 조금 짧게 느껴졌어요.', NOW() - INTERVAL 8 DAY, NOW() - INTERVAL 8 DAY;
+
+-- [trainer01] user03의 추가 헬스(벌크업) 매칭에 대한 후기 (5점)
+INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content = '[더미후기] 벌크업이 목표입니다.' LIMIT 1),
+    (SELECT id FROM members WHERE user_id = 'user03'),
+    (SELECT id FROM members WHERE user_id = 'trainer01'),
+    5, '벌크업 목표에 맞춰 식단까지 챙겨주셔서 만족스럽습니다.', NOW() - INTERVAL 6 DAY, NOW() - INTERVAL 6 DAY;
+
+-- [trainer01] user03의 기존 헬스 매칭에 대한 후기 (3점)
+INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content = '근육량 증가가 목표입니다.' LIMIT 1),
+    (SELECT id FROM members WHERE user_id = 'user03'),
+    (SELECT id FROM members WHERE user_id = 'trainer01'),
+    3, '운동은 좋았지만 예약 변경이 조금 번거로웠습니다.', NOW() - INTERVAL 4 DAY, NOW() - INTERVAL 4 DAY;
+
+-- [trainer02] user02의 기존 수영 매칭에 대한 후기 (4점)
+INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content = '수영 기초부터 배우고 싶습니다.' LIMIT 1),
+    (SELECT id FROM members WHERE user_id = 'user02'),
+    (SELECT id FROM members WHERE user_id = 'trainer02'),
+    4, '수영 기초를 차근차근 알려주셔서 좋았어요.', NOW() - INTERVAL 3 DAY, NOW() - INTERVAL 3 DAY;
+
+-- [trainer02] user01의 추가 수영 매칭에 대한 후기 (5점)
+INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content = '[더미후기] 생존 수영을 배우고 싶어요.' LIMIT 1),
+    (SELECT id FROM members WHERE user_id = 'user01'),
+    (SELECT id FROM members WHERE user_id = 'trainer02'),
+    5, '겁이 많았는데 안전하게 잘 이끌어주셨습니다. 감사해요!', NOW() - INTERVAL 1 DAY, NOW() - INTERVAL 1 DAY;
+
+-- =============================================
+-- [페이지네이션 테스트용] trainer01 후기 추가
+-- trainer01에게 후기를 더 쌓아 페이지가 나뉘도록 함 (size 5 기준 2페이지+)
+-- 매칭은 후기 1개당 1개 필요 (matching_id UNIQUE)
+-- =============================================
+
+-- 추가 매칭 6개 (user01·user02·user03이 trainer01용으로)
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '초급', '헬스', '1:1 PT', '서울', 50000, 100000, '[더미페이지] 식단 관리 병행 희망', NOW(), NOW()
+FROM members WHERE user_id = 'user01';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '중급', '헬스', '1:1 PT', '부산', 50000, 100000, '[더미페이지] 체형 교정 희망', NOW(), NOW()
+FROM members WHERE user_id = 'user02';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '고급', '헬스', '1:1 PT', '인천', 50000, 100000, '[더미페이지] 대회 준비', NOW(), NOW()
+FROM members WHERE user_id = 'user03';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '초급', '헬스', '1:1 PT', '서울', 50000, 100000, '[더미페이지] 운동 습관 만들기', NOW(), NOW()
+FROM members WHERE user_id = 'user01';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '중급', '헬스', '1:1 PT', '부산', 50000, 100000, '[더미페이지] 근지구력 향상', NOW(), NOW()
+FROM members WHERE user_id = 'user02';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '초급', '헬스', '1:1 PT', '인천', 50000, 100000, '[더미페이지] 재활 운동', NOW(), NOW()
+FROM members WHERE user_id = 'user03';
+
+-- 추가 후기 6개 (모두 trainer01에게, 별점 다양하게)
+INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT (SELECT id FROM matching_request WHERE lesson_content = '[더미페이지] 식단 관리 병행 희망' LIMIT 1),
+       (SELECT id FROM members WHERE user_id = 'user01'),
+       (SELECT id FROM members WHERE user_id = 'trainer01'),
+       5, '식단까지 같이 봐주셔서 큰 도움이 됐습니다.', NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 20 DAY;
+
+INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT (SELECT id FROM matching_request WHERE lesson_content = '[더미페이지] 체형 교정 희망' LIMIT 1),
+       (SELECT id FROM members WHERE user_id = 'user02'),
+       (SELECT id FROM members WHERE user_id = 'trainer01'),
+       4, '체형 교정 효과를 확실히 느꼈어요.', NOW() - INTERVAL 22 DAY, NOW() - INTERVAL 22 DAY;
+
+INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT (SELECT id FROM matching_request WHERE lesson_content = '[더미페이지] 대회 준비' LIMIT 1),
+       (SELECT id FROM members WHERE user_id = 'user03'),
+       (SELECT id FROM members WHERE user_id = 'trainer01'),
+       5, '대회 준비 디테일까지 챙겨주셔서 입상했습니다!', NOW() - INTERVAL 24 DAY, NOW() - INTERVAL 24 DAY;
+
+INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT (SELECT id FROM matching_request WHERE lesson_content = '[더미페이지] 운동 습관 만들기' LIMIT 1),
+       (SELECT id FROM members WHERE user_id = 'user01'),
+       (SELECT id FROM members WHERE user_id = 'trainer01'),
+       3, '꾸준히 다니게 도와주셨지만 시간 약속이 가끔 어긋났어요.', NOW() - INTERVAL 26 DAY, NOW() - INTERVAL 26 DAY;
+
+INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT (SELECT id FROM matching_request WHERE lesson_content = '[더미페이지] 근지구력 향상' LIMIT 1),
+       (SELECT id FROM members WHERE user_id = 'user02'),
+       (SELECT id FROM members WHERE user_id = 'trainer01'),
+       4, '근지구력이 눈에 띄게 좋아졌습니다.', NOW() - INTERVAL 28 DAY, NOW() - INTERVAL 28 DAY;
+
+INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT (SELECT id FROM matching_request WHERE lesson_content = '[더미페이지] 재활 운동' LIMIT 1),
+       (SELECT id FROM members WHERE user_id = 'user03'),
+       (SELECT id FROM members WHERE user_id = 'trainer01'),
+       5, '부상 부위를 조심스럽게 잘 다뤄주셨어요. 감사합니다.', NOW() - INTERVAL 30 DAY, NOW() - INTERVAL 30 DAY;
+
+-- =============================================
+-- [작성 가능한 후기 테스트용] 매칭 성사(ACCEPTED 레슨) 더미
+-- 흐름: matching_request → preferred_time + available_time → matching_result → lesson_request(ACCEPTED)
+-- user02 가 trainer02(정코치)와 매칭 성사 → 아직 후기 미작성 → writable 에 떠야 함
+-- 기존 후기 더미와 겹치지 않게 새 매칭(lesson_content '[더미작성가능]')으로 구성
+-- =============================================
+
+-- 1) 매칭 요청 (user02)
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '초급', '수영', '1:1', '부산', 40000, 80000, '[더미작성가능] 접영 배우고 싶어요', NOW(), NOW()
+FROM members WHERE user_id = 'user02';
+
+-- 2) 사용자 희망 시간 (matching_preferred_times → 위 매칭 참조)
+INSERT IGNORE INTO matching_preferred_times (matching_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능] 접영 배우고 싶어요' LIMIT 1),
+       'MONDAY', '10:00:00', '11:00:00', NOW(), NOW();
+
+-- 3) 트레이너 가능 시간 (trainer_available_times → trainer02 프로필 참조)
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'MONDAY', '09:00:00', '18:00:00', NOW(), NOW()
+FROM trainer_profiles tp
+         JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer02';
+
+-- 4) 매칭 결과 (matching_results → 위 매칭/시간/트레이너 연결)
+INSERT IGNORE INTO matching_results (matching_id, preferred_time_id, trainer_available_time_id, trainer_profile_id, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능] 접영 배우고 싶어요' LIMIT 1),
+    (SELECT pt.id FROM matching_preferred_times pt
+        WHERE pt.matching_id = (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능] 접영 배우고 싶어요' LIMIT 1)
+        LIMIT 1),
+    (SELECT at.id FROM trainer_available_times at
+        JOIN trainer_profiles tp ON at.trainer_profile_id = tp.id
+        JOIN members m ON tp.user_id = m.id
+        WHERE m.user_id = 'trainer02' AND at.start_time = '09:00:00'
+        LIMIT 1),
+    (SELECT tp.id FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer02' LIMIT 1),
+    NOW(), NOW();
+
+-- 5) 레슨 요청 (lesson_requests → ACCEPTED = 성사!)
+INSERT IGNORE INTO lesson_requests (matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count, requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at)
+SELECT
+    (SELECT mr.id FROM matching_results mr
+     WHERE mr.matching_id = (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능] 접영 배우고 싶어요' LIMIT 1)
+        LIMIT 1),
+    (SELECT id FROM members WHERE user_id = 'user02'),
+                                (SELECT tp.id FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer02' LIMIT 1),
+    'ONE_TIME', NULL, '2026-06-15', '10:00:00', '11:00:00', '잘 부탁드립니다!', 'ACCEPTED', NOW(), NOW();

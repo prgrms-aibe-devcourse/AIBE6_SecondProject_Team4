@@ -1,6 +1,8 @@
 package com.fitmate.review.repository;
 
 import com.fitmate.review.entity.Review;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -25,4 +27,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     // ReviewRepository에 추가
     List<Review> findByReviewerId(Long reviewerId);
 
+    Page<Review> findByReviewerId(Long reviewerId, Pageable pageable);
+    Page<Review> findByTrainerId(Long trainerId, Pageable pageable);
 }
