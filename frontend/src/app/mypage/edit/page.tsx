@@ -28,7 +28,12 @@ export default function ProfileEditPage() {
         careerYears: '',
         region: '',
         introduction: '',
-        availableTimes: [] as { dayOfWeek: string; startTime: string; endTime: string }[],
+        availableTimes: [] as {
+            id?: number
+            dayOfWeek: string
+            startTime: string
+            endTime: string
+        }[],
         lessonPhotos: [] as string[],
     })
 
@@ -183,6 +188,7 @@ export default function ProfileEditPage() {
                 price: Number(trainerForm.price),
                 careerYears: Number(trainerForm.careerYears),
                 availableTimes: trainerForm.availableTimes.map((t) => ({
+                    id: t.id,
                     dayOfWeek: t.dayOfWeek,
                     startTime: t.startTime,
                     endTime: t.endTime,
@@ -190,12 +196,26 @@ export default function ProfileEditPage() {
                 lessonPhotoUrls: trainerForm.lessonPhotos,
             }
             if (trainerId) {
-                await client.PUT('/api/trainers/{id}', {
+                const { error } = await client.PUT('/api/trainers/{id}', {
                     params: { path: { id: trainerId } },
                     body,
                 })
+
+                if (error) {
+                    console.error('트레이너 프로필 수정 실패:', error)
+                    alert('프로필 수정에 실패했습니다.')
+                    setSaving(false)
+                    return
+                }
             } else {
-                await client.POST('/api/trainers', { body })
+                const { error } = await client.POST('/api/trainers', { body })
+
+                if (error) {
+                    console.error('트레이너 프로필 등록 실패:', error)
+                    alert('프로필 등록에 실패했습니다.')
+                    setSaving(false)
+                    return
+                }
             }
         } else {
             const body = {
