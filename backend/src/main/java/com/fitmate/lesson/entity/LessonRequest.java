@@ -11,7 +11,13 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "lesson_requests")
+@Table(name = "lesson_requests",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uq_lesson_requests_matching_result",
+                        columnNames = "matching_result_id"
+                )
+        })
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

@@ -10,8 +10,6 @@ import java.time.LocalTime;
 import java.util.List;
 
 public record MatchingRequestDto(
-        @NotNull Long memberId,
-
         @NotBlank String level,
         @NotBlank String sports,
         @NotBlank String lessonType,

@@ -819,8 +819,6 @@ export interface components {
             content: string;
         };
         MatchingRequestDto: {
-            /** Format: int64 */
-            memberId: number;
             level: string;
             sports: string;
             lessonType: string;
@@ -851,6 +849,7 @@ export interface components {
             introduction?: string;
             sports?: string;
             lessonType?: string;
+            lessonLevel?: string;
             region?: string;
             /** Format: int32 */
             price?: number;
@@ -1031,34 +1030,34 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["TrainerProfileResponse"][];
             /** Format: int32 */
             number?: number;
-            first?: boolean;
-            last?: boolean;
+            sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
-            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
         };
         PageableObject: {
             /** Format: int64 */
             offset?: number;
+            sort?: components["schemas"]["SortObject"];
             unpaged?: boolean;
+            paged?: boolean;
             /** Format: int32 */
             pageNumber?: number;
             /** Format: int32 */
             pageSize?: number;
-            sort?: components["schemas"]["SortObject"];
-            paged?: boolean;
         };
         SortObject: {
             empty?: boolean;
-            sorted?: boolean;
             unsorted?: boolean;
+            sorted?: boolean;
         };
         WritableReviewResponse: {
             /** Format: int64 */
@@ -1113,17 +1112,17 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["ReviewResponse"][];
             /** Format: int32 */
             number?: number;
-            first?: boolean;
-            last?: boolean;
+            sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
-            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
         };
         TrainerSummaryDto: {
@@ -1137,17 +1136,17 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["InquiryResponse"][];
             /** Format: int32 */
             number?: number;
-            first?: boolean;
-            last?: boolean;
+            sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
-            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
         };
         ChatResponseDto: {
