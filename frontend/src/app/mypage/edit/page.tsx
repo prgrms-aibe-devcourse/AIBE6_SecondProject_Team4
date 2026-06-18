@@ -532,65 +532,69 @@ export default function ProfileEditPage() {
                                     </label>
                                     {/* 요일 선택 */}
                                     <div className="flex gap-xs">
-                                        {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map(
-                                            (day, i) => {
-                                                const labels = [
-                                                    '월',
-                                                    '화',
-                                                    '수',
-                                                    '목',
-                                                    '금',
-                                                    '토',
-                                                    '일',
-                                                ]
-                                                const selected = trainerForm.availableTimes.some(
-                                                    (t) => t.dayOfWeek === day
-                                                )
-                                                return (
-                                                    <button
-                                                        key={day}
-                                                        className={`w-10 h-10 rounded-full text-label-bold font-label-bold border transition-all ${
-                                                            selected
-                                                                ? 'bg-primary text-on-primary border-primary'
-                                                                : 'bg-surface-container-low border-outline-variant text-on-surface-variant hover:border-primary'
-                                                        }`}
-                                                        onClick={() => {
-                                                            setTrainerForm((f) => {
-                                                                const exists =
-                                                                    f.availableTimes.some(
-                                                                        (t) => t.dayOfWeek === day
-                                                                    )
-                                                                if (exists) {
-                                                                    return {
-                                                                        ...f,
-                                                                        availableTimes:
-                                                                            f.availableTimes.filter(
-                                                                                (t) =>
-                                                                                    t.dayOfWeek !==
-                                                                                    day
-                                                                            ),
-                                                                    }
-                                                                } else {
-                                                                    return {
-                                                                        ...f,
-                                                                        availableTimes: [
-                                                                            ...f.availableTimes,
-                                                                            {
-                                                                                dayOfWeek: day,
-                                                                                startTime: '09:00',
-                                                                                endTime: '22:00',
-                                                                            },
-                                                                        ],
-                                                                    }
+                                        {[
+                                            'MONDAY',
+                                            'TUESDAY',
+                                            'WEDNESDAY',
+                                            'THURSDAY',
+                                            'FRIDAY',
+                                            'SATURDAY',
+                                            'SUNDAY',
+                                        ].map((day, i) => {
+                                            const labels = [
+                                                '월',
+                                                '화',
+                                                '수',
+                                                '목',
+                                                '금',
+                                                '토',
+                                                '일',
+                                            ]
+                                            const selected = trainerForm.availableTimes.some(
+                                                (t) => t.dayOfWeek === day
+                                            )
+                                            return (
+                                                <button
+                                                    key={day}
+                                                    className={`w-10 h-10 rounded-full text-label-bold font-label-bold border transition-all ${
+                                                        selected
+                                                            ? 'bg-primary text-on-primary border-primary'
+                                                            : 'bg-surface-container-low border-outline-variant text-on-surface-variant hover:border-primary'
+                                                    }`}
+                                                    onClick={() => {
+                                                        setTrainerForm((f) => {
+                                                            const exists = f.availableTimes.some(
+                                                                (t) => t.dayOfWeek === day
+                                                            )
+                                                            if (exists) {
+                                                                return {
+                                                                    ...f,
+                                                                    availableTimes:
+                                                                        f.availableTimes.filter(
+                                                                            (t) =>
+                                                                                t.dayOfWeek !== day
+                                                                        ),
                                                                 }
-                                                            })
-                                                        }}
-                                                    >
-                                                        {labels[i]}
-                                                    </button>
-                                                )
-                                            }
-                                        )}
+                                                            } else {
+                                                                return {
+                                                                    ...f,
+                                                                    availableTimes: [
+                                                                        ...f.availableTimes,
+                                                                        {
+                                                                            dayOfWeek: day,
+                                                                            startTime: '09:00',
+                                                                            endTime: '22:00',
+                                                                        },
+                                                                    ],
+                                                                }
+                                                            }
+                                                        })
+                                                    }}
+                                                >
+                                                    {labels[i]}
+                                                </button>
+                                            )
+                                        })}
                                     </div>
                                     {/* 시간 선택 */}
                                     <div className="flex items-center gap-sm">
