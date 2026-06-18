@@ -47,12 +47,13 @@ public class Member extends BaseEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    public void updateProfile(String nickname, String profileImage, String region, String introduction, String phone) {
+    public void updateProfile(String nickname, String profileImage, String region, String introduction, String phone, String email) {
         if (nickname != null) this.nickname = nickname;
         if (profileImage != null) this.profileImage = profileImage;
         if (region != null) this.region = region;
         if (introduction != null) this.introduction = introduction;
         if (phone != null) this.phone = phone;
+        if (email != null) this.email = email;
     }
 
     public void delete() {

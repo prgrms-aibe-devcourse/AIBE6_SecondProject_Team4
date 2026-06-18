@@ -50,7 +50,8 @@ public class MemberService {
                 request.profileImage(),
                 request.region(),
                 request.introduction(),
-                request.phone()
+                request.phone(),
+                request.email()
         );
 
         return MemberResponse.from(member);
