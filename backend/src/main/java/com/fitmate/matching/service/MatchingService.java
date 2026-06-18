@@ -24,6 +24,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Arrays;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -125,23 +126,42 @@ public class MatchingService {
                 .toList();
     }
     // 사용자 요청 조건과 트레이너 프로필 조건 비교
-    private boolean matchesBasicConditions(MatchingRequest matchingRequest, TrainerProfile trainerProfile) {
-        return Objects.equals(matchingRequest.getSports(), trainerProfile.getSports())
-                && matchesLessonLevel(matchingRequest, trainerProfile)
-                && Objects.equals(matchingRequest.getLessonType(), trainerProfile.getLessonType())
-                && Objects.equals(matchingRequest.getRegion(), trainerProfile.getMember().getRegion())
-                && isPriceInBudget(trainerProfile.getPrice(), matchingRequest.getBudgetMin(), matchingRequest.getBudgetMax());
+    private boolean matchesBasicConditions(
+            MatchingRequest request,
+            TrainerProfile trainer
+    ) {
+        return containsValue(
+                trainer.getSports(),
+                request.getSports(),
+                this::normalizeSport
+        )
+                && matchesLessonLevel(request, trainer)
+                && containsValue(
+                trainer.getLessonType(),
+                request.getLessonType(),
+                this::normalizeLessonType
+        )
+                && Objects.equals(
+                request.getRegion().trim(),
+                trainer.getMember().getRegion().trim()
+        )
+                && isPriceInBudget(
+                trainer.getPrice(),
+                request.getBudgetMin(),
+                request.getBudgetMax()
+        );
     }
 
     // 트레이너가 여러 레벨을 담당할 수 있으므로 "중급,고급" 같은 문자열을 나눠서 비교
-    private boolean matchesLessonLevel(MatchingRequest matchingRequest, TrainerProfile trainerProfile) {
-        if (matchingRequest.getLevel() == null || trainerProfile.getLessonLevel() == null) {
-            return false;
-        }
-
-        return Arrays.stream(trainerProfile.getLessonLevel().split(","))
-                .map(String::trim)
-                .anyMatch(level -> level.equals(matchingRequest.getLevel()));
+    private boolean matchesLessonLevel(
+            MatchingRequest request,
+            TrainerProfile trainer
+    ) {
+        return containsValue(
+                trainer.getLessonLevel(),
+                request.getLevel(),
+                this::normalizeLessonLevel
+        );
     }
 
    // 가격 비교
@@ -153,14 +173,37 @@ public class MatchingService {
         return price >= budgetMin && price <= budgetMax;
     }
     //매칭 선호 시간 , 트레이너 선호 시간 비교
-    private boolean matchesTime(MatchingPreferredTime preferredTime, TrainerAvailableTime availableTime) {
-        return Objects.equals(preferredTime.getDayOfWeek(), availableTime.getDayOfWeek())
+    private boolean matchesTime(
+            MatchingPreferredTime preferredTime,
+            TrainerAvailableTime availableTime
+    ) {
+        return Objects.equals(
+                normalizeDay(preferredTime.getDayOfWeek()),
+                normalizeDay(availableTime.getDayOfWeek())
+        )
                 && containsTime(
                 availableTime.getStartTime(),
                 availableTime.getEndTime(),
                 preferredTime.getStartTime(),
                 preferredTime.getEndTime()
         );
+    }
+
+    private boolean containsValue(
+            String storedValues,
+            String requestedValue,
+            Function<String, String> normalizer
+    ) {
+        if (storedValues == null || requestedValue == null) {
+            return false;
+        }
+
+        String normalizedRequest = normalizer.apply(requestedValue);
+
+        return Arrays.stream(storedValues.split(","))
+                .map(String::trim)
+                .map(normalizer)
+                .anyMatch(normalizedRequest::equals);
     }
 
     private boolean containsTime(
@@ -196,5 +239,51 @@ public class MatchingService {
                 trainerAvailableTime.getStartTime(),
                 trainerAvailableTime.getEndTime()
         );
+    }
+
+    private String normalizeSport(String value) {
+        String normalized = normalizeText(value);
+
+        return switch (normalized) {
+            case "PT", "헬스", "웨이트" -> "헬스";
+            default -> normalized;
+        };
+    }
+
+    private String normalizeLessonType(String value) {
+        return switch (normalizeText(value)) {
+            case "ONE_TO_ONE", "1:1", "1:1PT", "개인" -> "ONE_TO_ONE";
+            case "GROUP", "그룹" -> "GROUP";
+            case "ONLINE", "온라인" -> "ONLINE";
+            default -> normalizeText(value);
+        };
+    }
+
+    private String normalizeLessonLevel(String value) {
+        return switch (normalizeText(value)) {
+            case "입문", "초보", "초급", "입문/초보" -> "BEGINNER";
+            case "중급" -> "INTERMEDIATE";
+            case "고급", "대회준비", "고급/대회준비" -> "ADVANCED";
+            default -> normalizeText(value);
+        };
+    }
+
+    private String normalizeDay(String value) {
+        return switch (normalizeText(value)) {
+            case "MON", "MONDAY", "월", "월요일" -> "MON";
+            case "TUE", "TUESDAY", "화", "화요일" -> "TUE";
+            case "WED", "WEDNESDAY", "수", "수요일" -> "WED";
+            case "THU", "THURSDAY", "목", "목요일" -> "THU";
+            case "FRI", "FRIDAY", "금", "금요일" -> "FRI";
+            case "SAT", "SATURDAY", "토", "토요일" -> "SAT";
+            case "SUN", "SUNDAY", "일", "일요일" -> "SUN";
+            default -> normalizeText(value);
+        };
+    }
+
+    private String normalizeText(String value) {
+        return value == null
+                ? ""
+                : value.trim().replace(" ", "").toUpperCase();
     }
 }
