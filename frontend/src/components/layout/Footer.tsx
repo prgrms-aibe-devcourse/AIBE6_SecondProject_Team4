@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function Footer() {
     return (
         <footer className="bg-inverse-surface text-surface py-16">
@@ -16,19 +18,14 @@ export default function Footer() {
                     <h5 className="font-label-bold text-label-bold">Service</h5>
                     <ul className="space-y-2 opacity-70 text-body-sm">
                         <li>
-                            <a className="hover:text-primary transition-colors" href="#">
+                            <Link className="hover:text-primary transition-colors" href="/trainer">
                                 트레이너 찾기
-                            </a>
+                            </Link>
                         </li>
                         <li>
-                            <a className="hover:text-primary transition-colors" href="#">
+                            <Link className="hover:text-primary transition-colors" href="/matching">
                                 AI 맞춤 추천
-                            </a>
-                        </li>
-                        <li>
-                            <a className="hover:text-primary transition-colors" href="#">
-                                커뮤니티
-                            </a>
+                            </Link>
                         </li>
                     </ul>
                 </div>
@@ -37,19 +34,14 @@ export default function Footer() {
                     <h5 className="font-label-bold text-label-bold">Support</h5>
                     <ul className="space-y-2 opacity-70 text-body-sm">
                         <li>
-                            <a className="hover:text-primary transition-colors" href="#">
+                            <Link className="hover:text-primary transition-colors" href="/faq">
                                 고객센터
-                            </a>
+                            </Link>
                         </li>
                         <li>
-                            <a className="hover:text-primary transition-colors" href="#">
-                                FAQ
-                            </a>
-                        </li>
-                        <li>
-                            <a className="hover:text-primary transition-colors" href="#">
-                                이용약관
-                            </a>
+                            <Link className="hover:text-primary transition-colors" href="/inquiry">
+                                1:1 문의
+                            </Link>
                         </li>
                     </ul>
                 </div>
