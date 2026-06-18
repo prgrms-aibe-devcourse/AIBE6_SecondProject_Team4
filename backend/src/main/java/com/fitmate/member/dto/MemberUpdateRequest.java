@@ -1,5 +1,6 @@
 package com.fitmate.member.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -15,5 +16,8 @@ public record MemberUpdateRequest(
         String introduction,
 
         @Pattern(regexp = "^01[0-9]-?\\d{3,4}-?\\d{4}$")
-        String phone
+        String phone,
+
+        @Email
+        String email
 ) {}

@@ -43,8 +43,12 @@ export default function LoginPage() {
     }
 
     return (
-        <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 16px' }}>
+        <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '128px 16px 64px' }}>
             <div style={{ width: '100%', maxWidth: '440px', background: 'white', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', padding: '48px 40px' }}>
+                <p style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 800, fontSize: '32px', lineHeight: '40px', letterSpacing: '-0.32px', textAlign: 'center', color: '#00419D', margin: '0 0 4px' }}>
+                    FitMate
+                </p>
+
                 <h1 style={{ fontSize: '24px', fontWeight: 700, textAlign: 'center', marginBottom: '32px', color: '#181c24' }}>
                     로그인
                 </h1>
@@ -89,7 +93,55 @@ export default function LoginPage() {
                     >
                         {loading ? '로그인 중...' : '로그인'}
                     </button>
+
+                    <a
+                        href="/auth/signup"
+                        style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            width: '100%', background: 'white', color: '#0057cd',
+                            border: '1px solid #0057cd', borderRadius: '12px', padding: '14px',
+                            fontSize: '15px', fontWeight: 600, textDecoration: 'none',
+                            boxSizing: 'border-box'
+                        }}
+                    >
+                        회원가입
+                    </a>
                 </form>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '24px 0' }}>
+                    <div style={{ flex: 1, height: '1px', background: '#e2e5ee' }} />
+                    <span style={{ fontSize: '13px', color: '#9097a8' }}>또는</span>
+                    <div style={{ flex: 1, height: '1px', background: '#e2e5ee' }} />
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <a
+                        href="http://localhost:8080/oauth2/authorization/kakao"
+                        style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            width: '100%', background: '#FEE500', color: '#191919',
+                            border: 'none', borderRadius: '12px', padding: '14px',
+                            fontSize: '15px', fontWeight: 600, textDecoration: 'none',
+                            boxSizing: 'border-box'
+                        }}
+                    >
+                        카카오로 로그인
+                    </a>
+
+                    <a
+                        href="http://localhost:8080/oauth2/authorization/google"
+                        style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            width: '100%', background: 'white', color: '#191919',
+                            border: '1px solid #c2c6d8', borderRadius: '12px', padding: '14px',
+                            fontSize: '15px', fontWeight: 600, textDecoration: 'none',
+                            boxSizing: 'border-box'
+                        }}
+                    >
+                        구글로 로그인
+                    </a>
+                </div>
+
+
             </div>
         </main>
     )
