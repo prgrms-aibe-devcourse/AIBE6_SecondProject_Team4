@@ -1,0 +1,321 @@
+<!DOCTYPE html><html class="light" lang="ko"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>문의 내역 관리 | FitMate</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-primary-fixed-variant": "#00419d",
+                      "tertiary-container": "#0057cd",
+                      "tertiary": "#00419d",
+                      "secondary-container": "#9eb7fe",
+                      "tertiary-fixed": "#d9e2ff",
+                      "on-primary": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "error": "#ba1a1a",
+                      "on-error": "#ffffff",
+                      "surface-container-highest": "#dfe2ed",
+                      "secondary-fixed-dim": "#b2c5ff",
+                      "inverse-surface": "#2c3039",
+                      "outline": "#737785",
+                      "primary-fixed-dim": "#b1c5ff",
+                      "on-surface": "#181c24",
+                      "on-primary-container": "#cbd8ff",
+                      "on-tertiary-fixed": "#001946",
+                      "tertiary-fixed-dim": "#b1c5ff",
+                      "surface-bright": "#f9f9ff",
+                      "primary-fixed": "#d9e2ff",
+                      "on-secondary-fixed-variant": "#294483",
+                      "surface-dim": "#d7dae5",
+                      "on-primary-fixed": "#001946",
+                      "background": "#f9f9ff",
+                      "outline-variant": "#c2c6d6",
+                      "primary-container": "#0057cd",
+                      "error-container": "#ffdad6",
+                      "secondary-fixed": "#dae2ff",
+                      "on-tertiary-fixed-variant": "#00419d",
+                      "on-tertiary-container": "#cbd8ff",
+                      "inverse-primary": "#b1c5ff",
+                      "on-secondary-container": "#2b4785",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "surface-container-high": "#e5e8f3",
+                      "surface-tint": "#0057cd",
+                      "surface-container-low": "#f1f3ff",
+                      "surface-container": "#ebedf9",
+                      "secondary": "#425c9c",
+                      "surface-variant": "#dfe2ed",
+                      "on-background": "#181c24",
+                      "surface": "#f9f9ff",
+                      "primary": "#00419d",
+                      "on-secondary-fixed": "#001847",
+                      "inverse-on-surface": "#eef0fc",
+                      "on-surface-variant": "#424654"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "space-xl": "32px",
+                      "space-md": "16px",
+                      "space-lg": "24px",
+                      "margin-desktop": "64px",
+                      "max-width": "1280px",
+                      "section-spacing": "80px",
+                      "margin-mobile": "16px",
+                      "gutter-desktop": "24px",
+                      "space-sm": "8px",
+                      "space-xs": "4px"
+              },
+              "fontFamily": {
+                      "body-md": ["Inter"],
+                      "display-lg-mobile": ["Montserrat"],
+                      "headline-md": ["Montserrat"],
+                      "label-bold": ["Inter"],
+                      "headline-sm": ["Montserrat"],
+                      "display-lg": ["Montserrat"],
+                      "body-lg": ["Inter"],
+                      "body-sm": ["Inter"]
+              },
+              "fontSize": {
+                      "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "display-lg-mobile": ["36px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                      "label-bold": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-sm": ["20px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                      "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "body-sm": ["14px", {"lineHeight": "1.4", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: #f9f9ff;
+            color: #181c24;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .shadow-soft {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+        .active-nav-border {
+            border-right: 3px solid #00419d;
+        }
+        .transition-standard {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md">
+<!-- TopNavBar -->
+<header class="sticky top-0 w-full z-50 bg-surface-container-lowest border-b border-surface-container-high shadow-sm">
+<nav class="flex justify-between items-center px-margin-desktop py-4 max-w-max-width mx-auto">
+<div class="flex items-center gap-12">
+<a class="text-headline-md font-headline-md font-bold text-primary" href="#">FitMate</a>
+<div class="hidden md:flex gap-8">
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary transition-colors duration-200" href="#">트레이너 찾기</a>
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary transition-colors duration-200" href="#">AI 매칭</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1 font-body-md text-body-md" href="#">마이페이지</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex items-center bg-surface-container px-4 py-2 rounded-full border border-outline-variant">
+<span class="material-symbols-outlined text-outline mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm w-48" placeholder="트레이너를 검색해보세요..." type="text">
+</div>
+<div class="flex gap-4 items-center">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-standard">notifications</button>
+<button class="material-symbols-outlined text-primary hover:opacity-80 transition-standard">account_circle</button>
+</div>
+</div>
+</nav>
+</header>
+<!-- Main Content Grid -->
+<main class="max-w-max-width mx-auto px-margin-desktop py-12">
+<div class="flex flex-col md:flex-row gap-gutter-desktop">
+<!-- Side Navigation -->
+<aside class="w-full md:w-64 flex-shrink-0">
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-soft border border-surface-container-high">
+<div class="mb-6 px-4">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">마이페이지</h2>
+</div>
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-standard group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">person</span>
+<span class="font-body-md">프로필</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-standard group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">sports_handball</span>
+<span class="font-body-md">내 매칭</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-standard group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">card_membership</span>
+<span class="font-body-md">멤버십 내역</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-container-low text-primary font-bold active-nav-border transition-standard" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">help_center</span>
+<span class="font-body-md">문의 내역</span>
+</a>
+</li>
+</ul>
+</div>
+</aside>
+<!-- Content Area -->
+<section class="flex-grow">
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+<h1 class="font-headline-md text-headline-md text-on-surface">문의 내역 관리</h1>
+<button class="flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-lg font-label-bold hover:bg-tertiary-container transition-standard shadow-soft">
+<span class="material-symbols-outlined">edit_square</span>
+                        새 문의 작성
+                    </button>
+</div>
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-lg mb-8">
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-surface-container-high shadow-soft flex items-center justify-between">
+<div>
+<p class="text-on-surface-variant text-body-sm mb-1">전체 문의</p>
+<h3 class="text-headline-md font-bold text-on-surface">3</h3>
+</div>
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">description</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-surface-container-high shadow-soft flex items-center justify-between">
+<div>
+<p class="text-on-surface-variant text-body-sm mb-1">답변 완료</p>
+<h3 class="text-headline-md font-bold text-primary">2</h3>
+</div>
+<div class="w-12 h-12 rounded-full bg-primary-container/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">task_alt</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-surface-container-high shadow-soft flex items-center justify-between">
+<div>
+<p class="text-on-surface-variant text-body-sm mb-1">답변 대기</p>
+<h3 class="text-headline-md font-bold text-on-surface-variant">1</h3>
+</div>
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-outline">
+<span class="material-symbols-outlined">pending</span>
+</div>
+</div>
+</div>
+<!-- Inquiry List Table -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-container-high shadow-soft overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-surface-container-high">
+<th class="px-6 py-4 font-label-bold text-on-surface-variant">상태</th>
+<th class="px-6 py-4 font-label-bold text-on-surface-variant">카테고리</th>
+<th class="px-6 py-4 font-label-bold text-on-surface-variant">제목</th>
+<th class="px-6 py-4 font-label-bold text-on-surface-variant text-right">작성일</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-high">
+<tr class="hover:bg-surface-container transition-standard cursor-pointer group">
+<td class="px-6 py-5">
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant font-label-bold text-xs uppercase">답변 대기</span>
+</td>
+<td class="px-6 py-5 text-on-surface-variant font-body-md">매칭</td>
+<td class="px-6 py-5">
+<span class="text-on-surface font-body-md group-hover:text-primary transition-standard">트레이너 매칭 대기 시간 관련 문의</span>
+</td>
+<td class="px-6 py-5 text-right text-on-surface-variant font-body-sm">2024.05.20</td>
+</tr>
+<tr class="hover:bg-surface-container transition-standard cursor-pointer group">
+<td class="px-6 py-5">
+<span class="px-3 py-1 rounded-full bg-tertiary-container/10 text-primary font-label-bold text-xs uppercase">답변 완료</span>
+</td>
+<td class="px-6 py-5 text-on-surface-variant font-body-md">결제</td>
+<td class="px-6 py-5">
+<span class="text-on-surface font-body-md group-hover:text-primary transition-standard">멤버십 결제 오류 및 환불 절차 확인</span>
+</td>
+<td class="px-6 py-5 text-right text-on-surface-variant font-body-sm">2024.05.15</td>
+</tr>
+<tr class="hover:bg-surface-container transition-standard cursor-pointer group">
+<td class="px-6 py-5">
+<span class="px-3 py-1 rounded-full bg-tertiary-container/10 text-primary font-label-bold text-xs uppercase">답변 완료</span>
+</td>
+<td class="px-6 py-5 text-on-surface-variant font-body-md">매칭</td>
+<td class="px-6 py-5">
+<span class="text-on-surface font-body-md group-hover:text-primary transition-standard">PT 식단 관리 프로그램 포함 여부</span>
+</td>
+<td class="px-6 py-5 text-right text-on-surface-variant font-body-sm">2024.04.28</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 bg-surface-container-lowest border-t border-surface-container-high flex items-center justify-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container text-on-surface-variant transition-standard">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-primary text-on-primary font-label-bold">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container text-on-surface-variant transition-standard font-label-bold">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container text-on-surface-variant transition-standard">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-section-spacing bg-surface-container-low border-t border-surface-container-high mt-section-spacing">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop max-w-max-width mx-auto gap-space-lg">
+<div class="flex flex-col gap-2">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">FitMate</span>
+<p class="text-on-surface-variant font-body-sm">© 2024 FitMate Elite Fitness. 모든 권리 보유.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-6">
+<a class="text-on-surface-variant font-body-sm hover:text-primary transition-colors" href="#">이용약관</a>
+<a class="text-on-surface-variant font-body-sm hover:text-primary transition-colors" href="#">개인정보처리방침</a>
+<a class="text-on-surface-variant font-body-sm hover:text-primary transition-colors" href="#">쿠키 정책</a>
+<a class="text-on-surface-variant font-body-sm hover:text-primary transition-colors" href="#">고객센터</a>
+</div>
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-secondary hover:bg-primary-container hover:text-on-primary transition-standard cursor-pointer">
+<span class="material-symbols-outlined">share</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-secondary hover:bg-primary-container hover:text-on-primary transition-standard cursor-pointer">
+<span class="material-symbols-outlined">mail</span>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        // Micro-interaction for table rows
+        document.querySelectorAll('tbody tr').forEach(row => {
+            row.addEventListener('click', () => {
+                // Future expansion: open a side drawer or modal with details
+                console.log('Inquiry details clicked');
+                row.classList.add('opacity-80', 'scale-[0.99]');
+                setTimeout(() => {
+                    row.classList.remove('opacity-80', 'scale-[0.99]');
+                }, 150);
+            });
+        });
+    </script>
+</body></html>

@@ -37,30 +37,33 @@ export default function ExplorePage() {
         region: '',
     })
 
-    const fetchTrainers = async (page = 0) => {
+    const fetchTrainers = async (page = 0, retried = false) => {
         setLoading(true)
-        const client = getAuthClient()
-        const { data } = await client.GET('/api/trainers', {
-            params: {
-                query: {
-                    sport: filters.sport || undefined,
-                    lessonType: filters.lessonType || undefined,
-                    minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
-                    maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
-                    region: filters.region || undefined,
-                    page,
-                    size: 8,
-                    sort,
-                },
-            },
+        const query = {
+            sport: filters.sport || undefined,
+            lessonType: filters.lessonType || undefined,
+            minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
+            maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
+            region: filters.region || undefined,
+            page,
+            size: 8,
+            sort,
+        }
+        const { data, response } = await getAuthClient().GET('/api/trainers', {
+            params: { query },
         })
         if (data) {
             setTrainers((data as any).content ?? [])
             setTotalPages((data as any).totalPages ?? 0)
             setTotalElements((data as any).totalElements ?? 0)
             setCurrentPage(page)
+            setLoading(false)
+        } else if (response.status === 401 && !retried) {
+            // 미들웨어가 토큰을 갱신했지만 data가 올라오지 않은 경우 — 새 토큰으로 1회 재시도
+            fetchTrainers(page, true)
+        } else {
+            setLoading(false)
         }
-        setLoading(false)
     }
 
     useEffect(() => {

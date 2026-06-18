@@ -34,6 +34,7 @@ function formatRelativeTime(dateStr?: string): string {
 const NAV_LINKS = [
     { label: '트레이너 찾기', href: '/trainer' },
     { label: 'AI매칭', href: '/matching' },
+    { label: '고객 지원', href: '/faq' },
     { label: '마이페이지', href: '/mypage' },
 ]
 
