@@ -201,17 +201,25 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /**
-         * 내 문의 목록 조회
-         * @description 로그인한 회원의 문의 목록을 페이징하여 반환합니다.
-         */
         get: operations["getMyInquiries"];
         put?: never;
-        /**
-         * 문의 작성
-         * @description 새 문의를 등록합니다.
-         */
         post: operations["createInquiry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/files/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["uploadFile"];
         delete?: never;
         options?: never;
         head?: never;
@@ -334,23 +342,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/ai/matching/parse": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** AI 한 줄 매칭 조건 해석 */
-        post: operations["parseMatchingQuery"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/admin/inquiries/{inquiryId}/answer": {
         parameters: {
             query?: never;
@@ -360,10 +351,6 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /**
-         * 문의 답변 작성
-         * @description 특정 문의에 관리자 답변을 등록하고 상태를 RESOLVED로 변경합니다.
-         */
         post: operations["writeAnswer"];
         delete?: never;
         options?: never;
@@ -381,42 +368,10 @@ export interface paths {
         get: operations["getMyInfo"];
         put?: never;
         post?: never;
-        delete: operations["deleteMyAccount"];
+        delete?: never;
         options?: never;
         head?: never;
         patch: operations["updateMyInfo"];
-        trace?: never;
-    };
-    "/api/members/me/role": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: operations["changeRole"];
-        trace?: never;
-    };
-    "/api/members/me/password": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: operations["changePassword"];
         trace?: never;
     };
     "/api/lesson-requests/{lessonRequestId}/reject": {
@@ -460,24 +415,12 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /**
-         * 문의 단건 조회
-         * @description 문의 ID로 특정 문의를 조회합니다.
-         */
         get: operations["getInquiry"];
         put?: never;
         post?: never;
-        /**
-         * 문의 삭제
-         * @description 본인 소유 문의를 삭제합니다.
-         */
         delete: operations["deleteInquiry"];
         options?: never;
         head?: never;
-        /**
-         * 문의 수정
-         * @description 답변 대기(PENDING) 상태인 문의의 유형·제목·내용을 수정합니다.
-         */
         patch: operations["updateInquiry"];
         trace?: never;
     };
@@ -732,10 +675,6 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /**
-         * 전체 문의 목록 조회
-         * @description 모든 회원의 문의를 오래된 순으로 페이징하여 반환합니다.
-         */
         get: operations["getAllInquiries"];
         put?: never;
         post?: never;
@@ -808,8 +747,6 @@ export interface components {
             goal?: string;
         };
         AvailableTimeRequest: {
-            /** Format: int64 */
-            id?: number;
             dayOfWeek?: string;
             startTime?: string;
             endTime?: string;
@@ -823,6 +760,7 @@ export interface components {
             /** Format: int32 */
             careerYears?: number;
             availableTimes?: components["schemas"]["AvailableTimeRequest"][];
+            lessonPhotoUrls?: string[];
         };
         AvailableTimeResponse: {
             /** Format: int64 */
@@ -848,6 +786,7 @@ export interface components {
             /** Format: int32 */
             careerYears?: number;
             availableTimes?: components["schemas"]["AvailableTimeResponse"][];
+            lessonPhotos?: string[];
         };
         ReviewUpdateRequest: {
             /** Format: int32 */
@@ -868,6 +807,7 @@ export interface components {
             /** Format: int32 */
             careerYears?: number;
             availableTimes?: components["schemas"]["AvailableTimeRequest"][];
+            lessonPhotoUrls?: string[];
         };
         ReviewRequest: {
             /** Format: int64 */
@@ -879,8 +819,6 @@ export interface components {
             content: string;
         };
         MatchingRequestDto: {
-            /** Format: int64 */
-            memberId: number;
             level: string;
             sports: string;
             lessonType: string;
@@ -911,6 +849,7 @@ export interface components {
             introduction?: string;
             sports?: string;
             lessonType?: string;
+            lessonLevel?: string;
             region?: string;
             /** Format: int32 */
             price?: number;
@@ -919,9 +858,6 @@ export interface components {
             preferredEndTime?: string;
             trainerStartTime?: string;
             trainerEndTime?: string;
-            /** Format: int32 */
-            aiRank?: number;
-            aiReason?: string;
         };
         LessonRequestCreateRequest: {
             /** Format: int64 */
@@ -1059,26 +995,6 @@ export interface components {
             /** Format: date-time */
             createdAt?: string;
         };
-        AiMatchingParseRequest: {
-            query: string;
-        };
-        AiMatchingParseResponse: {
-            sports?: string;
-            level?: string;
-            lessonType?: string;
-            region?: string;
-            /** Format: int32 */
-            budgetMin?: number;
-            /** Format: int32 */
-            budgetMax?: number;
-            preferredTimes?: components["schemas"]["PreferredTime"][];
-            lessonContent?: string;
-        };
-        PreferredTime: {
-            dayOfWeek?: string;
-            startTime?: string;
-            endTime?: string;
-        };
         InquiryAnswerRequest: {
             answer?: string;
         };
@@ -1088,8 +1004,6 @@ export interface components {
             region?: string;
             introduction?: string;
             phone?: string;
-            /** Format: email */
-            email?: string;
         };
         MemberResponse: {
             /** Format: int64 */
@@ -1104,14 +1018,6 @@ export interface components {
             region?: string;
             introduction?: string;
             phone?: string;
-        };
-        RoleChangeRequest: {
-            /** @enum {string} */
-            role: "USER" | "TRAINER";
-        };
-        PasswordChangeRequest: {
-            currentPassword: string;
-            newPassword: string;
         };
         InquiryUpdateRequest: {
             /** @enum {string} */
@@ -1131,21 +1037,21 @@ export interface components {
             content?: components["schemas"]["TrainerProfileResponse"][];
             /** Format: int32 */
             number?: number;
+            sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
-            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
         };
         PageableObject: {
             /** Format: int64 */
             offset?: number;
+            sort?: components["schemas"]["SortObject"];
             paged?: boolean;
             /** Format: int32 */
             pageNumber?: number;
             /** Format: int32 */
             pageSize?: number;
-            sort?: components["schemas"]["SortObject"];
             unpaged?: boolean;
         };
         SortObject: {
@@ -1213,10 +1119,10 @@ export interface components {
             content?: components["schemas"]["ReviewResponse"][];
             /** Format: int32 */
             number?: number;
+            sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
-            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
         };
         TrainerSummaryDto: {
@@ -1237,10 +1143,10 @@ export interface components {
             content?: components["schemas"]["InquiryResponse"][];
             /** Format: int32 */
             number?: number;
+            sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
-            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
         };
         ChatResponseDto: {
@@ -1725,6 +1631,35 @@ export interface operations {
             };
         };
     };
+    uploadFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": {
+                        [key: string]: string;
+                    };
+                };
+            };
+        };
+    };
     getChatRooms: {
         parameters: {
             query: {
@@ -1919,30 +1854,6 @@ export interface operations {
             };
         };
     };
-    parseMatchingQuery: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AiMatchingParseRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": components["schemas"]["AiMatchingParseResponse"];
-                };
-            };
-        };
-    };
     writeAnswer: {
         parameters: {
             query?: never;
@@ -1989,24 +1900,6 @@ export interface operations {
             };
         };
     };
-    deleteMyAccount: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
     updateMyInfo: {
         parameters: {
             query?: never;
@@ -2028,50 +1921,6 @@ export interface operations {
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["MemberResponse"];
                 };
-            };
-        };
-    };
-    changeRole: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RoleChangeRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    changePassword: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PasswordChangeRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
