@@ -21,8 +21,13 @@ spring:
       settings:
         web-allow-others: true
 
+  sql:
+    init:
+      mode: always
+
   jpa:
     show-sql: true
+    defer-datasource-initialization: true
     hibernate:
       ddl-auto: create
     properties:

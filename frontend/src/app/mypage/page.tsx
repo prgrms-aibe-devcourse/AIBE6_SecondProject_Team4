@@ -3,7 +3,7 @@
 import { useAuth } from '@/context/AuthContext'
 import type { components } from '@/types/api'
 import { getAuthClient } from '@/utils/apiClient'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -13,11 +13,13 @@ type UserProfile = components['schemas']['UserProfileResponse']
 export default function MyPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const { user, logout } = useAuth()
+    const { user, logout, updateProfileImage } = useAuth()
     const [trainerProfile, setTrainerProfile] = useState<TrainerProfile | null>(null)
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
     const [loading, setLoading] = useState(true)
     const [activeTab, setActiveTab] = useState('matching')
+    const fileInputRef = useRef<HTMLInputElement>(null)
+    const [uploadingImage, setUploadingImage] = useState(false)
 
     useEffect(() => {
         if (!user) {
@@ -57,6 +59,49 @@ export default function MyPage() {
         )
     }
 
+    const handleProfileImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        setUploadingImage(true)
+        const client = getAuthClient()
+
+        const formData = new FormData()
+        formData.append('file', file)
+
+        try {
+            const uploadRes = await fetch('http://localhost:8080/api/files/upload', {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${JSON.parse(localStorage.getItem('fitmate_user') ?? '{}').token}`,
+                },
+                body: formData,
+            })
+
+            if (!uploadRes.ok) {
+                alert('이미지 업로드에 실패했습니다.')
+                return
+            }
+
+            const { url } = await uploadRes.json()
+
+            // 멤버 정보에 프로필 이미지 URL 반영
+            await client.PATCH('/api/members/me', {
+                body: { profileImage: url },
+            })
+
+            updateProfileImage(url)
+
+            await fetchMyProfile()
+        } catch (err) {
+            console.error(err)
+            alert('이미지 업로드 중 오류가 발생했습니다.')
+        } finally {
+            setUploadingImage(false)
+            e.target.value = ''
+        }
+    }
+
     return (
         <main className="flex-grow max-w-[1440px] mx-auto w-full px-margin-desktop pt-20 pb-lg flex flex-col gap-md">
             {/* 프로필 헤더 */}
@@ -69,7 +114,7 @@ export default function MyPage() {
                         <div className="w-24 h-24 rounded-full bg-surface-container border-4 border-white shadow-sm flex items-center justify-center overflow-hidden">
                             {profile?.profileImage ? (
                                 <img
-                                    src={profile.profileImage}
+                                    src={`http://localhost:8080${profile.profileImage}`}
                                     alt=""
                                     className="w-full h-full object-cover"
                                 />
@@ -79,8 +124,25 @@ export default function MyPage() {
                                 </span>
                             )}
                         </div>
-                        <button className="absolute bottom-0 right-0 bg-primary text-white p-1.5 rounded-full shadow-lg border-2 border-white hover:scale-110 transition-transform">
-                            <span className="material-symbols-outlined text-[18px]">edit</span>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/jpeg,image/png,image/jpg,image/webp"
+                            className="hidden"
+                            onChange={handleProfileImageChange}
+                        />
+                        <button
+                            className="absolute bottom-0 right-0 bg-primary text-white p-1.5 rounded-full shadow-lg border-2 border-white hover:scale-110 transition-transform disabled:opacity-50"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={uploadingImage}
+                        >
+                            {uploadingImage ? (
+                                <span className="material-symbols-outlined text-[18px] animate-spin">
+                                    progress_activity
+                                </span>
+                            ) : (
+                                <span className="material-symbols-outlined text-[18px]">edit</span>
+                            )}
                         </button>
                     </div>
                     <div>

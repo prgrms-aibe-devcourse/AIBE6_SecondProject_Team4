@@ -1,14 +1,24 @@
 'use client'
 
 import type { components } from '@/types/api'
-import { getAuthClient } from '@/utils/apiClient'
+import { getAuthClient, getImageUrl } from '@/utils/apiClient'
 import { useEffect, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
 type Trainer = components['schemas']['TrainerProfileResponse']
 
-const SPORTS = ['모든 종목', 'PT', '필라테스', '요가', '크로스핏', '테니스', '골프', '수영', '댄스']
+const SPORTS = [
+    '모든 종목',
+    '헬스',
+    '필라테스',
+    '요가',
+    '크로스핏',
+    '테니스',
+    '골프',
+    '수영',
+    '댄스',
+]
 const REGIONS = ['모든 지역', '서울', '경기', '부산', '대구', '인천', '광주', '대전']
 
 export default function ExplorePage() {
@@ -248,7 +258,7 @@ export default function ExplorePage() {
                                     >
                                         {trainer.profileImage ? (
                                             <img
-                                                src={trainer.profileImage}
+                                                src={getImageUrl(trainer.profileImage)}
                                                 alt={trainer.nickname ?? ''}
                                                 className="w-full h-full object-cover"
                                             />

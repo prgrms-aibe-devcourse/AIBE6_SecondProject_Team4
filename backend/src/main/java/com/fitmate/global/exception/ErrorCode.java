@@ -37,6 +37,9 @@ public enum ErrorCode {
     // Alert
     ALERT_NOT_FOUND(HttpStatus.NOT_FOUND, "404-6", "알림을 찾을 수 없습니다."),
 
+    // Inquiry
+    INQUIRY_NOT_FOUND(HttpStatus.NOT_FOUND, "404-9", "문의를 찾을 수 없습니다."),
+
     // Lesson
     LESSON_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "404-8", "레슨 요청을 찾을 수 없습니다."),
     LESSON_REQUEST_ALREADY_EXISTS(HttpStatus.CONFLICT, "409-6", "이미 요청서를 보낸 매칭 결과입니다."),

@@ -1,7 +1,7 @@
 'use client'
 
 import type { components } from '@/types/api'
-import { getAuthClient } from '@/utils/apiClient'
+import { getAuthClient, getImageUrl } from '@/utils/apiClient'
 import { useEffect, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
@@ -17,6 +17,8 @@ export default function TrainerDetailPage({ params }: Props) {
     const [trainer, setTrainer] = useState<Trainer | null>(null)
     const [loading, setLoading] = useState(true)
     const [id, setId] = useState<string>('')
+    const [showAllPhotos, setShowAllPhotos] = useState(false)
+    const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null)
 
     useEffect(() => {
         params.then(({ id }) => setId(id))
@@ -74,7 +76,7 @@ export default function TrainerDetailPage({ params }: Props) {
                         <div className="w-full aspect-square bg-surface-container rounded-2xl flex items-center justify-center overflow-hidden">
                             {trainer.profileImage ? (
                                 <img
-                                    src={trainer.profileImage}
+                                    src={getImageUrl(trainer.profileImage)}
                                     alt={trainer.nickname ?? ''}
                                     className="w-full h-full object-cover"
                                 />
@@ -235,21 +237,43 @@ export default function TrainerDetailPage({ params }: Props) {
                                 <h2 className="font-headline-sm text-headline-sm text-on-surface">
                                     수업 사진
                                 </h2>
-                                <button className="text-primary text-body-sm font-label-bold hover:underline">
-                                    전체 보기 →
-                                </button>
+                                {trainer.lessonPhotos && trainer.lessonPhotos.length > 4 && (
+                                    <button
+                                        className="text-primary text-body-sm font-label-bold hover:underline"
+                                        onClick={() => setShowAllPhotos((prev) => !prev)}
+                                    >
+                                        {showAllPhotos ? '접기 ↑' : '전체 보기 →'}
+                                    </button>
+                                )}
                             </div>
                             <div className="grid grid-cols-4 gap-sm">
-                                {[1, 2, 3, 4].map((i) => (
-                                    <div
-                                        key={i}
-                                        className="aspect-square bg-surface-container rounded-xl flex items-center justify-center"
-                                    >
-                                        <span className="material-symbols-outlined text-outline-variant">
-                                            image
-                                        </span>
-                                    </div>
-                                ))}
+                                {trainer.lessonPhotos && trainer.lessonPhotos.length > 0
+                                    ? (showAllPhotos
+                                          ? trainer.lessonPhotos
+                                          : trainer.lessonPhotos.slice(0, 4)
+                                      ).map((photoUrl, i) => (
+                                          <div
+                                              key={i}
+                                              className="aspect-square bg-surface-container rounded-xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                                              onClick={() => setSelectedPhoto(photoUrl)}
+                                          >
+                                              <img
+                                                  src={getImageUrl(photoUrl)}
+                                                  alt={`수업 사진 ${i + 1}`}
+                                                  className="w-full h-full object-cover"
+                                              />
+                                          </div>
+                                      ))
+                                    : [1, 2, 3, 4].map((i) => (
+                                          <div
+                                              key={i}
+                                              className="aspect-square bg-surface-container rounded-xl flex items-center justify-center"
+                                          >
+                                              <span className="material-symbols-outlined text-outline-variant">
+                                                  image
+                                              </span>
+                                          </div>
+                                      ))}
                             </div>
                         </div>
 
@@ -424,6 +448,26 @@ export default function TrainerDetailPage({ params }: Props) {
                     </div>
                 </div>
             </div>
+            {/* 사진 확대보기 모달 */}
+            {selectedPhoto && (
+                <div
+                    className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-lg"
+                    onClick={() => setSelectedPhoto(null)}
+                >
+                    <button
+                        className="absolute top-4 right-4 text-white hover:text-gray-300"
+                        onClick={() => setSelectedPhoto(null)}
+                    >
+                        <span className="material-symbols-outlined text-3xl">close</span>
+                    </button>
+                    <img
+                        src={getImageUrl(selectedPhoto)}
+                        alt="수업 사진 확대"
+                        className="max-w-full max-h-full object-contain rounded-lg"
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                </div>
+            )}
         </main>
     )
 }
