@@ -4,11 +4,13 @@ import com.fitmate.member.dto.MemberResponse;
 import com.fitmate.member.dto.MemberUpdateRequest;
 import com.fitmate.member.dto.TrainerSummaryDto;
 import com.fitmate.member.dto.PasswordChangeRequest;
+import com.fitmate.member.dto.RoleChangeRequest;
 import com.fitmate.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -52,5 +54,14 @@ public class MemberController {
     @GetMapping("/trainers")
     public ResponseEntity<List<TrainerSummaryDto>> getTrainers() {
         return ResponseEntity.ok(memberService.getTrainers());
+    }
+
+    @PatchMapping("/me/role")
+    public ResponseEntity<Void> changeRole(
+            @AuthenticationPrincipal String userId,
+            @Valid @RequestBody RoleChangeRequest request
+    ) {
+        memberService.changeRole(userId, request);
+        return ResponseEntity.ok().build();
     }
 }

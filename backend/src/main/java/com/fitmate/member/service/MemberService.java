@@ -3,6 +3,7 @@ package com.fitmate.member.service;
 import com.fitmate.member.dto.MemberResponse;
 import com.fitmate.member.dto.MemberUpdateRequest;
 import com.fitmate.member.dto.PasswordChangeRequest;
+import com.fitmate.member.dto.RoleChangeRequest;
 import com.fitmate.auth.repository.RefreshTokenRepository;
 import com.fitmate.global.exception.CustomException;
 import com.fitmate.global.exception.ErrorCode;
@@ -84,5 +85,14 @@ public class MemberService {
         }
 
         member.changePassword(passwordEncoder.encode(request.newPassword()));
+    }
+
+    @Transactional
+    public void changeRole(String userId, RoleChangeRequest request) {
+        Member member = memberRepository.findByUserIdAndDeletedAtIsNull(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Role newRole = Role.valueOf(request.role().name());
+        member.changeRole(newRole);
     }
 }

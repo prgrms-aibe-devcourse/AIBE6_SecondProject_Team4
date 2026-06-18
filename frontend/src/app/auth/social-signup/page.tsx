@@ -2,9 +2,8 @@
 
 import { useAuth } from '@/context/AuthContext'
 import { getAuthClient } from '@/utils/apiClient'
-import { useState } from 'react'
-
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 type Role = 'USER' | 'TRAINER'
 
@@ -57,7 +56,8 @@ export default function SocialSignupPage() {
 
         try {
             const authClient = getAuthClient()
-            const { error: apiError } = await authClient.PATCH('/api/members/me', {
+
+            const { error: profileError } = await authClient.PATCH('/api/members/me', {
                 body: {
                     nickname,
                     phone,
@@ -65,8 +65,17 @@ export default function SocialSignupPage() {
                 },
             })
 
-            if (apiError) {
+            if (profileError) {
                 setError('정보 저장에 실패했습니다. 입력 내용을 확인해주세요.')
+                return
+            }
+
+            const { error: roleError } = await authClient.PATCH('/api/members/me/role', {
+                body: { role },
+            })
+
+            if (roleError) {
+                setError('가입 유형 저장에 실패했습니다.')
                 return
             }
 
@@ -105,9 +114,7 @@ export default function SocialSignupPage() {
                 }}
             >
                 {/* Header */}
-                <div
-                    style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}
-                >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
                     <h1
                         style={{
                             width: '100%',
@@ -132,8 +139,7 @@ export default function SocialSignupPage() {
                             margin: 0,
                         }}
                     >
-                        {user?.userName ? `${user.userName}님, ` : ''}서비스 이용을 위해 몇 가지
-                        정보가 더 필요해요
+                        {user?.userName ? `${user.userName}님, ` : ''}서비스 이용을 위해 몇 가지 정보가 더 필요해요
                     </p>
                 </div>
 
@@ -143,14 +149,7 @@ export default function SocialSignupPage() {
                     style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}
                 >
                     {/* User Type Selection */}
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '8px',
-                            width: '100%',
-                        }}
-                    >
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
                         <label style={labelStyle}>가입 유형</label>
                         <div
                             style={{
@@ -176,10 +175,7 @@ export default function SocialSignupPage() {
                                     borderRadius: '8px',
                                     fontSize: '16px',
                                     cursor: 'pointer',
-                                    boxShadow:
-                                        role === 'USER'
-                                            ? '0px 4px 12px rgba(0, 87, 205, 0.15)'
-                                            : 'none',
+                                    boxShadow: role === 'USER' ? '0px 4px 12px rgba(0, 87, 205, 0.15)' : 'none',
                                     transition: 'background 0.2s, color 0.2s',
                                 }}
                             >
@@ -197,10 +193,7 @@ export default function SocialSignupPage() {
                                     borderRadius: '8px',
                                     fontSize: '16px',
                                     cursor: 'pointer',
-                                    boxShadow:
-                                        role === 'TRAINER'
-                                            ? '0px 4px 12px rgba(0, 87, 205, 0.15)'
-                                            : 'none',
+                                    boxShadow: role === 'TRAINER' ? '0px 4px 12px rgba(0, 87, 205, 0.15)' : 'none',
                                     transition: 'background 0.2s, color 0.2s',
                                 }}
                             >
@@ -210,14 +203,7 @@ export default function SocialSignupPage() {
                     </div>
 
                     {/* Nickname */}
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '8px',
-                            width: '100%',
-                        }}
-                    >
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
                         <label style={labelStyle}>닉네임</label>
                         <input
                             type="text"
@@ -232,14 +218,7 @@ export default function SocialSignupPage() {
                     </div>
 
                     {/* Phone */}
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '8px',
-                            width: '100%',
-                        }}
-                    >
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
                         <label style={labelStyle}>전화번호</label>
                         <input
                             type="tel"
@@ -254,14 +233,7 @@ export default function SocialSignupPage() {
                     </div>
 
                     {/* Email */}
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '8px',
-                            width: '100%',
-                        }}
-                    >
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
                         <label style={labelStyle}>이메일 주소</label>
                         <input
                             type="email"
@@ -302,14 +274,7 @@ export default function SocialSignupPage() {
                     </label>
 
                     {error && (
-                        <p
-                            style={{
-                                fontSize: '13px',
-                                color: '#ba1a1a',
-                                textAlign: 'center',
-                                margin: 0,
-                            }}
-                        >
+                        <p style={{ fontSize: '13px', color: '#ba1a1a', textAlign: 'center', margin: 0 }}>
                             {error}
                         </p>
                     )}
@@ -327,8 +292,7 @@ export default function SocialSignupPage() {
                             fontSize: '18px',
                             fontWeight: 600,
                             cursor: loading ? 'not-allowed' : 'pointer',
-                            boxShadow:
-                                '0px 10px 15px -3px rgba(0,0,0,0.1), 0px 4px 6px -4px rgba(0,0,0,0.1)',
+                            boxShadow: '0px 10px 15px -3px rgba(0,0,0,0.1), 0px 4px 6px -4px rgba(0,0,0,0.1)',
                             transition: 'background 0.2s',
                         }}
                     >
