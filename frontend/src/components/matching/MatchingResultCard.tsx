@@ -63,16 +63,18 @@ export default function MatchingResultCard({ result, onLessonRequest }: Matching
 
                 <dl className="mt-md space-y-xs rounded-lg bg-surface-container-low p-sm text-body-sm">
                     <div className="flex items-center justify-between gap-sm">
-                        <dt className="text-on-surface-variant">사용자 희망</dt>
-                        <dd className="font-medium text-on-surface">
+                        <dt className="text-body-sm font-medium text-on-surface-variant">
+                            사용자 희망
+                        </dt>
+                        <dd className="text-body-sm font-medium text-on-surface">
                             {result.dayOfWeek ?? '-'} {formatTime(result.preferredStartTime)}-
                             {formatTime(result.preferredEndTime)}
                         </dd>
                     </div>
                     <div className="flex items-center justify-between gap-sm">
-                        <dt className="text-primary">트레이너 가능</dt>
-                        <dd className="font-medium text-primary">
-                            {formatTime(result.trainerStartTime)}-
+                        <dt className="text-body-sm font-medium text-primary">트레이너 가능</dt>
+                        <dd className="text-body-sm font-medium text-primary">
+                            {result.dayOfWeek ?? '-'} {formatTime(result.trainerStartTime)}-
                             {formatTime(result.trainerEndTime)}
                         </dd>
                     </div>
