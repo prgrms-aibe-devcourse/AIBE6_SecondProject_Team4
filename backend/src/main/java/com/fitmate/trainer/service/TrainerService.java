@@ -15,12 +15,15 @@ import com.fitmate.trainer.repository.TrainerAvailableTimeRepository;
 import com.fitmate.trainer.repository.TrainerLessonPhotoRepository;
 import com.fitmate.trainer.repository.TrainerProfileRepository;
 import com.fitmate.matching.repository.MatchingResultRepository;
+import com.fitmate.lesson.repository.LessonRequestRepository;
+import com.fitmate.matching.entity.MatchingResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.HashSet;
@@ -37,6 +40,7 @@ public class TrainerService {
     private final TrainerAvailableTimeRepository trainerAvailableTimeRepository;
     private final TrainerLessonPhotoRepository trainerLessonPhotoRepository;
     private final MatchingResultRepository matchingResultRepository;
+    private final LessonRequestRepository lessonRequestRepository;
 
     public TrainerProfileResponse getTrainerProfile(Long id) {
         TrainerProfile profile = trainerProfileRepository.findById(id)
@@ -116,7 +120,7 @@ public class TrainerService {
 
         return TrainerProfileResponse.from(saved);
     }
-
+    @Transactional
     public TrainerProfileResponse updateTrainerProfile(Long id, Long memberId, TrainerProfileUpdateRequest request) {
         TrainerProfile profile = trainerProfileRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.TRAINER_PROFILE_NOT_FOUND));
@@ -172,17 +176,37 @@ public class TrainerService {
             }
 
             for (TrainerAvailableTime existingTime : existingTimes) {
+                // 수정 요청에 ID가 없으면 사용자가 해당 가능 시간을 제거한 것
                 if (!requestedIds.contains(existingTime.getId())) {
-                    boolean inUse =
-                            matchingResultRepository
-                                    .existsByTrainerAvailableTime_Id(existingTime.getId());
 
-                    if (inUse) {
+                    // 해당 가능 시간을 참조하는 모든 매칭 결과 조회
+                    List<MatchingResult> relatedResults =
+                            matchingResultRepository.findByTrainerAvailableTime_Id(
+                                    existingTime.getId()
+                            );
+
+                    // 매칭 결과 중 레슨 요청으로 이어진 결과가 있는지 확인
+                    boolean hasLessonRequest = relatedResults.stream()
+                            .anyMatch(result ->
+                                    lessonRequestRepository.existsByMatchingResultId(
+                                            result.getId()
+                                    )
+                            );
+
+                    // 레슨 요청이 연결되어 있으면 결과와 가능 시간 모두 보존
+                    if (hasLessonRequest) {
                         throw new CustomException(
                                 ErrorCode.TRAINER_AVAILABLE_TIME_IN_USE
                         );
                     }
 
+                    // 레슨 요청으로 이어지지 않은 일회성 추천 결과 삭제
+                    matchingResultRepository.deleteAll(relatedResults);
+
+                    // matching_results 삭제 SQL을 먼저 실행하여 FK 충돌 방지
+                    matchingResultRepository.flush();
+
+                    // 관련 매칭 결과가 제거된 후 가능 시간 삭제
                     trainerAvailableTimeRepository.delete(existingTime);
                 }
             }
