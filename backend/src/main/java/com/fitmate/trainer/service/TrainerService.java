@@ -14,6 +14,7 @@ import com.fitmate.trainer.entity.TrainerProfile;
 import com.fitmate.trainer.repository.TrainerAvailableTimeRepository;
 import com.fitmate.trainer.repository.TrainerLessonPhotoRepository;
 import com.fitmate.trainer.repository.TrainerProfileRepository;
+import com.fitmate.matching.repository.MatchingResultRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +23,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +36,7 @@ public class TrainerService {
     private final MemberRepository memberRepository;
     private final TrainerAvailableTimeRepository trainerAvailableTimeRepository;
     private final TrainerLessonPhotoRepository trainerLessonPhotoRepository;
+    private final MatchingResultRepository matchingResultRepository;
 
     public TrainerProfileResponse getTrainerProfile(Long id) {
         TrainerProfile profile = trainerProfileRepository.findById(id)
@@ -122,16 +128,64 @@ public class TrainerService {
         profile.update(request);
 
         if (request.availableTimes() != null) {
-            trainerAvailableTimeRepository.deleteByTrainerProfileId(profile.getId());
-            List<TrainerAvailableTime> availableTimes = request.availableTimes().stream()
-                    .map(time -> TrainerAvailableTime.builder()
-                            .trainerProfile(profile)
-                            .dayOfWeek(time.dayOfWeek())
-                            .startTime(time.startTime())
-                            .endTime(time.endTime())
-                            .build())
-                    .toList();
-            trainerAvailableTimeRepository.saveAll(availableTimes);
+            List<TrainerAvailableTime> existingTimes =
+                    trainerAvailableTimeRepository.findByTrainerProfileId(profile.getId());
+
+            Map<Long, TrainerAvailableTime> existingTimeMap =
+                    existingTimes.stream()
+                            .collect(Collectors.toMap(
+                                    TrainerAvailableTime::getId,
+                                    time -> time
+                            ));
+
+            Set<Long> requestedIds = new HashSet<>();
+
+            for (TrainerProfileUpdateRequest.AvailableTimeRequest timeRequest
+                    : request.availableTimes()) {
+
+                if (timeRequest.id() != null) {
+                    TrainerAvailableTime existingTime =
+                            existingTimeMap.get(timeRequest.id());
+
+                    if (existingTime == null) {
+                        throw new CustomException(ErrorCode.INVALID_INPUT);
+                    }
+
+                    existingTime.update(
+                            timeRequest.dayOfWeek(),
+                            timeRequest.startTime(),
+                            timeRequest.endTime()
+                    );
+
+                    requestedIds.add(existingTime.getId());
+                } else {
+                    TrainerAvailableTime newTime =
+                            TrainerAvailableTime.builder()
+                                    .trainerProfile(profile)
+                                    .dayOfWeek(timeRequest.dayOfWeek())
+                                    .startTime(timeRequest.startTime())
+                                    .endTime(timeRequest.endTime())
+                                    .build();
+
+                    trainerAvailableTimeRepository.save(newTime);
+                }
+            }
+
+            for (TrainerAvailableTime existingTime : existingTimes) {
+                if (!requestedIds.contains(existingTime.getId())) {
+                    boolean inUse =
+                            matchingResultRepository
+                                    .existsByTrainerAvailableTime_Id(existingTime.getId());
+
+                    if (inUse) {
+                        throw new CustomException(
+                                ErrorCode.TRAINER_AVAILABLE_TIME_IN_USE
+                        );
+                    }
+
+                    trainerAvailableTimeRepository.delete(existingTime);
+                }
+            }
         }
 
         // 레슨 사진 수정 - 기존 삭제 후 새로 저장
