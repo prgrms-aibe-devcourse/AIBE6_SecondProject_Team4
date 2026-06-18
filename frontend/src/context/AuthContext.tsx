@@ -13,6 +13,7 @@ export interface AuthUser {
 
 interface AuthContextType {
     user: AuthUser | null
+    initialized: boolean
     login: (user: AuthUser) => void
     logout: () => Promise<void>
     updateProfileImage: (url: string | null) => void
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<AuthUser | null>(null)
+    const [initialized, setInitialized] = useState(false)
 
     useEffect(() => {
         const stored = localStorage.getItem('fitmate_user')
@@ -32,6 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 localStorage.removeItem('fitmate_user')
             }
         }
+        setInitialized(true)
     }, [])
 
     const login = (user: AuthUser) => {
@@ -79,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, updateProfileImage }}>
+        <AuthContext.Provider value={{ user, initialized, login, logout, updateProfileImage }}>
             {children}
         </AuthContext.Provider>
     )
