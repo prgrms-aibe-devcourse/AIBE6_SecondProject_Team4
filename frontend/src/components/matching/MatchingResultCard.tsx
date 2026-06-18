@@ -1,0 +1,122 @@
+import type { components } from '@/types/api'
+
+import Link from 'next/link'
+
+type MatchingResult = components['schemas']['MatchingResultResponse']
+
+type MatchingResultCardProps = {
+    result: MatchingResult
+    onLessonRequest: (matchingResultId: number) => void
+}
+
+const formatTime = (time?: string) => time?.slice(0, 5) ?? '-'
+
+export default function MatchingResultCard({ result, onLessonRequest }: MatchingResultCardProps) {
+    const tags = [result.sports, result.lessonType, result.lessonLevel, result.region].filter(
+        (tag): tag is string => Boolean(tag)
+    )
+
+    return (
+        <article className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest">
+            <div className="aspect-[4/3] bg-surface-container">
+                {result.profileImage ? (
+                    <img
+                        src={result.profileImage}
+                        alt={`${result.trainerName ?? '트레이너'} 프로필`}
+                        className="h-full w-full object-cover"
+                    />
+                ) : (
+                    <div className="flex h-full items-center justify-center">
+                        <span className="material-symbols-outlined text-6xl text-outline">
+                            person
+                        </span>
+                    </div>
+                )}
+            </div>
+
+            <div className="p-md">
+                <div className="flex items-start justify-between gap-sm">
+                    <div>
+                        <h2 className="font-headline-sm text-headline-sm text-on-surface">
+                            {result.trainerName ?? '트레이너'}
+                        </h2>
+                        <div className="mt-xs flex flex-wrap gap-1.5">
+                            {tags.map((tag, index) => (
+                                <span
+                                    key={`${tag}-${index}`}
+                                    className="rounded-full bg-primary-fixed px-2.5 py-1 text-label-sm text-on-primary-fixed"
+                                >
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+
+                    <span className="shrink-0 rounded-full bg-secondary-container px-2.5 py-1 text-label-sm text-on-secondary-container">
+                        AI 추천
+                    </span>
+                </div>
+
+                <p className="mt-md min-h-12 text-body-sm leading-6 text-on-surface-variant">
+                    {result.introduction || '트레이너 소개가 아직 등록되지 않았습니다.'}
+                </p>
+
+                <dl className="mt-md space-y-xs rounded-lg bg-surface-container-low p-sm text-body-sm">
+                    <div className="flex items-center justify-between gap-sm">
+                        <dt className="text-on-surface-variant">사용자 희망</dt>
+                        <dd className="font-medium text-on-surface">
+                            {result.dayOfWeek ?? '-'} {formatTime(result.preferredStartTime)}-
+                            {formatTime(result.preferredEndTime)}
+                        </dd>
+                    </div>
+                    <div className="flex items-center justify-between gap-sm">
+                        <dt className="text-primary">트레이너 가능</dt>
+                        <dd className="font-medium text-primary">
+                            {formatTime(result.trainerStartTime)}-
+                            {formatTime(result.trainerEndTime)}
+                        </dd>
+                    </div>
+                </dl>
+
+                <div className="mt-md border-t border-outline-variant pt-md">
+                    <p className="text-label-sm text-on-surface-variant">1회 가격</p>
+                    <strong className="mt-1 block text-title-lg text-on-surface">
+                        {result.price?.toLocaleString('ko-KR') ?? '-'}원
+                    </strong>
+                </div>
+
+                <div className="mt-md grid grid-cols-2 gap-xs">
+                    {result.trainerProfileId ? (
+                        <Link
+                            href={`/trainer/${result.trainerProfileId}`}
+                            className="inline-flex h-11 items-center justify-center rounded-lg border border-primary font-label-bold text-primary hover:bg-primary-fixed"
+                        >
+                            프로필 보기
+                        </Link>
+                    ) : (
+                        <button
+                            type="button"
+                            disabled
+                            className="h-11 rounded-lg border border-outline-variant text-outline"
+                        >
+                            프로필 보기
+                        </button>
+                    )}
+
+                    <button
+                        type="button"
+                        disabled={!result.matchingResultId}
+                        onClick={() => {
+                            if (result.matchingResultId) {
+                                onLessonRequest(result.matchingResultId)
+                            }
+                        }}
+                        className="h-11 rounded-lg bg-primary font-label-bold text-on-primary hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-outline-variant"
+                    >
+                        레슨 요청하기
+                    </button>
+                </div>
+            </div>
+        </article>
+    )
+}

@@ -1,0 +1,27 @@
+export const SPORTS = ['헬스', '필라테스', '수영', '요가', '크로스핏', '테니스', '골프']
+
+export const LEVELS = ['초급', '중급', '고급']
+
+export const LESSON_TYPES = ['1:1 PT', '그룹', '온라인']
+
+export const REGIONS = ['서울', '경기', '인천', '부산', '대구', '광주', '대전']
+
+export const DISTRICTS: Record<string, string[]> = {
+    서울: ['강남구', '서초구', '송파구', '마포구', '영등포구'],
+    경기: ['수원시', '성남시', '고양시', '용인시', '부천시'],
+    인천: ['남동구', '연수구', '부평구', '미추홀구'],
+    부산: ['해운대구', '부산진구', '수영구', '동래구'],
+    대구: ['수성구', '달서구', '중구', '북구'],
+    광주: ['광산구', '서구', '북구', '남구'],
+    대전: ['유성구', '서구', '중구', '대덕구'],
+}
+
+export const DAYS_OF_WEEK = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일']
+
+export const TIME_OPTIONS = Array.from({ length: 36 }, (_, index) => {
+    const totalMinutes = 6 * 60 + index * 30
+    const hour = Math.floor(totalMinutes / 60)
+    const minute = totalMinutes % 60
+
+    return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+})

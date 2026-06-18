@@ -1,5 +1,6 @@
 package com.fitmate.matching.controller;
 
+import org.springframework.security.core.Authentication;
 import com.fitmate.matching.dto.MatchingCreateResponse;
 import com.fitmate.matching.dto.MatchingRequestDto;
 import com.fitmate.matching.service.MatchingService;
@@ -22,9 +23,12 @@ public class MatchingController {
     @Operation(summary = "AI 매칭 요청 생성")
     @PostMapping
     public ResponseEntity<MatchingCreateResponse> createMatchingRequest(
-            @Valid @RequestBody MatchingRequestDto requestDto
+            @Valid @RequestBody MatchingRequestDto requestDto,
+            Authentication authentication
     ) {
-        return ResponseEntity.ok(matchingService.createMatchingRequest(requestDto));
+        String userId = authentication.getName();
+
+        return ResponseEntity.ok(matchingService.createMatchingRequest(userId, requestDto));
     }
     // 매칭 결과 생성 API
     // POST /api/matching/{matchingId}/results
