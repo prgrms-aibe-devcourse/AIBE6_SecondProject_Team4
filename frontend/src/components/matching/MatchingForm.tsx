@@ -5,13 +5,42 @@ import PreferredTimeInput, { type PreferredTime } from '@/components/matching/Pr
 import { DISTRICTS, LESSON_TYPES, LEVELS, REGIONS, SPORTS } from '@/constants/matchingOptions'
 import { useAuth } from '@/context/AuthContext'
 import { getAuthClient } from '@/utils/apiClient'
-import { FormEvent, useMemo, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
+export type MatchingDraft = {
+    sports?: string
+    level?: string
+    lessonType?: string
+    region?: string
+    budgetMin?: number
+    budgetMax?: number
+    lessonContent?: string
+    preferredTimes?: Array<{
+        dayOfWeek?: string
+        startTime?: string
+        endTime?: string
+    }>
+}
+
+type MatchingFormProps = {
+    initialDraft?: MatchingDraft | null
+}
+
+const DAY_LABELS: Record<string, string> = {
+    MONDAY: '월요일',
+    TUESDAY: '화요일',
+    WEDNESDAY: '수요일',
+    THURSDAY: '목요일',
+    FRIDAY: '금요일',
+    SATURDAY: '토요일',
+    SUNDAY: '일요일',
+}
+
 const formatPrice = (price: number) => `${price.toLocaleString('ko-KR')}원`
 
-export default function MatchingForm() {
+export default function MatchingForm({ initialDraft }: MatchingFormProps) {
     const router = useRouter()
     const { user } = useAuth()
     const [sports, setSports] = useState('필라테스')
@@ -30,6 +59,63 @@ export default function MatchingForm() {
     ])
     const [formError, setFormError] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
+
+    useEffect(() => {
+        if (!initialDraft) {
+            return
+        }
+
+        if (initialDraft.sports && SPORTS.includes(initialDraft.sports)) {
+            setSports(initialDraft.sports)
+        }
+
+        if (initialDraft.level && LEVELS.includes(initialDraft.level)) {
+            setLevel(initialDraft.level)
+        }
+
+        if (initialDraft.lessonType && LESSON_TYPES.includes(initialDraft.lessonType)) {
+            setLessonType(initialDraft.lessonType)
+        }
+
+        if (initialDraft.region && REGIONS.includes(initialDraft.region)) {
+            setRegion(initialDraft.region)
+            setDistrict(DISTRICTS[initialDraft.region]?.[0] ?? '')
+        }
+
+        if (typeof initialDraft.budgetMin === 'number') {
+            setBudgetMin(Math.max(30000, Math.min(initialDraft.budgetMin, 150000)))
+        }
+
+        if (typeof initialDraft.budgetMax === 'number') {
+            setBudgetMax(Math.max(30000, Math.min(initialDraft.budgetMax, 150000)))
+        }
+
+        if (initialDraft.lessonContent) {
+            setLessonContent(initialDraft.lessonContent)
+        }
+
+        const parsedTimes =
+            initialDraft.preferredTimes
+                ?.filter((time) => time.dayOfWeek && time.startTime && time.endTime)
+                .map((time, index) => ({
+                    id: Date.now() + index,
+                    dayOfWeek: DAY_LABELS[time.dayOfWeek!] ?? time.dayOfWeek!,
+                    startTime: time.startTime!.slice(0, 5),
+                    endTime: time.endTime!.slice(0, 5),
+                })) ?? []
+
+        if (parsedTimes.length > 0) {
+            setPreferredTimes(parsedTimes)
+
+            const firstTime = parsedTimes[0]
+
+            setDayOfWeek(firstTime.dayOfWeek)
+            setStartTime(firstTime.startTime)
+            setEndTime(firstTime.endTime)
+        }
+
+        setFormError('')
+    }, [initialDraft])
 
     const districtOptions = useMemo(() => DISTRICTS[region] ?? [], [region])
 
