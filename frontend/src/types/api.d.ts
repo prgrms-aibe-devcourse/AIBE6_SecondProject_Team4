@@ -352,26 +352,10 @@ export interface paths {
         get: operations["getMyInfo"];
         put?: never;
         post?: never;
-        delete: operations["deleteMyAccount"];
-        options?: never;
-        head?: never;
-        patch: operations["updateMyInfo"];
-        trace?: never;
-    };
-    "/api/members/me/password": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        patch: operations["changePassword"];
+        patch: operations["updateMyInfo"];
         trace?: never;
     };
     "/api/lesson-requests/{lessonRequestId}/reject": {
@@ -507,6 +491,26 @@ export interface paths {
         };
         /** 받은 요청서 목록 조회 */
         get: operations["getTrainerLessonRequests"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reviews/writable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 작성 가능한 후기 조회
+         * @description 매칭 성사(레슨 수락) 후 아직 후기를 작성하지 않은 트레이너 목록을 조회합니다.
+         */
+        get: operations["getWritableReviews"];
         put?: never;
         post?: never;
         delete?: never;
@@ -982,8 +986,6 @@ export interface components {
             region?: string;
             introduction?: string;
             phone?: string;
-            /** Format: email */
-            email?: string;
         };
         MemberResponse: {
             /** Format: int64 */
@@ -999,10 +1001,6 @@ export interface components {
             introduction?: string;
             phone?: string;
         };
-        PasswordChangeRequest: {
-            currentPassword: string;
-            newPassword: string;
-        };
         InquiryUpdateRequest: {
             /** @enum {string} */
             type?: "MATCHING" | "TRAINER" | "ETC";
@@ -1010,38 +1008,50 @@ export interface components {
             content?: string;
         };
         PageTrainerProfileResponse: {
-            /** Format: int32 */
-            totalPages?: number;
             /** Format: int64 */
             totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["TrainerProfileResponse"][];
             /** Format: int32 */
             number?: number;
-            /** Format: int32 */
-            numberOfElements?: number;
             pageable?: components["schemas"]["PageableObject"];
             sort?: components["schemas"]["SortObject"];
-            first?: boolean;
-            last?: boolean;
+            /** Format: int32 */
+            numberOfElements?: number;
             empty?: boolean;
         };
         PageableObject: {
             /** Format: int64 */
             offset?: number;
-            /** Format: int32 */
-            pageSize?: number;
+            unpaged?: boolean;
+            paged?: boolean;
             /** Format: int32 */
             pageNumber?: number;
+            /** Format: int32 */
+            pageSize?: number;
             sort?: components["schemas"]["SortObject"];
-            paged?: boolean;
-            unpaged?: boolean;
         };
         SortObject: {
             empty?: boolean;
-            sorted?: boolean;
             unsorted?: boolean;
+            sorted?: boolean;
+        };
+        WritableReviewResponse: {
+            /** Format: int64 */
+            lessonRequestId?: number;
+            /** Format: int64 */
+            matchingId?: number;
+            /** Format: int64 */
+            trainerId?: number;
+            trainerNickname?: string;
+            sports?: string;
+            /** Format: date */
+            lessonDate?: string;
         };
         ReviewResponse: {
             /** Format: int64 */
@@ -1053,11 +1063,13 @@ export interface components {
             reviewerNickname?: string;
             /** Format: int64 */
             trainerId?: number;
+            trainerNickname?: string;
             /** Format: int32 */
             rating?: number;
             content?: string;
             /** Format: date-time */
             createdAt?: string;
+            edited?: boolean;
         };
         TrainerRatingResponse: {
             /** Format: int64 */
@@ -1070,12 +1082,6 @@ export interface components {
                 [key: string]: number;
             };
         };
-        TrainerSummaryDto: {
-            /** Format: int64 */
-            id?: number;
-            userName?: string;
-            profileImage?: string;
-        };
         Pageable: {
             /** Format: int32 */
             page?: number;
@@ -1083,22 +1089,46 @@ export interface components {
             size?: number;
             sort?: string[];
         };
-        PageInquiryResponse: {
-            /** Format: int32 */
-            totalPages?: number;
+        PageReviewResponse: {
             /** Format: int64 */
             totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            first?: boolean;
+            last?: boolean;
+            /** Format: int32 */
+            size?: number;
+            content?: components["schemas"]["ReviewResponse"][];
+            /** Format: int32 */
+            number?: number;
+            pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
+            /** Format: int32 */
+            numberOfElements?: number;
+            empty?: boolean;
+        };
+        TrainerSummaryDto: {
+            /** Format: int64 */
+            id?: number;
+            userName?: string;
+            profileImage?: string;
+        };
+        PageInquiryResponse: {
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["InquiryResponse"][];
             /** Format: int32 */
             number?: number;
-            /** Format: int32 */
-            numberOfElements?: number;
             pageable?: components["schemas"]["PageableObject"];
             sort?: components["schemas"]["SortObject"];
-            first?: boolean;
-            last?: boolean;
+            /** Format: int32 */
+            numberOfElements?: number;
             empty?: boolean;
         };
         ChatResponseDto: {
@@ -1823,24 +1853,6 @@ export interface operations {
             };
         };
     };
-    deleteMyAccount: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
     updateMyInfo: {
         parameters: {
             query?: never;
@@ -1862,28 +1874,6 @@ export interface operations {
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["MemberResponse"];
                 };
-            };
-        };
-    };
-    changePassword: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PasswordChangeRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
@@ -2097,6 +2087,26 @@ export interface operations {
             };
         };
     };
+    getWritableReviews: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["WritableReviewResponse"][];
+                };
+            };
+        };
+    };
     getReviewsByTrainer: {
         parameters: {
             query?: never;
@@ -2144,7 +2154,7 @@ export interface operations {
     getReceivedReviews: {
         parameters: {
             query: {
-                trainerId: number;
+                pageable: components["schemas"]["Pageable"];
             };
             header?: never;
             path?: never;
@@ -2158,14 +2168,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["ReviewResponse"][];
+                    "application/json;charset=UTF-8": components["schemas"]["PageReviewResponse"];
                 };
             };
         };
     };
     getMyReviews: {
         parameters: {
-            query?: never;
+            query: {
+                pageable: components["schemas"]["Pageable"];
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2178,7 +2190,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["ReviewResponse"][];
+                    "application/json;charset=UTF-8": components["schemas"]["PageReviewResponse"];
                 };
             };
         };

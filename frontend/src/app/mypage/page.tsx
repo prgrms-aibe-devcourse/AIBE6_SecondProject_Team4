@@ -1,11 +1,12 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+
+import MyReviewList from '@/components/MyReviewList'
 import { useAuth } from '@/context/AuthContext'
 import type { components } from '@/types/api'
 import { getAuthClient } from '@/utils/apiClient'
-import { useEffect, useState } from 'react'
-
-import { useRouter, useSearchParams } from 'next/navigation'
 
 type TrainerProfile = components['schemas']['TrainerProfileResponse']
 type UserProfile = components['schemas']['UserProfileResponse']
@@ -25,6 +26,7 @@ export default function MyPage() {
             return
         }
         fetchMyProfile()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user, searchParams])
 
     const fetchMyProfile = async () => {
@@ -49,37 +51,40 @@ export default function MyPage() {
 
     if (loading) {
         return (
-            <main className="pt-16 md:pt-20 flex justify-center py-20">
-                <span className="material-symbols-outlined animate-spin text-primary text-4xl">
-                    progress_activity
-                </span>
+            <main className="flex justify-center py-20 pt-16 md:pt-20">
+        <span className="material-symbols-outlined animate-spin text-4xl text-primary">
+          progress_activity
+        </span>
             </main>
         )
     }
 
     return (
-        <main className="flex-grow max-w-[1440px] mx-auto w-full px-margin-desktop pt-20 pb-lg flex flex-col gap-md">
+        <main className="mx-auto flex w-full max-w-[1440px] flex-grow flex-col gap-md px-margin-mobile pb-lg pt-20 md:px-margin-desktop">
             {/* 프로필 헤더 */}
             <div
-                className="bg-surface-container-low rounded-xl p-md flex items-center justify-between"
+                className="flex items-center justify-between rounded-xl bg-surface-container-low p-md"
                 style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
             >
                 <div className="flex items-center gap-md">
                     <div className="relative">
-                        <div className="w-24 h-24 rounded-full bg-surface-container border-4 border-white shadow-sm flex items-center justify-center overflow-hidden">
+                        <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-surface-container shadow-sm">
                             {profile?.profileImage ? (
                                 <img
                                     src={profile.profileImage}
                                     alt=""
-                                    className="w-full h-full object-cover"
+                                    className="h-full w-full object-cover"
                                 />
                             ) : (
                                 <span className="material-symbols-outlined text-4xl text-outline">
-                                    person
-                                </span>
+                  person
+                </span>
                             )}
                         </div>
-                        <button className="absolute bottom-0 right-0 bg-primary text-white p-1.5 rounded-full shadow-lg border-2 border-white hover:scale-110 transition-transform">
+                        <button
+                            className="absolute bottom-0 right-0 rounded-full border-2 border-white bg-primary p-1.5 text-white shadow-lg transition-transform hover:scale-110"
+                            onClick={() => router.push('/mypage/edit')}
+                        >
                             <span className="material-symbols-outlined text-[18px]">edit</span>
                         </button>
                     </div>
@@ -87,16 +92,16 @@ export default function MyPage() {
                         <h1 className="text-headline-md font-headline-md text-on-surface">
                             {user?.userName}
                         </h1>
-                        <p className="text-body-md text-on-surface-variant flex items-center gap-xs">
-                            <span className="material-symbols-outlined text-[16px]">
-                                fitness_center
-                            </span>
+                        <p className="flex items-center gap-xs text-body-md text-on-surface-variant">
+              <span className="material-symbols-outlined text-[16px]">
+                fitness_center
+              </span>
                             {user?.role === 'TRAINER' ? '트레이너' : '일반 회원'}
                         </p>
                     </div>
                 </div>
                 <button
-                    className="flex items-center gap-xs px-md py-sm bg-surface-container-high hover:bg-surface-container-highest text-on-surface rounded-lg font-label-bold transition-all border border-outline-variant"
+                    className="flex items-center gap-xs rounded-lg border border-outline-variant bg-surface-container-high px-md py-sm font-label-bold text-on-surface transition-all hover:bg-surface-container-highest"
                     onClick={() => router.push('/mypage/edit')}
                 >
                     <span className="material-symbols-outlined">settings</span>
@@ -105,9 +110,9 @@ export default function MyPage() {
             </div>
 
             {/* 사이드바 + 콘텐츠 */}
-            <div className="flex gap-md flex-col lg:flex-row flex-grow">
+            <div className="flex flex-grow flex-col gap-md lg:flex-row">
                 {/* 사이드바 */}
-                <aside className="lg:w-64 flex-shrink-0">
+                <aside className="flex-shrink-0 lg:w-64">
                     <nav className="space-y-xs">
                         {[
                             { id: 'matching', icon: 'handshake', label: '매칭 관리' },
@@ -116,10 +121,10 @@ export default function MyPage() {
                         ].map(({ id, icon, label }) => (
                             <button
                                 key={id}
-                                className={`w-full flex items-center gap-md px-md py-sm rounded-lg font-label-bold transition-all ${
+                                className={`flex w-full items-center gap-md rounded-lg px-md py-sm font-label-bold transition-all ${
                                     activeTab === id
                                         ? 'bg-primary-container text-on-primary-container'
-                                        : 'hover:bg-surface-container-low text-on-surface-variant'
+                                        : 'text-on-surface-variant hover:bg-surface-container-low'
                                 }`}
                                 onClick={() => setActiveTab(id)}
                             >
@@ -137,28 +142,26 @@ export default function MyPage() {
                             <h2 className="text-headline-sm font-headline-sm text-on-surface">
                                 매칭 관리
                             </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
+                            <div className="grid grid-cols-1 gap-md md:grid-cols-3">
                                 <div
-                                    className="bg-surface-container-lowest rounded-xl p-md border border-outline-variant flex flex-col gap-sm"
+                                    className="flex flex-col gap-sm rounded-xl border border-outline-variant bg-surface-container-lowest p-md"
                                     style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
                                 >
                                     <div className="flex items-center gap-sm text-primary">
-                                        <span className="material-symbols-outlined">
-                                            outgoing_mail
-                                        </span>
+                                        <span className="material-symbols-outlined">outgoing_mail</span>
                                         <span className="text-label-bold">보낸 요청</span>
                                     </div>
                                     <div className="flex-grow py-sm">
-                                        <p className="text-body-sm text-secondary text-center py-4">
+                                        <p className="py-4 text-center text-body-sm text-secondary">
                                             보낸 요청이 없습니다.
                                         </p>
                                     </div>
-                                    <button className="w-full py-2 text-primary font-label-bold hover:underline">
+                                    <button className="w-full py-2 font-label-bold text-primary hover:underline">
                                         모든 요청 보기
                                     </button>
                                 </div>
                                 <div
-                                    className="bg-surface-container-lowest rounded-xl p-md border border-outline-variant flex flex-col gap-sm"
+                                    className="flex flex-col gap-sm rounded-xl border border-outline-variant bg-surface-container-lowest p-md"
                                     style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
                                 >
                                     <div className="flex items-center gap-sm text-tertiary">
@@ -166,16 +169,16 @@ export default function MyPage() {
                                         <span className="text-label-bold">받은 요청</span>
                                     </div>
                                     <div className="flex-grow py-sm">
-                                        <p className="text-body-sm text-secondary text-center py-4">
+                                        <p className="py-4 text-center text-body-sm text-secondary">
                                             받은 요청이 없습니다.
                                         </p>
                                     </div>
-                                    <button className="w-full py-2 text-primary font-label-bold hover:underline">
+                                    <button className="w-full py-2 font-label-bold text-primary hover:underline">
                                         수신함 관리
                                     </button>
                                 </div>
                                 <div
-                                    className="bg-surface-container-lowest rounded-xl p-md border border-outline-variant flex flex-col gap-sm"
+                                    className="flex flex-col gap-sm rounded-xl border border-outline-variant bg-surface-container-lowest p-md"
                                     style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
                                 >
                                     <div className="flex items-center gap-sm text-secondary">
@@ -183,11 +186,11 @@ export default function MyPage() {
                                         <span className="text-label-bold">매칭 완료 내역</span>
                                     </div>
                                     <div className="flex-grow py-sm">
-                                        <p className="text-body-sm text-secondary text-center py-4">
+                                        <p className="py-4 text-center text-body-sm text-secondary">
                                             매칭 내역이 없습니다.
                                         </p>
                                     </div>
-                                    <button className="w-full py-2 text-primary font-label-bold hover:underline">
+                                    <button className="w-full py-2 font-label-bold text-primary hover:underline">
                                         히스토리 보기
                                     </button>
                                 </div>
@@ -195,45 +198,13 @@ export default function MyPage() {
                         </section>
                     )}
 
+                    {/* 리뷰 관리 — 실제 후기 목록/통계/수정·삭제 (역할별 분기) */}
                     {activeTab === 'reviews' && (
                         <section className="space-y-md">
                             <h2 className="text-headline-sm font-headline-sm text-on-surface">
                                 리뷰 관리
                             </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-                                <div
-                                    className="bg-surface-container-lowest rounded-xl p-md border border-outline-variant"
-                                    style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
-                                >
-                                    <div className="flex items-center justify-between mb-md">
-                                        <span className="text-label-bold text-on-surface-variant">
-                                            내가 받은 리뷰
-                                        </span>
-                                    </div>
-                                    <p className="text-body-sm text-secondary text-center py-4">
-                                        받은 리뷰가 없습니다.
-                                    </p>
-                                    <button className="w-full mt-md py-sm border-2 border-outline-variant rounded-lg text-label-bold text-on-surface hover:bg-surface transition-colors">
-                                        모든 받은 리뷰 보기
-                                    </button>
-                                </div>
-                                <div
-                                    className="bg-surface-container-lowest rounded-xl p-md border border-outline-variant"
-                                    style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
-                                >
-                                    <div className="flex items-center justify-between mb-md">
-                                        <span className="text-label-bold text-on-surface-variant">
-                                            내가 작성한 리뷰
-                                        </span>
-                                    </div>
-                                    <p className="text-body-sm text-secondary text-center py-4">
-                                        작성한 리뷰가 없습니다.
-                                    </p>
-                                    <button className="w-full mt-md py-sm border-2 border-outline-variant rounded-lg text-label-bold text-on-surface hover:bg-surface transition-colors">
-                                        모든 작성한 리뷰 보기
-                                    </button>
-                                </div>
-                            </div>
+                            <MyReviewList />
                         </section>
                     )}
 
@@ -243,17 +214,17 @@ export default function MyPage() {
                                 계정 설정
                             </h2>
                             <div
-                                className="rounded-xl overflow-hidden border border-outline-variant"
+                                className="overflow-hidden rounded-xl border border-outline-variant"
                                 style={{
                                     backgroundColor: '#f1f3ff',
                                     boxShadow: 'inset 0 2px 4px rgba(116,119,129,0.08)',
                                 }}
                             >
-                                <button className="w-full flex items-center justify-between p-md hover:bg-white/50 transition-colors border-b border-outline-variant">
+                                <button className="flex w-full items-center justify-between border-b border-outline-variant p-md transition-colors hover:bg-white/50">
                                     <div className="flex items-center gap-md">
-                                        <span className="material-symbols-outlined text-on-surface-variant">
-                                            lock
-                                        </span>
+                    <span className="material-symbols-outlined text-on-surface-variant">
+                      lock
+                    </span>
                                         <div className="text-left">
                                             <p className="text-label-bold text-on-surface">
                                                 비밀번호 및 보안
@@ -264,11 +235,11 @@ export default function MyPage() {
                                         </div>
                                     </div>
                                     <span className="material-symbols-outlined text-outline">
-                                        chevron_right
-                                    </span>
+                    chevron_right
+                  </span>
                                 </button>
                                 <button
-                                    className="w-full flex items-center justify-between p-md hover:bg-error-container/20 group transition-colors"
+                                    className="group flex w-full items-center justify-between p-md transition-colors hover:bg-error-container/20"
                                     onClick={() => {
                                         logout()
                                         router.push('/auth/login')
@@ -283,9 +254,9 @@ export default function MyPage() {
                                             </p>
                                         </div>
                                     </div>
-                                    <span className="material-symbols-outlined text-error opacity-0 group-hover:opacity-100 transition-opacity">
-                                        arrow_forward
-                                    </span>
+                                    <span className="material-symbols-outlined text-error opacity-0 transition-opacity group-hover:opacity-100">
+                    arrow_forward
+                  </span>
                                 </button>
                             </div>
                         </section>
