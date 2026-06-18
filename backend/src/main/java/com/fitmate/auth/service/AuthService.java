@@ -31,7 +31,7 @@ public class AuthService {
     @Transactional
     public LoginResult login(LoginRequest request) {
 
-        Member member = memberRepository.findByUserId(request.userId())
+        Member member = memberRepository.findByUserIdAndDeletedAtIsNull(request.userId())
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
 
         if (!passwordEncoder.matches(request.password(), member.getPassword())) {
@@ -71,11 +71,11 @@ public class AuthService {
     @Transactional
     public void signup(SignupRequest request) {
 
-        if (memberRepository.existsByUserId(request.userId())) {
+        if (memberRepository.existsByUserIdAndDeletedAtIsNull(request.userId())) {
             throw new CustomException(ErrorCode.DUPLICATE_USER_ID);
         }
 
-        if (memberRepository.existsByEmail(request.email())) {
+        if (memberRepository.existsByEmailAndDeletedAtIsNull(request.email())) {
             throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
         }
 
@@ -118,6 +118,4 @@ public class AuthService {
 
         return new ReissueResult(newAccessToken, newRefreshToken);
     }
-
-
 }
