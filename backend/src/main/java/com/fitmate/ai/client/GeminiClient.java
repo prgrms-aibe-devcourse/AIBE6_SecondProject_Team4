@@ -75,7 +75,13 @@ public class GeminiClient {
             }
 
             String text = textNode.stringValue();
-            return Optional.of(objectMapper.readTree(text));
+            if (text.isBlank()) {
+                log.warn("Gemini JSON generation returned blank candidate text");
+                return Optional.empty();
+            }
+
+            JsonNode parsed = objectMapper.readTree(text);
+            return parsed.isMissingNode() ? Optional.empty() : Optional.of(parsed);
         } catch (RestClientException | JacksonException exception) {
             log.warn("Gemini JSON generation failed ({})",
                     exception.getClass().getSimpleName());

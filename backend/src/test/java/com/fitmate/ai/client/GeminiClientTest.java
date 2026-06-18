@@ -148,6 +148,16 @@ class GeminiClientTest {
     }
 
     @Test
+    void returnsEmptyWhenCandidateTextIsEmpty() {
+        assertEmptyCandidateTextReturnsEmpty("");
+    }
+
+    @Test
+    void returnsEmptyWhenCandidateTextIsWhitespace() {
+        assertEmptyCandidateTextReturnsEmpty("   ");
+    }
+
+    @Test
     void returnsEmptyWhenGeminiApiFails() {
         RestClient.Builder builder = RestClient.builder()
                 .baseUrl("https://generativelanguage.googleapis.com/v1beta");
@@ -163,6 +173,42 @@ class GeminiClientTest {
                         "https://generativelanguage.googleapis.com/v1beta/models/gemini-test-model:generateContent"
                 ))
                 .andRespond(withServerError());
+
+        var result = client.generateJson("Rank the trainers", Map.of("type", "object"));
+
+        assertTrue(result.isEmpty());
+        server.verify();
+    }
+
+    private void assertEmptyCandidateTextReturnsEmpty(String candidateText) {
+        RestClient.Builder builder = RestClient.builder()
+                .baseUrl("https://generativelanguage.googleapis.com/v1beta");
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        GeminiProperties properties = new GeminiProperties(
+                "test-api-key",
+                "gemini-test-model",
+                10,
+                8
+        );
+        GeminiClient client = new GeminiClient(builder.build(), new ObjectMapper(), properties);
+        server.expect(once(), requestTo(
+                        "https://generativelanguage.googleapis.com/v1beta/models/gemini-test-model:generateContent"
+                ))
+                .andRespond(withSuccess("""
+                        {
+                          "candidates": [
+                            {
+                              "content": {
+                                "parts": [
+                                  {
+                                    "text": "%s"
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                        """.formatted(candidateText), MediaType.APPLICATION_JSON));
 
         var result = client.generateJson("Rank the trainers", Map.of("type", "object"));
 
