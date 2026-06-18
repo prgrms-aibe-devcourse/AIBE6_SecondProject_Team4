@@ -3,10 +3,10 @@
 import MyReviewList from '@/components/MyReviewList'
 import { useAuth } from '@/context/AuthContext'
 import type { components } from '@/types/api'
-import { getAuthClient, getImageUrl } from '@/utils/apiClient'
+import { getAuthClient } from '@/utils/apiClient'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 type TrainerProfile = components['schemas']['TrainerProfileResponse']
 type UserProfile = components['schemas']['UserProfileResponse']
@@ -366,9 +366,7 @@ function InquirySection() {
 export default function MyPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const { user, logout, updateProfileImage } = useAuth()
-    const fileInputRef = useRef<HTMLInputElement>(null)
-    const [uploadingImage, setUploadingImage] = useState(false)
+    const { user, logout } = useAuth()
     const [trainerProfile, setTrainerProfile] = useState<TrainerProfile | null>(null)
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
     const [loading, setLoading] = useState(true)
@@ -378,11 +376,6 @@ export default function MyPage() {
     useEffect(() => {
         setHydrated(true)
     }, [])
-
-    useEffect(() => {
-        const tab = searchParams.get('tab')
-        if (tab) setActiveTab(tab)
-    }, [searchParams])
 
     useEffect(() => {
         if (!hydrated) return
@@ -409,35 +402,6 @@ export default function MyPage() {
             setUserProfile(null)
         }
         setLoading(false)
-    }
-
-    const handleProfileImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (!file) return
-        setUploadingImage(true)
-        const client = getAuthClient()
-        const formData = new FormData()
-        formData.append('file', file)
-        try {
-            const uploadRes = await fetch('http://localhost:8080/api/files/upload', {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${JSON.parse(localStorage.getItem('fitmate_user') ?? '{}').token}`,
-                },
-                body: formData,
-            })
-            if (!uploadRes.ok) { alert('이미지 업로드에 실패했습니다.'); return }
-            const { url } = await uploadRes.json()
-            await client.PATCH('/api/members/me', { body: { profileImage: url } })
-            updateProfileImage(url)
-            await fetchMyProfile()
-        } catch (err) {
-            console.error(err)
-            alert('이미지 업로드 중 오류가 발생했습니다.')
-        } finally {
-            setUploadingImage(false)
-            e.target.value = ''
-        }
     }
 
     const profile = user?.role === 'TRAINER' ? trainerProfile : userProfile
@@ -505,9 +469,9 @@ export default function MyPage() {
                 <div className="flex items-center gap-md">
                     <div className="relative flex-shrink-0">
                         <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-surface-container shadow-sm sm:h-24 sm:w-24">
-                            {(user?.profileImage || profile?.profileImage) ? (
+                            {profile?.profileImage ? (
                                 <img
-                                    src={getImageUrl(user?.profileImage || profile?.profileImage)}
+                                    src={profile.profileImage}
                                     alt=""
                                     className="h-full w-full object-cover"
                                 />
@@ -515,23 +479,11 @@ export default function MyPage() {
                                 <span className="material-symbols-outlined text-3xl text-outline sm:text-4xl">person</span>
                             )}
                         </div>
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/jpeg,image/png,image/jpg,image/webp"
-                            className="hidden"
-                            onChange={handleProfileImageChange}
-                        />
                         <button
-                            className="absolute bottom-0 right-0 rounded-full border-2 border-white bg-primary p-1 text-white shadow-lg transition-transform hover:scale-110 disabled:opacity-50 sm:p-1.5"
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={uploadingImage}
+                            className="absolute bottom-0 right-0 rounded-full border-2 border-white bg-primary p-1 text-white shadow-lg transition-transform hover:scale-110 sm:p-1.5"
+                            onClick={() => router.push('/mypage/edit')}
                         >
-                            {uploadingImage ? (
-                                <span className="material-symbols-outlined animate-spin text-[16px] sm:text-[18px]">progress_activity</span>
-                            ) : (
-                                <span className="material-symbols-outlined text-[16px] sm:text-[18px]">edit</span>
-                            )}
+                            <span className="material-symbols-outlined text-[16px] sm:text-[18px]">edit</span>
                         </button>
                     </div>
                     <div className="min-w-0">
