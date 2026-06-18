@@ -3,11 +3,17 @@
 import MatchingSummary from '@/components/matching/MatchingSummary'
 import PreferredTimeInput, { type PreferredTime } from '@/components/matching/PreferredTimeInput'
 import { DISTRICTS, LESSON_TYPES, LEVELS, REGIONS, SPORTS } from '@/constants/matchingOptions'
+import { useAuth } from '@/context/AuthContext'
+import { getAuthClient } from '@/utils/apiClient'
 import { FormEvent, useMemo, useState } from 'react'
+
+import { useRouter } from 'next/navigation'
 
 const formatPrice = (price: number) => `${price.toLocaleString('ko-KR')}원`
 
 export default function MatchingForm() {
+    const router = useRouter()
+    const { user } = useAuth()
     const [sports, setSports] = useState('필라테스')
     const [level, setLevel] = useState('중급')
     const [lessonType, setLessonType] = useState('1:1 PT')
@@ -23,6 +29,7 @@ export default function MatchingForm() {
         { id: 1, dayOfWeek: '월요일', startTime: '19:00', endTime: '20:00' },
     ])
     const [formError, setFormError] = useState('')
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const districtOptions = useMemo(() => DISTRICTS[region] ?? [], [region])
 
@@ -61,15 +68,65 @@ export default function MatchingForm() {
         setFormError('')
     }
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
+
+        if (!user) {
+            router.push('/auth/login')
+            return
+        }
 
         if (preferredTimes.length === 0) {
             setFormError('선호 시간을 한 개 이상 추가해 주세요.')
             return
         }
 
+        setIsSubmitting(true)
         setFormError('')
+
+        try {
+            const client = getAuthClient()
+            const { data, error } = await client.POST('/api/matching', {
+                body: {
+                    level,
+                    sports,
+                    lessonType,
+                    region,
+                    budgetMin,
+                    budgetMax,
+                    lessonContent,
+                    preferredTimes: preferredTimes.map((time) => ({
+                        dayOfWeek: time.dayOfWeek,
+                        startTime: `${time.startTime}:00`,
+                        endTime: `${time.endTime}:00`,
+                    })),
+                },
+            })
+
+            if (error || !data?.matchingId) {
+                setFormError('매칭 요청을 저장하지 못했습니다.')
+                return
+            }
+
+            const { error: resultError } = await client.POST('/api/matching/{matchingId}/results', {
+                params: {
+                    path: {
+                        matchingId: data.matchingId,
+                    },
+                },
+            })
+
+            if (resultError) {
+                setFormError('추천 결과를 생성하지 못했습니다.')
+                return
+            }
+
+            router.push(`/matching/${data.matchingId}`)
+        } catch {
+            setFormError('서버에 연결할 수 없습니다.')
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     return (
@@ -210,6 +267,7 @@ export default function MatchingForm() {
                 budgetMin={budgetMin}
                 budgetMax={budgetMax}
                 errorMessage={formError}
+                isSubmitting={isSubmitting}
             />
         </form>
     )

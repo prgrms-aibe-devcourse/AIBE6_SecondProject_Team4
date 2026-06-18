@@ -8,6 +8,7 @@ type MatchingSummaryProps = {
     budgetMin: number
     budgetMax: number
     errorMessage: string
+    isSubmitting: boolean
 }
 
 const formatPrice = (price: number) => `${price.toLocaleString('ko-KR')}원`
@@ -22,6 +23,7 @@ export default function MatchingSummary({
     budgetMin,
     budgetMax,
     errorMessage,
+    isSubmitting,
 }: MatchingSummaryProps) {
     return (
         <aside className="lg:sticky lg:top-28 bg-surface-container-lowest border border-outline-variant rounded-lg p-md shadow-sm">
@@ -52,9 +54,10 @@ export default function MatchingSummary({
 
             <button
                 type="submit"
-                className="mt-md w-full h-12 rounded-lg bg-primary text-on-primary font-label-bold shadow-md hover:shadow-lg active:scale-[0.99] transition"
+                disabled={isSubmitting}
+                className="mt-md w-full h-12 rounded-lg bg-primary text-on-primary font-label-bold shadow-md hover:shadow-lg active:scale-[0.99] transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
-                AI 매칭 시작하기
+                {isSubmitting ? '매칭 결과 생성 중...' : 'AI 매칭 시작하기'}
             </button>
         </aside>
     )
