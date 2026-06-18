@@ -121,6 +121,19 @@ export default function MatchingForm() {
                 return
             }
 
+            sessionStorage.setItem(
+                `matching-request-${data.matchingId}`,
+                JSON.stringify({
+                    sports,
+                    level,
+                    lessonType,
+                    region,
+                    district,
+                    budgetMin,
+                    budgetMax,
+                })
+            )
+
             router.push(`/matching/${data.matchingId}`)
         } catch {
             setFormError('서버에 연결할 수 없습니다.')
