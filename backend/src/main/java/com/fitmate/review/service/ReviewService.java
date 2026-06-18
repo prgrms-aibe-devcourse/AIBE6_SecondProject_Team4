@@ -1,7 +1,13 @@
 package com.fitmate.review.service;
 
+import com.fitmate.alert.dto.AlertRequest;
+import com.fitmate.alert.entity.AlertType;
+import com.fitmate.alert.service.AlertService;
 import com.fitmate.global.exception.CustomException;
 import com.fitmate.global.exception.ErrorCode;
+import com.fitmate.lesson.entity.LessonRequest;
+import com.fitmate.lesson.entity.LessonRequestStatus;
+import com.fitmate.lesson.repository.LessonRequestRepository;
 import com.fitmate.matching.entity.MatchingRequest;
 import com.fitmate.matching.repository.MatchingRequestRepository;
 import com.fitmate.member.entity.Member;
@@ -10,12 +16,17 @@ import com.fitmate.review.dto.ReviewRequest;
 import com.fitmate.review.dto.ReviewResponse;
 import com.fitmate.review.dto.ReviewUpdateRequest;
 import com.fitmate.review.dto.TrainerRatingResponse;
+import com.fitmate.review.dto.WritableReviewResponse;
 import com.fitmate.review.entity.Review;
 import com.fitmate.review.repository.ReviewRepository;
+import com.fitmate.trainer.entity.TrainerProfile;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +39,8 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final MemberRepository memberRepository;
     private final MatchingRequestRepository matchingRequestRepository;
+    private final AlertService alertService;
+    private final LessonRequestRepository lessonRequestRepository;
 
     // 후기 작성
     @Transactional
@@ -54,16 +67,25 @@ public class ReviewService {
                 .content(request.content())
                 .build();
 
-        return reviewRepository.save(review).getId();
+        Long reviewId = reviewRepository.save(review).getId();
+
+        // 트레이너에게 후기 알림 발송
+        alertService.createAlert(new AlertRequest(
+                trainer.getId(),                                  // 받는 사람 = 트레이너
+                AlertType.REVIEW,                                 // 알림 타입
+                trainer.getId(),                                  // targetId (트레이너 페이지 라우팅용)
+                reviewer.getNickname() + "님이 후기를 남겼습니다."   // 내용
+        ));
+
+        return reviewId;
     }
 
-    // 내가 작성한 후기 조회 (MYP-04)
-    public List<ReviewResponse> getMyReviews(String userId) {
+    // 내가 작성한 후기 조회 (MYP-04) — 페이징
+    public Page<ReviewResponse> getMyReviews(String userId, Pageable pageable) {
         Member reviewer = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        return reviewRepository.findByReviewerId(reviewer.getId()).stream()
-                .map(ReviewResponse::from)
-                .toList();
+        return reviewRepository.findByReviewerId(reviewer.getId(), pageable)
+                .map(ReviewResponse::from);
     }
 
     // 후기 수정 (REV-06)
@@ -97,7 +119,8 @@ public class ReviewService {
 
         reviewRepository.delete(review);
     }
-    // 트레이너별 후기 조회
+
+    // 트레이너별 후기 조회 (공개 목록)
     public List<ReviewResponse> getReviewsByTrainer(Long trainerId) {
         return reviewRepository.findByTrainerId(trainerId).stream()
                 .map(ReviewResponse::from)
@@ -123,10 +146,53 @@ public class ReviewService {
         return new TrainerRatingResponse(trainerId, average, count, distribution);
     }
 
-    // 트레이너가 받은 후기 조회 (MYP-07)
-    public List<ReviewResponse> getReceivedReviews(Long trainerId) {
-        return reviewRepository.findByTrainerId(trainerId).stream()
-                .map(ReviewResponse::from)
-                .toList();
+    // 트레이너가 받은 후기 조회 (MYP-07) — 페이징
+    public Page<ReviewResponse> getReceivedReviews(String userId, Pageable pageable) {
+        Member trainer = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        return reviewRepository.findByTrainerId(trainer.getId(), pageable)
+                .map(ReviewResponse::from);
+    }
+
+    // 작성 가능한 후기 조회 (매칭 성사 + 미작성)
+    // 사용자가 보낸 레슨 요청 중 ACCEPTED 상태이고, 아직 후기를 안 쓴 매칭만 반환
+    public List<WritableReviewResponse> getWritableReviews(String userId) {
+        Member member = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        List<LessonRequest> lessons =
+                lessonRequestRepository.findByMemberUserIdOrderByCreatedAtDesc(userId);
+
+        List<WritableReviewResponse> result = new ArrayList<>();
+        for (LessonRequest lesson : lessons) {
+            // 1) 성사(ACCEPTED)된 레슨만
+            if (lesson.getStatus() != LessonRequestStatus.ACCEPTED) {
+                continue;
+            }
+
+            // 2) 이 레슨이 연결된 매칭(matching_id)
+            MatchingRequest matching = lesson.getMatchingResult().getMatchingRequest();
+            Long matchingId = matching.getId();
+
+            // 3) 이미 후기를 쓴 매칭이면 제외 (review.matching_id UNIQUE)
+            if (reviewRepository.findByMatchingRequestId(matchingId).isPresent()) {
+                continue;
+            }
+
+            // 4) 트레이너 정보 (TrainerProfile -> Member)
+            TrainerProfile trainerProfile = lesson.getTrainerProfile();
+            Member trainerMember = trainerProfile.getMember();
+
+            result.add(new WritableReviewResponse(
+                    lesson.getId(),
+                    matchingId,
+                    trainerMember.getId(),
+                    trainerMember.getNickname(),
+                    matching.getSports(),
+                    lesson.getRequestedDate()
+            ));
+        }
+
+        return result;
     }
 }
