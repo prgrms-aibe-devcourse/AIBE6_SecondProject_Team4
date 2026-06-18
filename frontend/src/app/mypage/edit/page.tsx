@@ -75,6 +75,7 @@ export default function ProfileEditPage() {
                     introduction: data.introduction ?? '',
                     availableTimes:
                         data.availableTimes?.map((t) => ({
+                            id: t.id,
                             dayOfWeek: t.dayOfWeek ?? '',
                             startTime: t.startTime ?? '09:00',
                             endTime: t.endTime ?? '22:00',
