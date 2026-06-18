@@ -3,10 +3,11 @@
 import MyReviewList from '@/components/MyReviewList'
 import { useAuth } from '@/context/AuthContext'
 import type { components } from '@/types/api'
-import { getAuthClient } from '@/utils/apiClient'
+import { getAuthClient, getImageUrl } from '@/utils/apiClient'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
+
 
 type TrainerProfile = components['schemas']['TrainerProfileResponse']
 type UserProfile = components['schemas']['UserProfileResponse']
@@ -127,11 +128,7 @@ function InquirySection() {
                     <div key={label} className="bg-surface-container-lowest p-md rounded-xl border border-outline-variant flex items-center justify-between" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
                         <div>
                             <p className="text-body-sm text-on-surface-variant mb-1">{label}</p>
-                            {loading ? (
-                                <div className="h-7 w-10 rounded-md bg-surface-container animate-pulse mt-1" />
-                            ) : (
-                                <p className={`text-headline-md font-bold ${color}`}>{value}</p>
-                            )}
+                            <p className={`text-headline-md font-bold ${color}`}>{loading ? '-' : value}</p>
                         </div>
                         <div className={`w-11 h-11 rounded-full ${bg} flex items-center justify-center`}>
                             <span className={`material-symbols-outlined ${color}`}>{icon}</span>
@@ -143,27 +140,8 @@ function InquirySection() {
             {/* 테이블 */}
             <div className="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
                 {loading ? (
-                    <div className="overflow-x-auto">
-                        <table className="w-full min-w-[480px] text-left border-collapse">
-                            <thead>
-                                <tr className="bg-surface-container-low border-b border-outline-variant">
-                                    <th className="px-4 py-4"><div className="h-4 w-14 rounded bg-surface-container animate-pulse" /></th>
-                                    <th className="hidden sm:table-cell px-4 py-4"><div className="h-4 w-10 rounded bg-surface-container animate-pulse" /></th>
-                                    <th className="px-4 py-4"><div className="h-4 w-16 rounded bg-surface-container animate-pulse" /></th>
-                                    <th className="hidden md:table-cell px-4 py-4"><div className="h-4 w-14 rounded bg-surface-container animate-pulse ml-auto" /></th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-outline-variant/30">
-                                {Array.from({ length: 10 }).map((_, i) => (
-                                    <tr key={i}>
-                                        <td className="px-4 py-4"><div className="h-6 w-16 rounded-full bg-surface-container animate-pulse" /></td>
-                                        <td className="hidden sm:table-cell px-4 py-4"><div className="h-4 w-12 rounded bg-surface-container animate-pulse" /></td>
-                                        <td className="px-4 py-4"><div className="h-4 rounded bg-surface-container animate-pulse" style={{ width: `${60 + (i * 13) % 30}%` }} /></td>
-                                        <td className="hidden md:table-cell px-4 py-4"><div className="h-4 w-20 rounded bg-surface-container animate-pulse ml-auto" /></td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    <div className="flex justify-center py-16">
+                        <span className="material-symbols-outlined animate-spin text-primary text-4xl">progress_activity</span>
                     </div>
                 ) : inquiries.length === 0 ? (
                     <div className="text-center py-16 text-on-surface-variant">
@@ -177,13 +155,14 @@ function InquirySection() {
                 ) : (
                     <>
                         <div className="overflow-x-auto">
-                            <table className="w-full min-w-[480px] text-left border-collapse">
+                            <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-surface-container-low border-b border-outline-variant">
-                                        <th className="px-4 py-4 text-label-bold font-label-bold text-on-surface-variant whitespace-nowrap">상태</th>
-                                        <th className="hidden sm:table-cell px-4 py-4 text-label-bold font-label-bold text-on-surface-variant whitespace-nowrap">유형</th>
-                                        <th className="px-4 py-4 text-label-bold font-label-bold text-on-surface-variant">제목</th>
-                                        <th className="hidden md:table-cell px-4 py-4 text-label-bold font-label-bold text-on-surface-variant text-right whitespace-nowrap">작성일</th>
+                                        <th className="px-6 py-4 text-label-bold font-label-bold text-on-surface-variant">상태</th>
+                                        <th className="px-6 py-4 text-label-bold font-label-bold text-on-surface-variant">유형</th>
+                                        <th className="px-6 py-4 text-label-bold font-label-bold text-on-surface-variant">제목</th>
+                                        <th className="px-6 py-4 text-label-bold font-label-bold text-on-surface-variant text-right">작성일</th>
+                                        <th className="px-6 py-4 text-label-bold font-label-bold text-on-surface-variant text-right">관리</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-outline-variant/30">
@@ -240,82 +219,73 @@ function InquirySection() {
                                                     className="hover:bg-surface-container transition-all cursor-pointer group"
                                                     onClick={() => setExpandedId(expandedId === item.id ? null : (item.id ?? null))}
                                                 >
-                                                    <td className="px-4 py-4 whitespace-nowrap">
+                                                    <td className="px-6 py-5">
                                                         {item.status === 'RESOLVED' ? (
-                                                            <span className="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold whitespace-nowrap">답변 완료</span>
+                                                            <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">답변 완료</span>
                                                         ) : (
-                                                            <span className="px-2 py-1 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-semibold whitespace-nowrap">답변 대기</span>
+                                                            <span className="px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-semibold">답변 대기</span>
                                                         )}
                                                     </td>
-                                                    <td className="hidden sm:table-cell px-4 py-4 text-body-sm text-on-surface-variant whitespace-nowrap">
+                                                    <td className="px-6 py-5 text-body-sm text-on-surface-variant">
                                                         {TYPE_LABEL[item.type ?? ''] ?? item.type}
                                                     </td>
-                                                    <td className="px-4 py-4 max-w-0 w-full">
+                                                    <td className="px-6 py-5">
                                                         <div className="flex items-center gap-2">
-                                                            <span className="text-body-sm text-on-surface group-hover:text-primary transition-colors truncate">{item.title}</span>
-                                                            <span className={`material-symbols-outlined text-base text-outline flex-shrink-0 transition-transform ${expandedId === item.id ? 'rotate-180' : ''}`}>expand_more</span>
+                                                            <span className="text-body-md text-on-surface group-hover:text-primary transition-colors">{item.title}</span>
+                                                            <span className={`material-symbols-outlined text-base text-outline transition-transform ${expandedId === item.id ? 'rotate-180' : ''}`}>expand_more</span>
                                                         </div>
                                                     </td>
-                                                    <td className="hidden md:table-cell px-4 py-4 text-right text-body-sm text-on-surface-variant whitespace-nowrap">
+                                                    <td className="px-6 py-5 text-right text-body-sm text-on-surface-variant whitespace-nowrap">
                                                         {formatDate(item.createdAt)}
+                                                    </td>
+                                                    <td className="px-6 py-5 text-right" onClick={e => e.stopPropagation()}>
+                                                        <div className="flex items-center justify-end gap-2">
+                                                            {item.status === 'PENDING' && (
+                                                                <button
+                                                                    className="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-primary transition-all"
+                                                                    title="수정"
+                                                                    onClick={() => handleEdit(item)}
+                                                                >
+                                                                    <span className="material-symbols-outlined text-base">edit</span>
+                                                                </button>
+                                                            )}
+                                                            <button
+                                                                className="p-1.5 rounded-lg text-on-surface-variant hover:bg-error-container/30 hover:text-error transition-all disabled:opacity-40"
+                                                                title="삭제"
+                                                                disabled={deletingId === item.id}
+                                                                onClick={() => handleDelete(item.id!)}
+                                                            >
+                                                                <span className="material-symbols-outlined text-base">delete</span>
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             )}
-                                            {editingId !== item.id && (
+                                            {expandedId === item.id && editingId !== item.id && (
                                                 <tr className="bg-surface-container-low">
-                                                    <td colSpan={5} className="p-0">
-                                                        <div
-                                                            style={{
-                                                                display: 'grid',
-                                                                gridTemplateRows: expandedId === item.id ? '1fr' : '0fr',
-                                                                transition: 'grid-template-rows 0.25s ease',
-                                                            }}
-                                                        >
-                                                            <div className="overflow-hidden">
-                                                                <div className="px-6 py-5 space-y-4">
-                                                                    {/* 문의 내용 */}
-                                                                    <div>
-                                                                        <p className="text-label-bold text-on-surface-variant mb-2">문의 내용</p>
-                                                                        <p className="text-body-md text-on-surface leading-relaxed whitespace-pre-wrap bg-white rounded-lg p-4 border border-outline-variant/30">{item.content}</p>
-                                                                    </div>
-                                                                    {/* 답변 */}
-                                                                    {item.status === 'RESOLVED' && item.answer && (
-                                                                        <div>
-                                                                            <p className="text-label-bold text-primary mb-2 flex items-center gap-1">
-                                                                                <span className="material-symbols-outlined text-base">support_agent</span>
-                                                                                관리자 답변
-                                                                            </p>
-                                                                            <p className="text-body-md text-on-surface leading-relaxed whitespace-pre-wrap bg-primary/5 rounded-lg p-4 border border-primary/20">{item.answer}</p>
-                                                                        </div>
-                                                                    )}
-                                                                    {item.status === 'PENDING' && (
-                                                                        <div className="flex items-center gap-2 text-on-surface-variant text-body-sm">
-                                                                            <span className="material-symbols-outlined text-base">schedule</span>
-                                                                            영업일 기준 24시간 이내에 답변 드리겠습니다.
-                                                                        </div>
-                                                                    )}
-                                                                    {/* 액션 버튼 */}
-                                                                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-outline-variant/30">
-                                                                        {item.status === 'PENDING' && (
-                                                                            <button
-                                                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-body-sm text-on-surface-variant border border-outline-variant hover:bg-surface-container hover:text-primary transition-all"
-                                                                                onClick={(e) => { e.stopPropagation(); handleEdit(item) }}
-                                                                            >
-                                                                                <span className="material-symbols-outlined text-base">edit</span>
-                                                                                수정
-                                                                            </button>
-                                                                        )}
-                                                                        <button
-                                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-body-sm text-on-surface-variant border border-outline-variant hover:bg-error-container/30 hover:text-error hover:border-error/30 transition-all disabled:opacity-40"
-                                                                            disabled={deletingId === item.id}
-                                                                            onClick={(e) => { e.stopPropagation(); handleDelete(item.id!) }}
-                                                                        >
-                                                                            <span className="material-symbols-outlined text-base">delete</span>
-                                                                            삭제
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
+                                                    <td colSpan={5} className="px-6 py-5">
+                                                        <div className="space-y-4">
+                                                            {/* 문의 내용 */}
+                                                            <div>
+                                                                <p className="text-label-bold text-on-surface-variant mb-2">문의 내용</p>
+                                                                <p className="text-body-md text-on-surface leading-relaxed whitespace-pre-wrap bg-white rounded-lg p-4 border border-outline-variant/30">{item.content}</p>
                                                             </div>
+                                                            {/* 답변 */}
+                                                            {item.status === 'RESOLVED' && item.answer && (
+                                                                <div>
+                                                                    <p className="text-label-bold text-primary mb-2 flex items-center gap-1">
+                                                                        <span className="material-symbols-outlined text-base">support_agent</span>
+                                                                        관리자 답변
+                                                                    </p>
+                                                                    <p className="text-body-md text-on-surface leading-relaxed whitespace-pre-wrap bg-primary/5 rounded-lg p-4 border border-primary/20">{item.answer}</p>
+                                                                </div>
+                                                            )}
+                                                            {item.status === 'PENDING' && (
+                                                                <div className="flex items-center gap-2 text-on-surface-variant text-body-sm">
+                                                                    <span className="material-symbols-outlined text-base">schedule</span>
+                                                                    영업일 기준 24시간 이내에 답변 드리겠습니다.
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -366,12 +336,14 @@ function InquirySection() {
 export default function MyPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const { user, logout } = useAuth()
+    const { user, logout, updateProfileImage } = useAuth()
     const [trainerProfile, setTrainerProfile] = useState<TrainerProfile | null>(null)
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
     const [loading, setLoading] = useState(true)
     const [hydrated, setHydrated] = useState(false)
     const [activeTab, setActiveTab] = useState('matching')
+    const fileInputRef = useRef<HTMLInputElement>(null)
+    const [uploadingImage, setUploadingImage] = useState(false)
 
     useEffect(() => {
         setHydrated(true)
@@ -408,96 +380,113 @@ export default function MyPage() {
 
     if (!hydrated || loading) {
         return (
-            <main className="mx-auto flex w-full max-w-[1440px] flex-grow flex-col gap-md px-margin-mobile pb-lg pt-20 md:px-margin-desktop">
-                {/* 프로필 헤더 스켈레톤 */}
-                <div className="flex flex-col gap-4 rounded-xl bg-surface-container-low p-md sm:flex-row sm:items-center sm:justify-between" style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}>
-                    <div className="flex items-center gap-md">
-                        <div className="h-16 w-16 flex-shrink-0 rounded-full bg-surface-container animate-pulse sm:h-24 sm:w-24" />
-                        <div className="space-y-2">
-                            <div className="h-5 w-32 rounded-lg bg-surface-container animate-pulse" />
-                            <div className="h-4 w-20 rounded-lg bg-surface-container animate-pulse" />
-                        </div>
-                    </div>
-                    <div className="h-10 w-full rounded-lg bg-surface-container animate-pulse sm:w-28" />
-                </div>
-
-                {/* 사이드바 + 콘텐츠 스켈레톤 */}
-                <div className="flex flex-grow flex-col gap-md lg:flex-row">
-                    {/* 사이드바 */}
-                    <aside className="flex-shrink-0 lg:w-64">
-                        <div className="space-y-xs">
-                            {Array.from({ length: 4 }).map((_, i) => (
-                                <div key={i} className="h-11 rounded-lg bg-surface-container animate-pulse" />
-                            ))}
-                        </div>
-                    </aside>
-
-                    {/* 콘텐츠 */}
-                    <div className="flex-grow space-y-md">
-                        {/* 요약 카드 3개 */}
-                        <div className="grid grid-cols-3 gap-md">
-                            {Array.from({ length: 3 }).map((_, i) => (
-                                <div key={i} className="h-24 rounded-xl bg-surface-container animate-pulse" />
-                            ))}
-                        </div>
-                        {/* 테이블 */}
-                        <div className="rounded-xl border border-outline-variant overflow-hidden bg-surface-container-lowest" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
-                            <div className="h-12 bg-surface-container-low border-b border-outline-variant animate-pulse" />
-                            <div className="divide-y divide-outline-variant/30">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                    <div key={i} className="flex items-center gap-4 px-4 py-4">
-                                        <div className="h-6 w-16 rounded-full bg-surface-container animate-pulse" />
-                                        <div className="h-4 flex-1 rounded bg-surface-container animate-pulse" style={{ maxWidth: `${50 + (i * 13) % 35}%` }} />
-                                        <div className="hidden md:block h-4 w-20 rounded bg-surface-container animate-pulse" />
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <main className="flex justify-center py-20 pt-16 md:pt-20">
+                <span className="material-symbols-outlined animate-spin text-4xl text-primary">
+                    progress_activity
+                </span>
             </main>
         )
+    }
+
+    const handleProfileImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        setUploadingImage(true)
+        const client = getAuthClient()
+
+        const formData = new FormData()
+        formData.append('file', file)
+
+        try {
+            const uploadRes = await fetch('http://localhost:8080/api/files/upload', {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${JSON.parse(localStorage.getItem('fitmate_user') ?? '{}').token}`,
+                },
+                body: formData,
+            })
+
+            if (!uploadRes.ok) {
+                alert('이미지 업로드에 실패했습니다.')
+                return
+            }
+
+            const { url } = await uploadRes.json()
+
+            await client.PATCH('/api/members/me', {
+                body: { profileImage: url },
+            })
+
+            updateProfileImage(url)
+
+            await fetchMyProfile()
+        } catch (err) {
+            console.error(err)
+            alert('이미지 업로드 중 오류가 발생했습니다.')
+        } finally {
+            setUploadingImage(false)
+            e.target.value = ''
+        }
     }
 
     return (
         <main className="mx-auto flex w-full max-w-[1440px] flex-grow flex-col gap-md px-margin-mobile pb-lg pt-20 md:px-margin-desktop">
             {/* 프로필 헤더 */}
             <div
-                className="flex flex-col gap-4 rounded-xl bg-surface-container-low p-md sm:flex-row sm:items-center sm:justify-between"
+                className="flex items-center justify-between rounded-xl bg-surface-container-low p-md"
                 style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
             >
                 <div className="flex items-center gap-md">
-                    <div className="relative flex-shrink-0">
-                        <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-surface-container shadow-sm sm:h-24 sm:w-24">
+                    <div className="relative">
+                        <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-surface-container shadow-sm">
                             {profile?.profileImage ? (
                                 <img
-                                    src={profile.profileImage}
+                                    src={getImageUrl(profile.profileImage)}
                                     alt=""
                                     className="h-full w-full object-cover"
                                 />
                             ) : (
-                                <span className="material-symbols-outlined text-3xl text-outline sm:text-4xl">person</span>
+                                <span className="material-symbols-outlined text-4xl text-outline">
+                                    person
+                                </span>
                             )}
                         </div>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/jpeg,image/png,image/jpg,image/webp"
+                            className="hidden"
+                            onChange={handleProfileImageChange}
+                        />
                         <button
-                            className="absolute bottom-0 right-0 rounded-full border-2 border-white bg-primary p-1 text-white shadow-lg transition-transform hover:scale-110 sm:p-1.5"
-                            onClick={() => router.push('/mypage/edit')}
+                            className="absolute bottom-0 right-0 bg-primary text-white p-1.5 rounded-full shadow-lg border-2 border-white hover:scale-110 transition-transform disabled:opacity-50"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={uploadingImage}
                         >
-                            <span className="material-symbols-outlined text-[16px] sm:text-[18px]">edit</span>
+                            {uploadingImage ? (
+                                <span className="material-symbols-outlined text-[18px] animate-spin">
+                                    progress_activity
+                                </span>
+                            ) : (
+                                <span className="material-symbols-outlined text-[18px]">edit</span>
+                            )}
                         </button>
                     </div>
-                    <div className="min-w-0">
-                        <h1 className="truncate text-title-lg font-bold text-on-surface sm:text-headline-md sm:font-headline-md">
+                    <div>
+                        <h1 className="text-headline-md font-headline-md text-on-surface">
                             {user?.userName}
                         </h1>
-                        <p className="flex items-center gap-xs text-body-sm text-on-surface-variant sm:text-body-md">
-                            <span className="material-symbols-outlined text-[16px]">fitness_center</span>
+                        <p className="flex items-center gap-xs text-body-md text-on-surface-variant">
+                            <span className="material-symbols-outlined text-[16px]">
+                                fitness_center
+                            </span>
                             {user?.role === 'TRAINER' ? '트레이너' : '일반 회원'}
                         </p>
                     </div>
                 </div>
                 <button
-                    className="flex w-full items-center justify-center gap-xs rounded-lg border border-outline-variant bg-surface-container-high px-md py-sm font-label-bold text-on-surface transition-all hover:bg-surface-container-highest sm:w-auto"
+                    className="flex items-center gap-xs rounded-lg border border-outline-variant bg-surface-container-high px-md py-sm font-label-bold text-on-surface transition-all hover:bg-surface-container-highest"
                     onClick={() => router.push('/mypage/edit')}
                 >
                     <span className="material-symbols-outlined">settings</span>
@@ -513,14 +502,13 @@ export default function MyPage() {
                         {[
                             { id: 'matching', icon: 'handshake', label: '매칭 관리' },
                             { id: 'reviews', icon: 'rate_review', label: '리뷰 관리' },
-                            { id: 'inquiries', icon: 'help_center', label: '문의 내역' },
                             { id: 'account', icon: 'manage_accounts', label: '계정 설정' },
                         ].map(({ id, icon, label }) => (
                             <button
                                 key={id}
                                 className={`flex w-full items-center gap-md rounded-lg px-md py-sm font-label-bold transition-all ${
                                     activeTab === id
-                                        ? 'bg-primary text-on-primary'
+                                        ? 'bg-primary-container text-on-primary-container'
                                         : 'text-on-surface-variant hover:bg-surface-container-low'
                                 }`}
                                 onClick={() => setActiveTab(id)}
@@ -545,7 +533,9 @@ export default function MyPage() {
                                     style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
                                 >
                                     <div className="flex items-center gap-sm text-primary">
-                                        <span className="material-symbols-outlined">outgoing_mail</span>
+                                        <span className="material-symbols-outlined">
+                                            outgoing_mail
+                                        </span>
                                         <span className="text-label-bold">보낸 요청</span>
                                     </div>
                                     <div className="flex-grow py-sm">
@@ -621,9 +611,9 @@ export default function MyPage() {
                             >
                                 <button className="flex w-full items-center justify-between border-b border-outline-variant p-md transition-colors hover:bg-white/50">
                                     <div className="flex items-center gap-md">
-                    <span className="material-symbols-outlined text-on-surface-variant">
-                      lock
-                    </span>
+                                        <span className="material-symbols-outlined text-on-surface-variant">
+                                            lock
+                                        </span>
                                         <div className="text-left">
                                             <p className="text-label-bold text-on-surface">
                                                 비밀번호 및 보안
@@ -634,8 +624,8 @@ export default function MyPage() {
                                         </div>
                                     </div>
                                     <span className="material-symbols-outlined text-outline">
-                    chevron_right
-                  </span>
+                                        chevron_right
+                                    </span>
                                 </button>
                                 <button
                                     className="group flex w-full items-center justify-between p-md transition-colors hover:bg-error-container/20"
@@ -654,8 +644,8 @@ export default function MyPage() {
                                         </div>
                                     </div>
                                     <span className="material-symbols-outlined text-error opacity-0 transition-opacity group-hover:opacity-100">
-                    arrow_forward
-                  </span>
+                                        arrow_forward
+                                    </span>
                                 </button>
                             </div>
                         </section>
