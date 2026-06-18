@@ -12,8 +12,24 @@ VALUES
     ('user01', '김철수', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '철수', 'user01@fitmate.com', 'USER', NULL, '서울', '운동 초보입니다.', '010-1111-1111', NOW(), NOW()),
     ('user02', '이영희', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '영희', 'user02@fitmate.com', 'USER', NULL, '부산', '다이어트가 목표입니다.', '010-2222-2222', NOW(), NOW()),
     ('user03', '박민준', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '민준', 'user03@fitmate.com', 'USER', NULL, '인천', '근육 키우고 싶어요.', '010-3333-3333', NOW(), NOW()),
-    ('trainer01', '최트레이너', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '최코치', 'trainer01@fitmate.com', 'TRAINER', NULL, '서울', '10년 경력의 PT 전문 트레이너입니다.', '010-4444-4444', NOW(), NOW()),
-    ('trainer02', '정트레이너', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '정코치', 'trainer02@fitmate.com', 'TRAINER', NULL, '부산', '수영, 필라테스 전문입니다.', '010-5555-5555', NOW(), NOW()),
+    ('trainer01', '최민호', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '최코치', 'trainer01@fitmate.com', 'TRAINER', NULL, '서울', '10년 경력의 PT 전문 트레이너입니다.', '010-4444-4444', NOW(), NOW()),
+    ('trainer02', '정상훈', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '정코치', 'trainer02@fitmate.com', 'TRAINER', NULL, '부산', '수영, 필라테스 전문입니다.', '010-5555-5555', NOW(), NOW()),
+    ('trainer03', '김태양', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '태양코치', 'trainer03@fitmate.com', 'TRAINER', NULL, '서울', '필라테스 전문 트레이너입니다.', '010-6001-0003', NOW(), NOW()),
+    ('trainer04', '이준호', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '준호코치', 'trainer04@fitmate.com', 'TRAINER', NULL, '부산', '크로스핏 전문가입니다.', '010-6001-0004', NOW(), NOW()),
+    ('trainer05', '박서연', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '서연코치', 'trainer05@fitmate.com', 'TRAINER', NULL, '인천', '요가 10년 경력입니다.', '010-6001-0005', NOW(), NOW()),
+    ('trainer06', '최민기', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '민기코치', 'trainer06@fitmate.com', 'TRAINER', NULL, '대구', '헬스 전문 트레이너입니다.', '010-6001-0006', NOW(), NOW()),
+    ('trainer07', '정하은', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '하은코치', 'trainer07@fitmate.com', 'TRAINER', NULL, '광주', '수영 국가대표 출신입니다.', '010-6001-0007', NOW(), NOW()),
+    ('trainer08', '한도윤', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '도윤코치', 'trainer08@fitmate.com', 'TRAINER', NULL, '대전', '테니스 레슨 전문입니다.', '010-6001-0008', NOW(), NOW()),
+    ('trainer09', '오지민', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '지민코치', 'trainer09@fitmate.com', 'TRAINER', NULL, '서울', '골프 레슨 전문가입니다.', '010-6001-0009', NOW(), NOW()),
+    ('trainer10', '서윤아', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '윤아코치', 'trainer10@fitmate.com', 'TRAINER', NULL, '부산', '댄스 전문 강사입니다.', '010-6001-0010', NOW(), NOW()),
+    ('trainer11', '강현우', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '현우코치', 'trainer11@fitmate.com', 'TRAINER', NULL, '인천', '헬스, 크로스핏 트레이너입니다.', '010-6001-0011', NOW(), NOW()),
+    ('trainer12', '윤소희', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '소희코치', 'trainer12@fitmate.com', 'TRAINER', NULL, '서울', '필라테스, 요가 강사입니다.', '010-6001-0012', NOW(), NOW()),
+    ('trainer13', '임재현', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '재현코치', 'trainer13@fitmate.com', 'TRAINER', NULL, '대구', '수영 전문 트레이너입니다.', '010-6001-0013', NOW(), NOW()),
+    ('trainer14', '신예진', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '예진코치', 'trainer14@fitmate.com', 'TRAINER', NULL, '광주', '댄스, 요가 강사입니다.', '010-6001-0014', NOW(), NOW()),
+    ('trainer15', '조성민', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '성민코치', 'trainer15@fitmate.com', 'TRAINER', NULL, '대전', '헬스 전문 트레이너입니다.', '010-6001-0015', NOW(), NOW()),
+    ('trainer16', '권나연', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '나연코치', 'trainer16@fitmate.com', 'TRAINER', NULL, '서울', '테니스, 골프 트레이너입니다.', '010-6001-0016', NOW(), NOW()),
+    ('trainer17', '문재호', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '재호코치', 'trainer17@fitmate.com', 'TRAINER', NULL, '부산', '크로스핏 전문가입니다.', '010-6001-0017', NOW(), NOW()),
+    ('trainer18', '백수진', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '수진코치', 'trainer18@fitmate.com', 'TRAINER', NULL, '인천', '필라테스 전문 트레이너입니다.', '010-6001-0018', NOW(), NOW()),
     ('admin01', '관리자', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '관리자', 'admin@fitmate.com', 'ADMIN', NULL, NULL, NULL, '010-0000-0000', NOW(), NOW());
 
 -- =============================================
@@ -38,6 +54,54 @@ FROM members WHERE user_id = 'trainer01';
 INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
 SELECT id, '수영,필라테스', 'GROUP', '입문/초보,중급', 60000, 5, NOW(), NOW()
 FROM members WHERE user_id = 'trainer02';
+
+INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
+SELECT id, '필라테스', 'ONE_TO_ONE', '입문/초보,중급', 70000, 4, NOW(), NOW() FROM members WHERE user_id = 'trainer03';
+
+INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
+SELECT id, '크로스핏', 'GROUP', '중급,고급/대회준비', 65000, 6, NOW(), NOW() FROM members WHERE user_id = 'trainer04';
+
+INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
+SELECT id, '요가', 'ONE_TO_ONE', '입문/초보,중급,고급/대회준비', 90000, 10, NOW(), NOW() FROM members WHERE user_id = 'trainer05';
+
+INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
+SELECT id, '헬스', 'ONE_TO_ONE', '입문/초보', 50000, 2, NOW(), NOW() FROM members WHERE user_id = 'trainer06';
+
+INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
+SELECT id, '수영', 'GROUP', '중급,고급/대회준비', 75000, 8, NOW(), NOW() FROM members WHERE user_id = 'trainer07';
+
+INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
+SELECT id, '테니스', 'ONE_TO_ONE', '중급,고급/대회준비', 100000, 12, NOW(), NOW() FROM members WHERE user_id = 'trainer08';
+
+INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
+SELECT id, '골프', 'ONE_TO_ONE', '입문/초보,중급', 120000, 7, NOW(), NOW() FROM members WHERE user_id = 'trainer09';
+
+INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
+SELECT id, '댄스', 'GROUP', '입문/초보', 55000, 3, NOW(), NOW() FROM members WHERE user_id = 'trainer10';
+
+INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
+SELECT id, '헬스,크로스핏', 'ONE_TO_ONE', '중급,고급/대회준비', 85000, 9, NOW(), NOW() FROM members WHERE user_id = 'trainer11';
+
+INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
+SELECT id, '필라테스,요가', 'ONE_TO_ONE', '입문/초보,중급', 80000, 5, NOW(), NOW() FROM members WHERE user_id = 'trainer12';
+
+INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
+SELECT id, '수영', 'ONE_TO_ONE', '입문/초보', 60000, 4, NOW(), NOW() FROM members WHERE user_id = 'trainer13';
+
+INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
+SELECT id, '댄스,요가', 'GROUP', '중급', 58000, 5, NOW(), NOW() FROM members WHERE user_id = 'trainer14';
+
+INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
+SELECT id, '헬스', 'ONLINE', '입문/초보,중급', 45000, 3, NOW(), NOW() FROM members WHERE user_id = 'trainer15';
+
+INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
+SELECT id, '테니스,골프', 'ONE_TO_ONE', '고급/대회준비', 130000, 15, NOW(), NOW() FROM members WHERE user_id = 'trainer16';
+
+INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
+SELECT id, '크로스핏', 'ONE_TO_ONE', '중급,고급/대회준비', 95000, 11, NOW(), NOW() FROM members WHERE user_id = 'trainer17';
+
+INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
+SELECT id, '필라테스', 'GROUP', '입문/초보,중급', 67000, 6, NOW(), NOW() FROM members WHERE user_id = 'trainer18';
 
 -- =============================================
 -- 매칭 요청 (matching_request)
