@@ -56,7 +56,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login", "/api/auth/signup", "/api/auth/reissue",
                                 "/ws/**", "/swagger-ui/**", "/v3/api-docs/**", "/uploads/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/reviews/trainer/**").permitAll()  // ← 추가
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/trainer/**","/api/reviews/popular-trainers",
+                                "/api/reviews/real").permitAll()  // ← 추가
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2

@@ -368,10 +368,42 @@ export interface paths {
         get: operations["getMyInfo"];
         put?: never;
         post?: never;
-        delete?: never;
+        delete: operations["deleteMyAccount"];
         options?: never;
         head?: never;
         patch: operations["updateMyInfo"];
+        trace?: never;
+    };
+    "/api/members/me/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["changeRole"];
+        trace?: never;
+    };
+    "/api/members/me/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["changePassword"];
         trace?: never;
     };
     "/api/lesson-requests/{lessonRequestId}/reject": {
@@ -587,6 +619,46 @@ export interface paths {
          * @description 트레이너가 자신이 받은 후기 목록을 조회합니다.
          */
         get: operations["getReceivedReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reviews/real": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 리얼 후기 조회
+         * @description 별점 높은 대표 후기 목록 (메인 페이지).
+         */
+        get: operations["getRealReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reviews/popular-trainers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 인기 트레이너 조회
+         * @description 후기 평점·개수 기반 인기 트레이너 목록 (메인 페이지).
+         */
+        get: operations["getPopularTrainers"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1004,6 +1076,8 @@ export interface components {
             region?: string;
             introduction?: string;
             phone?: string;
+            /** Format: email */
+            email?: string;
         };
         MemberResponse: {
             /** Format: int64 */
@@ -1018,6 +1092,14 @@ export interface components {
             region?: string;
             introduction?: string;
             phone?: string;
+        };
+        RoleChangeRequest: {
+            /** @enum {string} */
+            role: "USER" | "TRAINER";
+        };
+        PasswordChangeRequest: {
+            currentPassword: string;
+            newPassword: string;
         };
         InquiryUpdateRequest: {
             /** @enum {string} */
@@ -1037,8 +1119,8 @@ export interface components {
             content?: components["schemas"]["TrainerProfileResponse"][];
             /** Format: int32 */
             number?: number;
-            sort?: components["schemas"]["SortObject"];
             pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
             /** Format: int32 */
             numberOfElements?: number;
             empty?: boolean;
@@ -1046,18 +1128,18 @@ export interface components {
         PageableObject: {
             /** Format: int64 */
             offset?: number;
-            sort?: components["schemas"]["SortObject"];
-            unpaged?: boolean;
             paged?: boolean;
             /** Format: int32 */
             pageNumber?: number;
             /** Format: int32 */
             pageSize?: number;
+            sort?: components["schemas"]["SortObject"];
+            unpaged?: boolean;
         };
         SortObject: {
             empty?: boolean;
-            unsorted?: boolean;
             sorted?: boolean;
+            unsorted?: boolean;
         };
         WritableReviewResponse: {
             /** Format: int64 */
@@ -1119,11 +1201,35 @@ export interface components {
             content?: components["schemas"]["ReviewResponse"][];
             /** Format: int32 */
             number?: number;
-            sort?: components["schemas"]["SortObject"];
             pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
             /** Format: int32 */
             numberOfElements?: number;
             empty?: boolean;
+        };
+        RealReviewResponse: {
+            /** Format: int64 */
+            id?: number;
+            reviewerNickname?: string;
+            trainerNickname?: string;
+            /** Format: int32 */
+            rating?: number;
+            content?: string;
+            createdAt?: string;
+        };
+        PopularTrainerResponse: {
+            /** Format: int64 */
+            trainerId?: number;
+            /** Format: int64 */
+            trainerProfileId?: number;
+            nickname?: string;
+            profileImage?: string;
+            sports?: string;
+            region?: string;
+            /** Format: double */
+            averageRating?: number;
+            /** Format: int64 */
+            reviewCount?: number;
         };
         TrainerSummaryDto: {
             /** Format: int64 */
@@ -1143,8 +1249,8 @@ export interface components {
             content?: components["schemas"]["InquiryResponse"][];
             /** Format: int32 */
             number?: number;
-            sort?: components["schemas"]["SortObject"];
             pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
             /** Format: int32 */
             numberOfElements?: number;
             empty?: boolean;
@@ -1900,6 +2006,24 @@ export interface operations {
             };
         };
     };
+    deleteMyAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     updateMyInfo: {
         parameters: {
             query?: never;
@@ -1921,6 +2045,50 @@ export interface operations {
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["MemberResponse"];
                 };
+            };
+        };
+    };
+    changeRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoleChangeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    changePassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordChangeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -2216,6 +2384,50 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["PageReviewResponse"];
+                };
+            };
+        };
+    };
+    getRealReviews: {
+        parameters: {
+            query?: {
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["RealReviewResponse"][];
+                };
+            };
+        };
+    };
+    getPopularTrainers: {
+        parameters: {
+            query?: {
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["PopularTrainerResponse"][];
                 };
             };
         };
