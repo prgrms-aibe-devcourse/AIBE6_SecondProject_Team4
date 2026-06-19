@@ -668,6 +668,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/reviews/real": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 리얼 후기 조회
+         * @description 별점 높은 대표 후기 목록 (메인 페이지).
+         */
+        get: operations["getRealReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reviews/popular-trainers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 인기 트레이너 조회
+         * @description 후기 평점·개수 기반 인기 트레이너 목록 (메인 페이지).
+         */
+        get: operations["getPopularTrainers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/reviews/my": {
         parameters: {
             query?: never;
@@ -1145,28 +1185,28 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["TrainerProfileResponse"][];
             /** Format: int32 */
             number?: number;
-            first?: boolean;
-            last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            sort?: components["schemas"]["SortObject"];
             pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
         };
         PageableObject: {
             /** Format: int64 */
             offset?: number;
             paged?: boolean;
-            sort?: components["schemas"]["SortObject"];
-            /** Format: int32 */
-            pageSize?: number;
             /** Format: int32 */
             pageNumber?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            sort?: components["schemas"]["SortObject"];
             unpaged?: boolean;
         };
         SortObject: {
@@ -1227,18 +1267,42 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["ReviewResponse"][];
             /** Format: int32 */
             number?: number;
-            first?: boolean;
-            last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            sort?: components["schemas"]["SortObject"];
             pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
+        };
+        RealReviewResponse: {
+            /** Format: int64 */
+            id?: number;
+            reviewerNickname?: string;
+            trainerNickname?: string;
+            /** Format: int32 */
+            rating?: number;
+            content?: string;
+            createdAt?: string;
+        };
+        PopularTrainerResponse: {
+            /** Format: int64 */
+            trainerId?: number;
+            /** Format: int64 */
+            trainerProfileId?: number;
+            nickname?: string;
+            profileImage?: string;
+            sports?: string;
+            region?: string;
+            /** Format: double */
+            averageRating?: number;
+            /** Format: int64 */
+            reviewCount?: number;
         };
         TrainerSummaryDto: {
             /** Format: int64 */
@@ -1251,17 +1315,17 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["InquiryResponse"][];
             /** Format: int32 */
             number?: number;
-            first?: boolean;
-            last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            sort?: components["schemas"]["SortObject"];
             pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
         };
         ChatResponseDto: {
@@ -2418,6 +2482,50 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["PageReviewResponse"];
+                };
+            };
+        };
+    };
+    getRealReviews: {
+        parameters: {
+            query?: {
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["RealReviewResponse"][];
+                };
+            };
+        };
+    };
+    getPopularTrainers: {
+        parameters: {
+            query?: {
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["PopularTrainerResponse"][];
                 };
             };
         };
