@@ -21,7 +21,9 @@ public record TrainerProfileResponse(
         Integer careerYears,
         List<AvailableTimeResponse> availableTimes,
         List<String> lessonPhotos,
-        Boolean isPublic
+        Boolean isPublic,
+        Double averageRating,
+        Long reviewCount
 ) {
     public static TrainerProfileResponse from(TrainerProfile profile) {
         return new TrainerProfileResponse(
@@ -38,7 +40,9 @@ public record TrainerProfileResponse(
                 profile.getCareerYears(),
                 List.of(),
                 List.of(),
-                profile.getIsPublic()
+                profile.getIsPublic(),
+                null,
+                null
         );
     }
 
@@ -46,6 +50,16 @@ public record TrainerProfileResponse(
             TrainerProfile profile,
             List<TrainerAvailableTime> availableTimes,
             List<TrainerLessonPhoto> lessonPhotos
+    ) {
+        return from(profile, availableTimes, lessonPhotos, null, null);
+    }
+
+    public static TrainerProfileResponse from(
+            TrainerProfile profile,
+            List<TrainerAvailableTime> availableTimes,
+            List<TrainerLessonPhoto> lessonPhotos,
+            Double averageRating,
+            Long reviewCount
     ) {
         return new TrainerProfileResponse(
                 profile.getId(),
@@ -65,7 +79,9 @@ public record TrainerProfileResponse(
                 lessonPhotos.stream()
                         .map(TrainerLessonPhoto::getImageUrl)
                         .toList(),
-                profile.getIsPublic()
+                profile.getIsPublic(),
+                averageRating,
+                reviewCount
         );
     }
 

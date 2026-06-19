@@ -5,12 +5,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByTrainerId(Long trainerId);
+
     Optional<Review> findByMatchingRequestId(Long matchingRequestId);
 
     // 트레이너별 평균 평점
@@ -32,6 +34,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByReviewerId(Long reviewerId);
 
     Page<Review> findByReviewerId(Long reviewerId, Pageable pageable);
+
     Page<Review> findByTrainerId(Long trainerId, Pageable pageable);
 
     // AI 추천 사유 생성에 사용할 최근 리뷰 3개
@@ -52,4 +55,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             "GROUP BY r.trainer.id " +
             "ORDER BY AVG(r.rating) DESC, COUNT(r) DESC")
     List<Object[]> findPopularTrainers(Pageable pageable);
+
+    // 여러 트레이너의 평균 평점/후기수를 한 번에 조회 (목록 페이지 N+1 방지)
+// 반환: [trainerId(Long), avgRating(Double), reviewCount(Long)]
+    @Query("SELECT r.trainer.id, AVG(r.rating), COUNT(r) " +
+            "FROM Review r " +
+            "WHERE r.trainer.id IN :trainerIds " +
+            "GROUP BY r.trainer.id")
+    List<Object[]> findRatingStatsByTrainerIds(@Param("trainerIds") List<Long> trainerIds);
 }
