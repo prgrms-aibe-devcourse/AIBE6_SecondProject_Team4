@@ -266,6 +266,33 @@ export default function ProfileEditPage() {
                   { id: 'specialty', icon: 'fitness_center', label: '관심 종목' },
                   { id: 'goal', icon: 'flag', label: '목표 설정' },
               ]
+    const calculateCompleteness = () => {
+        if (user?.role === 'TRAINER') {
+            const fields = [
+                trainerForm.sports.length > 0,
+                trainerForm.lessonType !== '',
+                trainerForm.lessonLevel.length > 0,
+                trainerForm.price !== '',
+                trainerForm.careerYears !== '',
+                trainerForm.region !== '',
+                trainerForm.introduction !== '',
+                trainerForm.availableTimes.length > 0,
+                trainerForm.lessonPhotos.length > 0,
+            ]
+            const filled = fields.filter(Boolean).length
+            return Math.round((filled / fields.length) * 100)
+        } else {
+            const fields = [
+                userForm.sports.length > 0,
+                userForm.level !== '',
+                userForm.goal.length > 0,
+                userForm.region !== '',
+                userForm.introduction !== '',
+            ]
+            const filled = fields.filter(Boolean).length
+            return Math.round((filled / fields.length) * 100)
+        }
+    }
 
     return (
         <main className="pt-16 md:pt-20">
@@ -308,12 +335,12 @@ export default function ProfileEditPage() {
                             </p>
                             <div className="w-full bg-surface-container rounded-full h-2">
                                 <div
-                                    className="bg-primary h-2 rounded-full"
-                                    style={{ width: '60%' }}
+                                    className="bg-primary h-2 rounded-full transition-all"
+                                    style={{ width: `${calculateCompleteness()}%` }}
                                 ></div>
                             </div>
                             <p className="text-label-md font-label-md text-on-surface-variant mt-xs">
-                                60% 완성
+                                {calculateCompleteness()}% 완성
                             </p>
                         </div>
                     </div>
