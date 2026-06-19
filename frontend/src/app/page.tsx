@@ -1,9 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { apiClient, getImageUrl } from '@/utils/apiClient';
+import { useEffect, useState } from 'react';
 
-import { apiClient, getImageUrl } from '@/utils/apiClient'
+
+
+import { useRouter } from 'next/navigation';
+
+
+
+
+
+
+
+
+
 
 const categories = [
     { icon: 'fitness_center', label: '헬스', active: true },
@@ -32,6 +43,7 @@ interface PopularTrainer {
 interface RealReview {
     id: number
     reviewerNickname: string
+    reviewerProfileImage: string | null
     trainerNickname: string
     rating: number
     content: string
@@ -340,11 +352,20 @@ export default function Home() {
                                     }`}
                                 >
                                     <div className="flex items-center gap-4 mb-4">
-                                        <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center shadow-sm">
-                                            <span className="material-symbols-outlined text-outline-variant text-3xl">
-                                                person
-                                            </span>
-                                        </div>
+                                        {review.reviewerProfileImage ? (
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            <img
+                                                className="w-16 h-16 rounded-full object-cover shadow-sm"
+                                                alt={review.reviewerNickname}
+                                                src={getImageUrl(review.reviewerProfileImage)}
+                                            />
+                                        ) : (
+                                            <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center shadow-sm">
+                                                <span className="material-symbols-outlined text-outline-variant text-3xl">
+                                                    person
+                                                </span>
+                                            </div>
+                                        )}
                                         <div>
                                             <p className="font-label-bold text-label-bold">
                                                 {review.reviewerNickname} 님
