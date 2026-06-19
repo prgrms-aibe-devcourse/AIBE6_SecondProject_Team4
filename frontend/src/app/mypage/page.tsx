@@ -4,32 +4,394 @@ import MyReviewList from '@/components/MyReviewList'
 import { useAuth } from '@/context/AuthContext'
 import type { components } from '@/types/api'
 import { getAuthClient, getImageUrl } from '@/utils/apiClient'
-import { useEffect, useRef, useState } from 'react'
-
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { Fragment, useEffect, useRef, useState } from 'react'
 
 type TrainerProfile = components['schemas']['TrainerProfileResponse']
 type UserProfile = components['schemas']['UserProfileResponse']
+type InquiryResponse = components['schemas']['InquiryResponse']
+
+const TYPE_LABEL: Record<string, string> = {
+    MATCHING: '매칭',
+    TRAINER: '트레이너',
+    ETC: '기타',
+}
+
+function InquirySection() {
+    const [inquiries, setInquiries] = useState<InquiryResponse[]>([])
+    const [loading, setLoading] = useState(true)
+    const [page, setPage] = useState(0)
+    const [totalPages, setTotalPages] = useState(0)
+    const [totalElements, setTotalElements] = useState(0)
+    const [totalResolved, setTotalResolved] = useState(0)
+    const [totalPending, setTotalPending] = useState(0)
+    const [expandedId, setExpandedId] = useState<number | null>(null)
+    const [editingId, setEditingId] = useState<number | null>(null)
+    const [editForm, setEditForm] = useState<{ type: string; title: string; content: string }>({ type: '', title: '', content: '' })
+    const [saving, setSaving] = useState(false)
+    const [deletingId, setDeletingId] = useState<number | null>(null)
+
+    const client = getAuthClient()
+
+    const fetchAllCounts = async () => {
+        const { data } = await client.GET('/api/inquiries', {
+            params: { query: { page: 0, size: 9999 } as any },
+        })
+        if (data?.content) {
+            const all = data.content as InquiryResponse[]
+            setTotalResolved(all.filter(i => i.status === 'RESOLVED').length)
+            setTotalPending(all.filter(i => i.status === 'PENDING').length)
+        }
+    }
+
+    const fetchInquiries = async (p = 0) => {
+        setLoading(true)
+        const { data } = await client.GET('/api/inquiries', {
+            params: { query: { page: p, size: 10, sort: 'createdAt,desc' } as any },
+        })
+        if (data) {
+            setInquiries(data.content ?? [])
+            setTotalPages(data.totalPages ?? 0)
+            setTotalElements(data.totalElements ?? 0)
+            setPage(p)
+        }
+        setLoading(false)
+    }
+
+    useEffect(() => {
+        fetchInquiries(0)
+        fetchAllCounts()
+    }, [])
+
+    const handleEdit = (item: InquiryResponse) => {
+        setEditingId(item.id ?? null)
+        setEditForm({ type: item.type ?? 'ETC', title: item.title ?? '', content: item.content ?? '' })
+        setExpandedId(null)
+    }
+
+    const handleEditSave = async () => {
+        if (!editingId) return
+        setSaving(true)
+        const { response } = await client.PATCH('/api/inquiries/{inquiryId}', {
+            params: { path: { inquiryId: editingId } },
+            body: { type: editForm.type as any, title: editForm.title, content: editForm.content },
+        })
+        setSaving(false)
+        if (response.ok) {
+            setEditingId(null)
+            fetchInquiries(page)
+            fetchAllCounts()
+        }
+    }
+
+    const handleDelete = async (id: number) => {
+        if (!confirm('문의를 삭제하시겠습니까?')) return
+        setDeletingId(id)
+        const { response } = await client.DELETE('/api/inquiries/{inquiryId}', {
+            params: { path: { inquiryId: id } },
+        })
+        setDeletingId(null)
+        if (response.ok) {
+            fetchInquiries(page)
+            fetchAllCounts()
+        }
+    }
+
+    const formatDate = (dateStr?: string) => {
+        if (!dateStr) return '-'
+        return new Date(dateStr).toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\. /g, '.').replace('.', '')
+    }
+
+    return (
+        <section className="space-y-md">
+            {/* 헤더 */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <h2 className="text-headline-sm font-headline-sm text-on-surface">문의 내역 관리</h2>
+                <Link
+                    href="/inquiry"
+                    className="inline-flex items-center gap-2 bg-primary text-on-primary px-md py-sm rounded-lg font-label-bold hover:bg-primary-container transition-all active:scale-95 shadow-sm"
+                >
+                    <span className="material-symbols-outlined text-[18px]">edit_square</span>
+                    새 문의 작성
+                </Link>
+            </div>
+
+            {/* 요약 카드 */}
+            <div className="grid grid-cols-3 gap-2 sm:gap-md">
+                {[
+                    { label: '전체 문의', value: totalElements, icon: 'description', color: 'text-on-surface', bg: 'bg-surface-container' },
+                    { label: '답변 완료', value: totalResolved, icon: 'task_alt', color: 'text-primary', bg: 'bg-primary/10' },
+                    { label: '답변 대기', value: totalPending, icon: 'pending', color: 'text-on-surface-variant', bg: 'bg-surface-container-high' },
+                ].map(({ label, value, icon, color, bg }) => (
+                    <div key={label} className="bg-surface-container-lowest p-3 sm:p-md rounded-xl border border-outline-variant flex items-center justify-between" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
+                        <div>
+                            <p className="text-[11px] sm:text-body-sm text-on-surface-variant mb-1 whitespace-nowrap">{label}</p>
+                            {loading ? (
+                                <div className="h-6 w-8 sm:h-7 sm:w-10 rounded-md bg-surface-container animate-pulse mt-1" />
+                            ) : (
+                                <p className={`text-base sm:text-headline-md font-bold ${color}`}>{value}</p>
+                            )}
+                        </div>
+                        <div className={`hidden sm:flex w-11 h-11 rounded-full ${bg} items-center justify-center`}>
+                            <span className={`material-symbols-outlined ${color}`}>{icon}</span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* 테이블 */}
+            <div className="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
+                {loading ? (
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-[480px] text-left border-collapse">
+                            <thead>
+                                <tr className="bg-surface-container-low border-b border-outline-variant">
+                                    <th className="px-4 py-4"><div className="h-4 w-14 rounded bg-surface-container animate-pulse" /></th>
+                                    <th className="hidden sm:table-cell px-4 py-4"><div className="h-4 w-10 rounded bg-surface-container animate-pulse" /></th>
+                                    <th className="px-4 py-4"><div className="h-4 w-16 rounded bg-surface-container animate-pulse" /></th>
+                                    <th className="hidden md:table-cell px-4 py-4"><div className="h-4 w-14 rounded bg-surface-container animate-pulse ml-auto" /></th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-outline-variant/30">
+                                {Array.from({ length: 10 }).map((_, i) => (
+                                    <tr key={i}>
+                                        <td className="px-4 py-4"><div className="h-6 w-16 rounded-full bg-surface-container animate-pulse" /></td>
+                                        <td className="hidden sm:table-cell px-4 py-4"><div className="h-4 w-12 rounded bg-surface-container animate-pulse" /></td>
+                                        <td className="px-4 py-4"><div className="h-4 rounded bg-surface-container animate-pulse" style={{ width: `${60 + (i * 13) % 30}%` }} /></td>
+                                        <td className="hidden md:table-cell px-4 py-4"><div className="h-4 w-20 rounded bg-surface-container animate-pulse ml-auto" /></td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : inquiries.length === 0 ? (
+                    <div className="text-center py-16 text-on-surface-variant">
+                        <span className="material-symbols-outlined text-5xl block mb-3">inbox</span>
+                        <p className="text-body-md">문의 내역이 없습니다.</p>
+                        <Link href="/inquiry" className="mt-4 inline-flex items-center gap-1 text-primary text-body-sm font-semibold hover:underline">
+                            첫 문의 작성하기
+                            <span className="material-symbols-outlined text-base">arrow_forward</span>
+                        </Link>
+                    </div>
+                ) : (
+                    <>
+                        <div className="overflow-x-auto">
+                            <table className="w-full min-w-[480px] text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-surface-container-low border-b border-outline-variant">
+                                        <th className="px-4 py-4 text-label-bold font-label-bold text-on-surface-variant whitespace-nowrap">상태</th>
+                                        <th className="hidden sm:table-cell px-4 py-4 text-label-bold font-label-bold text-on-surface-variant whitespace-nowrap">유형</th>
+                                        <th className="px-4 py-4 text-label-bold font-label-bold text-on-surface-variant">제목</th>
+                                        <th className="hidden md:table-cell px-4 py-4 text-label-bold font-label-bold text-on-surface-variant text-right whitespace-nowrap">작성일</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-outline-variant/30">
+                                    {inquiries.map((item) => (
+                                        <Fragment key={item.id}>
+                                            {editingId === item.id ? (
+                                                <tr className="bg-surface-container-low">
+                                                    <td colSpan={5} className="px-6 py-5">
+                                                        <div className="space-y-3">
+                                                            <div className="flex gap-3">
+                                                                <select
+                                                                    className="bg-surface-container border border-outline-variant rounded-lg px-3 py-2 text-body-sm"
+                                                                    value={editForm.type}
+                                                                    onChange={e => setEditForm(f => ({ ...f, type: e.target.value }))}
+                                                                >
+                                                                    <option value="MATCHING">매칭</option>
+                                                                    <option value="TRAINER">트레이너</option>
+                                                                    <option value="ETC">기타</option>
+                                                                </select>
+                                                                <input
+                                                                    className="flex-1 bg-surface-container border border-outline-variant rounded-lg px-3 py-2 text-body-sm"
+                                                                    value={editForm.title}
+                                                                    onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))}
+                                                                    placeholder="제목"
+                                                                />
+                                                            </div>
+                                                            <textarea
+                                                                className="w-full bg-surface-container border border-outline-variant rounded-lg px-3 py-2 text-body-sm resize-none"
+                                                                rows={4}
+                                                                value={editForm.content}
+                                                                onChange={e => setEditForm(f => ({ ...f, content: e.target.value }))}
+                                                                placeholder="문의 내용"
+                                                            />
+                                                            <div className="flex gap-2 justify-end">
+                                                                <button
+                                                                    className="px-4 py-2 text-body-sm border border-outline-variant rounded-lg hover:bg-surface-container transition-all"
+                                                                    onClick={() => setEditingId(null)}
+                                                                >
+                                                                    취소
+                                                                </button>
+                                                                <button
+                                                                    className="px-4 py-2 text-body-sm bg-primary text-on-primary rounded-lg hover:bg-primary-container transition-all disabled:opacity-50"
+                                                                    onClick={handleEditSave}
+                                                                    disabled={saving}
+                                                                >
+                                                                    {saving ? '저장 중...' : '저장'}
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ) : (
+                                                <tr
+                                                    className="hover:bg-surface-container transition-all cursor-pointer group"
+                                                    onClick={() => setExpandedId(expandedId === item.id ? null : (item.id ?? null))}
+                                                >
+                                                    <td className="px-4 py-4 whitespace-nowrap">
+                                                        {item.status === 'RESOLVED' ? (
+                                                            <span className="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold whitespace-nowrap">답변 완료</span>
+                                                        ) : (
+                                                            <span className="px-2 py-1 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-semibold whitespace-nowrap">답변 대기</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="hidden sm:table-cell px-4 py-4 text-body-sm text-on-surface-variant whitespace-nowrap">
+                                                        {TYPE_LABEL[item.type ?? ''] ?? item.type}
+                                                    </td>
+                                                    <td className="px-4 py-4 max-w-0 w-full">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-body-sm text-on-surface group-hover:text-primary transition-colors truncate">{item.title}</span>
+                                                            <span className={`material-symbols-outlined text-base text-outline flex-shrink-0 transition-transform ${expandedId === item.id ? 'rotate-180' : ''}`}>expand_more</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="hidden md:table-cell px-4 py-4 text-right text-body-sm text-on-surface-variant whitespace-nowrap">
+                                                        {formatDate(item.createdAt)}
+                                                    </td>
+                                                </tr>
+                                            )}
+                                            {editingId !== item.id && (
+                                                <tr className="bg-surface-container-low">
+                                                    <td colSpan={5} className="p-0">
+                                                        <div
+                                                            style={{
+                                                                display: 'grid',
+                                                                gridTemplateRows: expandedId === item.id ? '1fr' : '0fr',
+                                                                transition: 'grid-template-rows 0.25s ease',
+                                                            }}
+                                                        >
+                                                            <div className="overflow-hidden">
+                                                                <div className="px-6 py-5 space-y-4">
+                                                                    {/* 문의 내용 */}
+                                                                    <div>
+                                                                        <p className="text-label-bold text-on-surface-variant mb-2">문의 내용</p>
+                                                                        <p className="text-body-md text-on-surface leading-relaxed whitespace-pre-wrap bg-white rounded-lg p-4 border border-outline-variant/30">{item.content}</p>
+                                                                    </div>
+                                                                    {/* 답변 */}
+                                                                    {item.status === 'RESOLVED' && item.answer && (
+                                                                        <div>
+                                                                            <p className="text-label-bold text-primary mb-2 flex items-center gap-1">
+                                                                                <span className="material-symbols-outlined text-base">support_agent</span>
+                                                                                관리자 답변
+                                                                            </p>
+                                                                            <p className="text-body-md text-on-surface leading-relaxed whitespace-pre-wrap bg-primary/5 rounded-lg p-4 border border-primary/20">{item.answer}</p>
+                                                                        </div>
+                                                                    )}
+                                                                    {item.status === 'PENDING' && (
+                                                                        <div className="flex items-center gap-2 text-on-surface-variant text-body-sm">
+                                                                            <span className="material-symbols-outlined text-base">schedule</span>
+                                                                            영업일 기준 24시간 이내에 답변 드리겠습니다.
+                                                                        </div>
+                                                                    )}
+                                                                    {/* 액션 버튼 */}
+                                                                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-outline-variant/30">
+                                                                        {item.status === 'PENDING' && (
+                                                                            <button
+                                                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-body-sm text-on-surface-variant border border-outline-variant hover:bg-surface-container hover:text-primary transition-all"
+                                                                                onClick={(e) => { e.stopPropagation(); handleEdit(item) }}
+                                                                            >
+                                                                                <span className="material-symbols-outlined text-base">edit</span>
+                                                                                수정
+                                                                            </button>
+                                                                        )}
+                                                                        <button
+                                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-body-sm text-on-surface-variant border border-outline-variant hover:bg-error-container/30 hover:text-error hover:border-error/30 transition-all disabled:opacity-40"
+                                                                            disabled={deletingId === item.id}
+                                                                            onClick={(e) => { e.stopPropagation(); handleDelete(item.id!) }}
+                                                                        >
+                                                                            <span className="material-symbols-outlined text-base">delete</span>
+                                                                            삭제
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </Fragment>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* 페이지네이션 */}
+                        {totalPages > 1 && (
+                            <div className="px-6 py-4 border-t border-outline-variant/30 flex items-center justify-center gap-2">
+                                <button
+                                    onClick={() => fetchInquiries(page - 1)}
+                                    disabled={page === 0}
+                                    className="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container text-on-surface-variant transition-all disabled:opacity-40"
+                                >
+                                    <span className="material-symbols-outlined text-sm">chevron_left</span>
+                                </button>
+                                {Array.from({ length: totalPages }, (_, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => fetchInquiries(i)}
+                                        className={`w-8 h-8 flex items-center justify-center rounded font-label-bold text-sm transition-all ${
+                                            i === page ? 'bg-primary text-on-primary' : 'hover:bg-surface-container text-on-surface-variant'
+                                        }`}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => fetchInquiries(page + 1)}
+                                    disabled={page === totalPages - 1}
+                                    className="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container text-on-surface-variant transition-all disabled:opacity-40"
+                                >
+                                    <span className="material-symbols-outlined text-sm">chevron_right</span>
+                                </button>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
+        </section>
+    )
+}
 
 export default function MyPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const { user, logout, updateProfileImage } = useAuth()
+    const fileInputRef = useRef<HTMLInputElement>(null)
+    const [uploadingImage, setUploadingImage] = useState(false)
     const [trainerProfile, setTrainerProfile] = useState<TrainerProfile | null>(null)
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
     const [loading, setLoading] = useState(true)
+    const [hydrated, setHydrated] = useState(false)
     const [activeTab, setActiveTab] = useState('matching')
-    const fileInputRef = useRef<HTMLInputElement>(null)
-    const [uploadingImage, setUploadingImage] = useState(false)
 
     useEffect(() => {
+        setHydrated(true)
+    }, [])
+
+    useEffect(() => {
+        const tab = searchParams.get('tab')
+        if (tab) setActiveTab(tab)
+    }, [searchParams])
+
+    useEffect(() => {
+        if (!hydrated) return
         if (!user) {
             router.push('/auth/login')
             return
         }
         fetchMyProfile()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user, searchParams])
+    }, [hydrated, user])
 
     const fetchMyProfile = async () => {
         const client = getAuthClient()
@@ -49,28 +411,13 @@ export default function MyPage() {
         setLoading(false)
     }
 
-    const profile = user?.role === 'TRAINER' ? trainerProfile : userProfile
-
-    if (loading) {
-        return (
-            <main className="flex justify-center py-20 pt-16 md:pt-20">
-                <span className="material-symbols-outlined animate-spin text-4xl text-primary">
-                    progress_activity
-                </span>
-            </main>
-        )
-    }
-
     const handleProfileImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (!file) return
-
         setUploadingImage(true)
         const client = getAuthClient()
-
         const formData = new FormData()
         formData.append('file', file)
-
         try {
             const uploadRes = await fetch('http://localhost:8080/api/files/upload', {
                 method: 'POST',
@@ -79,20 +426,10 @@ export default function MyPage() {
                 },
                 body: formData,
             })
-
-            if (!uploadRes.ok) {
-                alert('이미지 업로드에 실패했습니다.')
-                return
-            }
-
+            if (!uploadRes.ok) { alert('이미지 업로드에 실패했습니다.'); return }
             const { url } = await uploadRes.json()
-
-            await client.PATCH('/api/members/me', {
-                body: { profileImage: url },
-            })
-
+            await client.PATCH('/api/members/me', { body: { profileImage: url } })
             updateProfileImage(url)
-
             await fetchMyProfile()
         } catch (err) {
             console.error(err)
@@ -103,26 +440,128 @@ export default function MyPage() {
         }
     }
 
+    const profile = user?.role === 'TRAINER' ? trainerProfile : userProfile
+
+    if (!hydrated || loading) {
+        const skeletonTab = searchParams.get('tab') ?? 'matching'
+
+        const contentSkeleton = (() => {
+            if (skeletonTab === 'reviews') {
+                return (
+                    <div className="flex flex-col gap-md">
+                        {/* 탭 헤더 스켈레톤 */}
+                        <div className="flex items-end justify-between border-b border-outline-variant pb-0">
+                            <div className="flex gap-md pb-2.5">
+                                <div className="h-6 w-20 rounded bg-surface-container animate-pulse" />
+                                <div className="h-6 w-28 rounded bg-surface-container animate-pulse" />
+                            </div>
+                            <div className="mb-2 h-8 w-32 rounded-full bg-surface-container animate-pulse" />
+                        </div>
+                        {/* 리뷰 카드 스켈레톤 */}
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
+                                <div className="mb-4 flex items-start justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-12 w-12 flex-shrink-0 rounded-full bg-surface-container animate-pulse" />
+                                        <div className="space-y-2">
+                                            <div className="h-4 w-24 rounded bg-surface-container animate-pulse" />
+                                            <div className="h-4 w-32 rounded bg-surface-container animate-pulse" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="h-3 rounded bg-surface-container animate-pulse" style={{ width: `${70 + (i * 11) % 25}%` }} />
+                                    <div className="h-3 rounded bg-surface-container animate-pulse" style={{ width: `${50 + (i * 17) % 30}%` }} />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )
+            }
+
+            if (skeletonTab === 'inquiries') {
+                return (
+                    <div className="space-y-md">
+                        <div className="grid grid-cols-3 gap-md">
+                            {Array.from({ length: 3 }).map((_, i) => (
+                                <div key={i} className="h-24 rounded-xl bg-surface-container animate-pulse" />
+                            ))}
+                        </div>
+                        <div className="rounded-xl border border-outline-variant overflow-hidden bg-surface-container-lowest" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
+                            <div className="h-12 bg-surface-container-low border-b border-outline-variant animate-pulse" />
+                            <div className="divide-y divide-outline-variant/30">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                    <div key={i} className="flex items-center gap-4 px-4 py-4">
+                                        <div className="h-6 w-16 rounded-full bg-surface-container animate-pulse" />
+                                        <div className="h-4 flex-1 rounded bg-surface-container animate-pulse" style={{ maxWidth: `${50 + (i * 13) % 35}%` }} />
+                                        <div className="hidden md:block h-4 w-20 rounded bg-surface-container animate-pulse" />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            // matching / account / default
+            return (
+                <div className="grid grid-cols-1 gap-md md:grid-cols-3">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="h-40 rounded-xl bg-surface-container animate-pulse" />
+                    ))}
+                </div>
+            )
+        })()
+
+        return (
+            <main className="mx-auto flex w-full max-w-[1440px] flex-grow flex-col gap-md px-margin-mobile pb-lg pt-20 md:px-margin-desktop">
+                {/* 프로필 헤더 스켈레톤 */}
+                <div className="flex flex-col gap-4 rounded-xl bg-surface-container-low p-md sm:flex-row sm:items-center sm:justify-between" style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}>
+                    <div className="flex items-center gap-md">
+                        <div className="h-16 w-16 flex-shrink-0 rounded-full bg-surface-container animate-pulse sm:h-24 sm:w-24" />
+                        <div className="space-y-2">
+                            <div className="h-5 w-32 rounded-lg bg-surface-container animate-pulse" />
+                            <div className="h-4 w-20 rounded-lg bg-surface-container animate-pulse" />
+                        </div>
+                    </div>
+                    <div className="h-10 w-full rounded-lg bg-surface-container animate-pulse sm:w-28" />
+                </div>
+
+                {/* 사이드바 + 콘텐츠 스켈레톤 */}
+                <div className="flex flex-grow flex-col gap-md lg:flex-row">
+                    <aside className="flex-shrink-0 lg:w-64">
+                        <div className="space-y-xs">
+                            {Array.from({ length: 4 }).map((_, i) => (
+                                <div key={i} className="h-11 rounded-lg bg-surface-container animate-pulse" />
+                            ))}
+                        </div>
+                    </aside>
+                    <div className="flex-grow min-h-[calc(100vh-200px)]">
+                        {contentSkeleton}
+                    </div>
+                </div>
+            </main>
+        )
+    }
+
     return (
         <main className="mx-auto flex w-full max-w-[1440px] flex-grow flex-col gap-md px-margin-mobile pb-lg pt-20 md:px-margin-desktop">
             {/* 프로필 헤더 */}
             <div
-                className="flex items-center justify-between rounded-xl bg-surface-container-low p-md"
+                className="flex flex-col gap-4 rounded-xl bg-surface-container-low p-md sm:flex-row sm:items-center sm:justify-between"
                 style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
             >
                 <div className="flex items-center gap-md">
-                    <div className="relative">
-                        <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-surface-container shadow-sm">
-                            {profile?.profileImage ? (
+                    <div className="relative flex-shrink-0">
+                        <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-surface-container shadow-sm sm:h-24 sm:w-24">
+                            {(user?.profileImage || profile?.profileImage) ? (
                                 <img
-                                    src={getImageUrl(profile.profileImage)}
+                                    src={getImageUrl(user?.profileImage || profile?.profileImage)}
                                     alt=""
                                     className="h-full w-full object-cover"
                                 />
                             ) : (
-                                <span className="material-symbols-outlined text-4xl text-outline">
-                                    person
-                                </span>
+                                <span className="material-symbols-outlined text-3xl text-outline sm:text-4xl">person</span>
                             )}
                         </div>
                         <input
@@ -133,33 +572,29 @@ export default function MyPage() {
                             onChange={handleProfileImageChange}
                         />
                         <button
-                            className="absolute bottom-0 right-0 bg-primary text-white p-1.5 rounded-full shadow-lg border-2 border-white hover:scale-110 transition-transform disabled:opacity-50"
+                            className="absolute bottom-0 right-0 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-primary text-white shadow-lg transition-transform hover:scale-110 disabled:opacity-50 sm:h-7 sm:w-7"
                             onClick={() => fileInputRef.current?.click()}
                             disabled={uploadingImage}
                         >
                             {uploadingImage ? (
-                                <span className="material-symbols-outlined text-[18px] animate-spin">
-                                    progress_activity
-                                </span>
+                                <span className="material-symbols-outlined animate-spin text-[12px] sm:text-[14px]">progress_activity</span>
                             ) : (
-                                <span className="material-symbols-outlined text-[18px]">edit</span>
+                                <span className="material-symbols-outlined text-[12px] sm:text-[14px]">edit</span>
                             )}
                         </button>
                     </div>
-                    <div>
-                        <h1 className="text-headline-md font-headline-md text-on-surface">
+                    <div className="min-w-0">
+                        <h1 className="truncate text-title-lg font-bold text-on-surface sm:text-headline-md sm:font-headline-md">
                             {user?.userName}
                         </h1>
-                        <p className="flex items-center gap-xs text-body-md text-on-surface-variant">
-                            <span className="material-symbols-outlined text-[16px]">
-                                fitness_center
-                            </span>
+                        <p className="flex items-center gap-xs text-body-sm text-on-surface-variant sm:text-body-md">
+                            <span className="material-symbols-outlined text-[16px]">fitness_center</span>
                             {user?.role === 'TRAINER' ? '트레이너' : '일반 회원'}
                         </p>
                     </div>
                 </div>
                 <button
-                    className="flex items-center gap-xs rounded-lg border border-outline-variant bg-surface-container-high px-md py-sm font-label-bold text-on-surface transition-all hover:bg-surface-container-highest"
+                    className="flex w-full items-center justify-center gap-xs rounded-lg border border-outline-variant bg-surface-container-high px-md py-sm font-label-bold text-on-surface transition-all hover:bg-surface-container-highest sm:w-auto"
                     onClick={() => router.push('/mypage/edit')}
                 >
                     <span className="material-symbols-outlined">settings</span>
@@ -175,16 +610,17 @@ export default function MyPage() {
                         {[
                             { id: 'matching', icon: 'handshake', label: '매칭 관리' },
                             { id: 'reviews', icon: 'rate_review', label: '리뷰 관리' },
+                            { id: 'inquiries', icon: 'help_center', label: '문의 내역' },
                             { id: 'account', icon: 'manage_accounts', label: '계정 설정' },
                         ].map(({ id, icon, label }) => (
                             <button
                                 key={id}
                                 className={`flex w-full items-center gap-md rounded-lg px-md py-sm font-label-bold transition-all ${
                                     activeTab === id
-                                        ? 'bg-primary-container text-on-primary-container'
+                                        ? 'bg-primary text-on-primary'
                                         : 'text-on-surface-variant hover:bg-surface-container-low'
                                 }`}
-                                onClick={() => setActiveTab(id)}
+                                onClick={() => router.replace(`/mypage?tab=${id}`)}
                             >
                                 <span className="material-symbols-outlined">{icon}</span>
                                 {label}
@@ -194,7 +630,7 @@ export default function MyPage() {
                 </aside>
 
                 {/* 메인 콘텐츠 */}
-                <div className="flex-grow space-y-md">
+                <div className="flex-grow space-y-md min-h-[calc(100vh-200px)]">
                     {activeTab === 'matching' && (
                         <section className="space-y-md">
                             <h2 className="text-headline-sm font-headline-sm text-on-surface">
@@ -206,9 +642,7 @@ export default function MyPage() {
                                     style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
                                 >
                                     <div className="flex items-center gap-sm text-primary">
-                                        <span className="material-symbols-outlined">
-                                            outgoing_mail
-                                        </span>
+                                        <span className="material-symbols-outlined">outgoing_mail</span>
                                         <span className="text-label-bold">보낸 요청</span>
                                     </div>
                                     <div className="flex-grow py-sm">
@@ -268,6 +702,8 @@ export default function MyPage() {
                         </section>
                     )}
 
+                    {activeTab === 'inquiries' && <InquirySection />}
+
                     {activeTab === 'account' && (
                         <section className="space-y-md">
                             <h2 className="text-headline-sm font-headline-sm text-on-surface">
@@ -282,9 +718,9 @@ export default function MyPage() {
                             >
                                 <button className="flex w-full items-center justify-between border-b border-outline-variant p-md transition-colors hover:bg-white/50">
                                     <div className="flex items-center gap-md">
-                                        <span className="material-symbols-outlined text-on-surface-variant">
-                                            lock
-                                        </span>
+                    <span className="material-symbols-outlined text-on-surface-variant">
+                      lock
+                    </span>
                                         <div className="text-left">
                                             <p className="text-label-bold text-on-surface">
                                                 비밀번호 및 보안
@@ -295,8 +731,8 @@ export default function MyPage() {
                                         </div>
                                     </div>
                                     <span className="material-symbols-outlined text-outline">
-                                        chevron_right
-                                    </span>
+                    chevron_right
+                  </span>
                                 </button>
                                 <button
                                     className="group flex w-full items-center justify-between p-md transition-colors hover:bg-error-container/20"
@@ -315,8 +751,8 @@ export default function MyPage() {
                                         </div>
                                     </div>
                                     <span className="material-symbols-outlined text-error opacity-0 transition-opacity group-hover:opacity-100">
-                                        arrow_forward
-                                    </span>
+                    arrow_forward
+                  </span>
                                 </button>
                             </div>
                         </section>

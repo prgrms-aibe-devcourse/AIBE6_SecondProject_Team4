@@ -210,22 +210,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/files/upload": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["uploadFile"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/chat": {
         parameters: {
             query?: never;
@@ -811,7 +795,6 @@ export interface components {
             /** Format: int32 */
             careerYears?: number;
             availableTimes?: components["schemas"]["AvailableTimeRequest"][];
-            lessonPhotoUrls?: string[];
         };
         AvailableTimeResponse: {
             /** Format: int64 */
@@ -837,7 +820,6 @@ export interface components {
             /** Format: int32 */
             careerYears?: number;
             availableTimes?: components["schemas"]["AvailableTimeResponse"][];
-            lessonPhotos?: string[];
         };
         ReviewUpdateRequest: {
             /** Format: int32 */
@@ -858,7 +840,6 @@ export interface components {
             /** Format: int32 */
             careerYears?: number;
             availableTimes?: components["schemas"]["AvailableTimeRequest"][];
-            lessonPhotoUrls?: string[];
         };
         ReviewRequest: {
             /** Format: int64 */
@@ -870,6 +851,8 @@ export interface components {
             content: string;
         };
         MatchingRequestDto: {
+            /** Format: int64 */
+            memberId: number;
             level: string;
             sports: string;
             lessonType: string;
@@ -900,7 +883,6 @@ export interface components {
             introduction?: string;
             sports?: string;
             lessonType?: string;
-            lessonLevel?: string;
             region?: string;
             /** Format: int32 */
             price?: number;
@@ -1121,22 +1103,22 @@ export interface components {
             content?: components["schemas"]["TrainerProfileResponse"][];
             /** Format: int32 */
             number?: number;
-            sort?: components["schemas"]["SortObject"];
-            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
             numberOfElements?: number;
+            pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
         };
         PageableObject: {
             /** Format: int64 */
             offset?: number;
-            sort?: components["schemas"]["SortObject"];
-            unpaged?: boolean;
             paged?: boolean;
             /** Format: int32 */
             pageNumber?: number;
             /** Format: int32 */
             pageSize?: number;
+            sort?: components["schemas"]["SortObject"];
+            unpaged?: boolean;
         };
         SortObject: {
             empty?: boolean;
@@ -1203,10 +1185,10 @@ export interface components {
             content?: components["schemas"]["ReviewResponse"][];
             /** Format: int32 */
             number?: number;
-            sort?: components["schemas"]["SortObject"];
-            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
             numberOfElements?: number;
+            pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
         };
         TrainerSummaryDto: {
@@ -1227,10 +1209,10 @@ export interface components {
             content?: components["schemas"]["InquiryResponse"][];
             /** Format: int32 */
             number?: number;
-            sort?: components["schemas"]["SortObject"];
-            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
             numberOfElements?: number;
+            pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
         };
         ChatResponseDto: {
@@ -1711,35 +1693,6 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["InquiryResponse"];
-                };
-            };
-        };
-    };
-    uploadFile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": {
-                    /** Format: binary */
-                    file: string;
-                };
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": {
-                        [key: string]: string;
-                    };
                 };
             };
         };

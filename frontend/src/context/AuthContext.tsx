@@ -14,7 +14,7 @@ export interface AuthUser {
 interface AuthContextType {
     user: AuthUser | null
     login: (user: AuthUser) => void
-    logout: () => void
+    logout: () => Promise<void>
     updateProfileImage: (url: string | null) => void
 }
 
@@ -39,7 +39,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('fitmate_user', JSON.stringify(user))
     }
 
-    const logout = () => {
+    const logout = async () => {
+        try {
+            await fetch('http://localhost:8080/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include',
+            })
+        } catch {
+            // 네트워크 오류여도 로컬 로그아웃 진행
+        }
         setUser(null)
         localStorage.removeItem('fitmate_user')
     }
@@ -47,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         // 토큰 재발급 시 새 토큰을 상태에 반영
         setTokenRefreshHandler((newToken: string) => {
-            setUser((prev) => {
+            setUser(prev => {
                 if (!prev) return prev
                 const updated = { ...prev, token: newToken }
                 localStorage.setItem('fitmate_user', JSON.stringify(updated))
@@ -62,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [])
 
     const updateProfileImage = (url: string | null) => {
-        setUser((prev) => {
+        setUser(prev => {
             if (!prev) return prev
             const updated = { ...prev, profileImage: url }
             localStorage.setItem('fitmate_user', JSON.stringify(updated))
