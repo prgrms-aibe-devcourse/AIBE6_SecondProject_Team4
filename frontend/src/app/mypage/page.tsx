@@ -24,21 +24,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 type TrainerProfile = components['schemas']['TrainerProfileResponse']
 type UserProfile = components['schemas']['UserProfileResponse']
 type InquiryResponse = components['schemas']['InquiryResponse']
@@ -62,6 +47,7 @@ function InquirySection() {
     const [editForm, setEditForm] = useState<{ type: string; title: string; content: string }>({ type: '', title: '', content: '' })
     const [saving, setSaving] = useState(false)
     const [deletingId, setDeletingId] = useState<number | null>(null)
+
 
     const client = getAuthClient()
 
@@ -412,6 +398,10 @@ export default function MyPage() {
     const [pwError, setPwError] = useState('')
     const [pwSuccess, setPwSuccess] = useState(false)
     const [pwLoading, setPwLoading] = useState(false)
+    const [showWithdrawModal, setShowWithdrawModal] = useState(false)
+    const [withdrawPassword, setWithdrawPassword] = useState('')
+    const [withdrawError, setWithdrawError] = useState('')
+    const [withdrawLoading, setWithdrawLoading] = useState(false)
 
     useEffect(() => {
         setHydrated(true)
@@ -951,25 +941,170 @@ export default function MyPage() {
                                     </div>
                                 )}
 
-                                {/* 로그아웃 */}
+                                {/* 회원 탈퇴 */}
                                 <button
                                     className="group flex w-full items-center justify-between p-md transition-colors hover:bg-error-container/20"
                                     onClick={() => {
-                                        logout()
-                                        router.push('/auth/login')
+                                        setWithdrawPassword('')
+                                        setWithdrawError('')
+                                        setShowWithdrawModal(true)
                                     }}
                                 >
                                     <div className="flex items-center gap-md text-error">
-                                        <span className="material-symbols-outlined">logout</span>
+                                        <span className="material-symbols-outlined">person_remove</span>
                                         <div className="text-left">
-                                            <p className="text-label-bold">로그아웃</p>
-                                            <p className="text-body-sm opacity-80">계정에서 안전하게 로그아웃합니다</p>
+                                            <p className="text-label-bold">회원 탈퇴</p>
+                                            <p className="text-body-sm opacity-80">계정을 영구적으로 삭제합니다</p>
                                         </div>
                                     </div>
                                     <span className="material-symbols-outlined text-error opacity-0 transition-opacity group-hover:opacity-100">
-                    arrow_forward
-                </span>
+                                        arrow_forward
+                                    </span>
                                 </button>
+
+                                {/* 회원 탈퇴 모달 */}
+                                {showWithdrawModal && (
+                                    <div
+                                        style={{
+                                            position: 'fixed', inset: 0,
+                                            background: 'rgba(0,0,0,0.4)',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            zIndex: 1000, padding: '16px',
+                                        }}
+                                        onClick={() => setShowWithdrawModal(false)}
+                                    >
+                                        <div
+                                            style={{
+                                                background: 'white', borderRadius: '16px', padding: '32px',
+                                                width: '100%', maxWidth: '400px',
+                                                boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                                            }}
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                                                <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#ba1a1a', margin: 0 }}>
+                                                    회원 탈퇴
+                                                </h2>
+                                                <button
+                                                    onClick={() => setShowWithdrawModal(false)}
+                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+                                                >
+                                                    <span className="material-symbols-outlined" style={{ color: '#9097a8' }}>close</span>
+                                                </button>
+                                            </div>
+
+                                            <p style={{ fontSize: '14px', color: '#424654', marginBottom: '24px', lineHeight: '1.6' }}>
+                                                탈퇴 시 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다. 계속하려면 현재 비밀번호를 입력해 주세요.
+                                            </p>
+
+                                            <form
+                                                onSubmit={async (e) => {
+                                                    e.preventDefault()
+                                                    e.stopPropagation()
+                                                    setWithdrawError('')
+                                                    setWithdrawLoading(true)
+                                                    try {
+                                                        const stored = localStorage.getItem('fitmate_user')
+                                                        const token = stored ? JSON.parse(stored).token : null
+
+                                                        const verifyRes = await fetch('http://localhost:8080/api/members/me/verify-password', {
+                                                            method: 'POST',
+                                                            credentials: 'include',
+                                                            headers: {
+                                                                'Content-Type': 'application/json',
+                                                                'Authorization': `Bearer ${token}`,
+                                                            },
+                                                            body: JSON.stringify({
+                                                                currentPassword: withdrawPassword,
+                                                            }),
+                                                        })
+
+                                                        if (!verifyRes.ok) {
+                                                            setWithdrawError('비밀번호가 올바르지 않습니다.')
+                                                            return
+                                                        }
+
+                                                        // 회원 탈퇴
+                                                        const deleteRes = await fetch('http://localhost:8080/api/members/me', {
+                                                            method: 'DELETE',
+                                                            credentials: 'include',
+                                                            headers: {
+                                                                'Authorization': `Bearer ${token}`,
+                                                            },
+                                                        })
+
+                                                        if (!deleteRes.ok) {
+                                                            setWithdrawError('회원 탈퇴에 실패했습니다.')
+                                                            return
+                                                        }
+
+                                                        setShowWithdrawModal(false)
+                                                        logout()
+                                                        router.push('/auth/login')
+                                                    } catch {
+                                                        setWithdrawError('서버 연결에 실패했습니다.')
+                                                    } finally {
+                                                        setWithdrawLoading(false)
+                                                    }
+                                                }}
+                                                style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+                                            >
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                                    <label style={{ fontSize: '13px', fontWeight: 500, color: '#424655' }}>현재 비밀번호</label>
+                                                    <input
+                                                        type="password"
+                                                        value={withdrawPassword}
+                                                        onChange={(e) => setWithdrawPassword(e.target.value)}
+                                                        placeholder="현재 비밀번호를 입력하세요"
+                                                        required
+                                                        style={{
+                                                            width: '100%', border: '1px solid #c2c6d8',
+                                                            borderRadius: '10px', padding: '10px 14px',
+                                                            fontSize: '14px', outline: 'none', boxSizing: 'border-box',
+                                                        }}
+                                                        onFocus={(e) => (e.target.style.borderColor = '#ba1a1a')}
+                                                        onBlur={(e) => (e.target.style.borderColor = '#c2c6d8')}
+                                                    />
+                                                </div>
+
+                                                {withdrawError && (
+                                                    <p style={{ fontSize: '13px', color: '#ba1a1a', textAlign: 'center', margin: 0 }}>
+                                                        {withdrawError}
+                                                    </p>
+                                                )}
+
+                                                <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowWithdrawModal(false)}
+                                                        style={{
+                                                            flex: 1, padding: '12px', background: 'white',
+                                                            color: '#424654', border: '1px solid #c2c6d8',
+                                                            borderRadius: '10px', fontSize: '15px',
+                                                            fontWeight: 600, cursor: 'pointer',
+                                                        }}
+                                                    >
+                                                        취소
+                                                    </button>
+                                                    <button
+                                                        type="submit"
+                                                        disabled={withdrawLoading}
+                                                        style={{
+                                                            flex: 1, padding: '12px',
+                                                            background: withdrawLoading ? '#f5a0a0' : '#ba1a1a',
+                                                            color: 'white', border: 'none',
+                                                            borderRadius: '10px', fontSize: '15px',
+                                                            fontWeight: 600,
+                                                            cursor: withdrawLoading ? 'not-allowed' : 'pointer',
+                                                        }}
+                                                    >
+                                                        {withdrawLoading ? '처리 중...' : '탈퇴하기'}
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </section>
                     )}

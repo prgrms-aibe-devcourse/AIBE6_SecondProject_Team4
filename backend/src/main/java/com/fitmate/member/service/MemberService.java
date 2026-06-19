@@ -87,6 +87,15 @@ public class MemberService {
         member.changePassword(passwordEncoder.encode(request.newPassword()));
     }
 
+    public void verifyPassword(String userId, String currentPassword) {
+        Member member = memberRepository.findByUserIdAndDeletedAtIsNull(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if (!passwordEncoder.matches(currentPassword, member.getPassword())) {
+            throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
+        }
+    }
+
     @Transactional
     public void changeRole(String userId, RoleChangeRequest request) {
         Member member = memberRepository.findByUserIdAndDeletedAtIsNull(userId)

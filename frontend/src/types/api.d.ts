@@ -142,6 +142,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/members/me/verify-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["verifyPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/matching": {
         parameters: {
             query?: never;
@@ -900,6 +916,10 @@ export interface components {
             rating?: number;
             content: string;
         };
+        PasswordChangeRequest: {
+            currentPassword: string;
+            newPassword: string;
+        };
         MatchingRequestDto: {
             level: string;
             sports: string;
@@ -1130,10 +1150,6 @@ export interface components {
             /** @enum {string} */
             role: "USER" | "TRAINER";
         };
-        PasswordChangeRequest: {
-            currentPassword: string;
-            newPassword: string;
-        };
         InquiryUpdateRequest: {
             /** @enum {string} */
             type?: "MATCHING" | "TRAINER" | "ETC";
@@ -1152,8 +1168,8 @@ export interface components {
             number?: number;
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
             sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             first?: boolean;
             last?: boolean;
             empty?: boolean;
@@ -1161,18 +1177,18 @@ export interface components {
         PageableObject: {
             /** Format: int64 */
             offset?: number;
+            sort?: components["schemas"]["SortObject"];
+            unpaged?: boolean;
             /** Format: int32 */
             pageSize?: number;
             /** Format: int32 */
             pageNumber?: number;
-            sort?: components["schemas"]["SortObject"];
             paged?: boolean;
-            unpaged?: boolean;
         };
         SortObject: {
             empty?: boolean;
-            sorted?: boolean;
             unsorted?: boolean;
+            sorted?: boolean;
         };
         WritableReviewResponse: {
             /** Format: int64 */
@@ -1234,8 +1250,8 @@ export interface components {
             number?: number;
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
             sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             first?: boolean;
             last?: boolean;
             empty?: boolean;
@@ -1258,8 +1274,8 @@ export interface components {
             number?: number;
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
             sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             first?: boolean;
             last?: boolean;
             empty?: boolean;
@@ -1606,6 +1622,28 @@ export interface operations {
                 content: {
                     "application/json;charset=UTF-8": number;
                 };
+            };
+        };
+    };
+    verifyPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordChangeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
