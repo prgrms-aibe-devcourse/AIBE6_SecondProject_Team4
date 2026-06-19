@@ -82,10 +82,20 @@ public class LessonRequestService {
                 .toList();
     }
 
+    // 로그인한 사용자가 보낸 요청서 목록 조회
+    public List<LessonRequestResponse> getMemberLessonRequests(String memberUserId) {
+        return lessonRequestRepository.findByMemberUserIdOrderByCreatedAtDesc(memberUserId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     // 요청서 상세 조회
-    public LessonRequestResponse getLessonRequest(Long lessonRequestId) {
+    public LessonRequestResponse getLessonRequest(Long lessonRequestId, String userId) {
         LessonRequest lessonRequest = lessonRequestRepository.findById(lessonRequestId)
                 .orElseThrow(() -> new CustomException(ErrorCode.LESSON_REQUEST_NOT_FOUND));
+
+        validateParticipant(lessonRequest, userId);
 
         return toResponse(lessonRequest);
     }
@@ -132,6 +142,18 @@ public class LessonRequestService {
                 .getUserId();
 
         if (!ownerUserId.equals(trainerUserId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+    }
+
+    // 요청을 보낸 사용자 또는 요청을 받은 트레이너만 상세 내용을 조회할 수 있음
+    private void validateParticipant(LessonRequest lessonRequest, String userId) {
+        String memberUserId = lessonRequest.getMember().getUserId();
+        String trainerUserId = lessonRequest.getTrainerProfile()
+                .getMember()
+                .getUserId();
+
+        if (!memberUserId.equals(userId) && !trainerUserId.equals(userId)) {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
     }
@@ -186,6 +208,7 @@ public class LessonRequestService {
                 member.getId(),
                 member.getUserName(),
                 member.getProfileImage(),
+                member.getIntroduction(),
 
                 trainerProfile.getId(),
                 trainerMember.getUserName(),
@@ -193,6 +216,7 @@ public class LessonRequestService {
 
                 matchingRequest.getSports(),
                 matchingRequest.getLessonType(),
+                matchingRequest.getLevel(),
                 matchingRequest.getRegion(),
                 trainerProfile.getPrice(),
 

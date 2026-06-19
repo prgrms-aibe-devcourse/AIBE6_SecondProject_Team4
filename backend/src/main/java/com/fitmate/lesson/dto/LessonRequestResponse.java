@@ -14,6 +14,7 @@ public record LessonRequestResponse(
         Long memberId,
         String memberName,
         String memberProfileImage,
+        String memberIntroduction,
 
         Long trainerProfileId,
         String trainerName,
@@ -21,6 +22,7 @@ public record LessonRequestResponse(
 
         String sports,
         String lessonType,
+        String lessonLevel,
         String region,
         Integer price,
 
