@@ -41,13 +41,27 @@ public class LessonRequestController {
         return ResponseEntity.ok(lessonRequestService.getTrainerLessonRequests(trainerUserId));
     }
 
+    // 로그인한 사용자가 보낸 요청서 목록을 조회함
+    @Operation(summary = "보낸 요청서 목록 조회")
+    @GetMapping("/api/members/me/lesson-requests")
+    public ResponseEntity<List<LessonRequestResponse>> getMemberLessonRequests(
+            Authentication authentication
+    ) {
+        String memberUserId = authentication.getName();
+
+        return ResponseEntity.ok(lessonRequestService.getMemberLessonRequests(memberUserId));
+    }
+
     // 요청서 상세 내용을 조회함
     @Operation(summary = "레슨 요청서 상세 조회")
     @GetMapping("/api/lesson-requests/{lessonRequestId}")
     public ResponseEntity<LessonRequestResponse> getLessonRequest(
-            @PathVariable Long lessonRequestId
+            @PathVariable Long lessonRequestId,
+            Authentication authentication
     ) {
-        return ResponseEntity.ok(lessonRequestService.getLessonRequest(lessonRequestId));
+        String userId = authentication.getName();
+
+        return ResponseEntity.ok(lessonRequestService.getLessonRequest(lessonRequestId, userId));
     }
 
     // 트레이너가 레슨 요청서를 수락
