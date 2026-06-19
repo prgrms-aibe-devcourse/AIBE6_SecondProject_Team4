@@ -53,13 +53,30 @@ export default function MatchingResultCard({ result, onLessonRequest }: Matching
                     </div>
 
                     <span className="shrink-0 rounded-full bg-secondary-container px-2.5 py-1 text-label-sm text-on-secondary-container">
-                        AI 추천
+                        {result.aiReason ? `AI 추천 ${result.aiRank ?? ''}순위` : '조건 일치'}
                     </span>
                 </div>
 
                 <p className="mt-md min-h-12 text-body-sm leading-6 text-on-surface-variant">
                     {result.introduction || '트레이너 소개가 아직 등록되지 않았습니다.'}
                 </p>
+
+                {result.aiReason && (
+                    <div className="mt-md border-l-2 border-primary bg-primary-fixed/35 px-sm py-xs">
+                        <p className="flex items-center gap-1.5 font-label-bold text-label-sm text-primary">
+                            <span
+                                className="material-symbols-outlined text-base"
+                                aria-hidden="true"
+                            >
+                                auto_awesome
+                            </span>
+                            AI 추천 이유
+                        </p>
+                        <p className="mt-1 text-body-sm leading-6 text-on-surface-variant">
+                            {result.aiReason}
+                        </p>
+                    </div>
+                )}
 
                 <dl className="mt-md space-y-xs rounded-lg bg-surface-container-low p-sm text-body-sm">
                     <div className="flex items-center justify-between gap-sm">
