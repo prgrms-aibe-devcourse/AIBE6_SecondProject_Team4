@@ -12,6 +12,7 @@ import java.time.LocalTime;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+
 public class TrainerAvailableTime extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -26,4 +27,14 @@ public class TrainerAvailableTime extends BaseEntity {
 
     @Column(name = "end_time", nullable = false)
     private LocalTime endTime;
+
+    public void update(
+            String dayOfWeek,
+            LocalTime startTime,
+            LocalTime endTime
+    ) {
+        this.dayOfWeek = dayOfWeek;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
 }

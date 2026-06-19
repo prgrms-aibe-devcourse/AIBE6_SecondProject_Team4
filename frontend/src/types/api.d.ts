@@ -342,6 +342,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ai/matching/parse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** AI 한 줄 매칭 조건 해석 */
+        post: operations["parseMatchingQuery"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/inquiries/{inquiryId}/answer": {
         parameters: {
             query?: never;
@@ -368,10 +385,42 @@ export interface paths {
         get: operations["getMyInfo"];
         put?: never;
         post?: never;
-        delete?: never;
+        delete: operations["deleteMyAccount"];
         options?: never;
         head?: never;
         patch: operations["updateMyInfo"];
+        trace?: never;
+    };
+    "/api/members/me/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["changeRole"];
+        trace?: never;
+    };
+    "/api/members/me/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["changePassword"];
         trace?: never;
     };
     "/api/lesson-requests/{lessonRequestId}/reject": {
@@ -747,6 +796,8 @@ export interface components {
             goal?: string;
         };
         AvailableTimeRequest: {
+            /** Format: int64 */
+            id?: number;
             dayOfWeek?: string;
             startTime?: string;
             endTime?: string;
@@ -858,6 +909,9 @@ export interface components {
             preferredEndTime?: string;
             trainerStartTime?: string;
             trainerEndTime?: string;
+            /** Format: int32 */
+            aiRank?: number;
+            aiReason?: string;
         };
         LessonRequestCreateRequest: {
             /** Format: int64 */
@@ -995,6 +1049,26 @@ export interface components {
             /** Format: date-time */
             createdAt?: string;
         };
+        AiMatchingParseRequest: {
+            query: string;
+        };
+        AiMatchingParseResponse: {
+            sports?: string;
+            level?: string;
+            lessonType?: string;
+            region?: string;
+            /** Format: int32 */
+            budgetMin?: number;
+            /** Format: int32 */
+            budgetMax?: number;
+            preferredTimes?: components["schemas"]["PreferredTime"][];
+            lessonContent?: string;
+        };
+        PreferredTime: {
+            dayOfWeek?: string;
+            startTime?: string;
+            endTime?: string;
+        };
         InquiryAnswerRequest: {
             answer?: string;
         };
@@ -1004,6 +1078,8 @@ export interface components {
             region?: string;
             introduction?: string;
             phone?: string;
+            /** Format: email */
+            email?: string;
         };
         MemberResponse: {
             /** Format: int64 */
@@ -1018,6 +1094,14 @@ export interface components {
             region?: string;
             introduction?: string;
             phone?: string;
+        };
+        RoleChangeRequest: {
+            /** @enum {string} */
+            role: "USER" | "TRAINER";
+        };
+        PasswordChangeRequest: {
+            currentPassword: string;
+            newPassword: string;
         };
         InquiryUpdateRequest: {
             /** @enum {string} */
@@ -1056,8 +1140,8 @@ export interface components {
         };
         SortObject: {
             empty?: boolean;
-            unsorted?: boolean;
             sorted?: boolean;
+            unsorted?: boolean;
         };
         WritableReviewResponse: {
             /** Format: int64 */
@@ -1854,6 +1938,30 @@ export interface operations {
             };
         };
     };
+    parseMatchingQuery: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiMatchingParseRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["AiMatchingParseResponse"];
+                };
+            };
+        };
+    };
     writeAnswer: {
         parameters: {
             query?: never;
@@ -1900,6 +2008,24 @@ export interface operations {
             };
         };
     };
+    deleteMyAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     updateMyInfo: {
         parameters: {
             query?: never;
@@ -1921,6 +2047,50 @@ export interface operations {
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["MemberResponse"];
                 };
+            };
+        };
+    };
+    changeRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoleChangeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    changePassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordChangeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

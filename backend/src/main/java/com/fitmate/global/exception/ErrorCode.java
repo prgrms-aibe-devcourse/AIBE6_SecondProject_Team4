@@ -22,6 +22,11 @@ public enum ErrorCode {
     // Trainer
     TRAINER_PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND, "404-2", "트레이너 프로필을 찾을 수 없습니다."),
     TRAINER_PROFILE_ALREADY_EXISTS(HttpStatus.CONFLICT, "409-4", "이미 등록된 트레이너 프로필이 있습니다. 수정을 이용해주세요."),
+    TRAINER_AVAILABLE_TIME_IN_USE(
+            HttpStatus.CONFLICT,
+            "409-8",
+            "매칭 결과에서 사용 중인 가능 시간은 삭제할 수 없습니다."
+    ),
 
     // Matching
     MATCHING_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "404-3", "매칭 요청을 찾을 수 없습니다."),

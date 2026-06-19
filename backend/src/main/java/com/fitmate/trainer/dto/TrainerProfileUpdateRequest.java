@@ -13,6 +13,7 @@ public record TrainerProfileUpdateRequest(
         List<String> lessonPhotoUrls
 ) {
     public record AvailableTimeRequest(
+            Long id,
             String dayOfWeek,
             LocalTime startTime,
             LocalTime endTime
