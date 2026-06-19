@@ -172,6 +172,30 @@ export default function ChatFAB() {
         return () => window.removeEventListener('open-chat-room', handler)
     }, [user])
 
+    // 트레이너 상세 페이지 상담하기 버튼에서 채팅 열기
+    useEffect(() => {
+        const handler = async (e: Event) => {
+            const { trainerId, name, profileImage } = (e as CustomEvent<{ trainerId: number; name: string; profileImage: string }>).detail
+            if (!user || !trainerId) return
+            const { data: room } = await apiClient.POST('/api/chat', {
+                body: { trainerId, userId: user.memberId },
+                headers: { Authorization: `Bearer ${user.token}` },
+            })
+            if (!room) return
+            await openChat({
+                roomId: room.chatRoomId ?? 0,
+                name,
+                src: profileImage ?? '',
+                lastMsg: '',
+                time: '',
+                unread: 0,
+                lastMessageAt: '',
+            })
+        }
+        window.addEventListener('open-chat-with-trainer', handler)
+        return () => window.removeEventListener('open-chat-with-trainer', handler)
+    }, [user])
+
     // 로그인 시 초기 배지 + WebSocket 실시간 구독
     useEffect(() => {
         if (!user) return
