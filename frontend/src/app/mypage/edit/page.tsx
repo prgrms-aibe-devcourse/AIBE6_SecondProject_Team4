@@ -261,7 +261,10 @@ export default function ProfileEditPage() {
                             <div className="hidden md:block h-4 w-48 rounded bg-surface-container animate-pulse" />
                             <div className="flex md:flex-col gap-2">
                                 {[1, 2, 3].map((i) => (
-                                    <div key={i} className="h-10 flex-1 md:flex-none rounded-lg bg-surface-container animate-pulse" />
+                                    <div
+                                        key={i}
+                                        className="h-10 flex-1 md:flex-none rounded-lg bg-surface-container animate-pulse"
+                                    />
                                 ))}
                             </div>
                         </div>
@@ -309,6 +312,33 @@ export default function ProfileEditPage() {
                   { id: 'specialty', icon: 'fitness_center', label: '관심 종목' },
                   { id: 'goal', icon: 'flag', label: '목표 설정' },
               ]
+    const calculateCompleteness = () => {
+        if (user?.role === 'TRAINER') {
+            const fields = [
+                trainerForm.sports.length > 0,
+                trainerForm.lessonType !== '',
+                trainerForm.lessonLevel.length > 0,
+                trainerForm.price !== '',
+                trainerForm.careerYears !== '',
+                trainerForm.region !== '',
+                trainerForm.introduction !== '',
+                trainerForm.availableTimes.length > 0,
+                trainerForm.lessonPhotos.length > 0,
+            ]
+            const filled = fields.filter(Boolean).length
+            return Math.round((filled / fields.length) * 100)
+        } else {
+            const fields = [
+                userForm.sports.length > 0,
+                userForm.level !== '',
+                userForm.goal.length > 0,
+                userForm.region !== '',
+                userForm.introduction !== '',
+            ]
+            const filled = fields.filter(Boolean).length
+            return Math.round((filled / fields.length) * 100)
+        }
+    }
 
     return (
         <main className="pt-16 md:pt-20">
@@ -344,6 +374,21 @@ export default function ProfileEditPage() {
                             ))}
                         </nav>
 
+                        {/* 프로필 완성도 */}
+                        <div className="mt-md pt-md border-t border-outline-variant">
+                            <p className="text-label-md font-label-md text-on-surface-variant mb-xs">
+                                프로필 완성도
+                            </p>
+                            <div className="w-full bg-surface-container rounded-full h-2">
+                                <div
+                                    className="bg-primary h-2 rounded-full transition-all"
+                                    style={{ width: `${calculateCompleteness()}%` }}
+                                ></div>
+                            </div>
+                            <p className="text-label-md font-label-md text-on-surface-variant mt-xs">
+                                {calculateCompleteness()}% 완성
+                            </p>
+                        </div>
                     </div>
                 </aside>
 
@@ -471,44 +516,46 @@ export default function ProfileEditPage() {
                         {activeSection === 'lesson' && user?.role === 'TRAINER' && (
                             <div className="space-y-md">
                                 <div className="flex items-center gap-sm mb-md">
-                                    <div className="flex items-center justify-between bg-surface-container-low rounded-lg px-md py-sm">
-                                        <div>
-                                            <p className="font-label-bold text-on-surface">
-                                                프로필 공개 설정
-                                            </p>
-                                            <p className="text-label-md font-label-md text-on-surface-variant">
-                                                비공개로 설정하면 트레이너 목록과 상세페이지에서
-                                                보이지 않습니다.
-                                            </p>
-                                        </div>
-                                        <button
-                                            className={`relative w-12 h-7 rounded-full transition-colors ${
-                                                trainerForm.isPublic
-                                                    ? 'bg-primary'
-                                                    : 'bg-surface-container'
-                                            }`}
-                                            onClick={() =>
-                                                setTrainerForm((f) => ({
-                                                    ...f,
-                                                    isPublic: !f.isPublic,
-                                                }))
-                                            }
-                                        >
-                                            <span
-                                                className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform ${
-                                                    trainerForm.isPublic
-                                                        ? 'translate-x-5'
-                                                        : 'translate-x-0'
-                                                }`}
-                                            />
-                                        </button>
-                                    </div>
                                     <span className="material-symbols-outlined text-primary">
                                         assignment
                                     </span>
                                     <h2 className="font-headline-sm text-headline-sm">
                                         레슨 상세 정보
                                     </h2>
+                                </div>
+
+                                {/* 프로필 공개 설정 */}
+                                <div className="flex items-center justify-between bg-surface-container-low rounded-lg px-md py-sm">
+                                    <div>
+                                        <p className="font-label-bold text-on-surface">
+                                            프로필 공개 설정
+                                        </p>
+                                        <p className="text-label-md font-label-md text-on-surface-variant">
+                                            비공개로 설정하면 트레이너 목록과 상세페이지에서 보이지
+                                            않습니다.
+                                        </p>
+                                    </div>
+                                    <button
+                                        className={`relative w-12 h-7 rounded-full transition-colors ${
+                                            trainerForm.isPublic
+                                                ? 'bg-primary'
+                                                : 'bg-surface-container'
+                                        }`}
+                                        onClick={() =>
+                                            setTrainerForm((f) => ({
+                                                ...f,
+                                                isPublic: !f.isPublic,
+                                            }))
+                                        }
+                                    >
+                                        <span
+                                            className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform ${
+                                                trainerForm.isPublic
+                                                    ? 'translate-x-5'
+                                                    : 'translate-x-0'
+                                            }`}
+                                        />
+                                    </button>
                                 </div>
                                 <div className="space-y-xs">
                                     <label className="block text-label-md font-label-md text-on-surface-variant">
