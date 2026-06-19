@@ -15,6 +15,8 @@ function getAlertHref(alert: AlertItem): string {
             return `/matching/${alert.targetId}`
         case 'REVIEW':
             return `/trainer/${alert.targetId}`
+        case 'INQUIRY':
+            return `/mypage/inquiry/${alert.targetId}`
         default:
             return '#'
     }
@@ -34,6 +36,7 @@ function formatRelativeTime(dateStr?: string): string {
 const NAV_LINKS = [
     { label: '트레이너 찾기', href: '/trainer' },
     { label: 'AI매칭', href: '/matching' },
+    { label: '고객센터', href: '/faq' },
     { label: '마이페이지', href: '/mypage' },
 ]
 
@@ -225,13 +228,13 @@ export default function Header() {
                             </div>
                             <div className="hidden md:flex items-center gap-3 group relative">
                                 <Link
-                                    href="/mypage"
+                                    href={user.role === 'ADMIN' ? '/admin/inquiries' : '/mypage'}
                                     className="font-label-bold text-on-surface hover:text-primary transition-colors"
                                 >
                                     {user.userName} 님
                                 </Link>
                                 <Link
-                                    href="/mypage"
+                                    href={user.role === 'ADMIN' ? '/admin/inquiries' : '/mypage'}
                                     className="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary overflow-hidden border border-outline-variant cursor-pointer"
                                 >
                                     {user.profileImage ? (
@@ -247,13 +250,13 @@ export default function Header() {
                                     )}
                                 </Link>
                                 {/* 호버 드롭다운 */}
-                                <div className="absolute right-0 top-full pt-2 w-36 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity">
+                                <div className="absolute right-0 top-full pt-2 w-40 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity">
                                     <div className="bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant overflow-hidden">
                                         <Link
-                                            href="/mypage"
+                                            href={user.role === 'ADMIN' ? '/admin/inquiries' : '/mypage'}
                                             className="block px-4 py-3 text-body-sm text-on-surface hover:bg-surface-container transition-colors"
                                         >
-                                            마이페이지
+                                            {user.role === 'ADMIN' ? '관리자 페이지' : '마이페이지'}
                                         </Link>
                                         <button
                                             onClick={handleLogout}
@@ -303,7 +306,7 @@ export default function Header() {
                         {user ? (
                             <>
                                 <Link
-                                    href="/mypage"
+                                    href={user.role === 'ADMIN' ? '/admin/inquiries' : '/mypage'}
                                     onClick={() => setMenuOpen(false)}
                                     className="px-margin-mobile py-4 flex items-center gap-3 border-b border-outline-variant/40 hover:bg-surface-container transition-colors"
                                 >

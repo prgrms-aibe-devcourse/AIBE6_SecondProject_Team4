@@ -38,7 +38,7 @@ export function useMyReviews() {
     const [page, setPage] = useState(0) // 0-based
     const [totalPages, setTotalPages] = useState(0)
     const [sort, setSortState] = useState<SortOption>('latest')
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
     // 정렬 변경 시 첫 페이지로 리셋

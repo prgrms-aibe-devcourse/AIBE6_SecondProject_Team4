@@ -41,10 +41,116 @@ export default function TrainerDetailPage({ params }: Props) {
 
     if (loading) {
         return (
-            <main className="pt-16 md:pt-20 flex justify-center py-20">
-                <span className="material-symbols-outlined animate-spin text-primary text-4xl">
-                    progress_activity
-                </span>
+            <main className="pt-16 md:pt-20">
+                <div className="max-w-[1440px] mx-auto px-margin-desktop py-lg">
+                    {/* 뒤로가기 */}
+                    <div className="h-5 w-20 rounded bg-surface-container animate-pulse mb-md" />
+
+                    {/* 상단 프로필 */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-lg mb-lg">
+                        {/* 프로필 이미지 */}
+                        <div className="md:col-span-1">
+                            <div className="w-full aspect-square bg-surface-container rounded-2xl animate-pulse" />
+                        </div>
+                        {/* 프로필 정보 */}
+                        <div className="md:col-span-2 space-y-md">
+                            <div className="flex gap-xs flex-wrap">
+                                {[60, 80, 50].map((w, i) => (
+                                    <div key={i} className="h-6 rounded-full bg-surface-container animate-pulse" style={{ width: `${w}px` }} />
+                                ))}
+                            </div>
+                            <div className="h-8 w-48 rounded-lg bg-surface-container animate-pulse" />
+                            <div className="h-5 w-32 rounded bg-surface-container animate-pulse" />
+                            <div className="space-y-2">
+                                <div className="h-4 w-full rounded bg-surface-container animate-pulse" />
+                                <div className="h-4 w-4/5 rounded bg-surface-container animate-pulse" />
+                                <div className="h-4 w-3/5 rounded bg-surface-container animate-pulse" />
+                            </div>
+                            <div className="flex gap-lg">
+                                {[1, 2, 3].map((i) => (
+                                    <div key={i} className="space-y-1">
+                                        <div className="h-3 w-10 rounded bg-surface-container animate-pulse" />
+                                        <div className="h-5 w-16 rounded bg-surface-container animate-pulse" />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 하단 상세 */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+                        <div className="md:col-span-2 space-y-lg">
+                            {/* 전문분야 + 수업유형 */}
+                            <div className="grid grid-cols-2 gap-md">
+                                {[1, 2].map((i) => (
+                                    <div key={i} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md space-y-sm">
+                                        <div className="h-4 w-20 rounded bg-surface-container animate-pulse" />
+                                        <div className="flex gap-xs flex-wrap">
+                                            {[50, 70].map((w, j) => (
+                                                <div key={j} className="h-6 rounded bg-surface-container animate-pulse" style={{ width: `${w}px` }} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            {/* 레슨 수준 */}
+                            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md space-y-sm">
+                                <div className="h-4 w-20 rounded bg-surface-container animate-pulse" />
+                                <div className="flex gap-sm flex-wrap">
+                                    {[60, 80, 70].map((w, i) => (
+                                        <div key={i} className="h-5 rounded bg-surface-container animate-pulse" style={{ width: `${w}px` }} />
+                                    ))}
+                                </div>
+                            </div>
+                            {/* 수업 사진 */}
+                            <div>
+                                <div className="h-6 w-24 rounded bg-surface-container animate-pulse mb-sm" />
+                                <div className="grid grid-cols-4 gap-sm">
+                                    {[1, 2, 3, 4].map((i) => (
+                                        <div key={i} className="aspect-square bg-surface-container rounded-xl animate-pulse" />
+                                    ))}
+                                </div>
+                            </div>
+                            {/* 후기 */}
+                            <div className="space-y-md">
+                                <div className="h-6 w-24 rounded bg-surface-container animate-pulse" />
+                                {[1, 2].map((i) => (
+                                    <div key={i} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md space-y-sm">
+                                        <div className="flex items-center gap-sm">
+                                            <div className="w-10 h-10 rounded-full bg-surface-container animate-pulse flex-shrink-0" />
+                                            <div className="space-y-1 flex-1">
+                                                <div className="h-4 w-24 rounded bg-surface-container animate-pulse" />
+                                                <div className="h-3 w-32 rounded bg-surface-container animate-pulse" />
+                                            </div>
+                                            <div className="h-4 w-20 rounded bg-surface-container animate-pulse" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <div className="h-3 w-full rounded bg-surface-container animate-pulse" />
+                                            <div className="h-3 w-4/5 rounded bg-surface-container animate-pulse" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* 오른쪽 가격 카드 */}
+                        <div className="md:col-span-1">
+                            <div className="sticky top-24 bg-surface-container-lowest border border-outline-variant rounded-2xl p-md space-y-md">
+                                <div className="h-8 w-36 rounded bg-surface-container animate-pulse" />
+                                <div className="space-y-xs">
+                                    <div className="h-4 w-full rounded bg-surface-container animate-pulse" />
+                                    <div className="h-4 w-full rounded bg-surface-container animate-pulse" />
+                                </div>
+                                <div className="h-11 w-full rounded-xl bg-surface-container animate-pulse" />
+                                <div className="h-11 w-full rounded-xl bg-surface-container animate-pulse" />
+                                <div className="space-y-xs pt-sm border-t border-outline-variant">
+                                    <div className="h-4 w-3/4 rounded bg-surface-container animate-pulse" />
+                                    <div className="h-4 w-full rounded bg-surface-container animate-pulse" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
         )
     }
