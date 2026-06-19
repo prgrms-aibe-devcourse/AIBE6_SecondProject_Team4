@@ -59,6 +59,7 @@ public class SecurityConfig {
                                 "/ws/**", "/swagger-ui/**", "/v3/api-docs/**", "/uploads/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/trainer/**", "/api/reviews/popular-trainers",
                                 "/api/reviews/real").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/trainers").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/trainers/{id:[0-9]+}").permitAll()
                         .anyRequest().authenticated()
@@ -96,4 +97,6 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
+
 }

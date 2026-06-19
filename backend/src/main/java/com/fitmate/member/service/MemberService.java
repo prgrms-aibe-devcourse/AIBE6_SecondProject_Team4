@@ -1,5 +1,6 @@
 package com.fitmate.member.service;
 
+import com.fitmate.member.dto.AdminMemberResponse;
 import com.fitmate.member.dto.MemberResponse;
 import com.fitmate.member.dto.MemberUpdateRequest;
 import com.fitmate.member.dto.PasswordChangeRequest;
@@ -15,9 +16,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-
-
+import java.util.Map;
 import java.util.List;
 
 @Service
@@ -103,5 +105,36 @@ public class MemberService {
 
         Role newRole = Role.valueOf(request.role().name());
         member.changeRole(newRole);
+    }
+
+    // 회원 목록 조회 (관리자용)
+    public Page<AdminMemberResponse> getMembers(String keyword, String role, Pageable pageable) {
+        if (keyword != null && !keyword.isBlank()) {
+            return memberRepository.searchMembers(keyword, pageable)
+                    .map(AdminMemberResponse::from);
+        }
+        if (role != null && !role.isBlank()) {
+            return memberRepository.findByRole(Role.valueOf(role), pageable)
+                    .map(AdminMemberResponse::from);
+        }
+        return memberRepository.findAll(pageable)
+                .map(AdminMemberResponse::from);
+    }
+
+    // 요약 통계
+    public Map<String, Long> getMemberStats() {
+        return Map.of(
+                "total", memberRepository.count(),
+                "trainer", memberRepository.countByRole(Role.TRAINER),
+                "user", memberRepository.countByRole(Role.USER)
+        );
+    }
+
+    @Transactional
+    public void deleteByAdmin(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        member.delete();
+        refreshTokenRepository.deleteByUserId(member.getUserId());
     }
 }
