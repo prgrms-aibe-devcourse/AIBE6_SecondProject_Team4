@@ -303,6 +303,9 @@ INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, regi
 SELECT id, '초급', '헬스', '1:1 PT', '인천', 50000, 100000, '[더미페이지] 재활 운동', NOW(), NOW()
 FROM members WHERE user_id = 'user03';
 
+-- 트레이너 프로필 공개 설정 기본값 적용
+UPDATE trainer_profiles SET is_public = true WHERE is_public IS NULL;
+
 -- 추가 후기 6개 (모두 trainer01에게, 별점 다양하게)
 INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
 SELECT (SELECT id FROM matching_request WHERE lesson_content = '[더미페이지] 식단 관리 병행 희망' LIMIT 1),

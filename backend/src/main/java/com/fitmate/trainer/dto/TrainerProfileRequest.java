@@ -13,7 +13,8 @@ public record TrainerProfileRequest(
         Integer price,
         Integer careerYears,
         List<AvailableTimeRequest> availableTimes,
-        List<String> lessonPhotoUrls
+        List<String> lessonPhotoUrls,
+        Boolean isPublic
 ) {
     public TrainerProfile toEntity(Member member) {
         return TrainerProfile.builder()
@@ -23,6 +24,7 @@ public record TrainerProfileRequest(
                 .lessonLevel(lessonLevel)
                 .price(price)
                 .careerYears(careerYears)
+                .isPublic(isPublic != null ? isPublic : true)
                 .build();
     }
     public record AvailableTimeRequest(

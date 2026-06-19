@@ -812,6 +812,7 @@ export interface components {
             careerYears?: number;
             availableTimes?: components["schemas"]["AvailableTimeRequest"][];
             lessonPhotoUrls?: string[];
+            isPublic?: boolean;
         };
         AvailableTimeResponse: {
             /** Format: int64 */
@@ -838,6 +839,7 @@ export interface components {
             careerYears?: number;
             availableTimes?: components["schemas"]["AvailableTimeResponse"][];
             lessonPhotos?: string[];
+            isPublic?: boolean;
         };
         ReviewUpdateRequest: {
             /** Format: int32 */
@@ -859,6 +861,7 @@ export interface components {
             careerYears?: number;
             availableTimes?: components["schemas"]["AvailableTimeRequest"][];
             lessonPhotoUrls?: string[];
+            isPublic?: boolean;
         };
         ReviewRequest: {
             /** Format: int64 */
@@ -1110,10 +1113,10 @@ export interface components {
             content?: string;
         };
         PageTrainerProfileResponse: {
-            /** Format: int32 */
-            totalPages?: number;
             /** Format: int64 */
             totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["TrainerProfileResponse"][];
@@ -1123,19 +1126,19 @@ export interface components {
             last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
             sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             empty?: boolean;
         };
         PageableObject: {
             /** Format: int64 */
             offset?: number;
-            /** Format: int32 */
-            pageNumber?: number;
+            paged?: boolean;
+            sort?: components["schemas"]["SortObject"];
             /** Format: int32 */
             pageSize?: number;
-            sort?: components["schemas"]["SortObject"];
-            paged?: boolean;
+            /** Format: int32 */
+            pageNumber?: number;
             unpaged?: boolean;
         };
         SortObject: {
@@ -1192,10 +1195,10 @@ export interface components {
             sort?: string[];
         };
         PageReviewResponse: {
-            /** Format: int32 */
-            totalPages?: number;
             /** Format: int64 */
             totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["ReviewResponse"][];
@@ -1205,8 +1208,8 @@ export interface components {
             last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
             sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             empty?: boolean;
         };
         TrainerSummaryDto: {
@@ -1216,10 +1219,10 @@ export interface components {
             profileImage?: string;
         };
         PageInquiryResponse: {
-            /** Format: int32 */
-            totalPages?: number;
             /** Format: int64 */
             totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["InquiryResponse"][];
@@ -1229,8 +1232,8 @@ export interface components {
             last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
             sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             empty?: boolean;
         };
         ChatResponseDto: {

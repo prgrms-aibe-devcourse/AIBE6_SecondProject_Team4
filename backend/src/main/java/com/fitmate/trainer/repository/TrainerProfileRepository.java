@@ -13,6 +13,7 @@ public interface TrainerProfileRepository extends JpaRepository<TrainerProfile, 
     Optional<TrainerProfile> findByMemberId(Long memberId);
 
     @Query("SELECT t FROM TrainerProfile t JOIN t.member m WHERE " +
+            "t.isPublic = true AND " +
             "(:sport IS NULL OR t.sports LIKE %:sport%) AND " +
             "(:lessonType IS NULL OR t.lessonType = :lessonType) AND " +
             "(:lessonLevel IS NULL OR t.lessonLevel LIKE %:lessonLevel%) AND " +

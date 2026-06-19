@@ -142,6 +142,7 @@ export default function ExplorePage() {
                                 { label: '전체', value: '' },
                                 { label: '1:1', value: 'ONE_TO_ONE' },
                                 { label: '그룹', value: 'GROUP' },
+                                { label: '온라인', value: 'ONLINE' },
                             ].map(({ label, value }) => (
                                 <button
                                     key={label}
@@ -339,7 +340,9 @@ export default function ExplorePage() {
                                                 <span className="text-label-md font-label-md bg-surface-container text-on-surface-variant px-sm py-xs rounded">
                                                     {trainer.lessonType === 'ONE_TO_ONE'
                                                         ? '1:1'
-                                                        : '그룹 레슨'}
+                                                        : trainer.lessonType === 'GROUP'
+                                                          ? '그룹 레슨'
+                                                          : '온라인'}
                                                 </span>
                                             )}
                                             {trainer.lessonLevel
@@ -390,6 +393,24 @@ export default function ExplorePage() {
                                         chevron_left
                                     </span>
                                 </button>
+
+                                {/* 첫 페이지 고정 표시 */}
+                                {getPageNumbers()[0] > 0 && (
+                                    <>
+                                        <button
+                                            className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center text-label-bold font-label-bold hover:bg-surface-container text-on-surface transition"
+                                            onClick={() => handlePageChange(0)}
+                                        >
+                                            1
+                                        </button>
+                                        {getPageNumbers()[0] > 1 && (
+                                            <span className="w-9 h-9 flex items-center justify-center text-on-surface-variant">
+                                                ...
+                                            </span>
+                                        )}
+                                    </>
+                                )}
+
                                 {getPageNumbers().map((page) => (
                                     <button
                                         key={page}
@@ -403,6 +424,7 @@ export default function ExplorePage() {
                                         {page + 1}
                                     </button>
                                 ))}
+
                                 {totalPages > 3 && currentPage < totalPages - 2 && (
                                     <>
                                         <span className="w-9 h-9 flex items-center justify-center text-on-surface-variant">
