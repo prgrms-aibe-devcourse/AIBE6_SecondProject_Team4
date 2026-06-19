@@ -391,3 +391,163 @@ SELECT
     (SELECT id FROM members WHERE user_id = 'user02'),
                                 (SELECT tp.id FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer02' LIMIT 1),
     'ONE_TIME', NULL, '2026-06-15', '10:00:00', '11:00:00', '잘 부탁드립니다!', 'ACCEPTED', NOW(), NOW();
+
+-- =============================================
+-- [인기 트레이너 보강] 신규 트레이너 후기 더미
+-- 인기 트레이너는 review만 있으면 집계됨 (매칭 성사 불필요)
+-- 평점을 다양하게 + 내용 15자 이상/4점 이상으로 리얼 후기에도 노출되게 구성
+-- 대상: trainer15(성민코치/헬스), trainer17(재호코치/크로스핏), trainer16(나연코치/테니스,골프)
+-- matching_id UNIQUE 이므로 후기 1개당 매칭 1개 (lesson_content 고유 문구)
+-- =============================================
+
+-- ── 매칭 요청 추가 (후기 연결용) ──────────────────────────
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '초급', '헬스', '온라인', '대전', 30000, 60000, '[인기더미] 온라인으로 홈트 배우고 싶어요', NOW(), NOW()
+FROM members WHERE user_id = 'user01';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '중급', '헬스', '온라인', '대전', 30000, 60000, '[인기더미] 식단 코칭 받고 싶습니다', NOW(), NOW()
+FROM members WHERE user_id = 'user03';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '중급', '크로스핏', '1:1', '부산', 70000, 120000, '[인기더미] 체력 한계를 넘고 싶어요', NOW(), NOW()
+FROM members WHERE user_id = 'user02';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '고급', '크로스핏', '1:1', '부산', 70000, 120000, '[인기더미] 와드 기록 단축이 목표입니다', NOW(), NOW()
+FROM members WHERE user_id = 'user03';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '고급', '테니스', '1:1', '서울', 100000, 150000, '[인기더미] 대회 준비 레슨 원합니다', NOW(), NOW()
+FROM members WHERE user_id = 'user01';
+
+-- ── 후기 추가 ────────────────────────────────────────────
+-- [trainer15 성민코치] 5점
+INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT (SELECT id FROM matching_request WHERE lesson_content = '[인기더미] 온라인으로 홈트 배우고 싶어요' LIMIT 1),
+       (SELECT id FROM members WHERE user_id = 'user01'),
+       (SELECT id FROM members WHERE user_id = 'trainer15'),
+       5, '온라인인데도 자세를 꼼꼼히 봐주셔서 홈트 효과가 확실했어요.', NOW() - INTERVAL 5 DAY, NOW() - INTERVAL 5 DAY;
+
+-- [trainer15 성민코치] 4점
+INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT (SELECT id FROM matching_request WHERE lesson_content = '[인기더미] 식단 코칭 받고 싶습니다' LIMIT 1),
+       (SELECT id FROM members WHERE user_id = 'user03'),
+       (SELECT id FROM members WHERE user_id = 'trainer15'),
+       4, '식단 피드백이 꼼꼼해서 좋았습니다. 온라인이라 편했어요.', NOW() - INTERVAL 7 DAY, NOW() - INTERVAL 7 DAY;
+
+-- [trainer17 재호코치] 5점
+INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT (SELECT id FROM matching_request WHERE lesson_content = '[인기더미] 체력 한계를 넘고 싶어요' LIMIT 1),
+       (SELECT id FROM members WHERE user_id = 'user02'),
+       (SELECT id FROM members WHERE user_id = 'trainer17'),
+       5, '강도 높은 크로스핏인데 부상 없이 안전하게 이끌어주셨습니다.', NOW() - INTERVAL 9 DAY, NOW() - INTERVAL 9 DAY;
+
+-- [trainer17 재호코치] 5점
+INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT (SELECT id FROM matching_request WHERE lesson_content = '[인기더미] 와드 기록 단축이 목표입니다' LIMIT 1),
+       (SELECT id FROM members WHERE user_id = 'user03'),
+       (SELECT id FROM members WHERE user_id = 'trainer17'),
+       5, '와드 기록이 눈에 띄게 줄었어요. 동기부여까지 최고입니다!', NOW() - INTERVAL 11 DAY, NOW() - INTERVAL 11 DAY;
+
+-- [trainer16 나연코치] 4점
+INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT (SELECT id FROM matching_request WHERE lesson_content = '[인기더미] 대회 준비 레슨 원합니다' LIMIT 1),
+       (SELECT id FROM members WHERE user_id = 'user01'),
+       (SELECT id FROM members WHERE user_id = 'trainer16'),
+       4, '대회 대비 전략을 디테일하게 잡아주셔서 큰 도움이 됐습니다.', NOW() - INTERVAL 13 DAY, NOW() - INTERVAL 13 DAY;
+
+
+-- =============================================
+-- [작성 가능한 후기(writable) 보강] 매칭 성사(ACCEPTED) 더미
+-- 흐름: matching_request → preferred_time + available_time → matching_result → lesson_request(ACCEPTED)
+-- user01 이 trainer06(민기코치/헬스)와 매칭 성사 → 아직 후기 미작성 → writable 에 떠야 함
+-- user03 이 trainer11(현우코치/헬스,크로스핏)와 매칭 성사 → writable 에 떠야 함
+-- =============================================
+
+-- ───────── user01 → trainer06(민기코치) 성사 ─────────
+-- 1) 매칭 요청
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '초급', '헬스', '1:1', '서울', 40000, 80000, '[더미작성가능2] 기초 근력 만들고 싶어요', NOW(), NOW()
+FROM members WHERE user_id = 'user01';
+
+-- 2) 사용자 희망 시간
+INSERT IGNORE INTO matching_preferred_times (matching_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능2] 기초 근력 만들고 싶어요' LIMIT 1),
+       'TUESDAY', '14:00:00', '15:00:00', NOW(), NOW();
+
+-- 3) 트레이너 가능 시간 (trainer06)
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'TUESDAY', '13:00:00', '20:00:00', NOW(), NOW()
+FROM trainer_profiles tp
+         JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer06';
+
+-- 4) 매칭 결과
+INSERT IGNORE INTO matching_results (matching_id, preferred_time_id, trainer_available_time_id, trainer_profile_id, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능2] 기초 근력 만들고 싶어요' LIMIT 1),
+    (SELECT pt.id FROM matching_preferred_times pt
+        WHERE pt.matching_id = (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능2] 기초 근력 만들고 싶어요' LIMIT 1)
+        LIMIT 1),
+    (SELECT at.id FROM trainer_available_times at
+        JOIN trainer_profiles tp ON at.trainer_profile_id = tp.id
+        JOIN members m ON tp.user_id = m.id
+        WHERE m.user_id = 'trainer06' AND at.start_time = '13:00:00'
+        LIMIT 1),
+    (SELECT tp.id FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer06' LIMIT 1),
+    NOW(), NOW();
+
+-- 5) 레슨 요청 (ACCEPTED = 성사)
+INSERT IGNORE INTO lesson_requests (matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count, requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at)
+SELECT
+    (SELECT mr.id FROM matching_results mr
+     WHERE mr.matching_id = (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능2] 기초 근력 만들고 싶어요' LIMIT 1)
+        LIMIT 1),
+    (SELECT id FROM members WHERE user_id = 'user01'),
+                                (SELECT tp.id FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer06' LIMIT 1),
+    'ONE_TIME', NULL, '2026-06-16', '14:00:00', '15:00:00', '잘 부탁드립니다!', 'ACCEPTED', NOW(), NOW();
+
+
+-- ───────── user03 → trainer11(현우코치) 성사 ─────────
+-- 1) 매칭 요청
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '중급', '크로스핏', '1:1', '인천', 60000, 100000, '[더미작성가능3] 크로스핏 입문하고 싶어요', NOW(), NOW()
+FROM members WHERE user_id = 'user03';
+
+-- 2) 사용자 희망 시간
+INSERT IGNORE INTO matching_preferred_times (matching_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능3] 크로스핏 입문하고 싶어요' LIMIT 1),
+       'WEDNESDAY', '19:00:00', '20:00:00', NOW(), NOW();
+
+-- 3) 트레이너 가능 시간 (trainer11)
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'WEDNESDAY', '18:00:00', '22:00:00', NOW(), NOW()
+FROM trainer_profiles tp
+         JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer11';
+
+-- 4) 매칭 결과
+INSERT IGNORE INTO matching_results (matching_id, preferred_time_id, trainer_available_time_id, trainer_profile_id, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능3] 크로스핏 입문하고 싶어요' LIMIT 1),
+    (SELECT pt.id FROM matching_preferred_times pt
+        WHERE pt.matching_id = (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능3] 크로스핏 입문하고 싶어요' LIMIT 1)
+        LIMIT 1),
+    (SELECT at.id FROM trainer_available_times at
+        JOIN trainer_profiles tp ON at.trainer_profile_id = tp.id
+        JOIN members m ON tp.user_id = m.id
+        WHERE m.user_id = 'trainer11' AND at.start_time = '18:00:00'
+        LIMIT 1),
+    (SELECT tp.id FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer11' LIMIT 1),
+    NOW(), NOW();
+
+-- 5) 레슨 요청 (ACCEPTED = 성사)
+INSERT IGNORE INTO lesson_requests (matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count, requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at)
+SELECT
+    (SELECT mr.id FROM matching_results mr
+     WHERE mr.matching_id = (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능3] 크로스핏 입문하고 싶어요' LIMIT 1)
+        LIMIT 1),
+    (SELECT id FROM members WHERE user_id = 'user03'),
+                                (SELECT tp.id FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer11' LIMIT 1),
+    'ONE_TIME', NULL, '2026-06-17', '19:00:00', '20:00:00', '잘 부탁드립니다!', 'ACCEPTED', NOW(), NOW();
