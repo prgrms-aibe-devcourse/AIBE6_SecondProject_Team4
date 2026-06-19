@@ -20,6 +20,14 @@ export default function SignupPage() {
     const [passwordConfirm, setPasswordConfirm] = useState('')
     const [agreed, setAgreed] = useState(false)
 
+    const [smsCode, setSmsCode] = useState('')
+    const [smsSent, setSmsSent] = useState(false)
+    const [smsVerified, setSmsVerified] = useState(false)
+    const [smsLoading, setSmsLoading] = useState(false)
+    const [smsError, setSmsError] = useState('')
+    const [smsSuccess, setSmsSuccess] = useState('')
+    const [timer, setTimer] = useState(0)
+
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
 
@@ -54,9 +62,55 @@ export default function SignupPage() {
         e.target.style.borderColor = '#c2c6d8'
     }
 
+    const startTimer = () => {
+        setTimer(60)
+        const interval = setInterval(() => {
+            setTimer(prev => {
+                if (prev <= 1) { clearInterval(interval); return 0 }
+                return prev - 1
+            })
+        }, 1000)
+    }
+
+    const handleSendSms = async () => {
+        if (!phone.trim()) { setSmsError('전화번호를 입력해 주세요.'); return }
+        setSmsLoading(true); setSmsError(''); setSmsSuccess('')
+        try {
+            const res = await fetch('http://localhost:8080/api/auth/sms/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone }),
+            })
+            if (!res.ok) { setSmsError('인증번호 발송에 실패했습니다.'); return }
+            setSmsSent(true); setSmsVerified(false); setSmsCode('')
+            setSmsSuccess('인증번호가 발송되었습니다.'); startTimer()
+        } catch { setSmsError('서버 연결에 실패했습니다.') }
+        finally { setSmsLoading(false) }
+    }
+
+    const handleVerifySms = async () => {
+        if (!smsCode.trim()) { setSmsError('인증번호를 입력해 주세요.'); return }
+        setSmsLoading(true); setSmsError('')
+        try {
+            const res = await fetch('http://localhost:8080/api/auth/sms/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone, code: smsCode }),
+            })
+            if (!res.ok) { setSmsError('인증번호가 올바르지 않습니다.'); return }
+            setSmsVerified(true); setSmsSuccess('✓ 인증이 완료되었습니다.'); setSmsError('')
+        } catch { setSmsError('서버 연결에 실패했습니다.') }
+        finally { setSmsLoading(false) }
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setError('')
+
+        if (!smsVerified) {
+            setError('전화번호 인증을 완료해 주세요.')
+            return
+        }
 
         if (password !== passwordConfirm) {
             setError('비밀번호가 일치하지 않습니다.')
@@ -272,16 +326,66 @@ export default function SignupPage() {
 
                     <div style={fieldGroupStyle}>
                         <label style={labelStyle}>전화번호</label>
-                        <input
-                            type="tel"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            placeholder="010-0000-0000"
-                            required
-                            style={inputStyle}
-                            onFocus={handleFocus}
-                            onBlur={handleBlur}
-                        />
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            <input
+                                type="tel"
+                                value={phone}
+                                onChange={(e) => { setPhone(e.target.value); setSmsVerified(false); setSmsSent(false) }}
+                                placeholder="010-0000-0000"
+                                required
+                                style={{ ...inputStyle, flex: 1 }}
+                                onFocus={handleFocus}
+                                onBlur={handleBlur}
+                            />
+                            <button
+                                type="button"
+                                onClick={handleSendSms}
+                                disabled={smsLoading || timer > 0}
+                                style={{
+                                    padding: '12px 14px',
+                                    background: timer > 0 ? '#c2c6d8' : '#0057CD',
+                                    color: 'white', border: 'none', borderRadius: '12px',
+                                    fontSize: '13px', fontWeight: 600,
+                                    cursor: timer > 0 ? 'not-allowed' : 'pointer',
+                                    whiteSpace: 'nowrap', flexShrink: 0,
+                                }}
+                            >
+                                {smsLoading ? '발송 중...' : timer > 0 ? `${timer}초` : smsSent ? '재발송' : '인증번호 받기'}
+                            </button>
+                        </div>
+
+                        {smsSent && !smsVerified && (
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <input
+                                    type="text"
+                                    value={smsCode}
+                                    onChange={(e) => setSmsCode(e.target.value)}
+                                    placeholder="인증번호 6자리 입력"
+                                    maxLength={6}
+                                    style={{ ...inputStyle, flex: 1 }}
+                                    onFocus={handleFocus}
+                                    onBlur={handleBlur}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleVerifySms}
+                                    disabled={smsLoading}
+                                    style={{
+                                        padding: '12px 14px',
+                                        background: '#0057CD', color: 'white',
+                                        border: 'none', borderRadius: '12px',
+                                        fontSize: '13px', fontWeight: 600,
+                                        cursor: smsLoading ? 'not-allowed' : 'pointer',
+                                        whiteSpace: 'nowrap', flexShrink: 0,
+                                    }}
+                                >
+                                    {smsLoading ? '확인 중...' : '확인'}
+                                </button>
+                            </div>
+                        )}
+
+                        {smsError && <p style={{ fontSize: '12px', color: '#ba1a1a', margin: 0 }}>{smsError}</p>}
+                        {smsSuccess && <p style={{ fontSize: '12px', color: smsVerified ? '#0057CD' : '#424654', margin: 0 }}>{smsSuccess}</p>}
                     </div>
 
                     <div style={fieldGroupStyle}>
