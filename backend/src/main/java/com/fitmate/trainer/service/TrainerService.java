@@ -48,8 +48,8 @@ public class TrainerService {
                 trainerAvailableTimeRepository.findByTrainerProfileId(profile.getId());
         List<TrainerLessonPhoto> lessonPhotos =
                 trainerLessonPhotoRepository.findByTrainerProfileId(profile.getId());
-        Double avgRating = reviewRepository.findAverageRatingByTrainerId(profile.getId());
-        long reviewCount = reviewRepository.countByTrainerId(profile.getId());
+        Double avgRating = reviewRepository.findAverageRatingByTrainerId(profile.getMember().getId());
+        long reviewCount = reviewRepository.countByTrainerId(profile.getMember().getId());
         return TrainerProfileResponse.from(profile, availableTimes, lessonPhotos, avgRating, reviewCount);
     }
 
@@ -77,7 +77,7 @@ public class TrainerService {
                 trainerProfileRepository.findByFilters(sport, lessonType, lessonLevel, minPrice, maxPrice, region, pageable);
 
         List<Long> trainerIds = profilePage.getContent().stream()
-                .map(TrainerProfile::getId)
+                .map(profile -> profile.getMember().getId())
                 .toList();
 
         Map<Long, Double> ratingMap = new HashMap<>();
@@ -98,8 +98,8 @@ public class TrainerService {
                     trainerAvailableTimeRepository.findByTrainerProfileId(profile.getId());
             List<TrainerLessonPhoto> lessonPhotos =
                     trainerLessonPhotoRepository.findByTrainerProfileId(profile.getId());
-            Double avgRating = ratingMap.get(profile.getId());
-            Long reviewCount = countMap.getOrDefault(profile.getId(), 0L);
+            Double avgRating = ratingMap.get(profile.getMember().getId());
+            Long reviewCount = countMap.getOrDefault(profile.getMember().getId(), 0L);
             return TrainerProfileResponse.from(profile, availableTimes, lessonPhotos, avgRating, reviewCount);
         });
     }
