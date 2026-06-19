@@ -2,9 +2,13 @@ package com.fitmate.trainer.service;
 
 import com.fitmate.global.exception.CustomException;
 import com.fitmate.global.exception.ErrorCode;
+import com.fitmate.lesson.repository.LessonRequestRepository;
+import com.fitmate.matching.entity.MatchingResult;
+import com.fitmate.matching.repository.MatchingResultRepository;
 import com.fitmate.member.entity.Member;
 import com.fitmate.member.entity.Role;
 import com.fitmate.member.repository.MemberRepository;
+import com.fitmate.review.repository.ReviewRepository;
 import com.fitmate.trainer.dto.TrainerProfileRequest;
 import com.fitmate.trainer.dto.TrainerProfileResponse;
 import com.fitmate.trainer.dto.TrainerProfileUpdateRequest;
@@ -14,9 +18,6 @@ import com.fitmate.trainer.entity.TrainerProfile;
 import com.fitmate.trainer.repository.TrainerAvailableTimeRepository;
 import com.fitmate.trainer.repository.TrainerLessonPhotoRepository;
 import com.fitmate.trainer.repository.TrainerProfileRepository;
-import com.fitmate.matching.repository.MatchingResultRepository;
-import com.fitmate.lesson.repository.LessonRequestRepository;
-import com.fitmate.matching.entity.MatchingResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,10 +26,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +39,7 @@ public class TrainerService {
     private final TrainerLessonPhotoRepository trainerLessonPhotoRepository;
     private final MatchingResultRepository matchingResultRepository;
     private final LessonRequestRepository lessonRequestRepository;
+    private final ReviewRepository reviewRepository;
 
     public TrainerProfileResponse getTrainerProfile(Long id) {
         TrainerProfile profile = trainerProfileRepository.findById(id)
@@ -49,7 +48,9 @@ public class TrainerService {
                 trainerAvailableTimeRepository.findByTrainerProfileId(profile.getId());
         List<TrainerLessonPhoto> lessonPhotos =
                 trainerLessonPhotoRepository.findByTrainerProfileId(profile.getId());
-        return TrainerProfileResponse.from(profile, availableTimes, lessonPhotos);
+        Double avgRating = reviewRepository.findAverageRatingByTrainerId(profile.getId());
+        long reviewCount = reviewRepository.countByTrainerId(profile.getId());
+        return TrainerProfileResponse.from(profile, availableTimes, lessonPhotos, avgRating, reviewCount);
     }
 
     public Page<TrainerProfileResponse> getTrainerProfilesByFilter(
@@ -72,14 +73,35 @@ public class TrainerService {
 
         Pageable pageable = PageRequest.of(page, size, sortObj);
 
-        return trainerProfileRepository.findByFilters(sport, lessonType, lessonLevel, minPrice, maxPrice, region, pageable)
-                .map(profile -> {
-                    List<TrainerAvailableTime> availableTimes =
-                            trainerAvailableTimeRepository.findByTrainerProfileId(profile.getId());
-                    List<TrainerLessonPhoto> lessonPhotos =
-                            trainerLessonPhotoRepository.findByTrainerProfileId(profile.getId());
-                    return TrainerProfileResponse.from(profile, availableTimes, lessonPhotos);
-                });
+        Page<TrainerProfile> profilePage =
+                trainerProfileRepository.findByFilters(sport, lessonType, lessonLevel, minPrice, maxPrice, region, pageable);
+
+        List<Long> trainerIds = profilePage.getContent().stream()
+                .map(TrainerProfile::getId)
+                .toList();
+
+        Map<Long, Double> ratingMap = new HashMap<>();
+        Map<Long, Long> countMap = new HashMap<>();
+        if (!trainerIds.isEmpty()) {
+            List<Object[]> stats = reviewRepository.findRatingStatsByTrainerIds(trainerIds);
+            for (Object[] row : stats) {
+                Long trainerId = (Long) row[0];
+                Double avg = (Double) row[1];
+                Long count = (Long) row[2];
+                ratingMap.put(trainerId, avg);
+                countMap.put(trainerId, count);
+            }
+        }
+
+        return profilePage.map(profile -> {
+            List<TrainerAvailableTime> availableTimes =
+                    trainerAvailableTimeRepository.findByTrainerProfileId(profile.getId());
+            List<TrainerLessonPhoto> lessonPhotos =
+                    trainerLessonPhotoRepository.findByTrainerProfileId(profile.getId());
+            Double avgRating = ratingMap.get(profile.getId());
+            Long reviewCount = countMap.getOrDefault(profile.getId(), 0L);
+            return TrainerProfileResponse.from(profile, availableTimes, lessonPhotos, avgRating, reviewCount);
+        });
     }
 
     public TrainerProfileResponse createTrainerProfile(Long memberId, TrainerProfileRequest request) {

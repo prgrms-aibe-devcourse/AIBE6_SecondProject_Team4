@@ -347,7 +347,11 @@ export default function ExplorePage() {
                                                 >
                                                     star
                                                 </span>
-                                                <span className="text-body-sm font-bold">4.9</span>
+                                                <span className="text-body-sm font-bold">
+                                                    {trainer.averageRating
+                                                        ? trainer.averageRating.toFixed(1)
+                                                        : '신규'}
+                                                </span>
                                             </div>
                                         </div>
                                         <p
