@@ -8,6 +8,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 type Trainer = components['schemas']['TrainerProfileResponse']
+type ReviewResponse = components['schemas']['ReviewResponse']
+type TrainerRating = components['schemas']['TrainerRatingResponse']
 
 interface Props {
     params: Promise<{ id: string }>
@@ -21,6 +23,9 @@ export default function TrainerDetailPage({ params }: Props) {
     const [id, setId] = useState<string>('')
     const [showAllPhotos, setShowAllPhotos] = useState(false)
     const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null)
+    const [reviews, setReviews] = useState<ReviewResponse[]>([])
+    const [rating, setRating] = useState<TrainerRating | null>(null)
+    const [showAllReviews, setShowAllReviews] = useState(false)
 
     useEffect(() => {
         params.then(({ id }) => setId(id))
@@ -39,6 +44,25 @@ export default function TrainerDetailPage({ params }: Props) {
         fetchTrainer()
     }, [id])
 
+    // 공개 후기 + 평점 불러오기 (trainer.memberId 기준)
+    useEffect(() => {
+        if (!trainer?.memberId) return
+        const fetchReviews = async () => {
+            const client = getAuthClient()
+            const [rv, rt] = await Promise.all([
+                client.GET('/api/reviews/trainer/{trainerId}', {
+                    params: { path: { trainerId: trainer.memberId! } },
+                }),
+                client.GET('/api/reviews/trainer/{trainerId}/rating', {
+                    params: { path: { trainerId: trainer.memberId! } },
+                }),
+            ])
+            setReviews(rv.data ?? [])
+            setRating(rt.data ?? null)
+        }
+        fetchReviews()
+    }, [trainer?.memberId])
+
     if (loading) {
         return (
             <main className="pt-16 md:pt-20">
@@ -56,7 +80,11 @@ export default function TrainerDetailPage({ params }: Props) {
                         <div className="md:col-span-2 space-y-md">
                             <div className="flex gap-xs flex-wrap">
                                 {[60, 80, 50].map((w, i) => (
-                                    <div key={i} className="h-6 rounded-full bg-surface-container animate-pulse" style={{ width: `${w}px` }} />
+                                    <div
+                                        key={i}
+                                        className="h-6 rounded-full bg-surface-container animate-pulse"
+                                        style={{ width: `${w}px` }}
+                                    />
                                 ))}
                             </div>
                             <div className="h-8 w-48 rounded-lg bg-surface-container animate-pulse" />
@@ -83,11 +111,18 @@ export default function TrainerDetailPage({ params }: Props) {
                             {/* 전문분야 + 수업유형 */}
                             <div className="grid grid-cols-2 gap-md">
                                 {[1, 2].map((i) => (
-                                    <div key={i} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md space-y-sm">
+                                    <div
+                                        key={i}
+                                        className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md space-y-sm"
+                                    >
                                         <div className="h-4 w-20 rounded bg-surface-container animate-pulse" />
                                         <div className="flex gap-xs flex-wrap">
                                             {[50, 70].map((w, j) => (
-                                                <div key={j} className="h-6 rounded bg-surface-container animate-pulse" style={{ width: `${w}px` }} />
+                                                <div
+                                                    key={j}
+                                                    className="h-6 rounded bg-surface-container animate-pulse"
+                                                    style={{ width: `${w}px` }}
+                                                />
                                             ))}
                                         </div>
                                     </div>
@@ -98,7 +133,11 @@ export default function TrainerDetailPage({ params }: Props) {
                                 <div className="h-4 w-20 rounded bg-surface-container animate-pulse" />
                                 <div className="flex gap-sm flex-wrap">
                                     {[60, 80, 70].map((w, i) => (
-                                        <div key={i} className="h-5 rounded bg-surface-container animate-pulse" style={{ width: `${w}px` }} />
+                                        <div
+                                            key={i}
+                                            className="h-5 rounded bg-surface-container animate-pulse"
+                                            style={{ width: `${w}px` }}
+                                        />
                                     ))}
                                 </div>
                             </div>
@@ -107,7 +146,10 @@ export default function TrainerDetailPage({ params }: Props) {
                                 <div className="h-6 w-24 rounded bg-surface-container animate-pulse mb-sm" />
                                 <div className="grid grid-cols-4 gap-sm">
                                     {[1, 2, 3, 4].map((i) => (
-                                        <div key={i} className="aspect-square bg-surface-container rounded-xl animate-pulse" />
+                                        <div
+                                            key={i}
+                                            className="aspect-square bg-surface-container rounded-xl animate-pulse"
+                                        />
                                     ))}
                                 </div>
                             </div>
@@ -115,7 +157,10 @@ export default function TrainerDetailPage({ params }: Props) {
                             <div className="space-y-md">
                                 <div className="h-6 w-24 rounded bg-surface-container animate-pulse" />
                                 {[1, 2].map((i) => (
-                                    <div key={i} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md space-y-sm">
+                                    <div
+                                        key={i}
+                                        className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md space-y-sm"
+                                    >
                                         <div className="flex items-center gap-sm">
                                             <div className="w-10 h-10 rounded-full bg-surface-container animate-pulse flex-shrink-0" />
                                             <div className="space-y-1 flex-1">
@@ -252,9 +297,11 @@ export default function TrainerDetailPage({ params }: Props) {
                             >
                                 star
                             </span>
-                            <span className="font-bold text-body-md">4.9</span>
+                            <span className="font-bold text-body-md">
+                                {rating && rating.reviewCount ? rating.averageRating : '-'}
+                            </span>
                             <span className="text-on-surface-variant text-body-sm">
-                                (후기 28개)
+                                (후기 {rating?.reviewCount ?? 0}개)
                             </span>
                         </div>
 
@@ -317,7 +364,7 @@ export default function TrainerDetailPage({ params }: Props) {
                                     )}
                                 </div>
                             </div>
-                            {/* 전문 분야 + 레슨 유형 */}
+                            {/* 수업 유형 */}
                             <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md">
                                 <div className="flex items-center gap-xs mb-sm">
                                     <span className="material-symbols-outlined text-primary text-sm">
@@ -420,88 +467,89 @@ export default function TrainerDetailPage({ params }: Props) {
                                 <h2 className="font-headline-sm text-headline-sm text-on-surface">
                                     회원 후기
                                 </h2>
-                                <div className="flex items-center gap-xs">
-                                    <span
-                                        className="material-symbols-outlined text-sm text-tertiary"
-                                        style={{ fontVariationSettings: '"FILL" 1' }}
-                                    >
-                                        star
-                                    </span>
-                                    <span className="font-bold">4.9</span>
-                                </div>
-                            </div>
-                            <div className="space-y-md">
-                                <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md">
-                                    <div className="flex items-center gap-sm mb-sm">
-                                        <div className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-outline-variant">
-                                                person
-                                            </span>
-                                        </div>
-                                        <div>
-                                            <p className="font-label-bold text-on-surface">
-                                                조단 데이비스
-                                            </p>
-                                            <p className="text-label-md font-label-md text-on-surface-variant">
-                                                근력 훈련 회원 · 3개월
-                                            </p>
-                                        </div>
-                                        <div className="ml-auto flex">
-                                            {[1, 2, 3, 4, 5].map((i) => (
-                                                <span
-                                                    key={i}
-                                                    className="material-symbols-outlined text-sm text-tertiary"
-                                                    style={{ fontVariationSettings: '"FILL" 1' }}
-                                                >
-                                                    star
-                                                </span>
-                                            ))}
-                                        </div>
+                                {rating && rating.reviewCount ? (
+                                    <div className="flex items-center gap-xs">
+                                        <span
+                                            className="material-symbols-outlined text-sm text-tertiary"
+                                            style={{ fontVariationSettings: '"FILL" 1' }}
+                                        >
+                                            star
+                                        </span>
+                                        <span className="font-bold">{rating.averageRating}</span>
                                     </div>
-                                    <p className="text-body-sm text-on-surface-variant">
-                                        알렉스 트레이너님은 정말 최고예요. 혼자 운동했을 때 3년 동안
-                                        못 했던 발전을 3개월 만에 이뤄냈습니다.
-                                    </p>
-                                </div>
-                                <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md">
-                                    <div className="flex items-center gap-sm mb-sm">
-                                        <div className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-outline-variant">
-                                                person
-                                            </span>
-                                        </div>
-                                        <div>
-                                            <p className="font-label-bold text-on-surface">
-                                                김사라
-                                            </p>
-                                            <p className="text-label-md font-label-md text-on-surface-variant">
-                                                필라테스 회원 · 6개월
-                                            </p>
-                                        </div>
-                                        <div className="ml-auto flex">
-                                            {[1, 2, 3, 4].map((i) => (
-                                                <span
-                                                    key={i}
-                                                    className="material-symbols-outlined text-sm text-tertiary"
-                                                    style={{ fontVariationSettings: '"FILL" 1' }}
-                                                >
-                                                    star
-                                                </span>
-                                            ))}
-                                            <span className="material-symbols-outlined text-sm text-outline-variant">
-                                                star
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <p className="text-body-sm text-on-surface-variant">
-                                        수업 퀄리티가 마무 높고 스케줄도 유연합니다. 바쁜 직장 생활
-                                        중에도 건강을 유지하고 싶은 분들께 강력 추천합니다.
-                                    </p>
-                                </div>
+                                ) : null}
                             </div>
-                            <button className="w-full mt-md py-sm border border-outline-variant rounded-xl text-label-bold font-label-bold text-on-surface hover:bg-surface-container transition">
-                                후기 전체 보기
-                            </button>
+
+                            {reviews.length === 0 ? (
+                                <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg text-center text-on-surface-variant text-body-sm">
+                                    아직 작성된 후기가 없습니다.
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="space-y-md">
+                                        {(showAllReviews ? reviews : reviews.slice(0, 3)).map(
+                                            (review) => (
+                                                <div
+                                                    key={review.id}
+                                                    className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md"
+                                                >
+                                                    <div className="flex items-center gap-sm mb-sm">
+                                                        <div className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center">
+                                                            <span className="material-symbols-outlined text-outline-variant">
+                                                                person
+                                                            </span>
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-label-bold text-on-surface">
+                                                                {review.reviewerNickname}
+                                                            </p>
+                                                            <p className="text-label-md font-label-md text-on-surface-variant">
+                                                                {review.createdAt
+                                                                    ?.slice(0, 10)
+                                                                    .replace(/-/g, '.')}
+                                                                {review.edited ? ' (수정됨)' : ''}
+                                                            </p>
+                                                        </div>
+                                                        <div className="ml-auto flex">
+                                                            {[1, 2, 3, 4, 5].map((i) => (
+                                                                <span
+                                                                    key={i}
+                                                                    className="material-symbols-outlined text-sm text-tertiary"
+                                                                    style={
+                                                                        i <= (review.rating ?? 0)
+                                                                            ? {
+                                                                                  fontVariationSettings:
+                                                                                      '"FILL" 1',
+                                                                              }
+                                                                            : undefined
+                                                                    }
+                                                                >
+                                                                    star
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-body-sm text-on-surface-variant">
+                                                        {review.content}
+                                                    </p>
+                                                </div>
+                                            )
+                                        )}
+                                    </div>
+
+                                    {/* 더보기 / 접기 (후기 3개 초과일 때만) */}
+                                    {reviews.length > 3 && (
+                                        <button
+                                            className="w-full mt-md py-sm border border-outline-variant rounded-xl text-label-bold font-label-bold text-on-surface hover:bg-surface-container transition"
+                                            onClick={() => setShowAllReviews((prev) => !prev)}
+                                        >
+                                            {showAllReviews
+                                                ? '접기 ↑'
+                                                : `후기 전체 보기 (${reviews.length}개) →`}
+                                        </button>
+                                    )}
+                                </>
+                            )}
                         </div>
                     </div>
 
@@ -537,7 +585,7 @@ export default function TrainerDetailPage({ params }: Props) {
                             </button>
                             <button className="w-full border border-outline-variant text-on-surface py-sm rounded-xl font-label-bold hover:bg-surface-container transition flex items-center justify-center gap-xs">
                                 <span className="material-symbols-outlined text-sm">chat</span>
-                                알렉스와 상담하기
+                                {trainer.nickname}와 상담하기
                             </button>
                             <div className="space-y-xs pt-sm border-t border-outline-variant">
                                 <div className="flex items-center gap-xs text-body-sm text-on-surface-variant">

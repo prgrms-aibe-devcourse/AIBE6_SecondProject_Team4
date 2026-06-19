@@ -16,6 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
+import com.fitmate.review.dto.PopularTrainerResponse;
+import com.fitmate.review.dto.RealReviewResponse;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -96,5 +99,21 @@ public class ReviewController {
     ) {
         reviewService.deleteReview(reviewId, userId);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "인기 트레이너 조회", description = "후기 평점·개수 기반 인기 트레이너 목록 (메인 페이지).")
+    @GetMapping("/popular-trainers")
+    public ResponseEntity<List<PopularTrainerResponse>> getPopularTrainers(
+            @RequestParam(defaultValue = "4") int size
+    ) {
+        return ResponseEntity.ok(reviewService.getPopularTrainers(size));
+    }
+
+    @Operation(summary = "리얼 후기 조회", description = "별점 높은 대표 후기 목록 (메인 페이지).")
+    @GetMapping("/real")
+    public ResponseEntity<List<RealReviewResponse>> getRealReviews(
+            @RequestParam(defaultValue = "3") int size
+    ) {
+        return ResponseEntity.ok(reviewService.getRealReviews(size));
     }
 }
