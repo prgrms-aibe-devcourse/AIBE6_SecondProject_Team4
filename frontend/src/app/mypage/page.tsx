@@ -380,13 +380,18 @@ export default function MyPage() {
     }, [])
 
     useEffect(() => {
+        const tab = searchParams.get('tab')
+        if (tab) setActiveTab(tab)
+    }, [searchParams])
+
+    useEffect(() => {
         if (!hydrated) return
         if (!user) {
             router.push('/auth/login')
             return
         }
         fetchMyProfile()
-    }, [hydrated, user, searchParams])
+    }, [hydrated, user])
 
     const fetchMyProfile = async () => {
         const client = getAuthClient()
@@ -531,7 +536,7 @@ export default function MyPage() {
                             ))}
                         </div>
                     </aside>
-                    <div className="flex-grow">
+                    <div className="flex-grow min-h-[calc(100vh-200px)]">
                         {contentSkeleton}
                     </div>
                 </div>
@@ -625,7 +630,7 @@ export default function MyPage() {
                 </aside>
 
                 {/* 메인 콘텐츠 */}
-                <div className="flex-grow space-y-md">
+                <div className="flex-grow space-y-md min-h-[calc(100vh-200px)]">
                     {activeTab === 'matching' && (
                         <section className="space-y-md">
                             <h2 className="text-headline-sm font-headline-sm text-on-surface">
