@@ -79,15 +79,35 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
 
         if (initialDraft.region && REGIONS.includes(initialDraft.region)) {
             setRegion(initialDraft.region)
-            setDistrict(DISTRICTS[initialDraft.region]?.[0] ?? '')
+            setDistrict('')
         }
 
-        if (typeof initialDraft.budgetMin === 'number') {
-            setBudgetMin(Math.max(30000, Math.min(initialDraft.budgetMin, 150000)))
-        }
+        const parsedBudgetMin =
+            typeof initialDraft.budgetMin === 'number'
+                ? Math.max(30000, Math.min(initialDraft.budgetMin, 140000))
+                : null
+        const parsedBudgetMax =
+            typeof initialDraft.budgetMax === 'number'
+                ? Math.max(40000, Math.min(initialDraft.budgetMax, 150000))
+                : null
 
-        if (typeof initialDraft.budgetMax === 'number') {
-            setBudgetMax(Math.max(30000, Math.min(initialDraft.budgetMax, 150000)))
+        if (parsedBudgetMin !== null && parsedBudgetMax !== null) {
+            let nextBudgetMin = Math.min(parsedBudgetMin, parsedBudgetMax)
+            let nextBudgetMax = Math.max(parsedBudgetMin, parsedBudgetMax)
+
+            if (nextBudgetMax - nextBudgetMin < 10000) {
+                nextBudgetMax = Math.min(150000, nextBudgetMin + 10000)
+                nextBudgetMin = Math.max(30000, nextBudgetMax - 10000)
+            }
+
+            setBudgetMin(nextBudgetMin)
+            setBudgetMax(nextBudgetMax)
+        } else if (parsedBudgetMin !== null) {
+            setBudgetMin(parsedBudgetMin)
+            setBudgetMax(Math.min(150000, Math.max(80000, parsedBudgetMin + 10000)))
+        } else if (parsedBudgetMax !== null) {
+            setBudgetMin(Math.max(30000, Math.min(50000, parsedBudgetMax - 10000)))
+            setBudgetMax(parsedBudgetMax)
         }
 
         if (initialDraft.lessonContent) {
@@ -104,9 +124,17 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
                     endTime: time.endTime!.slice(0, 5),
                 })) ?? []
 
-        if (parsedTimes.length > 0) {
-            setPreferredTimes(parsedTimes)
+        const firstParsedDay = initialDraft.preferredTimes?.find(
+            (time) => time.dayOfWeek
+        )?.dayOfWeek
 
+        if (firstParsedDay) {
+            setDayOfWeek(DAY_LABELS[firstParsedDay] ?? firstParsedDay)
+        }
+
+        setPreferredTimes(parsedTimes)
+
+        if (parsedTimes.length > 0) {
             const firstTime = parsedTimes[0]
 
             setDayOfWeek(firstTime.dayOfWeek)
@@ -285,6 +313,7 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
                             value={district}
                             options={districtOptions}
                             onChange={setDistrict}
+                            placeholder="상세 지역을 선택하세요"
                         />
                     </div>
 
@@ -410,9 +439,10 @@ type SelectFieldProps = {
     value: string
     options: string[]
     onChange: (value: string) => void
+    placeholder?: string
 }
 
-function SelectField({ label, value, options, onChange }: SelectFieldProps) {
+function SelectField({ label, value, options, onChange, placeholder }: SelectFieldProps) {
     return (
         <label className="text-label-md font-label-md text-on-surface-variant">
             {label}
@@ -421,6 +451,11 @@ function SelectField({ label, value, options, onChange }: SelectFieldProps) {
                 onChange={(event) => onChange(event.target.value)}
                 className="mt-xs w-full h-12 rounded-lg border border-outline-variant bg-surface-container-lowest px-sm text-body-md outline-none focus:border-primary"
             >
+                {placeholder && (
+                    <option value="" disabled>
+                        {placeholder}
+                    </option>
+                )}
                 {options.map((option) => (
                     <option key={option} value={option}>
                         {option}
