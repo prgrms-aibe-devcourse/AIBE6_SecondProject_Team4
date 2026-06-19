@@ -8,6 +8,12 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum ErrorCode {
 
+    // SMS
+    SMS_NOT_FOUND(HttpStatus.BAD_REQUEST, "400-2", "인증 요청을 찾을 수 없습니다."),
+    SMS_EXPIRED(HttpStatus.BAD_REQUEST, "400-3", "인증번호가 만료되었습니다."),
+    SMS_INVALID_CODE(HttpStatus.BAD_REQUEST, "400-4", "인증번호가 올바르지 않습니다."),
+    SMS_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "400-5", "전화번호 인증이 필요합니다."),
+
     // Auth
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "401-1", "아이디 또는 비밀번호가 올바르지 않습니다."),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "401-2", "인증이 필요합니다."),

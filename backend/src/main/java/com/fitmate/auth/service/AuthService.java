@@ -6,6 +6,7 @@ import com.fitmate.auth.dto.ReissueResult;
 import com.fitmate.auth.dto.SignupRequest;
 import com.fitmate.auth.entity.RefreshToken;
 import com.fitmate.auth.repository.RefreshTokenRepository;
+import com.fitmate.auth.service.SmsService;
 import com.fitmate.global.config.JwtProvider;
 import com.fitmate.global.exception.CustomException;
 import com.fitmate.global.exception.ErrorCode;
@@ -27,6 +28,7 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final SmsService smsService;
 
     @Transactional
     public LoginResult login(LoginRequest request) {
@@ -70,6 +72,10 @@ public class AuthService {
 
     @Transactional
     public void signup(SignupRequest request) {
+
+        if (!smsService.isVerified(request.phone())) {
+            throw new CustomException(ErrorCode.SMS_NOT_VERIFIED);
+        }
 
         if (memberRepository.existsByUserIdAndDeletedAtIsNull(request.userId())) {
             throw new CustomException(ErrorCode.DUPLICATE_USER_ID);

@@ -56,6 +56,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login", "/api/auth/signup", "/api/auth/reissue",
+                                "/api/auth/sms/send", "/api/auth/sms/verify",
                                 "/ws/**", "/swagger-ui/**", "/v3/api-docs/**", "/uploads/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/trainer/**", "/api/reviews/popular-trainers",
                                 "/api/reviews/real").permitAll()
