@@ -6,7 +6,7 @@ import { getAuthClient } from '@/utils/apiClient'
 import { useEffect, useState } from 'react'
 
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 
 type MatchingResult = components['schemas']['MatchingResultResponse']
 
@@ -22,6 +22,7 @@ type MatchingRequestSummary = {
 
 export default function MatchingResultPage() {
     const { matchingId } = useParams<{ matchingId: string }>()
+    const router = useRouter()
     const [results, setResults] = useState<MatchingResult[]>([])
     const [summary, setSummary] = useState<MatchingRequestSummary | null>(null)
     const [isLoading, setIsLoading] = useState(true)
@@ -70,8 +71,7 @@ export default function MatchingResultPage() {
     }, [matchingId])
 
     const handleLessonRequest = (matchingResultId: number) => {
-        sessionStorage.setItem('selected-matching-result-id', String(matchingResultId))
-        window.alert('레슨 요청서 작성 페이지는 다음 단계에서 연결합니다.')
+        router.push(`/lesson-requests/new/${matchingId}/${matchingResultId}`)
     }
 
     return (
