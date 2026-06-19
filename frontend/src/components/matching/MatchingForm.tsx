@@ -5,13 +5,42 @@ import PreferredTimeInput, { type PreferredTime } from '@/components/matching/Pr
 import { DISTRICTS, LESSON_TYPES, LEVELS, REGIONS, SPORTS } from '@/constants/matchingOptions'
 import { useAuth } from '@/context/AuthContext'
 import { getAuthClient } from '@/utils/apiClient'
-import { FormEvent, useMemo, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
+export type MatchingDraft = {
+    sports?: string
+    level?: string
+    lessonType?: string
+    region?: string
+    budgetMin?: number
+    budgetMax?: number
+    lessonContent?: string
+    preferredTimes?: Array<{
+        dayOfWeek?: string
+        startTime?: string
+        endTime?: string
+    }>
+}
+
+type MatchingFormProps = {
+    initialDraft?: MatchingDraft | null
+}
+
+const DAY_LABELS: Record<string, string> = {
+    MONDAY: '월요일',
+    TUESDAY: '화요일',
+    WEDNESDAY: '수요일',
+    THURSDAY: '목요일',
+    FRIDAY: '금요일',
+    SATURDAY: '토요일',
+    SUNDAY: '일요일',
+}
+
 const formatPrice = (price: number) => `${price.toLocaleString('ko-KR')}원`
 
-export default function MatchingForm() {
+export default function MatchingForm({ initialDraft }: MatchingFormProps) {
     const router = useRouter()
     const { user } = useAuth()
     const [sports, setSports] = useState('필라테스')
@@ -30,6 +59,91 @@ export default function MatchingForm() {
     ])
     const [formError, setFormError] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
+
+    useEffect(() => {
+        if (!initialDraft) {
+            return
+        }
+
+        if (initialDraft.sports && SPORTS.includes(initialDraft.sports)) {
+            setSports(initialDraft.sports)
+        }
+
+        if (initialDraft.level && LEVELS.includes(initialDraft.level)) {
+            setLevel(initialDraft.level)
+        }
+
+        if (initialDraft.lessonType && LESSON_TYPES.includes(initialDraft.lessonType)) {
+            setLessonType(initialDraft.lessonType)
+        }
+
+        if (initialDraft.region && REGIONS.includes(initialDraft.region)) {
+            setRegion(initialDraft.region)
+            setDistrict('')
+        }
+
+        const parsedBudgetMin =
+            typeof initialDraft.budgetMin === 'number'
+                ? Math.max(30000, Math.min(initialDraft.budgetMin, 140000))
+                : null
+        const parsedBudgetMax =
+            typeof initialDraft.budgetMax === 'number'
+                ? Math.max(40000, Math.min(initialDraft.budgetMax, 150000))
+                : null
+
+        if (parsedBudgetMin !== null && parsedBudgetMax !== null) {
+            let nextBudgetMin = Math.min(parsedBudgetMin, parsedBudgetMax)
+            let nextBudgetMax = Math.max(parsedBudgetMin, parsedBudgetMax)
+
+            if (nextBudgetMax - nextBudgetMin < 10000) {
+                nextBudgetMax = Math.min(150000, nextBudgetMin + 10000)
+                nextBudgetMin = Math.max(30000, nextBudgetMax - 10000)
+            }
+
+            setBudgetMin(nextBudgetMin)
+            setBudgetMax(nextBudgetMax)
+        } else if (parsedBudgetMin !== null) {
+            setBudgetMin(parsedBudgetMin)
+            setBudgetMax(Math.min(150000, Math.max(80000, parsedBudgetMin + 10000)))
+        } else if (parsedBudgetMax !== null) {
+            setBudgetMin(Math.max(30000, Math.min(50000, parsedBudgetMax - 10000)))
+            setBudgetMax(parsedBudgetMax)
+        }
+
+        if (initialDraft.lessonContent) {
+            setLessonContent(initialDraft.lessonContent)
+        }
+
+        const parsedTimes =
+            initialDraft.preferredTimes
+                ?.filter((time) => time.dayOfWeek && time.startTime && time.endTime)
+                .map((time, index) => ({
+                    id: Date.now() + index,
+                    dayOfWeek: DAY_LABELS[time.dayOfWeek!] ?? time.dayOfWeek!,
+                    startTime: time.startTime!.slice(0, 5),
+                    endTime: time.endTime!.slice(0, 5),
+                })) ?? []
+
+        const firstParsedDay = initialDraft.preferredTimes?.find(
+            (time) => time.dayOfWeek
+        )?.dayOfWeek
+
+        if (firstParsedDay) {
+            setDayOfWeek(DAY_LABELS[firstParsedDay] ?? firstParsedDay)
+        }
+
+        setPreferredTimes(parsedTimes)
+
+        if (parsedTimes.length > 0) {
+            const firstTime = parsedTimes[0]
+
+            setDayOfWeek(firstTime.dayOfWeek)
+            setStartTime(firstTime.startTime)
+            setEndTime(firstTime.endTime)
+        }
+
+        setFormError('')
+    }, [initialDraft])
 
     const districtOptions = useMemo(() => DISTRICTS[region] ?? [], [region])
 
@@ -199,6 +313,7 @@ export default function MatchingForm() {
                             value={district}
                             options={districtOptions}
                             onChange={setDistrict}
+                            placeholder="상세 지역을 선택하세요"
                         />
                     </div>
 
@@ -324,9 +439,10 @@ type SelectFieldProps = {
     value: string
     options: string[]
     onChange: (value: string) => void
+    placeholder?: string
 }
 
-function SelectField({ label, value, options, onChange }: SelectFieldProps) {
+function SelectField({ label, value, options, onChange, placeholder }: SelectFieldProps) {
     return (
         <label className="text-label-md font-label-md text-on-surface-variant">
             {label}
@@ -335,6 +451,11 @@ function SelectField({ label, value, options, onChange }: SelectFieldProps) {
                 onChange={(event) => onChange(event.target.value)}
                 className="mt-xs w-full h-12 rounded-lg border border-outline-variant bg-surface-container-lowest px-sm text-body-md outline-none focus:border-primary"
             >
+                {placeholder && (
+                    <option value="" disabled>
+                        {placeholder}
+                    </option>
+                )}
                 {options.map((option) => (
                     <option key={option} value={option}>
                         {option}

@@ -1,5 +1,6 @@
 'use client'
 
+import { useAuth } from '@/context/AuthContext'
 import type { components } from '@/types/api'
 import { getAuthClient, getImageUrl } from '@/utils/apiClient'
 import { useEffect, useState } from 'react'
@@ -16,6 +17,7 @@ interface Props {
 
 export default function TrainerDetailPage({ params }: Props) {
     const router = useRouter()
+    const { user } = useAuth()
     const [trainer, setTrainer] = useState<Trainer | null>(null)
     const [loading, setLoading] = useState(true)
     const [id, setId] = useState<string>('')
@@ -63,10 +65,137 @@ export default function TrainerDetailPage({ params }: Props) {
 
     if (loading) {
         return (
-            <main className="pt-16 md:pt-20 flex justify-center py-20">
-                <span className="material-symbols-outlined animate-spin text-primary text-4xl">
-                    progress_activity
-                </span>
+            <main className="pt-16 md:pt-20">
+                <div className="max-w-[1440px] mx-auto px-margin-desktop py-lg">
+                    {/* 뒤로가기 */}
+                    <div className="h-5 w-20 rounded bg-surface-container animate-pulse mb-md" />
+
+                    {/* 상단 프로필 */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-lg mb-lg">
+                        {/* 프로필 이미지 */}
+                        <div className="md:col-span-1">
+                            <div className="w-full aspect-square bg-surface-container rounded-2xl animate-pulse" />
+                        </div>
+                        {/* 프로필 정보 */}
+                        <div className="md:col-span-2 space-y-md">
+                            <div className="flex gap-xs flex-wrap">
+                                {[60, 80, 50].map((w, i) => (
+                                    <div
+                                        key={i}
+                                        className="h-6 rounded-full bg-surface-container animate-pulse"
+                                        style={{ width: `${w}px` }}
+                                    />
+                                ))}
+                            </div>
+                            <div className="h-8 w-48 rounded-lg bg-surface-container animate-pulse" />
+                            <div className="h-5 w-32 rounded bg-surface-container animate-pulse" />
+                            <div className="space-y-2">
+                                <div className="h-4 w-full rounded bg-surface-container animate-pulse" />
+                                <div className="h-4 w-4/5 rounded bg-surface-container animate-pulse" />
+                                <div className="h-4 w-3/5 rounded bg-surface-container animate-pulse" />
+                            </div>
+                            <div className="flex gap-lg">
+                                {[1, 2, 3].map((i) => (
+                                    <div key={i} className="space-y-1">
+                                        <div className="h-3 w-10 rounded bg-surface-container animate-pulse" />
+                                        <div className="h-5 w-16 rounded bg-surface-container animate-pulse" />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 하단 상세 */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+                        <div className="md:col-span-2 space-y-lg">
+                            {/* 전문분야 + 수업유형 */}
+                            <div className="grid grid-cols-2 gap-md">
+                                {[1, 2].map((i) => (
+                                    <div
+                                        key={i}
+                                        className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md space-y-sm"
+                                    >
+                                        <div className="h-4 w-20 rounded bg-surface-container animate-pulse" />
+                                        <div className="flex gap-xs flex-wrap">
+                                            {[50, 70].map((w, j) => (
+                                                <div
+                                                    key={j}
+                                                    className="h-6 rounded bg-surface-container animate-pulse"
+                                                    style={{ width: `${w}px` }}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            {/* 레슨 수준 */}
+                            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md space-y-sm">
+                                <div className="h-4 w-20 rounded bg-surface-container animate-pulse" />
+                                <div className="flex gap-sm flex-wrap">
+                                    {[60, 80, 70].map((w, i) => (
+                                        <div
+                                            key={i}
+                                            className="h-5 rounded bg-surface-container animate-pulse"
+                                            style={{ width: `${w}px` }}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                            {/* 수업 사진 */}
+                            <div>
+                                <div className="h-6 w-24 rounded bg-surface-container animate-pulse mb-sm" />
+                                <div className="grid grid-cols-4 gap-sm">
+                                    {[1, 2, 3, 4].map((i) => (
+                                        <div
+                                            key={i}
+                                            className="aspect-square bg-surface-container rounded-xl animate-pulse"
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                            {/* 후기 */}
+                            <div className="space-y-md">
+                                <div className="h-6 w-24 rounded bg-surface-container animate-pulse" />
+                                {[1, 2].map((i) => (
+                                    <div
+                                        key={i}
+                                        className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md space-y-sm"
+                                    >
+                                        <div className="flex items-center gap-sm">
+                                            <div className="w-10 h-10 rounded-full bg-surface-container animate-pulse flex-shrink-0" />
+                                            <div className="space-y-1 flex-1">
+                                                <div className="h-4 w-24 rounded bg-surface-container animate-pulse" />
+                                                <div className="h-3 w-32 rounded bg-surface-container animate-pulse" />
+                                            </div>
+                                            <div className="h-4 w-20 rounded bg-surface-container animate-pulse" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <div className="h-3 w-full rounded bg-surface-container animate-pulse" />
+                                            <div className="h-3 w-4/5 rounded bg-surface-container animate-pulse" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* 오른쪽 가격 카드 */}
+                        <div className="md:col-span-1">
+                            <div className="sticky top-24 bg-surface-container-lowest border border-outline-variant rounded-2xl p-md space-y-md">
+                                <div className="h-8 w-36 rounded bg-surface-container animate-pulse" />
+                                <div className="space-y-xs">
+                                    <div className="h-4 w-full rounded bg-surface-container animate-pulse" />
+                                    <div className="h-4 w-full rounded bg-surface-container animate-pulse" />
+                                </div>
+                                <div className="h-11 w-full rounded-xl bg-surface-container animate-pulse" />
+                                <div className="h-11 w-full rounded-xl bg-surface-container animate-pulse" />
+                                <div className="space-y-xs pt-sm border-t border-outline-variant">
+                                    <div className="h-4 w-3/4 rounded bg-surface-container animate-pulse" />
+                                    <div className="h-4 w-full rounded bg-surface-container animate-pulse" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
         )
     }
@@ -76,6 +205,35 @@ export default function TrainerDetailPage({ params }: Props) {
             <main className="pt-16 md:pt-20">
                 <div className="max-w-[1440px] mx-auto px-margin-desktop py-lg text-center">
                     <p className="text-on-surface-variant">트레이너를 찾을 수 없습니다.</p>
+                </div>
+            </main>
+        )
+    }
+
+    const isOwner = user?.memberId === trainer.memberId
+
+    if (trainer.isPublic === false && !isOwner) {
+        return (
+            <main className="pt-16 md:pt-20">
+                <div className="max-w-[1440px] mx-auto px-margin-desktop py-lg">
+                    <button
+                        className="flex items-center gap-xs text-on-surface-variant mb-md hover:text-on-surface transition"
+                        onClick={() => router.back()}
+                    >
+                        <span className="material-symbols-outlined">arrow_back</span>
+                        돌아보기
+                    </button>
+                    <div className="flex flex-col items-center justify-center py-32 text-center">
+                        <span className="material-symbols-outlined text-6xl text-outline-variant mb-md">
+                            lock
+                        </span>
+                        <h2 className="font-headline-sm text-headline-sm text-on-surface mb-xs">
+                            비공개로 설정된 프로필입니다
+                        </h2>
+                        <p className="text-body-md text-on-surface-variant">
+                            트레이너가 프로필을 비공개로 전환했습니다.
+                        </p>
+                    </div>
                 </div>
             </main>
         )
@@ -206,7 +364,7 @@ export default function TrainerDetailPage({ params }: Props) {
                                     )}
                                 </div>
                             </div>
-                            {/* 전문 분야 + 레슨 유형 */}
+                            {/* 수업 유형 */}
                             <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md">
                                 <div className="flex items-center gap-xs mb-sm">
                                     <span className="material-symbols-outlined text-primary text-sm">
@@ -223,8 +381,8 @@ export default function TrainerDetailPage({ params }: Props) {
                                             {trainer.lessonType === 'ONE_TO_ONE'
                                                 ? '1:1 퍼스널 트레이닝'
                                                 : trainer.lessonType === 'GROUP'
-                                                    ? '그룹 레슨'
-                                                    : '온라인 코칭'}
+                                                  ? '그룹 레슨'
+                                                  : '온라인 코칭'}
                                         </span>
                                     </div>
                                 </div>
@@ -275,31 +433,31 @@ export default function TrainerDetailPage({ params }: Props) {
                             <div className="grid grid-cols-4 gap-sm">
                                 {trainer.lessonPhotos && trainer.lessonPhotos.length > 0
                                     ? (showAllPhotos
-                                            ? trainer.lessonPhotos
-                                            : trainer.lessonPhotos.slice(0, 4)
-                                    ).map((photoUrl, i) => (
-                                        <div
-                                            key={i}
-                                            className="aspect-square bg-surface-container rounded-xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
-                                            onClick={() => setSelectedPhoto(photoUrl)}
-                                        >
-                                            <img
-                                                src={getImageUrl(photoUrl)}
-                                                alt={`수업 사진 ${i + 1}`}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
-                                    ))
+                                          ? trainer.lessonPhotos
+                                          : trainer.lessonPhotos.slice(0, 4)
+                                      ).map((photoUrl, i) => (
+                                          <div
+                                              key={i}
+                                              className="aspect-square bg-surface-container rounded-xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                                              onClick={() => setSelectedPhoto(photoUrl)}
+                                          >
+                                              <img
+                                                  src={getImageUrl(photoUrl)}
+                                                  alt={`수업 사진 ${i + 1}`}
+                                                  className="w-full h-full object-cover"
+                                              />
+                                          </div>
+                                      ))
                                     : [1, 2, 3, 4].map((i) => (
-                                        <div
-                                            key={i}
-                                            className="aspect-square bg-surface-container rounded-xl flex items-center justify-center"
-                                        >
+                                          <div
+                                              key={i}
+                                              className="aspect-square bg-surface-container rounded-xl flex items-center justify-center"
+                                          >
                                               <span className="material-symbols-outlined text-outline-variant">
                                                   image
                                               </span>
-                                        </div>
-                                    ))}
+                                          </div>
+                                      ))}
                             </div>
                         </div>
 
@@ -346,7 +504,9 @@ export default function TrainerDetailPage({ params }: Props) {
                                                                 {review.reviewerNickname}
                                                             </p>
                                                             <p className="text-label-md font-label-md text-on-surface-variant">
-                                                                {review.createdAt?.slice(0, 10).replace(/-/g, '.')}
+                                                                {review.createdAt
+                                                                    ?.slice(0, 10)
+                                                                    .replace(/-/g, '.')}
                                                                 {review.edited ? ' (수정됨)' : ''}
                                                             </p>
                                                         </div>
@@ -357,7 +517,10 @@ export default function TrainerDetailPage({ params }: Props) {
                                                                     className="material-symbols-outlined text-sm text-tertiary"
                                                                     style={
                                                                         i <= (review.rating ?? 0)
-                                                                            ? { fontVariationSettings: '"FILL" 1' }
+                                                                            ? {
+                                                                                  fontVariationSettings:
+                                                                                      '"FILL" 1',
+                                                                              }
                                                                             : undefined
                                                                     }
                                                                 >
@@ -439,29 +602,29 @@ export default function TrainerDetailPage({ params }: Props) {
                                         활동 시간:{' '}
                                         {trainer.availableTimes && trainer.availableTimes.length > 0
                                             ? (() => {
-                                                const dayMap: Record<string, string> = {
-                                                    MON: '월',
-                                                    TUE: '화',
-                                                    WED: '수',
-                                                    THU: '목',
-                                                    FRI: '금',
-                                                    SAT: '토',
-                                                    SUN: '일',
-                                                }
-                                                const days = trainer.availableTimes
-                                                    .map(
-                                                        (t) =>
-                                                            dayMap[t.dayOfWeek ?? ''] ??
-                                                            t.dayOfWeek
-                                                    )
-                                                    .join(', ')
-                                                const first = trainer.availableTimes[0]
-                                                const startTime =
-                                                    first?.startTime?.substring(0, 5) ?? ''
-                                                const endTime =
-                                                    first?.endTime?.substring(0, 5) ?? ''
-                                                return `${days} · ${startTime} - ${endTime}`
-                                            })()
+                                                  const dayMap: Record<string, string> = {
+                                                      MONDAY: '월',
+                                                      TUESDAY: '화',
+                                                      WEDNESDAY: '수',
+                                                      THURSDAY: '목',
+                                                      FRIDAY: '금',
+                                                      SATURDAY: '토',
+                                                      SUNDAY: '일',
+                                                  }
+                                                  const days = trainer.availableTimes
+                                                      .map(
+                                                          (t) =>
+                                                              dayMap[t.dayOfWeek ?? ''] ??
+                                                              t.dayOfWeek
+                                                      )
+                                                      .join(', ')
+                                                  const first = trainer.availableTimes[0]
+                                                  const startTime =
+                                                      first?.startTime?.substring(0, 5) ?? ''
+                                                  const endTime =
+                                                      first?.endTime?.substring(0, 5) ?? ''
+                                                  return `${days} · ${startTime} - ${endTime}`
+                                              })()
                                             : '미설정'}
                                     </span>
                                 </div>

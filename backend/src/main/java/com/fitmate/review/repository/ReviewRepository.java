@@ -10,15 +10,26 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
+
     List<Review> findByTrainerId(Long trainerId);
+
     Optional<Review> findByMatchingRequestId(Long matchingRequestId);
 
     // 트레이너별 평균 평점
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.trainer.id = :trainerId")
     Double findAverageRatingByTrainerId(Long trainerId);
 
+<<<<<<< HEAD
     // 트레이너별 별점 분포
     @Query("SELECT r.rating, COUNT(r) FROM Review r WHERE r.trainer.id = :trainerId GROUP BY r.rating")
+=======
+    @Query("""
+            SELECT r.rating, COUNT(r)
+            FROM Review r
+            WHERE r.trainer.id = :trainerId
+            GROUP BY r.rating
+            """)
+>>>>>>> dev
     List<Object[]> countRatingDistributionByTrainerId(Long trainerId);
 
     // 트레이너별 후기 개수
@@ -26,6 +37,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     List<Review> findByReviewerId(Long reviewerId);
 
+<<<<<<< HEAD
     Page<Review> findByReviewerId(Long reviewerId, Pageable pageable);
     Page<Review> findByTrainerId(Long trainerId, Pageable pageable);
 
@@ -44,4 +56,20 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             "GROUP BY r.trainer.id " +
             "ORDER BY AVG(r.rating) DESC, COUNT(r) DESC")
     List<Object[]> findPopularTrainers(Pageable pageable);
+=======
+    Page<Review> findByReviewerId(
+            Long reviewerId,
+            Pageable pageable
+    );
+
+    Page<Review> findByTrainerId(
+            Long trainerId,
+            Pageable pageable
+    );
+
+    // AI 추천 사유 생성에 사용할 최근 리뷰 3개
+    List<Review> findTop3ByTrainerIdOrderByCreatedAtDesc(
+            Long trainerId
+    );
+>>>>>>> dev
 }

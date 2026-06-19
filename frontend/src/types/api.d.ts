@@ -201,8 +201,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 내 문의 목록 조회
+         * @description 로그인한 회원의 문의 목록을 페이징하여 반환합니다.
+         */
         get: operations["getMyInquiries"];
         put?: never;
+        /**
+         * 문의 작성
+         * @description 새 문의를 등록합니다.
+         */
         post: operations["createInquiry"];
         delete?: never;
         options?: never;
@@ -342,6 +350,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ai/matching/parse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** AI 한 줄 매칭 조건 해석 */
+        post: operations["parseMatchingQuery"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/inquiries/{inquiryId}/answer": {
         parameters: {
             query?: never;
@@ -351,6 +376,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * 문의 답변 작성
+         * @description 특정 문의에 관리자 답변을 등록하고 상태를 RESOLVED로 변경합니다.
+         */
         post: operations["writeAnswer"];
         delete?: never;
         options?: never;
@@ -447,12 +476,24 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 문의 단건 조회
+         * @description 문의 ID로 특정 문의를 조회합니다.
+         */
         get: operations["getInquiry"];
         put?: never;
         post?: never;
+        /**
+         * 문의 삭제
+         * @description 본인 소유 문의를 삭제합니다.
+         */
         delete: operations["deleteInquiry"];
         options?: never;
         head?: never;
+        /**
+         * 문의 수정
+         * @description 답변 대기(PENDING) 상태인 문의의 유형·제목·내용을 수정합니다.
+         */
         patch: operations["updateInquiry"];
         trace?: never;
     };
@@ -627,46 +668,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/reviews/real": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 리얼 후기 조회
-         * @description 별점 높은 대표 후기 목록 (메인 페이지).
-         */
-        get: operations["getRealReviews"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/reviews/popular-trainers": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 인기 트레이너 조회
-         * @description 후기 평점·개수 기반 인기 트레이너 목록 (메인 페이지).
-         */
-        get: operations["getPopularTrainers"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/reviews/my": {
         parameters: {
             query?: never;
@@ -747,6 +748,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 전체 문의 목록 조회
+         * @description 모든 회원의 문의를 오래된 순으로 페이징하여 반환합니다.
+         */
         get: operations["getAllInquiries"];
         put?: never;
         post?: never;
@@ -819,6 +824,8 @@ export interface components {
             goal?: string;
         };
         AvailableTimeRequest: {
+            /** Format: int64 */
+            id?: number;
             dayOfWeek?: string;
             startTime?: string;
             endTime?: string;
@@ -833,6 +840,7 @@ export interface components {
             careerYears?: number;
             availableTimes?: components["schemas"]["AvailableTimeRequest"][];
             lessonPhotoUrls?: string[];
+            isPublic?: boolean;
         };
         AvailableTimeResponse: {
             /** Format: int64 */
@@ -859,6 +867,7 @@ export interface components {
             careerYears?: number;
             availableTimes?: components["schemas"]["AvailableTimeResponse"][];
             lessonPhotos?: string[];
+            isPublic?: boolean;
         };
         ReviewUpdateRequest: {
             /** Format: int32 */
@@ -880,6 +889,7 @@ export interface components {
             careerYears?: number;
             availableTimes?: components["schemas"]["AvailableTimeRequest"][];
             lessonPhotoUrls?: string[];
+            isPublic?: boolean;
         };
         ReviewRequest: {
             /** Format: int64 */
@@ -930,6 +940,9 @@ export interface components {
             preferredEndTime?: string;
             trainerStartTime?: string;
             trainerEndTime?: string;
+            /** Format: int32 */
+            aiRank?: number;
+            aiReason?: string;
         };
         LessonRequestCreateRequest: {
             /** Format: int64 */
@@ -1067,6 +1080,26 @@ export interface components {
             /** Format: date-time */
             createdAt?: string;
         };
+        AiMatchingParseRequest: {
+            query: string;
+        };
+        AiMatchingParseResponse: {
+            sports?: string;
+            level?: string;
+            lessonType?: string;
+            region?: string;
+            /** Format: int32 */
+            budgetMin?: number;
+            /** Format: int32 */
+            budgetMax?: number;
+            preferredTimes?: components["schemas"]["PreferredTime"][];
+            lessonContent?: string;
+        };
+        PreferredTime: {
+            dayOfWeek?: string;
+            startTime?: string;
+            endTime?: string;
+        };
         InquiryAnswerRequest: {
             answer?: string;
         };
@@ -1112,28 +1145,28 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
-            first?: boolean;
-            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["TrainerProfileResponse"][];
             /** Format: int32 */
             number?: number;
-            pageable?: components["schemas"]["PageableObject"];
-            sort?: components["schemas"]["SortObject"];
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
+            sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             empty?: boolean;
         };
         PageableObject: {
             /** Format: int64 */
             offset?: number;
             paged?: boolean;
-            /** Format: int32 */
-            pageNumber?: number;
+            sort?: components["schemas"]["SortObject"];
             /** Format: int32 */
             pageSize?: number;
-            sort?: components["schemas"]["SortObject"];
+            /** Format: int32 */
+            pageNumber?: number;
             unpaged?: boolean;
         };
         SortObject: {
@@ -1194,42 +1227,18 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
-            first?: boolean;
-            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["ReviewResponse"][];
             /** Format: int32 */
             number?: number;
-            pageable?: components["schemas"]["PageableObject"];
-            sort?: components["schemas"]["SortObject"];
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
+            sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             empty?: boolean;
-        };
-        RealReviewResponse: {
-            /** Format: int64 */
-            id?: number;
-            reviewerNickname?: string;
-            trainerNickname?: string;
-            /** Format: int32 */
-            rating?: number;
-            content?: string;
-            createdAt?: string;
-        };
-        PopularTrainerResponse: {
-            /** Format: int64 */
-            trainerId?: number;
-            /** Format: int64 */
-            trainerProfileId?: number;
-            nickname?: string;
-            profileImage?: string;
-            sports?: string;
-            region?: string;
-            /** Format: double */
-            averageRating?: number;
-            /** Format: int64 */
-            reviewCount?: number;
         };
         TrainerSummaryDto: {
             /** Format: int64 */
@@ -1242,17 +1251,17 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
-            first?: boolean;
-            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["InquiryResponse"][];
             /** Format: int32 */
             number?: number;
-            pageable?: components["schemas"]["PageableObject"];
-            sort?: components["schemas"]["SortObject"];
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
+            sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             empty?: boolean;
         };
         ChatResponseDto: {
@@ -1527,6 +1536,7 @@ export interface operations {
             query?: {
                 sport?: string;
                 lessonType?: string;
+                lessonLevel?: string;
                 minPrice?: number;
                 maxPrice?: number;
                 region?: string;
@@ -1960,6 +1970,30 @@ export interface operations {
             };
         };
     };
+    parseMatchingQuery: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiMatchingParseRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["AiMatchingParseResponse"];
+                };
+            };
+        };
+    };
     writeAnswer: {
         parameters: {
             query?: never;
@@ -2384,50 +2418,6 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["PageReviewResponse"];
-                };
-            };
-        };
-    };
-    getRealReviews: {
-        parameters: {
-            query?: {
-                size?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": components["schemas"]["RealReviewResponse"][];
-                };
-            };
-        };
-    };
-    getPopularTrainers: {
-        parameters: {
-            query?: {
-                size?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": components["schemas"]["PopularTrainerResponse"][];
                 };
             };
         };

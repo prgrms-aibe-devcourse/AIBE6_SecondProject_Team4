@@ -41,16 +41,16 @@ function ReviewCard({
     onDelete: (id: number) => void
 }) {
     return (
-        <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+        <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-4 sm:p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
             {/* 상단: 프로필 + 별점 + (수정/삭제) */}
-            <div className="mb-4 flex items-start justify-between">
-                <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 flex-shrink-0 rounded-full bg-gradient-to-br from-primary-fixed to-primary-fixed-dim" />
-                    <div>
-                        <span className="text-body-md font-bold text-on-surface">
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex items-center gap-3 min-w-0">
+                    <div className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 rounded-full bg-gradient-to-br from-primary-fixed to-primary-fixed-dim" />
+                    <div className="min-w-0">
+                        <span className="block truncate text-body-md font-bold text-on-surface">
                             {isTrainer ? review.reviewerNickname : review.trainerNickname}
                         </span>
-                        <div className="mt-1 flex items-center gap-2">
+                        <div className="mt-1 flex flex-wrap items-center gap-1.5">
                             <StarRating rating={review.rating} />
                             <span className="text-label-md text-outline">
                                 {formatDate(review.createdAt)}
@@ -64,7 +64,7 @@ function ReviewCard({
 
                 {/* 수정/삭제는 내가 쓴 후기(사용자)만 */}
                 {!isTrainer && (
-                    <div className="flex items-center gap-4 text-label-md">
+                    <div className="flex flex-shrink-0 items-center gap-3 text-label-md self-end sm:self-start">
                         <button
                             onClick={() => onEdit(review)}
                             className="text-on-surface-variant hover:text-primary"
@@ -248,7 +248,7 @@ export default function MyReviewList() {
     return (
         <div className="flex flex-col gap-md">
             {/* 헤더: 탭 */}
-            <div className="flex items-end justify-between border-b border-outline-variant">
+            <div className="flex flex-col gap-2 border-b border-outline-variant sm:flex-row sm:items-end sm:justify-between">
                 <div className="flex gap-md">
                     <button
                         onClick={() => setTab('all')}
@@ -274,7 +274,7 @@ export default function MyReviewList() {
                     )}
                 </div>
                 {tab === 'all' && (
-                    <div className="mb-2 flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-4 py-1.5 text-label-md">
+                    <div className="mb-2 flex w-fit items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-4 py-1.5 text-label-md">
                         <button
                             onClick={() => setSort('latest')}
                             className={
@@ -306,7 +306,25 @@ export default function MyReviewList() {
             {/* 전체/받은 후기 탭 */}
             {tab === 'all' &&
                 (loading ? (
-                    <p className="py-xl text-center text-outline">불러오는 중...</p>
+                    <div className="flex flex-col gap-md">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
+                                <div className="mb-4 flex items-start justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-12 w-12 flex-shrink-0 rounded-full bg-surface-container animate-pulse" />
+                                        <div className="space-y-2">
+                                            <div className="h-4 w-24 rounded bg-surface-container animate-pulse" />
+                                            <div className="h-4 w-32 rounded bg-surface-container animate-pulse" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="h-3 rounded bg-surface-container animate-pulse" style={{ width: `${70 + (i * 11) % 25}%` }} />
+                                    <div className="h-3 rounded bg-surface-container animate-pulse" style={{ width: `${50 + (i * 17) % 30}%` }} />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 ) : error ? (
                     <p className="py-xl text-center text-error">{error}</p>
                 ) : reviews.length === 0 ? (

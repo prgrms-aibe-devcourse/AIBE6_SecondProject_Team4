@@ -28,8 +28,14 @@ export default function ProfileEditPage() {
         careerYears: '',
         region: '',
         introduction: '',
-        availableTimes: [] as { dayOfWeek: string; startTime: string; endTime: string }[],
+        availableTimes: [] as {
+            id?: number
+            dayOfWeek: string
+            startTime: string
+            endTime: string
+        }[],
         lessonPhotos: [] as string[],
+        isPublic: true,
     })
 
     // 유저 폼
@@ -70,11 +76,13 @@ export default function ProfileEditPage() {
                     introduction: data.introduction ?? '',
                     availableTimes:
                         data.availableTimes?.map((t) => ({
+                            id: t.id,
                             dayOfWeek: t.dayOfWeek ?? '',
                             startTime: t.startTime ?? '09:00',
                             endTime: t.endTime ?? '22:00',
                         })) ?? [],
                     lessonPhotos: data.lessonPhotos ?? [],
+                    isPublic: data.isPublic ?? true,
                 })
             }
         } else {
@@ -183,19 +191,35 @@ export default function ProfileEditPage() {
                 price: Number(trainerForm.price),
                 careerYears: Number(trainerForm.careerYears),
                 availableTimes: trainerForm.availableTimes.map((t) => ({
+                    id: t.id,
                     dayOfWeek: t.dayOfWeek,
                     startTime: t.startTime,
                     endTime: t.endTime,
                 })),
                 lessonPhotoUrls: trainerForm.lessonPhotos,
+                isPublic: trainerForm.isPublic,
             }
             if (trainerId) {
-                await client.PUT('/api/trainers/{id}', {
+                const { error } = await client.PUT('/api/trainers/{id}', {
                     params: { path: { id: trainerId } },
                     body,
                 })
+
+                if (error) {
+                    console.error('트레이너 프로필 수정 실패:', error)
+                    alert('프로필 수정에 실패했습니다.')
+                    setSaving(false)
+                    return
+                }
             } else {
-                await client.POST('/api/trainers', { body })
+                const { error } = await client.POST('/api/trainers', { body })
+
+                if (error) {
+                    console.error('트레이너 프로필 등록 실패:', error)
+                    alert('프로필 등록에 실패했습니다.')
+                    setSaving(false)
+                    return
+                }
             }
         } else {
             const body = {
@@ -419,6 +443,38 @@ export default function ProfileEditPage() {
                         {activeSection === 'lesson' && user?.role === 'TRAINER' && (
                             <div className="space-y-md">
                                 <div className="flex items-center gap-sm mb-md">
+                                    <div className="flex items-center justify-between bg-surface-container-low rounded-lg px-md py-sm">
+                                        <div>
+                                            <p className="font-label-bold text-on-surface">
+                                                프로필 공개 설정
+                                            </p>
+                                            <p className="text-label-md font-label-md text-on-surface-variant">
+                                                비공개로 설정하면 트레이너 목록과 상세페이지에서
+                                                보이지 않습니다.
+                                            </p>
+                                        </div>
+                                        <button
+                                            className={`relative w-12 h-7 rounded-full transition-colors ${
+                                                trainerForm.isPublic
+                                                    ? 'bg-primary'
+                                                    : 'bg-surface-container'
+                                            }`}
+                                            onClick={() =>
+                                                setTrainerForm((f) => ({
+                                                    ...f,
+                                                    isPublic: !f.isPublic,
+                                                }))
+                                            }
+                                        >
+                                            <span
+                                                className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform ${
+                                                    trainerForm.isPublic
+                                                        ? 'translate-x-5'
+                                                        : 'translate-x-0'
+                                                }`}
+                                            />
+                                        </button>
+                                    </div>
                                     <span className="material-symbols-outlined text-primary">
                                         assignment
                                     </span>
@@ -532,65 +588,69 @@ export default function ProfileEditPage() {
                                     </label>
                                     {/* 요일 선택 */}
                                     <div className="flex gap-xs">
-                                        {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map(
-                                            (day, i) => {
-                                                const labels = [
-                                                    '월',
-                                                    '화',
-                                                    '수',
-                                                    '목',
-                                                    '금',
-                                                    '토',
-                                                    '일',
-                                                ]
-                                                const selected = trainerForm.availableTimes.some(
-                                                    (t) => t.dayOfWeek === day
-                                                )
-                                                return (
-                                                    <button
-                                                        key={day}
-                                                        className={`w-10 h-10 rounded-full text-label-bold font-label-bold border transition-all ${
-                                                            selected
-                                                                ? 'bg-primary text-on-primary border-primary'
-                                                                : 'bg-surface-container-low border-outline-variant text-on-surface-variant hover:border-primary'
-                                                        }`}
-                                                        onClick={() => {
-                                                            setTrainerForm((f) => {
-                                                                const exists =
-                                                                    f.availableTimes.some(
-                                                                        (t) => t.dayOfWeek === day
-                                                                    )
-                                                                if (exists) {
-                                                                    return {
-                                                                        ...f,
-                                                                        availableTimes:
-                                                                            f.availableTimes.filter(
-                                                                                (t) =>
-                                                                                    t.dayOfWeek !==
-                                                                                    day
-                                                                            ),
-                                                                    }
-                                                                } else {
-                                                                    return {
-                                                                        ...f,
-                                                                        availableTimes: [
-                                                                            ...f.availableTimes,
-                                                                            {
-                                                                                dayOfWeek: day,
-                                                                                startTime: '09:00',
-                                                                                endTime: '22:00',
-                                                                            },
-                                                                        ],
-                                                                    }
+                                        {[
+                                            'MONDAY',
+                                            'TUESDAY',
+                                            'WEDNESDAY',
+                                            'THURSDAY',
+                                            'FRIDAY',
+                                            'SATURDAY',
+                                            'SUNDAY',
+                                        ].map((day, i) => {
+                                            const labels = [
+                                                '월',
+                                                '화',
+                                                '수',
+                                                '목',
+                                                '금',
+                                                '토',
+                                                '일',
+                                            ]
+                                            const selected = trainerForm.availableTimes.some(
+                                                (t) => t.dayOfWeek === day
+                                            )
+                                            return (
+                                                <button
+                                                    key={day}
+                                                    className={`w-10 h-10 rounded-full text-label-bold font-label-bold border transition-all ${
+                                                        selected
+                                                            ? 'bg-primary text-on-primary border-primary'
+                                                            : 'bg-surface-container-low border-outline-variant text-on-surface-variant hover:border-primary'
+                                                    }`}
+                                                    onClick={() => {
+                                                        setTrainerForm((f) => {
+                                                            const exists = f.availableTimes.some(
+                                                                (t) => t.dayOfWeek === day
+                                                            )
+                                                            if (exists) {
+                                                                return {
+                                                                    ...f,
+                                                                    availableTimes:
+                                                                        f.availableTimes.filter(
+                                                                            (t) =>
+                                                                                t.dayOfWeek !== day
+                                                                        ),
                                                                 }
-                                                            })
-                                                        }}
-                                                    >
-                                                        {labels[i]}
-                                                    </button>
-                                                )
-                                            }
-                                        )}
+                                                            } else {
+                                                                return {
+                                                                    ...f,
+                                                                    availableTimes: [
+                                                                        ...f.availableTimes,
+                                                                        {
+                                                                            dayOfWeek: day,
+                                                                            startTime: '09:00',
+                                                                            endTime: '22:00',
+                                                                        },
+                                                                    ],
+                                                                }
+                                                            }
+                                                        })
+                                                    }}
+                                                >
+                                                    {labels[i]}
+                                                </button>
+                                            )
+                                        })}
                                     </div>
                                     {/* 시간 선택 */}
                                     <div className="flex items-center gap-sm">

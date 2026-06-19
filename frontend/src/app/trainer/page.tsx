@@ -4,7 +4,7 @@ import type { components } from '@/types/api'
 import { getAuthClient, getImageUrl } from '@/utils/apiClient'
 import { useEffect, useState } from 'react'
 
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 type Trainer = components['schemas']['TrainerProfileResponse']
 
@@ -19,10 +19,14 @@ const SPORTS = [
     '수영',
     '댄스',
 ]
+
 const REGIONS = ['모든 지역', '서울', '경기', '부산', '대구', '인천', '광주', '대전']
+
+const LESSON_LEVELS = ['전체', '입문/초보', '중급', '고급/대회준비']
 
 export default function ExplorePage() {
     const router = useRouter()
+    const searchParams = useSearchParams()
     const [trainers, setTrainers] = useState<Trainer[]>([])
     const [loading, setLoading] = useState(true)
     const [currentPage, setCurrentPage] = useState(0)
@@ -30,37 +34,42 @@ export default function ExplorePage() {
     const [totalElements, setTotalElements] = useState(0)
     const [sort, setSort] = useState('latest')
     const [filters, setFilters] = useState({
-        sport: '',
+        sport: searchParams.get('sport') ?? '',
         lessonType: '',
+        lessonLevel: searchParams.get('level') ?? '',
         minPrice: '',
         maxPrice: '',
-        region: '',
+        region: searchParams.get('region') ?? '',
     })
 
-    const fetchTrainers = async (page = 0) => {
+    const fetchTrainers = async (page = 0, retried = false) => {
         setLoading(true)
-        const client = getAuthClient()
-        const { data } = await client.GET('/api/trainers', {
-            params: {
-                query: {
-                    sport: filters.sport || undefined,
-                    lessonType: filters.lessonType || undefined,
-                    minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
-                    maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
-                    region: filters.region || undefined,
-                    page,
-                    size: 8,
-                    sort,
-                },
-            },
+        const query = {
+            sport: filters.sport || undefined,
+            lessonType: filters.lessonType || undefined,
+            lessonLevel: filters.lessonLevel || undefined,
+            minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
+            maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
+            region: filters.region || undefined,
+            page,
+            size: 8,
+            sort,
+        }
+        const { data, response } = await getAuthClient().GET('/api/trainers', {
+            params: { query },
         })
         if (data) {
             setTrainers((data as any).content ?? [])
             setTotalPages((data as any).totalPages ?? 0)
             setTotalElements((data as any).totalElements ?? 0)
             setCurrentPage(page)
+            setLoading(false)
+        } else if (response.status === 401 && !retried) {
+            // 미들웨어가 토큰을 갱신했지만 data가 올라오지 않은 경우 — 새 토큰으로 1회 재시도
+            fetchTrainers(page, true)
+        } else {
+            setLoading(false)
         }
-        setLoading(false)
     }
 
     useEffect(() => {
@@ -136,6 +145,7 @@ export default function ExplorePage() {
                                 { label: '전체', value: '' },
                                 { label: '1:1', value: 'ONE_TO_ONE' },
                                 { label: '그룹', value: 'GROUP' },
+                                { label: '온라인', value: 'ONLINE' },
                             ].map(({ label, value }) => (
                                 <button
                                     key={label}
@@ -150,6 +160,25 @@ export default function ExplorePage() {
                                 </button>
                             ))}
                         </div>
+                    </div>
+                    <div className="flex flex-col gap-xs">
+                        <label className="text-label-md font-label-md text-on-surface-variant">
+                            난이도
+                        </label>
+                        <select
+                            className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-36"
+                            value={filters.lessonLevel}
+                            onChange={(e) =>
+                                setFilters((f) => ({
+                                    ...f,
+                                    lessonLevel: e.target.value === '전체' ? '' : e.target.value,
+                                }))
+                            }
+                        >
+                            {LESSON_LEVELS.map((l) => (
+                                <option key={l}>{l}</option>
+                            ))}
+                        </select>
                     </div>
                     <div className="flex flex-col gap-xs">
                         <label className="text-label-md font-label-md text-on-surface-variant">
@@ -215,10 +244,48 @@ export default function ExplorePage() {
 
                 {/* 트레이너 목록 */}
                 {loading ? (
-                    <div className="flex justify-center py-20">
-                        <span className="material-symbols-outlined animate-spin text-primary text-4xl">
-                            progress_activity
-                        </span>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
+                        {Array.from({ length: 8 }).map((_, i) => (
+                            <div
+                                key={i}
+                                className="rounded-xl border border-outline-variant bg-surface-container-lowest overflow-hidden flex flex-col"
+                                style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
+                            >
+                                {/* 이미지 */}
+                                <div
+                                    className="w-full bg-surface-container animate-pulse"
+                                    style={{ height: '200px' }}
+                                />
+                                {/* 텍스트 */}
+                                <div className="p-md flex flex-col gap-sm flex-grow">
+                                    <div className="flex items-center justify-between">
+                                        <div className="h-5 w-24 rounded bg-surface-container animate-pulse" />
+                                        <div className="h-4 w-8 rounded bg-surface-container animate-pulse" />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <div
+                                            className="h-3 rounded bg-surface-container animate-pulse"
+                                            style={{ width: `${65 + ((i * 11) % 25)}%` }}
+                                        />
+                                        <div
+                                            className="h-3 rounded bg-surface-container animate-pulse"
+                                            style={{ width: `${45 + ((i * 17) % 30)}%` }}
+                                        />
+                                    </div>
+                                    <div className="flex gap-xs">
+                                        <div className="h-6 w-14 rounded bg-surface-container animate-pulse" />
+                                        <div className="h-6 w-12 rounded bg-surface-container animate-pulse" />
+                                    </div>
+                                    <div className="flex items-center justify-between mt-auto pt-sm border-t border-outline-variant">
+                                        <div className="space-y-1">
+                                            <div className="h-3 w-14 rounded bg-surface-container animate-pulse" />
+                                            <div className="h-4 w-20 rounded bg-surface-container animate-pulse" />
+                                        </div>
+                                        <div className="h-9 w-20 rounded-lg bg-surface-container animate-pulse" />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 ) : trainers.length === 0 ? (
                     <div className="text-center py-20 text-on-surface-variant">
@@ -314,9 +381,22 @@ export default function ExplorePage() {
                                                 <span className="text-label-md font-label-md bg-surface-container text-on-surface-variant px-sm py-xs rounded">
                                                     {trainer.lessonType === 'ONE_TO_ONE'
                                                         ? '1:1'
-                                                        : '그룹 레슨'}
+                                                        : trainer.lessonType === 'GROUP'
+                                                          ? '그룹 레슨'
+                                                          : '온라인'}
                                                 </span>
                                             )}
+                                            {trainer.lessonLevel
+                                                ?.split(',')
+                                                .slice(0, 1)
+                                                .map((level, i) => (
+                                                    <span
+                                                        key={i}
+                                                        className="text-label-md font-label-md bg-emerald-100 text-emerald-700 px-sm py-xs rounded"
+                                                    >
+                                                        {level.trim()}
+                                                    </span>
+                                                ))}
                                         </div>
                                         <div className="flex items-center justify-between mt-auto pt-sm border-t border-outline-variant">
                                             <div className="min-w-0">
@@ -354,6 +434,24 @@ export default function ExplorePage() {
                                         chevron_left
                                     </span>
                                 </button>
+
+                                {/* 첫 페이지 고정 표시 */}
+                                {getPageNumbers()[0] > 0 && (
+                                    <>
+                                        <button
+                                            className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center text-label-bold font-label-bold hover:bg-surface-container text-on-surface transition"
+                                            onClick={() => handlePageChange(0)}
+                                        >
+                                            1
+                                        </button>
+                                        {getPageNumbers()[0] > 1 && (
+                                            <span className="w-9 h-9 flex items-center justify-center text-on-surface-variant">
+                                                ...
+                                            </span>
+                                        )}
+                                    </>
+                                )}
+
                                 {getPageNumbers().map((page) => (
                                     <button
                                         key={page}
@@ -367,6 +465,7 @@ export default function ExplorePage() {
                                         {page + 1}
                                     </button>
                                 ))}
+
                                 {totalPages > 3 && currentPage < totalPages - 2 && (
                                     <>
                                         <span className="w-9 h-9 flex items-center justify-center text-on-surface-variant">

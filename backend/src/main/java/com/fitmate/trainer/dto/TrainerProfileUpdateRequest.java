@@ -10,9 +10,11 @@ public record TrainerProfileUpdateRequest(
         Integer price,
         Integer careerYears,
         List<AvailableTimeRequest> availableTimes,
-        List<String> lessonPhotoUrls
+        List<String> lessonPhotoUrls,
+        Boolean isPublic
 ) {
     public record AvailableTimeRequest(
+            Long id,
             String dayOfWeek,
             LocalTime startTime,
             LocalTime endTime

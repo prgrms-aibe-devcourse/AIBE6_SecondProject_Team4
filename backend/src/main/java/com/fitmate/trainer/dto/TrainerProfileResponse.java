@@ -20,7 +20,8 @@ public record TrainerProfileResponse(
         Integer price,
         Integer careerYears,
         List<AvailableTimeResponse> availableTimes,
-        List<String> lessonPhotos
+        List<String> lessonPhotos,
+        Boolean isPublic
 ) {
     public static TrainerProfileResponse from(TrainerProfile profile) {
         return new TrainerProfileResponse(
@@ -36,7 +37,8 @@ public record TrainerProfileResponse(
                 profile.getPrice(),
                 profile.getCareerYears(),
                 List.of(),
-                List.of()
+                List.of(),
+                profile.getIsPublic()
         );
     }
 
@@ -62,7 +64,8 @@ public record TrainerProfileResponse(
                         .toList(),
                 lessonPhotos.stream()
                         .map(TrainerLessonPhoto::getImageUrl)
-                        .toList()
+                        .toList(),
+                profile.getIsPublic()
         );
     }
 
