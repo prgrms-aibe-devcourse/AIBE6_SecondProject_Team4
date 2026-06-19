@@ -51,6 +51,14 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/me/verify-password")
+    public ResponseEntity<Void> verifyPassword(Authentication authentication,
+                                               @RequestBody PasswordChangeRequest request) {
+        String userId = authentication.getName();
+        memberService.verifyPassword(userId, request.currentPassword());
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/trainers")
     public ResponseEntity<List<TrainerSummaryDto>> getTrainers() {
         return ResponseEntity.ok(memberService.getTrainers());
@@ -58,9 +66,10 @@ public class MemberController {
 
     @PatchMapping("/me/role")
     public ResponseEntity<Void> changeRole(
-            @AuthenticationPrincipal String userId,
+            Authentication authentication,
             @Valid @RequestBody RoleChangeRequest request
     ) {
+        String userId = authentication.getName();
         memberService.changeRole(userId, request);
         return ResponseEntity.ok().build();
     }
