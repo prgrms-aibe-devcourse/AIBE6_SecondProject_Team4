@@ -29,13 +29,14 @@ public class TrainerController {
     public ResponseEntity<Page<TrainerProfileResponse>> getTrainerProfiles(
             @RequestParam(required = false) String sport,
             @RequestParam(required = false) String lessonType,
+            @RequestParam(required = false) String lessonLevel,
             @RequestParam(required = false) Integer minPrice,
             @RequestParam(required = false) Integer maxPrice,
             @RequestParam(required = false) String region,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "8") int size,
             @RequestParam(defaultValue = "latest") String sort) {
-        return ResponseEntity.ok(trainerService.getTrainerProfilesByFilter(sport, lessonType, minPrice, maxPrice, region, page, size, sort));
+        return ResponseEntity.ok(trainerService.getTrainerProfilesByFilter(sport, lessonType, lessonLevel, minPrice, maxPrice, region, page, size, sort));
     }
     
     @Transactional(readOnly = true)

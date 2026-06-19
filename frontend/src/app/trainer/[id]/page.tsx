@@ -1,5 +1,6 @@
 'use client'
 
+import { useAuth } from '@/context/AuthContext'
 import type { components } from '@/types/api'
 import { getAuthClient, getImageUrl } from '@/utils/apiClient'
 import { useEffect, useState } from 'react'
@@ -14,6 +15,7 @@ interface Props {
 
 export default function TrainerDetailPage({ params }: Props) {
     const router = useRouter()
+    const { user } = useAuth()
     const [trainer, setTrainer] = useState<Trainer | null>(null)
     const [loading, setLoading] = useState(true)
     const [id, setId] = useState<string>('')
@@ -158,6 +160,35 @@ export default function TrainerDetailPage({ params }: Props) {
             <main className="pt-16 md:pt-20">
                 <div className="max-w-[1440px] mx-auto px-margin-desktop py-lg text-center">
                     <p className="text-on-surface-variant">트레이너를 찾을 수 없습니다.</p>
+                </div>
+            </main>
+        )
+    }
+
+    const isOwner = user?.memberId === trainer.memberId
+
+    if (trainer.isPublic === false && !isOwner) {
+        return (
+            <main className="pt-16 md:pt-20">
+                <div className="max-w-[1440px] mx-auto px-margin-desktop py-lg">
+                    <button
+                        className="flex items-center gap-xs text-on-surface-variant mb-md hover:text-on-surface transition"
+                        onClick={() => router.back()}
+                    >
+                        <span className="material-symbols-outlined">arrow_back</span>
+                        돌아보기
+                    </button>
+                    <div className="flex flex-col items-center justify-center py-32 text-center">
+                        <span className="material-symbols-outlined text-6xl text-outline-variant mb-md">
+                            lock
+                        </span>
+                        <h2 className="font-headline-sm text-headline-sm text-on-surface mb-xs">
+                            비공개로 설정된 프로필입니다
+                        </h2>
+                        <p className="text-body-md text-on-surface-variant">
+                            트레이너가 프로필을 비공개로 전환했습니다.
+                        </p>
+                    </div>
                 </div>
             </main>
         )

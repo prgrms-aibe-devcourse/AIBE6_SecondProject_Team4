@@ -35,6 +35,7 @@ export default function ProfileEditPage() {
             endTime: string
         }[],
         lessonPhotos: [] as string[],
+        isPublic: true,
     })
 
     // 유저 폼
@@ -81,6 +82,7 @@ export default function ProfileEditPage() {
                             endTime: t.endTime ?? '22:00',
                         })) ?? [],
                     lessonPhotos: data.lessonPhotos ?? [],
+                    isPublic: data.isPublic ?? true,
                 })
             }
         } else {
@@ -195,6 +197,7 @@ export default function ProfileEditPage() {
                     endTime: t.endTime,
                 })),
                 lessonPhotoUrls: trainerForm.lessonPhotos,
+                isPublic: trainerForm.isPublic,
             }
             if (trainerId) {
                 const { error } = await client.PUT('/api/trainers/{id}', {
@@ -440,6 +443,38 @@ export default function ProfileEditPage() {
                         {activeSection === 'lesson' && user?.role === 'TRAINER' && (
                             <div className="space-y-md">
                                 <div className="flex items-center gap-sm mb-md">
+                                    <div className="flex items-center justify-between bg-surface-container-low rounded-lg px-md py-sm">
+                                        <div>
+                                            <p className="font-label-bold text-on-surface">
+                                                프로필 공개 설정
+                                            </p>
+                                            <p className="text-label-md font-label-md text-on-surface-variant">
+                                                비공개로 설정하면 트레이너 목록과 상세페이지에서
+                                                보이지 않습니다.
+                                            </p>
+                                        </div>
+                                        <button
+                                            className={`relative w-12 h-7 rounded-full transition-colors ${
+                                                trainerForm.isPublic
+                                                    ? 'bg-primary'
+                                                    : 'bg-surface-container'
+                                            }`}
+                                            onClick={() =>
+                                                setTrainerForm((f) => ({
+                                                    ...f,
+                                                    isPublic: !f.isPublic,
+                                                }))
+                                            }
+                                        >
+                                            <span
+                                                className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform ${
+                                                    trainerForm.isPublic
+                                                        ? 'translate-x-5'
+                                                        : 'translate-x-0'
+                                                }`}
+                                            />
+                                        </button>
+                                    </div>
                                     <span className="material-symbols-outlined text-primary">
                                         assignment
                                     </span>

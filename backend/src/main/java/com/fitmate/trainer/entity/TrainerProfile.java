@@ -27,6 +27,10 @@ public class TrainerProfile extends BaseEntity {
     @Column(name = "lesson_level", length = 100)
     private String lessonLevel;
 
+    @Column(name = "is_public")
+    @Builder.Default
+    private Boolean isPublic = true;
+
     private Integer price;
 
     private Integer careerYears;
@@ -37,5 +41,6 @@ public class TrainerProfile extends BaseEntity {
         if (request.price() != null) this.price = request.price();
         if (request.careerYears() != null) this.careerYears = request.careerYears();
         if (request.lessonLevel() != null) this.lessonLevel = request.lessonLevel();
+        if (request.isPublic() != null) this.isPublic = request.isPublic();
     }
 }

@@ -201,9 +201,33 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 내 문의 목록 조회
+         * @description 로그인한 회원의 문의 목록을 페이징하여 반환합니다.
+         */
         get: operations["getMyInquiries"];
         put?: never;
+        /**
+         * 문의 작성
+         * @description 새 문의를 등록합니다.
+         */
         post: operations["createInquiry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/files/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["uploadFile"];
         delete?: never;
         options?: never;
         head?: never;
@@ -352,6 +376,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /**
+         * 문의 답변 작성
+         * @description 특정 문의에 관리자 답변을 등록하고 상태를 RESOLVED로 변경합니다.
+         */
         post: operations["writeAnswer"];
         delete?: never;
         options?: never;
@@ -448,12 +476,24 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 문의 단건 조회
+         * @description 문의 ID로 특정 문의를 조회합니다.
+         */
         get: operations["getInquiry"];
         put?: never;
         post?: never;
+        /**
+         * 문의 삭제
+         * @description 본인 소유 문의를 삭제합니다.
+         */
         delete: operations["deleteInquiry"];
         options?: never;
         head?: never;
+        /**
+         * 문의 수정
+         * @description 답변 대기(PENDING) 상태인 문의의 유형·제목·내용을 수정합니다.
+         */
         patch: operations["updateInquiry"];
         trace?: never;
     };
@@ -708,6 +748,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 전체 문의 목록 조회
+         * @description 모든 회원의 문의를 오래된 순으로 페이징하여 반환합니다.
+         */
         get: operations["getAllInquiries"];
         put?: never;
         post?: never;
@@ -795,6 +839,8 @@ export interface components {
             /** Format: int32 */
             careerYears?: number;
             availableTimes?: components["schemas"]["AvailableTimeRequest"][];
+            lessonPhotoUrls?: string[];
+            isPublic?: boolean;
         };
         AvailableTimeResponse: {
             /** Format: int64 */
@@ -820,6 +866,8 @@ export interface components {
             /** Format: int32 */
             careerYears?: number;
             availableTimes?: components["schemas"]["AvailableTimeResponse"][];
+            lessonPhotos?: string[];
+            isPublic?: boolean;
         };
         ReviewUpdateRequest: {
             /** Format: int32 */
@@ -840,6 +888,8 @@ export interface components {
             /** Format: int32 */
             careerYears?: number;
             availableTimes?: components["schemas"]["AvailableTimeRequest"][];
+            lessonPhotoUrls?: string[];
+            isPublic?: boolean;
         };
         ReviewRequest: {
             /** Format: int64 */
@@ -851,8 +901,6 @@ export interface components {
             content: string;
         };
         MatchingRequestDto: {
-            /** Format: int64 */
-            memberId: number;
             level: string;
             sports: string;
             lessonType: string;
@@ -883,6 +931,7 @@ export interface components {
             introduction?: string;
             sports?: string;
             lessonType?: string;
+            lessonLevel?: string;
             region?: string;
             /** Format: int32 */
             price?: number;
@@ -1096,28 +1145,28 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
-            first?: boolean;
-            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["TrainerProfileResponse"][];
             /** Format: int32 */
             number?: number;
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
             sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             empty?: boolean;
         };
         PageableObject: {
             /** Format: int64 */
             offset?: number;
             paged?: boolean;
-            /** Format: int32 */
-            pageNumber?: number;
+            sort?: components["schemas"]["SortObject"];
             /** Format: int32 */
             pageSize?: number;
-            sort?: components["schemas"]["SortObject"];
+            /** Format: int32 */
+            pageNumber?: number;
             unpaged?: boolean;
         };
         SortObject: {
@@ -1178,17 +1227,17 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
-            first?: boolean;
-            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["ReviewResponse"][];
             /** Format: int32 */
             number?: number;
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
             sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             empty?: boolean;
         };
         TrainerSummaryDto: {
@@ -1202,17 +1251,17 @@ export interface components {
             totalElements?: number;
             /** Format: int32 */
             totalPages?: number;
-            first?: boolean;
-            last?: boolean;
             /** Format: int32 */
             size?: number;
             content?: components["schemas"]["InquiryResponse"][];
             /** Format: int32 */
             number?: number;
+            first?: boolean;
+            last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
             sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             empty?: boolean;
         };
         ChatResponseDto: {
@@ -1487,6 +1536,7 @@ export interface operations {
             query?: {
                 sport?: string;
                 lessonType?: string;
+                lessonLevel?: string;
                 minPrice?: number;
                 maxPrice?: number;
                 region?: string;
@@ -1693,6 +1743,35 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["InquiryResponse"];
+                };
+            };
+        };
+    };
+    uploadFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": {
+                        [key: string]: string;
+                    };
                 };
             };
         };
