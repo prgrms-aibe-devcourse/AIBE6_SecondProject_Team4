@@ -1123,19 +1123,19 @@ export interface components {
             last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            sort?: components["schemas"]["SortObject"];
             pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
         };
         PageableObject: {
             /** Format: int64 */
             offset?: number;
-            paged?: boolean;
-            sort?: components["schemas"]["SortObject"];
             /** Format: int32 */
             pageNumber?: number;
             /** Format: int32 */
             pageSize?: number;
+            sort?: components["schemas"]["SortObject"];
+            paged?: boolean;
             unpaged?: boolean;
         };
         SortObject: {
@@ -1205,8 +1205,8 @@ export interface components {
             last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            sort?: components["schemas"]["SortObject"];
             pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
         };
         TrainerSummaryDto: {
@@ -1229,8 +1229,8 @@ export interface components {
             last?: boolean;
             /** Format: int32 */
             numberOfElements?: number;
-            sort?: components["schemas"]["SortObject"];
             pageable?: components["schemas"]["PageableObject"];
+            sort?: components["schemas"]["SortObject"];
             empty?: boolean;
         };
         ChatResponseDto: {
@@ -1505,6 +1505,7 @@ export interface operations {
             query?: {
                 sport?: string;
                 lessonType?: string;
+                lessonLevel?: string;
                 minPrice?: number;
                 maxPrice?: number;
                 region?: string;

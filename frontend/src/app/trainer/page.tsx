@@ -19,7 +19,10 @@ const SPORTS = [
     '수영',
     '댄스',
 ]
+
 const REGIONS = ['모든 지역', '서울', '경기', '부산', '대구', '인천', '광주', '대전']
+
+const LESSON_LEVELS = ['전체', '입문/초보', '중급', '고급/대회준비']
 
 export default function ExplorePage() {
     const router = useRouter()
@@ -33,6 +36,7 @@ export default function ExplorePage() {
     const [filters, setFilters] = useState({
         sport: searchParams.get('sport') ?? '',
         lessonType: '',
+        lessonLevel: searchParams.get('level') ?? '',
         minPrice: '',
         maxPrice: '',
         region: searchParams.get('region') ?? '',
@@ -46,6 +50,7 @@ export default function ExplorePage() {
                 query: {
                     sport: filters.sport || undefined,
                     lessonType: filters.lessonType || undefined,
+                    lessonLevel: filters.lessonLevel || undefined,
                     minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
                     maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
                     region: filters.region || undefined,
@@ -151,6 +156,25 @@ export default function ExplorePage() {
                                 </button>
                             ))}
                         </div>
+                    </div>
+                    <div className="flex flex-col gap-xs">
+                        <label className="text-label-md font-label-md text-on-surface-variant">
+                            난이도
+                        </label>
+                        <select
+                            className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-36"
+                            value={filters.lessonLevel}
+                            onChange={(e) =>
+                                setFilters((f) => ({
+                                    ...f,
+                                    lessonLevel: e.target.value === '전체' ? '' : e.target.value,
+                                }))
+                            }
+                        >
+                            {LESSON_LEVELS.map((l) => (
+                                <option key={l}>{l}</option>
+                            ))}
+                        </select>
                     </div>
                     <div className="flex flex-col gap-xs">
                         <label className="text-label-md font-label-md text-on-surface-variant">
@@ -318,6 +342,17 @@ export default function ExplorePage() {
                                                         : '그룹 레슨'}
                                                 </span>
                                             )}
+                                            {trainer.lessonLevel
+                                                ?.split(',')
+                                                .slice(0, 1)
+                                                .map((level, i) => (
+                                                    <span
+                                                        key={i}
+                                                        className="text-label-md font-label-md bg-emerald-100 text-emerald-700 px-sm py-xs rounded"
+                                                    >
+                                                        {level.trim()}
+                                                    </span>
+                                                ))}
                                         </div>
                                         <div className="flex items-center justify-between mt-auto pt-sm border-t border-outline-variant">
                                             <div className="min-w-0">

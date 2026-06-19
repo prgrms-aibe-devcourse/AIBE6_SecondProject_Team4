@@ -55,6 +55,7 @@ public class TrainerService {
     public Page<TrainerProfileResponse> getTrainerProfilesByFilter(
             String sport,
             String lessonType,
+            String lessonLevel,
             Integer minPrice,
             Integer maxPrice,
             String region,
@@ -71,7 +72,7 @@ public class TrainerService {
 
         Pageable pageable = PageRequest.of(page, size, sortObj);
 
-        return trainerProfileRepository.findByFilters(sport, lessonType, minPrice, maxPrice, region, pageable)
+        return trainerProfileRepository.findByFilters(sport, lessonType, lessonLevel, minPrice, maxPrice, region, pageable)
                 .map(profile -> {
                     List<TrainerAvailableTime> availableTimes =
                             trainerAvailableTimeRepository.findByTrainerProfileId(profile.getId());
@@ -120,6 +121,7 @@ public class TrainerService {
 
         return TrainerProfileResponse.from(saved);
     }
+
     @Transactional
     public TrainerProfileResponse updateTrainerProfile(Long id, Long memberId, TrainerProfileUpdateRequest request) {
         TrainerProfile profile = trainerProfileRepository.findById(id)
