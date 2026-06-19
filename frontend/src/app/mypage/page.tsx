@@ -1,6 +1,7 @@
 'use client'
 
 import MyReviewList from '@/components/MyReviewList';
+import MatchingManagementPreview from '@/components/lesson/MatchingManagementPreview';
 import { useAuth } from '@/context/AuthContext';
 import type { components } from '@/types/api';
 import { getAuthClient, getImageUrl } from '@/utils/apiClient';
@@ -659,66 +660,7 @@ export default function MyPage() {
 
                 {/* 메인 콘텐츠 */}
                 <div className="flex-grow space-y-md min-h-[calc(100vh-200px)]">
-                    {activeTab === 'matching' && (
-                        <section className="space-y-md">
-                            <h2 className="text-headline-sm font-headline-sm text-on-surface">
-                                매칭 관리
-                            </h2>
-                            <div className="grid grid-cols-1 gap-md md:grid-cols-3">
-                                <div
-                                    className="flex flex-col gap-sm rounded-xl border border-outline-variant bg-surface-container-lowest p-md"
-                                    style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
-                                >
-                                    <div className="flex items-center gap-sm text-primary">
-                                        <span className="material-symbols-outlined">outgoing_mail</span>
-                                        <span className="text-label-bold">보낸 요청</span>
-                                    </div>
-                                    <div className="flex-grow py-sm">
-                                        <p className="py-4 text-center text-body-sm text-secondary">
-                                            보낸 요청이 없습니다.
-                                        </p>
-                                    </div>
-                                    <button className="w-full py-2 font-label-bold text-primary hover:underline">
-                                        모든 요청 보기
-                                    </button>
-                                </div>
-                                <div
-                                    className="flex flex-col gap-sm rounded-xl border border-outline-variant bg-surface-container-lowest p-md"
-                                    style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
-                                >
-                                    <div className="flex items-center gap-sm text-tertiary">
-                                        <span className="material-symbols-outlined">inbox</span>
-                                        <span className="text-label-bold">받은 요청</span>
-                                    </div>
-                                    <div className="flex-grow py-sm">
-                                        <p className="py-4 text-center text-body-sm text-secondary">
-                                            받은 요청이 없습니다.
-                                        </p>
-                                    </div>
-                                    <button className="w-full py-2 font-label-bold text-primary hover:underline">
-                                        수신함 관리
-                                    </button>
-                                </div>
-                                <div
-                                    className="flex flex-col gap-sm rounded-xl border border-outline-variant bg-surface-container-lowest p-md"
-                                    style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
-                                >
-                                    <div className="flex items-center gap-sm text-secondary">
-                                        <span className="material-symbols-outlined">verified</span>
-                                        <span className="text-label-bold">매칭 완료 내역</span>
-                                    </div>
-                                    <div className="flex-grow py-sm">
-                                        <p className="py-4 text-center text-body-sm text-secondary">
-                                            매칭 내역이 없습니다.
-                                        </p>
-                                    </div>
-                                    <button className="w-full py-2 font-label-bold text-primary hover:underline">
-                                        히스토리 보기
-                                    </button>
-                                </div>
-                            </div>
-                        </section>
-                    )}
+                    {activeTab === 'matching' && <MatchingManagementPreview />}
 
                     {/* 리뷰 관리 — 실제 후기 목록/통계/수정·삭제 (역할별 분기) */}
                     {activeTab === 'reviews' && (
