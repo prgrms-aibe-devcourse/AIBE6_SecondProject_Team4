@@ -6,6 +6,7 @@ import com.fitmate.auth.dto.LoginResponse;
 import com.fitmate.auth.dto.LoginResult;
 import com.fitmate.auth.dto.SignupRequest;
 import com.fitmate.auth.service.AuthService;
+import com.fitmate.auth.service.SmsService;
 import com.fitmate.global.config.JwtProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -22,6 +25,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final JwtProvider jwtProvider;
+    private final SmsService smsService;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request,
@@ -74,6 +78,18 @@ public class AuthController {
         refreshCookie.setMaxAge(0); // 즉시 만료
         response.addCookie(refreshCookie);
 
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/sms/send")
+    public ResponseEntity<Void> sendSms(@RequestBody Map<String, String> body) {
+        smsService.sendVerificationCode(body.get("phone"));
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/sms/verify")
+    public ResponseEntity<Void> verifySms(@RequestBody Map<String, String> body) {
+        smsService.verifyCode(body.get("phone"), body.get("code"));
         return ResponseEntity.ok().build();
     }
 }
