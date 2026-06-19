@@ -95,9 +95,9 @@ export default function ExplorePage() {
 
     return (
         <main className="pt-16 md:pt-20">
-            <div className="max-w-[1440px] mx-auto px-margin-desktop py-lg">
+            <div className="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-md md:py-lg">
                 {/* 필터 */}
-                <div className="flex flex-wrap items-center gap-sm mb-lg">
+                <div className="flex flex-wrap items-center gap-2 md:gap-sm mb-md md:mb-lg">
                     <div className="flex flex-col gap-xs">
                         <label className="text-label-md font-label-md text-on-surface-variant">
                             종목
@@ -149,7 +149,7 @@ export default function ExplorePage() {
                             ].map(({ label, value }) => (
                                 <button
                                     key={label}
-                                    className={`px-md h-11 rounded-lg text-label-bold font-label-bold transition-all border ${
+                                    className={`px-sm md:px-md h-11 rounded-lg text-label-bold font-label-bold transition-all border ${
                                         filters.lessonType === value
                                             ? 'bg-primary text-on-primary border-primary'
                                             : 'bg-surface-container-low border-outline-variant text-on-surface-variant hover:bg-surface-container'
@@ -186,7 +186,7 @@ export default function ExplorePage() {
                         </label>
                         <div className="flex items-center gap-xs">
                             <input
-                                className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-24"
+                                className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-20 md:w-24"
                                 placeholder="최소"
                                 type="number"
                                 value={filters.minPrice}
@@ -196,7 +196,7 @@ export default function ExplorePage() {
                             />
                             <span className="text-on-surface-variant">-</span>
                             <input
-                                className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-24"
+                                className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-20 md:w-24"
                                 placeholder="최대"
                                 type="number"
                                 value={filters.maxPrice}
@@ -220,13 +220,18 @@ export default function ExplorePage() {
                 </div>
 
                 {/* 결과 수 + 정렬 */}
-                {!loading && (
+                {loading ? (
                     <div className="flex justify-between items-center mb-md">
+                        <div className="h-5 w-40 rounded bg-surface-container animate-pulse" />
+                        <div className="h-8 w-28 rounded-lg bg-surface-container animate-pulse" />
+                    </div>
+                ) : (
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-md">
                         <p className="text-body-md text-on-surface">
                             <span className="font-bold">{totalElements}명</span>의 트레이너를
                             찾았습니다
                         </p>
-                        <div className="flex items-center gap-xs">
+                        <div className="flex items-center gap-xs self-end sm:self-auto">
                             <span className="text-body-sm text-on-surface-variant">정렬:</span>
                             <select
                                 className="bg-surface-container-low border border-outline-variant rounded-lg px-sm py-xs text-body-sm"
@@ -244,7 +249,7 @@ export default function ExplorePage() {
 
                 {/* 트레이너 목록 */}
                 {loading ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
                         {Array.from({ length: 8 }).map((_, i) => (
                             <div
                                 key={i}
@@ -257,7 +262,7 @@ export default function ExplorePage() {
                                     style={{ height: '200px' }}
                                 />
                                 {/* 텍스트 */}
-                                <div className="p-md flex flex-col gap-sm flex-grow">
+                                <div className="p-3 md:p-md flex flex-col gap-sm flex-grow">
                                     <div className="flex items-center justify-between">
                                         <div className="h-5 w-24 rounded bg-surface-container animate-pulse" />
                                         <div className="h-4 w-8 rounded bg-surface-container animate-pulse" />
@@ -296,7 +301,7 @@ export default function ExplorePage() {
                     </div>
                 ) : (
                     <>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
                             {trainers.map((trainer) => (
                                 <div
                                     key={trainer.id}
@@ -335,9 +340,9 @@ export default function ExplorePage() {
                                             </span>
                                         )}
                                     </div>
-                                    <div className="p-md flex flex-col flex-grow">
+                                    <div className="p-3 md:p-md flex flex-col flex-grow">
                                         <div className="flex items-center justify-between mb-xs">
-                                            <p className="font-headline-sm text-headline-sm text-on-surface truncate">
+                                            <p className="font-headline-sm text-body-md md:text-headline-sm text-on-surface truncate">
                                                 {trainer.nickname}
                                             </p>
                                             <div className="flex items-center gap-xs flex-shrink-0 ml-xs">
@@ -355,7 +360,7 @@ export default function ExplorePage() {
                                             </div>
                                         </div>
                                         <p
-                                            className="text-body-sm text-on-surface-variant mb-sm"
+                                            className="text-body-sm text-on-surface-variant mb-2 md:mb-sm"
                                             style={{
                                                 display: '-webkit-box',
                                                 WebkitLineClamp: 2,
@@ -367,7 +372,7 @@ export default function ExplorePage() {
                                             {trainer.introduction ?? '소개가 없습니다.'}
                                         </p>
                                         <div
-                                            className="flex gap-xs flex-wrap mb-sm"
+                                            className="flex gap-1 md:gap-xs flex-wrap mb-2 md:mb-sm"
                                             style={{ minHeight: '28px' }}
                                         >
                                             {trainer.sports
@@ -412,7 +417,7 @@ export default function ExplorePage() {
                                                 </p>
                                             </div>
                                             <button
-                                                className="bg-primary text-on-primary px-md py-sm rounded-lg text-label-bold font-label-bold hover:shadow active:scale-95 transition-all flex-shrink-0 ml-sm"
+                                                className="bg-primary text-on-primary px-2 md:px-md py-sm rounded-lg text-label-bold font-label-bold hover:shadow active:scale-95 transition-all flex-shrink-0 ml-2 md:ml-sm text-xs md:text-sm"
                                                 onClick={(e) => {
                                                     e.stopPropagation()
                                                     router.push(`/trainer/${trainer.id}`)
