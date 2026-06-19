@@ -12,6 +12,8 @@ VALUES
     ('user01', '김철수', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '철수', 'user01@fitmate.com', 'USER', NULL, '서울', '운동 초보입니다.', '010-1111-1111', NOW(), NOW()),
     ('user02', '이영희', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '영희', 'user02@fitmate.com', 'USER', NULL, '부산', '다이어트가 목표입니다.', '010-2222-2222', NOW(), NOW()),
     ('user03', '박민준', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '민준', 'user03@fitmate.com', 'USER', NULL, '인천', '근육 키우고 싶어요.', '010-3333-3333', NOW(), NOW()),
+    ('user04', '최유진', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '유진', 'user04@fitmate.com', 'USER', NULL, '서울', '자세 교정과 유연성 향상이 목표입니다.', '010-4444-0004', NOW(), NOW()),
+    ('user05', '한지우', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '지우', 'user05@fitmate.com', 'USER', NULL, '부산', '꾸준히 운동할 수 있는 코치를 찾고 있습니다.', '010-5555-0005', NOW(), NOW()),
     ('trainer01', '최민호', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '최코치', 'trainer01@fitmate.com', 'TRAINER', NULL, '서울', '10년 경력의 PT 전문 트레이너입니다.', '010-4444-4444', NOW(), NOW()),
     ('trainer02', '정상훈', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '정코치', 'trainer02@fitmate.com', 'TRAINER', NULL, '부산', '수영, 필라테스 전문입니다.', '010-5555-5555', NOW(), NOW()),
     ('trainer03', '김태양', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '태양코치', 'trainer03@fitmate.com', 'TRAINER', NULL, '서울', '필라테스 전문 트레이너입니다.', '010-6001-0003', NOW(), NOW()),
@@ -43,6 +45,12 @@ SELECT id, '수영', '입문/초보', '체형 교정', NOW(), NOW() FROM members
 
 INSERT IGNORE INTO user_profiles (user_id, sports, level, goal, created_at, updated_at)
 SELECT id, '헬스', '중급', '근력 향상', NOW(), NOW() FROM members WHERE user_id = 'user03';
+
+INSERT IGNORE INTO user_profiles (user_id, sports, level, goal, created_at, updated_at)
+SELECT id, '필라테스', '입문/초보', '자세 교정', NOW(), NOW() FROM members WHERE user_id = 'user04';
+
+INSERT IGNORE INTO user_profiles (user_id, sports, level, goal, created_at, updated_at)
+SELECT id, '크로스핏', '중급', '체력 향상', NOW(), NOW() FROM members WHERE user_id = 'user05';
 
 -- =============================================
 -- 트레이너 프로필 (trainer_profiles)
@@ -102,6 +110,48 @@ SELECT id, '크로스핏', 'ONE_TO_ONE', '중급,고급/대회준비', 95000, 11
 
 INSERT IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
 SELECT id, '필라테스', 'GROUP', '입문/초보,중급', 67000, 6, NOW(), NOW() FROM members WHERE user_id = 'trainer18';
+
+-- =============================================
+-- 복수 추천 테스트용 트레이너 조건 확장
+-- 기존 전문 분야는 유지하고 같은 지역의 트레이너끼리 보조 조건만 겹치게 구성
+-- =============================================
+UPDATE trainer_profiles tp
+    JOIN members m ON tp.user_id = m.id
+SET tp.sports = '크로스핏,댄스',
+    tp.lesson_level = '입문/초보,중급,고급/대회준비'
+WHERE m.user_id = 'trainer04';
+
+UPDATE trainer_profiles tp
+    JOIN members m ON tp.user_id = m.id
+SET tp.sports = '수영,헬스'
+WHERE m.user_id = 'trainer13';
+
+UPDATE trainer_profiles tp
+    JOIN members m ON tp.user_id = m.id
+SET tp.sports = '댄스,요가,수영'
+WHERE m.user_id = 'trainer14';
+
+UPDATE trainer_profiles tp
+    JOIN members m ON tp.user_id = m.id
+SET tp.sports = '헬스,테니스',
+    tp.lesson_type = 'ONLINE,ONE_TO_ONE'
+WHERE m.user_id = 'trainer15';
+
+UPDATE trainer_profiles tp
+    JOIN members m ON tp.user_id = m.id
+SET tp.lesson_level = '중급,고급/대회준비'
+WHERE m.user_id = 'trainer16';
+
+UPDATE trainer_profiles tp
+    JOIN members m ON tp.user_id = m.id
+SET tp.lesson_type = 'ONE_TO_ONE,GROUP'
+WHERE m.user_id = 'trainer17';
+
+UPDATE trainer_profiles tp
+    JOIN members m ON tp.user_id = m.id
+SET tp.sports = '필라테스,요가,헬스',
+    tp.lesson_type = 'GROUP,ONE_TO_ONE'
+WHERE m.user_id = 'trainer18';
 
 -- =============================================
 -- 매칭 요청 (matching_request)
@@ -551,3 +601,585 @@ SELECT
     (SELECT id FROM members WHERE user_id = 'user03'),
                                 (SELECT tp.id FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer11' LIMIT 1),
     'ONE_TIME', NULL, '2026-06-17', '19:00:00', '20:00:00', '잘 부탁드립니다!', 'ACCEPTED', NOW(), NOW();
+
+-- =============================================
+-- [매칭 기능 종합 테스트] trainer03~18 복수 추천 더미
+-- 한 요청마다 같은 지역·종목·유형·수준·예산·시간을 만족하는 트레이너 2명 이상 연결
+-- lesson_requests 상태를 PENDING / ACCEPTED / REJECTED로 나누어 마이페이지도 함께 테스트
+-- ACCEPTED가 현재 프로젝트에서 매칭 성사 상태이며 별도 lesson_schedule 테이블은 없음
+-- =============================================
+
+-- =============================================
+-- trainer03~18 가능 시간
+-- =============================================
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'MONDAY', '09:00:00', '18:00:00', NOW(), NOW()
+FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer03'
+  AND NOT EXISTS (
+      SELECT 1 FROM trainer_available_times at
+      WHERE at.trainer_profile_id = tp.id
+        AND at.day_of_week = 'MONDAY'
+        AND at.start_time = '09:00:00'
+        AND at.end_time = '18:00:00'
+  );
+
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'TUESDAY', '12:00:00', '20:00:00', NOW(), NOW()
+FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer04'
+  AND NOT EXISTS (
+      SELECT 1 FROM trainer_available_times at
+      WHERE at.trainer_profile_id = tp.id
+        AND at.day_of_week = 'TUESDAY'
+        AND at.start_time = '12:00:00'
+        AND at.end_time = '20:00:00'
+  );
+
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'WEDNESDAY', '16:00:00', '22:00:00', NOW(), NOW()
+FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer05'
+  AND NOT EXISTS (
+      SELECT 1 FROM trainer_available_times at
+      WHERE at.trainer_profile_id = tp.id
+        AND at.day_of_week = 'WEDNESDAY'
+        AND at.start_time = '16:00:00'
+        AND at.end_time = '22:00:00'
+  );
+
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'THURSDAY', '09:00:00', '18:00:00', NOW(), NOW()
+FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer06'
+  AND NOT EXISTS (
+      SELECT 1 FROM trainer_available_times at
+      WHERE at.trainer_profile_id = tp.id
+        AND at.day_of_week = 'THURSDAY'
+        AND at.start_time = '09:00:00'
+        AND at.end_time = '18:00:00'
+  );
+
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'FRIDAY', '17:00:00', '22:00:00', NOW(), NOW()
+FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer07'
+  AND NOT EXISTS (
+      SELECT 1 FROM trainer_available_times at
+      WHERE at.trainer_profile_id = tp.id
+        AND at.day_of_week = 'FRIDAY'
+        AND at.start_time = '17:00:00'
+        AND at.end_time = '22:00:00'
+  );
+
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW()
+FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer08'
+  AND NOT EXISTS (
+      SELECT 1 FROM trainer_available_times at
+      WHERE at.trainer_profile_id = tp.id
+        AND at.day_of_week = 'SATURDAY'
+        AND at.start_time = '09:00:00'
+        AND at.end_time = '15:00:00'
+  );
+
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'SUNDAY', '10:00:00', '18:00:00', NOW(), NOW()
+FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer09'
+  AND NOT EXISTS (
+      SELECT 1 FROM trainer_available_times at
+      WHERE at.trainer_profile_id = tp.id
+        AND at.day_of_week = 'SUNDAY'
+        AND at.start_time = '10:00:00'
+        AND at.end_time = '18:00:00'
+  );
+
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'TUESDAY', '10:00:00', '19:00:00', NOW(), NOW()
+FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer10'
+  AND NOT EXISTS (
+      SELECT 1 FROM trainer_available_times at
+      WHERE at.trainer_profile_id = tp.id
+        AND at.day_of_week = 'TUESDAY'
+        AND at.start_time = '10:00:00'
+        AND at.end_time = '19:00:00'
+  );
+
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'WEDNESDAY', '17:00:00', '22:00:00', NOW(), NOW()
+FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer11'
+  AND NOT EXISTS (
+      SELECT 1 FROM trainer_available_times at
+      WHERE at.trainer_profile_id = tp.id
+        AND at.day_of_week = 'WEDNESDAY'
+        AND at.start_time = '17:00:00'
+        AND at.end_time = '22:00:00'
+  );
+
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'MONDAY', '08:00:00', '20:00:00', NOW(), NOW()
+FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer12'
+  AND NOT EXISTS (
+      SELECT 1 FROM trainer_available_times at
+      WHERE at.trainer_profile_id = tp.id
+        AND at.day_of_week = 'MONDAY'
+        AND at.start_time = '08:00:00'
+        AND at.end_time = '20:00:00'
+  );
+
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'THURSDAY', '08:00:00', '19:00:00', NOW(), NOW()
+FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer13'
+  AND NOT EXISTS (
+      SELECT 1 FROM trainer_available_times at
+      WHERE at.trainer_profile_id = tp.id
+        AND at.day_of_week = 'THURSDAY'
+        AND at.start_time = '08:00:00'
+        AND at.end_time = '19:00:00'
+  );
+
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'FRIDAY', '18:00:00', '22:00:00', NOW(), NOW()
+FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer14'
+  AND NOT EXISTS (
+      SELECT 1 FROM trainer_available_times at
+      WHERE at.trainer_profile_id = tp.id
+        AND at.day_of_week = 'FRIDAY'
+        AND at.start_time = '18:00:00'
+        AND at.end_time = '22:00:00'
+  );
+
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'SATURDAY', '10:00:00', '16:00:00', NOW(), NOW()
+FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer15'
+  AND NOT EXISTS (
+      SELECT 1 FROM trainer_available_times at
+      WHERE at.trainer_profile_id = tp.id
+        AND at.day_of_week = 'SATURDAY'
+        AND at.start_time = '10:00:00'
+        AND at.end_time = '16:00:00'
+  );
+
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'SUNDAY', '09:00:00', '19:00:00', NOW(), NOW()
+FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer16'
+  AND NOT EXISTS (
+      SELECT 1 FROM trainer_available_times at
+      WHERE at.trainer_profile_id = tp.id
+        AND at.day_of_week = 'SUNDAY'
+        AND at.start_time = '09:00:00'
+        AND at.end_time = '19:00:00'
+  );
+
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'TUESDAY', '13:00:00', '21:00:00', NOW(), NOW()
+FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer17'
+  AND NOT EXISTS (
+      SELECT 1 FROM trainer_available_times at
+      WHERE at.trainer_profile_id = tp.id
+        AND at.day_of_week = 'TUESDAY'
+        AND at.start_time = '13:00:00'
+        AND at.end_time = '21:00:00'
+  );
+
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT tp.id, 'WEDNESDAY', '17:00:00', '22:00:00', NOW(), NOW()
+FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id
+WHERE m.user_id = 'trainer18'
+  AND NOT EXISTS (
+      SELECT 1 FROM trainer_available_times at
+      WHERE at.trainer_profile_id = tp.id
+        AND at.day_of_week = 'WEDNESDAY'
+        AND at.start_time = '17:00:00'
+        AND at.end_time = '22:00:00'
+  );
+
+-- =============================================
+-- 복수 추천용 매칭 요청 9개
+-- =============================================
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '초급', '필라테스', '1:1 PT', '서울', 60000, 90000, '[복수추천01] 자세 교정 필라테스를 배우고 싶어요', NOW(), NOW()
+FROM members WHERE user_id = 'user04';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '중급', '크로스핏', '그룹', '부산', 60000, 100000, '[복수추천02] 그룹 크로스핏으로 체력을 높이고 싶어요', NOW(), NOW()
+FROM members WHERE user_id = 'user05';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '초급', '요가', '1:1 PT', '인천', 60000, 100000, '[복수추천03] 허리 부담이 적은 요가를 원해요', NOW(), NOW()
+FROM members WHERE user_id = 'user01';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '초급', '헬스', '1:1 PT', '대구', 40000, 70000, '[복수추천04] 기초 근력 운동을 시작하고 싶어요', NOW(), NOW()
+FROM members WHERE user_id = 'user02';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '중급', '수영', '그룹', '광주', 50000, 90000, '[복수추천05] 수영 지구력과 영법을 개선하고 싶어요', NOW(), NOW()
+FROM members WHERE user_id = 'user03';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '중급', '테니스', '1:1 PT', '대전', 40000, 110000, '[복수추천06] 테니스 스트로크를 교정하고 싶어요', NOW(), NOW()
+FROM members WHERE user_id = 'user04';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '중급', '골프', '1:1 PT', '서울', 100000, 140000, '[복수추천07] 골프 스윙을 안정적으로 만들고 싶어요', NOW(), NOW()
+FROM members WHERE user_id = 'user05';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '초급', '댄스', '그룹', '부산', 40000, 80000, '[복수추천08] 재미있게 댄스 기초를 배우고 싶어요', NOW(), NOW()
+FROM members WHERE user_id = 'user01';
+
+INSERT IGNORE INTO matching_request (member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id, '중급', '헬스', '1:1 PT', '인천', 60000, 100000, '[복수추천09] 근지구력 중심의 헬스 코칭을 원해요', NOW(), NOW()
+FROM members WHERE user_id = 'user03';
+
+-- 사용자 선호 시간
+INSERT IGNORE INTO matching_preferred_times (matching_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT id, 'MONDAY', '10:00:00', '11:00:00', NOW(), NOW()
+FROM matching_request WHERE lesson_content = '[복수추천01] 자세 교정 필라테스를 배우고 싶어요' LIMIT 1;
+
+INSERT IGNORE INTO matching_preferred_times (matching_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT id, 'TUESDAY', '14:00:00', '15:00:00', NOW(), NOW()
+FROM matching_request WHERE lesson_content = '[복수추천02] 그룹 크로스핏으로 체력을 높이고 싶어요' LIMIT 1;
+
+INSERT IGNORE INTO matching_preferred_times (matching_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT id, 'WEDNESDAY', '18:00:00', '19:00:00', NOW(), NOW()
+FROM matching_request WHERE lesson_content = '[복수추천03] 허리 부담이 적은 요가를 원해요' LIMIT 1;
+
+INSERT IGNORE INTO matching_preferred_times (matching_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT id, 'THURSDAY', '10:00:00', '11:00:00', NOW(), NOW()
+FROM matching_request WHERE lesson_content = '[복수추천04] 기초 근력 운동을 시작하고 싶어요' LIMIT 1;
+
+INSERT IGNORE INTO matching_preferred_times (matching_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT id, 'FRIDAY', '19:00:00', '20:00:00', NOW(), NOW()
+FROM matching_request WHERE lesson_content = '[복수추천05] 수영 지구력과 영법을 개선하고 싶어요' LIMIT 1;
+
+INSERT IGNORE INTO matching_preferred_times (matching_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT id, 'SATURDAY', '11:00:00', '12:00:00', NOW(), NOW()
+FROM matching_request WHERE lesson_content = '[복수추천06] 테니스 스트로크를 교정하고 싶어요' LIMIT 1;
+
+INSERT IGNORE INTO matching_preferred_times (matching_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT id, 'SUNDAY', '13:00:00', '14:00:00', NOW(), NOW()
+FROM matching_request WHERE lesson_content = '[복수추천07] 골프 스윙을 안정적으로 만들고 싶어요' LIMIT 1;
+
+INSERT IGNORE INTO matching_preferred_times (matching_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT id, 'TUESDAY', '16:00:00', '17:00:00', NOW(), NOW()
+FROM matching_request WHERE lesson_content = '[복수추천08] 재미있게 댄스 기초를 배우고 싶어요' LIMIT 1;
+
+INSERT IGNORE INTO matching_preferred_times (matching_id, day_of_week, start_time, end_time, created_at, updated_at)
+SELECT id, 'WEDNESDAY', '18:00:00', '19:00:00', NOW(), NOW()
+FROM matching_request WHERE lesson_content = '[복수추천09] 근지구력 중심의 헬스 코칭을 원해요' LIMIT 1;
+
+-- =============================================
+-- 매칭 결과: 요청마다 트레이너 2명 이상
+-- =============================================
+INSERT IGNORE INTO matching_results (
+    matching_id, preferred_time_id, trainer_available_time_id, trainer_profile_id,
+    ai_rank, ai_reason, created_at, updated_at
+)
+SELECT mr.id, pt.id, at.id, tp.id,
+       CASE WHEN tm.user_id = 'trainer03' THEN 1 ELSE 2 END,
+       CONCAT(tm.user_name, ' 트레이너는 서울 지역 필라테스 조건과 월요일 희망 시간을 충족합니다.'),
+       NOW(), NOW()
+FROM matching_request mr
+    JOIN matching_preferred_times pt ON pt.matching_id = mr.id
+    JOIN members tm ON tm.user_id IN ('trainer03', 'trainer12')
+    JOIN trainer_profiles tp ON tp.user_id = tm.id
+    JOIN trainer_available_times at ON at.trainer_profile_id = tp.id
+WHERE mr.lesson_content = '[복수추천01] 자세 교정 필라테스를 배우고 싶어요'
+  AND at.day_of_week = 'MONDAY'
+  AND at.start_time <= pt.start_time
+  AND at.end_time >= pt.end_time;
+
+INSERT IGNORE INTO matching_results (
+    matching_id, preferred_time_id, trainer_available_time_id, trainer_profile_id,
+    ai_rank, ai_reason, created_at, updated_at
+)
+SELECT mr.id, pt.id, at.id, tp.id,
+       CASE WHEN tm.user_id = 'trainer04' THEN 1 ELSE 2 END,
+       CONCAT(tm.user_name, ' 트레이너는 부산 지역 그룹 크로스핏과 화요일 오후 시간에 적합합니다.'),
+       NOW(), NOW()
+FROM matching_request mr
+    JOIN matching_preferred_times pt ON pt.matching_id = mr.id
+    JOIN members tm ON tm.user_id IN ('trainer04', 'trainer17')
+    JOIN trainer_profiles tp ON tp.user_id = tm.id
+    JOIN trainer_available_times at ON at.trainer_profile_id = tp.id
+WHERE mr.lesson_content = '[복수추천02] 그룹 크로스핏으로 체력을 높이고 싶어요'
+  AND at.day_of_week = 'TUESDAY'
+  AND at.start_time <= pt.start_time
+  AND at.end_time >= pt.end_time;
+
+INSERT IGNORE INTO matching_results (
+    matching_id, preferred_time_id, trainer_available_time_id, trainer_profile_id,
+    ai_rank, ai_reason, created_at, updated_at
+)
+SELECT mr.id, pt.id, at.id, tp.id,
+       CASE WHEN tm.user_id = 'trainer05' THEN 1 ELSE 2 END,
+       CONCAT(tm.user_name, ' 트레이너는 인천 지역 요가 수업과 수요일 저녁 시간을 충족합니다.'),
+       NOW(), NOW()
+FROM matching_request mr
+    JOIN matching_preferred_times pt ON pt.matching_id = mr.id
+    JOIN members tm ON tm.user_id IN ('trainer05', 'trainer18')
+    JOIN trainer_profiles tp ON tp.user_id = tm.id
+    JOIN trainer_available_times at ON at.trainer_profile_id = tp.id
+WHERE mr.lesson_content = '[복수추천03] 허리 부담이 적은 요가를 원해요'
+  AND at.day_of_week = 'WEDNESDAY'
+  AND at.start_time <= pt.start_time
+  AND at.end_time >= pt.end_time;
+
+INSERT IGNORE INTO matching_results (
+    matching_id, preferred_time_id, trainer_available_time_id, trainer_profile_id,
+    ai_rank, ai_reason, created_at, updated_at
+)
+SELECT mr.id, pt.id, at.id, tp.id,
+       CASE WHEN tm.user_id = 'trainer06' THEN 1 ELSE 2 END,
+       CONCAT(tm.user_name, ' 트레이너는 대구 지역 초급 헬스와 목요일 오전 일정에 적합합니다.'),
+       NOW(), NOW()
+FROM matching_request mr
+    JOIN matching_preferred_times pt ON pt.matching_id = mr.id
+    JOIN members tm ON tm.user_id IN ('trainer06', 'trainer13')
+    JOIN trainer_profiles tp ON tp.user_id = tm.id
+    JOIN trainer_available_times at ON at.trainer_profile_id = tp.id
+WHERE mr.lesson_content = '[복수추천04] 기초 근력 운동을 시작하고 싶어요'
+  AND at.day_of_week = 'THURSDAY'
+  AND at.start_time <= pt.start_time
+  AND at.end_time >= pt.end_time;
+
+INSERT IGNORE INTO matching_results (
+    matching_id, preferred_time_id, trainer_available_time_id, trainer_profile_id,
+    ai_rank, ai_reason, created_at, updated_at
+)
+SELECT mr.id, pt.id, at.id, tp.id,
+       CASE WHEN tm.user_id = 'trainer07' THEN 1 ELSE 2 END,
+       CONCAT(tm.user_name, ' 트레이너는 광주 지역 중급 수영과 금요일 저녁 시간을 충족합니다.'),
+       NOW(), NOW()
+FROM matching_request mr
+    JOIN matching_preferred_times pt ON pt.matching_id = mr.id
+    JOIN members tm ON tm.user_id IN ('trainer07', 'trainer14')
+    JOIN trainer_profiles tp ON tp.user_id = tm.id
+    JOIN trainer_available_times at ON at.trainer_profile_id = tp.id
+WHERE mr.lesson_content = '[복수추천05] 수영 지구력과 영법을 개선하고 싶어요'
+  AND at.day_of_week = 'FRIDAY'
+  AND at.start_time <= pt.start_time
+  AND at.end_time >= pt.end_time;
+
+INSERT IGNORE INTO matching_results (
+    matching_id, preferred_time_id, trainer_available_time_id, trainer_profile_id,
+    ai_rank, ai_reason, created_at, updated_at
+)
+SELECT mr.id, pt.id, at.id, tp.id,
+       CASE WHEN tm.user_id = 'trainer08' THEN 1 ELSE 2 END,
+       CONCAT(tm.user_name, ' 트레이너는 대전 지역 테니스 조건과 토요일 일정을 충족합니다.'),
+       NOW(), NOW()
+FROM matching_request mr
+    JOIN matching_preferred_times pt ON pt.matching_id = mr.id
+    JOIN members tm ON tm.user_id IN ('trainer08', 'trainer15')
+    JOIN trainer_profiles tp ON tp.user_id = tm.id
+    JOIN trainer_available_times at ON at.trainer_profile_id = tp.id
+WHERE mr.lesson_content = '[복수추천06] 테니스 스트로크를 교정하고 싶어요'
+  AND at.day_of_week = 'SATURDAY'
+  AND at.start_time <= pt.start_time
+  AND at.end_time >= pt.end_time;
+
+INSERT IGNORE INTO matching_results (
+    matching_id, preferred_time_id, trainer_available_time_id, trainer_profile_id,
+    ai_rank, ai_reason, created_at, updated_at
+)
+SELECT mr.id, pt.id, at.id, tp.id,
+       CASE WHEN tm.user_id = 'trainer09' THEN 1 ELSE 2 END,
+       CONCAT(tm.user_name, ' 트레이너는 서울 지역 골프와 일요일 희망 시간에 적합합니다.'),
+       NOW(), NOW()
+FROM matching_request mr
+    JOIN matching_preferred_times pt ON pt.matching_id = mr.id
+    JOIN members tm ON tm.user_id IN ('trainer09', 'trainer16')
+    JOIN trainer_profiles tp ON tp.user_id = tm.id
+    JOIN trainer_available_times at ON at.trainer_profile_id = tp.id
+WHERE mr.lesson_content = '[복수추천07] 골프 스윙을 안정적으로 만들고 싶어요'
+  AND at.day_of_week = 'SUNDAY'
+  AND at.start_time <= pt.start_time
+  AND at.end_time >= pt.end_time;
+
+INSERT IGNORE INTO matching_results (
+    matching_id, preferred_time_id, trainer_available_time_id, trainer_profile_id,
+    ai_rank, ai_reason, created_at, updated_at
+)
+SELECT mr.id, pt.id, at.id, tp.id,
+       CASE WHEN tm.user_id = 'trainer10' THEN 1 ELSE 2 END,
+       CONCAT(tm.user_name, ' 트레이너는 부산 지역 초급 그룹 댄스와 화요일 일정을 충족합니다.'),
+       NOW(), NOW()
+FROM matching_request mr
+    JOIN matching_preferred_times pt ON pt.matching_id = mr.id
+    JOIN members tm ON tm.user_id IN ('trainer10', 'trainer04')
+    JOIN trainer_profiles tp ON tp.user_id = tm.id
+    JOIN trainer_available_times at ON at.trainer_profile_id = tp.id
+WHERE mr.lesson_content = '[복수추천08] 재미있게 댄스 기초를 배우고 싶어요'
+  AND at.day_of_week = 'TUESDAY'
+  AND at.start_time <= pt.start_time
+  AND at.end_time >= pt.end_time;
+
+INSERT IGNORE INTO matching_results (
+    matching_id, preferred_time_id, trainer_available_time_id, trainer_profile_id,
+    ai_rank, ai_reason, created_at, updated_at
+)
+SELECT mr.id, pt.id, at.id, tp.id,
+       CASE WHEN tm.user_id = 'trainer11' THEN 1 ELSE 2 END,
+       CONCAT(tm.user_name, ' 트레이너는 인천 지역 중급 헬스와 수요일 저녁 시간에 적합합니다.'),
+       NOW(), NOW()
+FROM matching_request mr
+    JOIN matching_preferred_times pt ON pt.matching_id = mr.id
+    JOIN members tm ON tm.user_id IN ('trainer11', 'trainer18')
+    JOIN trainer_profiles tp ON tp.user_id = tm.id
+    JOIN trainer_available_times at ON at.trainer_profile_id = tp.id
+WHERE mr.lesson_content = '[복수추천09] 근지구력 중심의 헬스 코칭을 원해요'
+  AND at.day_of_week = 'WEDNESDAY'
+  AND at.start_time = '17:00:00'
+  AND at.start_time <= pt.start_time
+  AND at.end_time >= pt.end_time;
+
+-- =============================================
+-- 레슨 요청: 마이페이지 상태별 미리보기 테스트
+-- =============================================
+INSERT IGNORE INTO lesson_requests (
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
+)
+SELECT mr.id, requester.id, tp.id, 'REGULAR', 2,
+       '2026-06-22', '10:00:00', '11:00:00',
+       '자세 교정과 코어 강화 중심으로 배우고 싶습니다.', 'PENDING', NOW(), NOW()
+FROM matching_results mr
+    JOIN matching_request req ON mr.matching_id = req.id
+    JOIN members requester ON req.member_id = requester.id
+    JOIN trainer_profiles tp ON mr.trainer_profile_id = tp.id
+    JOIN members trainer ON tp.user_id = trainer.id
+WHERE req.lesson_content = '[복수추천01] 자세 교정 필라테스를 배우고 싶어요'
+  AND trainer.user_id = 'trainer03';
+
+INSERT IGNORE INTO lesson_requests (
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
+)
+SELECT mr.id, requester.id, tp.id, 'REGULAR', 3,
+       '2026-06-23', '14:00:00', '15:00:00',
+       '주 3회 꾸준히 체력 향상을 목표로 하고 있습니다.', 'ACCEPTED', NOW(), NOW()
+FROM matching_results mr
+    JOIN matching_request req ON mr.matching_id = req.id
+    JOIN members requester ON req.member_id = requester.id
+    JOIN trainer_profiles tp ON mr.trainer_profile_id = tp.id
+    JOIN members trainer ON tp.user_id = trainer.id
+WHERE req.lesson_content = '[복수추천02] 그룹 크로스핏으로 체력을 높이고 싶어요'
+  AND trainer.user_id = 'trainer17';
+
+INSERT IGNORE INTO lesson_requests (
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
+)
+SELECT mr.id, requester.id, tp.id, 'ONE_TIME', NULL,
+       '2026-06-24', '18:00:00', '19:00:00',
+       '허리에 무리가 가지 않는 동작 위주로 부탁드립니다.', 'REJECTED', NOW(), NOW()
+FROM matching_results mr
+    JOIN matching_request req ON mr.matching_id = req.id
+    JOIN members requester ON req.member_id = requester.id
+    JOIN trainer_profiles tp ON mr.trainer_profile_id = tp.id
+    JOIN members trainer ON tp.user_id = trainer.id
+WHERE req.lesson_content = '[복수추천03] 허리 부담이 적은 요가를 원해요'
+  AND trainer.user_id = 'trainer05';
+
+INSERT IGNORE INTO lesson_requests (
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
+)
+SELECT mr.id, requester.id, tp.id, 'ONE_TIME', NULL,
+       '2026-06-25', '10:00:00', '11:00:00',
+       '헬스가 처음이라 기구 사용법부터 배우고 싶습니다.', 'ACCEPTED', NOW(), NOW()
+FROM matching_results mr
+    JOIN matching_request req ON mr.matching_id = req.id
+    JOIN members requester ON req.member_id = requester.id
+    JOIN trainer_profiles tp ON mr.trainer_profile_id = tp.id
+    JOIN members trainer ON tp.user_id = trainer.id
+WHERE req.lesson_content = '[복수추천04] 기초 근력 운동을 시작하고 싶어요'
+  AND trainer.user_id = 'trainer06';
+
+INSERT IGNORE INTO lesson_requests (
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
+)
+SELECT mr.id, requester.id, tp.id, 'REGULAR', 2,
+       '2026-06-26', '19:00:00', '20:00:00',
+       '자유형 호흡과 장거리 수영 자세를 교정하고 싶습니다.', 'PENDING', NOW(), NOW()
+FROM matching_results mr
+    JOIN matching_request req ON mr.matching_id = req.id
+    JOIN members requester ON req.member_id = requester.id
+    JOIN trainer_profiles tp ON mr.trainer_profile_id = tp.id
+    JOIN members trainer ON tp.user_id = trainer.id
+WHERE req.lesson_content = '[복수추천05] 수영 지구력과 영법을 개선하고 싶어요'
+  AND trainer.user_id = 'trainer07';
+
+INSERT IGNORE INTO lesson_requests (
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
+)
+SELECT mr.id, requester.id, tp.id, 'ONE_TIME', NULL,
+       '2026-06-27', '11:00:00', '12:00:00',
+       '포핸드 스트로크 자세를 집중적으로 교정하고 싶습니다.', 'PENDING', NOW(), NOW()
+FROM matching_results mr
+    JOIN matching_request req ON mr.matching_id = req.id
+    JOIN members requester ON req.member_id = requester.id
+    JOIN trainer_profiles tp ON mr.trainer_profile_id = tp.id
+    JOIN members trainer ON tp.user_id = trainer.id
+WHERE req.lesson_content = '[복수추천06] 테니스 스트로크를 교정하고 싶어요'
+  AND trainer.user_id = 'trainer08';
+
+INSERT IGNORE INTO lesson_requests (
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
+)
+SELECT mr.id, requester.id, tp.id, 'REGULAR', 1,
+       '2026-06-28', '13:00:00', '14:00:00',
+       '라운딩 전 스윙 밸런스와 방향성을 점검하고 싶습니다.', 'ACCEPTED', NOW(), NOW()
+FROM matching_results mr
+    JOIN matching_request req ON mr.matching_id = req.id
+    JOIN members requester ON req.member_id = requester.id
+    JOIN trainer_profiles tp ON mr.trainer_profile_id = tp.id
+    JOIN members trainer ON tp.user_id = trainer.id
+WHERE req.lesson_content = '[복수추천07] 골프 스윙을 안정적으로 만들고 싶어요'
+  AND trainer.user_id = 'trainer16';
+
+INSERT IGNORE INTO lesson_requests (
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
+)
+SELECT mr.id, requester.id, tp.id, 'REGULAR', 2,
+       '2026-06-30', '16:00:00', '17:00:00',
+       '운동을 즐겁게 이어갈 수 있도록 기초부터 부탁드립니다.', 'PENDING', NOW(), NOW()
+FROM matching_results mr
+    JOIN matching_request req ON mr.matching_id = req.id
+    JOIN members requester ON req.member_id = requester.id
+    JOIN trainer_profiles tp ON mr.trainer_profile_id = tp.id
+    JOIN members trainer ON tp.user_id = trainer.id
+WHERE req.lesson_content = '[복수추천08] 재미있게 댄스 기초를 배우고 싶어요'
+  AND trainer.user_id = 'trainer10';
+
+INSERT IGNORE INTO lesson_requests (
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
+)
+SELECT mr.id, requester.id, tp.id, 'REGULAR', 2,
+       '2026-07-01', '18:00:00', '19:00:00',
+       '근지구력을 높이면서 부상 없이 운동하고 싶습니다.', 'ACCEPTED', NOW(), NOW()
+FROM matching_results mr
+    JOIN matching_request req ON mr.matching_id = req.id
+    JOIN members requester ON req.member_id = requester.id
+    JOIN trainer_profiles tp ON mr.trainer_profile_id = tp.id
+    JOIN members trainer ON tp.user_id = trainer.id
+WHERE req.lesson_content = '[복수추천09] 근지구력 중심의 헬스 코칭을 원해요'
+  AND trainer.user_id = 'trainer11';

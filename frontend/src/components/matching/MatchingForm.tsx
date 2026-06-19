@@ -245,6 +245,7 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
                     district,
                     budgetMin,
                     budgetMax,
+                    lessonContent,
                 })
             )
 
