@@ -158,12 +158,11 @@ export default function AdminInquiriesPage() {
                     <table className="w-full text-left">
                         <thead>
                             <tr className="border-b border-surface-container-high bg-surface-container-low">
-                                <th className="px-6 py-4 text-sm font-bold text-on-surface-variant">상태</th>
-                                <th className="px-6 py-4 text-sm font-bold text-on-surface-variant">유형</th>
-                                <th className="px-6 py-4 text-sm font-bold text-on-surface-variant">제목</th>
-                                <th className="px-6 py-4 text-sm font-bold text-on-surface-variant">회원 ID</th>
-                                <th className="px-6 py-4 text-sm font-bold text-on-surface-variant">등록 일시</th>
-                                <th className="px-6 py-4 text-sm font-bold text-on-surface-variant"></th>
+                                <th className="px-6 py-4 text-sm font-bold text-on-surface-variant whitespace-nowrap">상태</th>
+                                <th className="px-6 py-4 text-sm font-bold text-on-surface-variant whitespace-nowrap">유형</th>
+                                <th className="px-6 py-4 text-sm font-bold text-on-surface-variant w-full">제목</th>
+                                <th className="px-6 py-4 text-sm font-bold text-on-surface-variant whitespace-nowrap text-right">회원 ID</th>
+                                <th className="px-6 py-4 text-sm font-bold text-on-surface-variant whitespace-nowrap text-right">등록 일시</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-surface-container-high">
@@ -175,7 +174,6 @@ export default function AdminInquiriesPage() {
                                         <td className="px-6 py-5"><div className="h-4 rounded bg-surface-container animate-pulse" style={{ width: `${55 + (i * 13) % 35}%` }} /></td>
                                         <td className="px-6 py-5"><div className="h-4 w-10 rounded bg-surface-container animate-pulse" /></td>
                                         <td className="px-6 py-5"><div className="h-4 w-28 rounded bg-surface-container animate-pulse" /></td>
-                                        <td className="px-6 py-5"><div className="h-4 w-14 rounded bg-surface-container animate-pulse ml-auto" /></td>
                                     </tr>
                                 ))
                             ) : displayedInquiries.length === 0 ? (
@@ -199,13 +197,10 @@ export default function AdminInquiriesPage() {
                                                 <span className="inline-flex items-center rounded-full bg-error-container px-3 py-1 text-xs font-bold text-on-error-container whitespace-nowrap">답변 대기</span>
                                             )}
                                         </td>
-                                        <td className="px-6 py-5 text-sm font-semibold text-secondary">{TYPE_LABEL[item.type ?? ''] ?? item.type}</td>
-                                        <td className="px-6 py-5 text-body-md font-medium text-on-surface max-w-xs truncate">{item.title}</td>
-                                        <td className="px-6 py-5 text-sm text-on-surface-variant">{item.memberId}</td>
-                                        <td className="px-6 py-5 text-sm text-on-surface-variant whitespace-nowrap">{formatDate(item.createdAt)}</td>
-                                        <td className="px-6 py-5 text-right">
-                                            <span className="text-primary text-sm font-bold group-hover:underline whitespace-nowrap">상세보기</span>
-                                        </td>
+                                        <td className="px-6 py-5 text-sm font-semibold text-secondary whitespace-nowrap">{TYPE_LABEL[item.type ?? ''] ?? item.type}</td>
+                                        <td className="px-6 py-5 text-body-md font-medium text-on-surface">{item.title}</td>
+                                        <td className="px-6 py-5 text-sm text-on-surface-variant whitespace-nowrap text-right">{item.memberId}</td>
+                                        <td className="px-6 py-5 text-sm text-on-surface-variant whitespace-nowrap text-right">{formatDate(item.createdAt)}</td>
                                     </tr>
                                 ))
                             )}

@@ -159,20 +159,14 @@ export default function AdminInquiryDetailPage() {
                         </div>
 
                         {/* 작성자 */}
-                        <div className="flex items-center gap-4 py-4 border-y border-surface-container mb-6">
-                            <div className="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center text-primary shrink-0">
-                                <span className="material-symbols-outlined">person</span>
-                            </div>
-                            <div>
-                                <p className="font-bold text-on-surface text-sm">회원 ID: {inquiry.memberId}</p>
-                                <div className="flex items-center gap-2 mt-0.5">
-                                    {inquiry.status === 'RESOLVED' ? (
-                                        <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">답변 완료</span>
-                                    ) : (
-                                        <span className="inline-flex items-center rounded-full bg-error-container px-2 py-0.5 text-xs font-bold text-on-error-container">답변 대기</span>
-                                    )}
-                                </div>
-                            </div>
+                        <div className="flex items-center gap-3 py-4 border-y border-surface-container mb-6">
+                            <p className="text-sm font-bold text-on-surface-variant">회원 ID <span className="text-on-surface">{inquiry.memberId}</span></p>
+                            <span className="text-outline-variant">·</span>
+                            {inquiry.status === 'RESOLVED' ? (
+                                <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">답변 완료</span>
+                            ) : (
+                                <span className="inline-flex items-center rounded-full bg-error-container px-2 py-0.5 text-xs font-bold text-on-error-container">답변 대기</span>
+                            )}
                         </div>
 
                         {/* 본문 */}

@@ -15,6 +15,7 @@ export default function ProfileEditPage() {
     const router = useRouter()
     const { user } = useAuth()
     const [loading, setLoading] = useState(true)
+    const [hydrated, setHydrated] = useState(false)
     const [saving, setSaving] = useState(false)
     const [activeSection, setActiveSection] = useState('basic')
 
@@ -51,12 +52,17 @@ export default function ProfileEditPage() {
     const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
 
     useEffect(() => {
+        setHydrated(true)
+    }, [])
+
+    useEffect(() => {
+        if (!hydrated) return
         if (!user) {
             router.push('/auth/login')
             return
         }
         fetchMyProfile()
-    }, [user])
+    }, [hydrated, user])
 
     const fetchMyProfile = async () => {
         const client = getAuthClient()
@@ -246,10 +252,47 @@ export default function ProfileEditPage() {
 
     if (loading) {
         return (
-            <main className="pt-16 md:pt-20 flex justify-center py-20">
-                <span className="material-symbols-outlined animate-spin text-primary text-4xl">
-                    progress_activity
-                </span>
+            <main className="pt-16 md:pt-20">
+                <div className="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-md md:py-lg flex flex-col md:flex-row gap-md md:gap-lg">
+                    {/* 사이드바 스켈레톤 */}
+                    <aside className="w-full md:w-64 md:flex-shrink-0">
+                        <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md space-y-md">
+                            <div className="h-6 w-32 rounded bg-surface-container animate-pulse" />
+                            <div className="hidden md:block h-4 w-48 rounded bg-surface-container animate-pulse" />
+                            <div className="flex md:flex-col gap-2">
+                                {[1, 2, 3].map((i) => (
+                                    <div key={i} className="h-10 flex-1 md:flex-none rounded-lg bg-surface-container animate-pulse" />
+                                ))}
+                            </div>
+                        </div>
+                    </aside>
+
+                    {/* 메인 폼 스켈레톤 */}
+                    <div className="flex-grow">
+                        <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md md:p-lg space-y-md">
+                            <div className="flex items-center gap-sm mb-md">
+                                <div className="h-6 w-6 rounded bg-surface-container animate-pulse" />
+                                <div className="h-7 w-24 rounded bg-surface-container animate-pulse" />
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                                {[1, 2].map((i) => (
+                                    <div key={i} className="space-y-xs">
+                                        <div className="h-3 w-16 rounded bg-surface-container animate-pulse" />
+                                        <div className="h-11 rounded-lg bg-surface-container animate-pulse" />
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="space-y-xs">
+                                <div className="h-3 w-20 rounded bg-surface-container animate-pulse" />
+                                <div className="h-24 rounded-lg bg-surface-container animate-pulse" />
+                            </div>
+                            <div className="flex justify-end gap-sm pt-md border-t border-outline-variant">
+                                <div className="h-10 w-16 rounded-lg bg-surface-container animate-pulse" />
+                                <div className="h-10 w-24 rounded-lg bg-surface-container animate-pulse" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
         )
     }
@@ -269,9 +312,9 @@ export default function ProfileEditPage() {
 
     return (
         <main className="pt-16 md:pt-20">
-            <div className="max-w-[1440px] mx-auto px-margin-desktop py-lg flex gap-lg">
+            <div className="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-md md:py-lg flex flex-col md:flex-row gap-md md:gap-lg">
                 {/* 사이드바 */}
-                <aside className="w-64 flex-shrink-0">
+                <aside className="w-full md:w-64 md:flex-shrink-0">
                     <div
                         className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md"
                         style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
@@ -279,14 +322,14 @@ export default function ProfileEditPage() {
                         <h2 className="font-headline-sm text-headline-sm text-on-surface mb-sm">
                             {user?.role === 'TRAINER' ? '트레이너 프로필' : '회원 프로필'}
                         </h2>
-                        <p className="text-body-sm text-on-surface-variant mb-md">
+                        <p className="hidden md:block text-body-sm text-on-surface-variant mb-md">
                             전문적인 프로필을 구축하여 더 많은 고객에게 다가가세요.
                         </p>
-                        <nav className="space-y-xs">
+                        <nav className="flex md:flex-col gap-2 md:gap-xs md:space-y-xs">
                             {sidebarItems.map(({ id, icon, label }) => (
                                 <button
                                     key={id}
-                                    className={`w-full flex items-center gap-sm px-sm py-sm rounded-lg text-label-bold font-label-bold transition-all ${
+                                    className={`flex-1 md:flex-none flex items-center justify-center md:justify-start gap-xs md:gap-sm px-sm py-sm rounded-lg text-label-bold font-label-bold transition-all ${
                                         activeSection === id
                                             ? 'bg-primary text-on-primary'
                                             : 'text-on-surface-variant hover:bg-surface-container'
@@ -296,33 +339,18 @@ export default function ProfileEditPage() {
                                     <span className="material-symbols-outlined text-sm">
                                         {icon}
                                     </span>
-                                    {label}
+                                    <span className="hidden sm:inline">{label}</span>
                                 </button>
                             ))}
                         </nav>
 
-                        {/* 프로필 완성도 */}
-                        <div className="mt-md pt-md border-t border-outline-variant">
-                            <p className="text-label-md font-label-md text-on-surface-variant mb-xs">
-                                프로필 완성도
-                            </p>
-                            <div className="w-full bg-surface-container rounded-full h-2">
-                                <div
-                                    className="bg-primary h-2 rounded-full"
-                                    style={{ width: '60%' }}
-                                ></div>
-                            </div>
-                            <p className="text-label-md font-label-md text-on-surface-variant mt-xs">
-                                60% 완성
-                            </p>
-                        </div>
                     </div>
                 </aside>
 
                 {/* 메인 폼 */}
                 <div className="flex-grow">
                     <div
-                        className="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg"
+                        className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md md:p-lg"
                         style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
                     >
                         {/* 기본 정보 */}
@@ -334,7 +362,7 @@ export default function ProfileEditPage() {
                                     </span>
                                     <h2 className="font-headline-sm text-headline-sm">기본 정보</h2>
                                 </div>
-                                <div className="grid grid-cols-2 gap-md">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-md">
                                     <div className="space-y-xs">
                                         <label className="block text-label-md font-label-md text-on-surface-variant">
                                             성함
@@ -415,7 +443,7 @@ export default function ProfileEditPage() {
                                 <p className="text-body-sm text-on-surface-variant">
                                     중복 선택 가능합니다.
                                 </p>
-                                <div className="grid grid-cols-4 gap-sm">
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-sm">
                                     {SPORTS_LIST.map((sport) => {
                                         const selected =
                                             user?.role === 'TRAINER'
@@ -511,7 +539,7 @@ export default function ProfileEditPage() {
                                         ))}
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-md">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-md">
                                     <div className="space-y-xs">
                                         <label className="block text-label-md font-label-md text-on-surface-variant">
                                             경력 (년차)
@@ -803,7 +831,7 @@ export default function ProfileEditPage() {
                                     <label className="block text-label-md font-label-md text-on-surface-variant">
                                         운동 목표 (중복 선택 가능)
                                     </label>
-                                    <div className="grid grid-cols-4 gap-sm">
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-sm">
                                         {GOALS.map((goal) => (
                                             <button
                                                 key={goal}
@@ -825,13 +853,13 @@ export default function ProfileEditPage() {
                         {/* 저장/취소 버튼 */}
                         <div className="flex justify-end gap-sm mt-lg pt-md border-t border-outline-variant">
                             <button
-                                className="px-lg py-sm border border-outline-variant text-on-surface rounded-lg font-label-bold hover:bg-surface-container transition"
+                                className="px-md py-sm border border-outline-variant text-on-surface rounded-lg font-label-bold hover:bg-surface-container transition whitespace-nowrap"
                                 onClick={() => router.back()}
                             >
                                 취소
                             </button>
                             <button
-                                className="px-lg py-sm bg-primary text-on-primary rounded-lg font-label-bold hover:shadow-lg active:scale-95 transition-all disabled:opacity-50"
+                                className="px-md py-sm bg-primary text-on-primary rounded-lg font-label-bold hover:shadow-lg active:scale-95 transition-all disabled:opacity-50 whitespace-nowrap"
                                 onClick={handleSave}
                                 disabled={saving}
                             >
