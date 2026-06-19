@@ -66,7 +66,7 @@ export default function TrainerDetailPage({ params }: Props) {
     if (loading) {
         return (
             <main className="pt-16 md:pt-20">
-                <div className="max-w-[1440px] mx-auto px-margin-desktop py-lg">
+                <div className="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-md md:py-lg">
                     {/* 뒤로가기 */}
                     <div className="h-5 w-20 rounded bg-surface-container animate-pulse mb-md" />
 
@@ -215,7 +215,7 @@ export default function TrainerDetailPage({ params }: Props) {
     if (trainer.isPublic === false && !isOwner) {
         return (
             <main className="pt-16 md:pt-20">
-                <div className="max-w-[1440px] mx-auto px-margin-desktop py-lg">
+                <div className="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-md md:py-lg">
                     <button
                         className="flex items-center gap-xs text-on-surface-variant mb-md hover:text-on-surface transition"
                         onClick={() => router.back()}
@@ -241,7 +241,7 @@ export default function TrainerDetailPage({ params }: Props) {
 
     return (
         <main className="pt-16 md:pt-20">
-            <div className="max-w-[1440px] mx-auto px-margin-desktop py-lg">
+            <div className="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-md md:py-lg">
                 {/* 뒤로가기 */}
                 <button
                     className="flex items-center gap-xs text-on-surface-variant mb-md hover:text-on-surface transition"
@@ -252,10 +252,10 @@ export default function TrainerDetailPage({ params }: Props) {
                 </button>
 
                 {/* 상단 프로필 섹션 */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-lg mb-lg">
-                    {/* 왼쪽 이미지 */}
-                    <div className="md:col-span-1">
-                        <div className="w-full aspect-square bg-surface-container rounded-2xl flex items-center justify-center overflow-hidden">
+                <div className="flex flex-col sm:grid sm:grid-cols-3 gap-md md:gap-lg mb-md md:mb-lg">
+                    {/* 이미지 */}
+                    <div className="sm:col-span-1">
+                        <div className="w-full max-w-[280px] sm:max-w-none mx-auto aspect-square bg-surface-container rounded-2xl flex items-center justify-center overflow-hidden">
                             {trainer.profileImage ? (
                                 <img
                                     src={getImageUrl(trainer.profileImage)}
@@ -270,8 +270,8 @@ export default function TrainerDetailPage({ params }: Props) {
                         </div>
                     </div>
 
-                    {/* 오른쪽 정보 */}
-                    <div className="md:col-span-2 space-y-md">
+                    {/* 정보 */}
+                    <div className="sm:col-span-2 space-y-3 md:space-y-md">
                         {/* 태그 */}
                         <div className="flex gap-xs flex-wrap">
                             {trainer.sports?.split(',').map((s, i) => (
@@ -306,80 +306,66 @@ export default function TrainerDetailPage({ params }: Props) {
                         </div>
 
                         {/* 소개 */}
-                        <p className="text-body-md text-on-surface-variant">
+                        <p className="text-body-sm md:text-body-md text-on-surface-variant">
                             {trainer.introduction ?? '소개가 없습니다.'}
                         </p>
 
                         {/* 기본 스탯 */}
-                        <div className="flex gap-lg">
+                        <div className="flex gap-md md:gap-lg">
                             <div>
-                                <p className="text-label-md font-label-md text-on-surface-variant">
-                                    경력
-                                </p>
-                                <p className="font-bold text-on-surface">
+                                <p className="text-label-md font-label-md text-on-surface-variant">경력</p>
+                                <p className="font-bold text-on-surface text-body-sm md:text-body-md">
                                     {trainer.careerYears ?? '-'}년 이상
                                 </p>
                             </div>
                             <div>
-                                <p className="text-label-md font-label-md text-on-surface-variant">
-                                    누적 세션
-                                </p>
-                                <p className="font-bold text-on-surface">5,000+ 회</p>
+                                <p className="text-label-md font-label-md text-on-surface-variant">누적 세션</p>
+                                <p className="font-bold text-on-surface text-body-sm md:text-body-md">5,000+ 회</p>
                             </div>
                             <div>
-                                <p className="text-label-md font-label-md text-on-surface-variant">
-                                    활동 지역
-                                </p>
-                                <p className="font-bold text-on-surface">{trainer.region ?? '-'}</p>
+                                <p className="text-label-md font-label-md text-on-surface-variant">활동 지역</p>
+                                <p className="font-bold text-on-surface text-body-sm md:text-body-md">{trainer.region ?? '-'}</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* 하단 상세 섹션 */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-md md:gap-lg">
                     {/* 왼쪽 - 전문분야/레슨유형/레슨수준/수업사진/회원후기 */}
-                    <div className="md:col-span-2 space-y-lg">
+                    <div className="md:col-span-2 space-y-md md:space-y-lg order-2 md:order-1">
                         {/* 전문 분야 + 수업 유형 */}
-                        <div className="grid grid-cols-2 gap-md">
-                            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md">
-                                <div className="flex items-center gap-xs mb-sm">
-                                    <span className="material-symbols-outlined text-primary text-sm">
-                                        fitness_center
-                                    </span>
-                                    <p className="font-label-bold text-on-surface">전문 분야</p>
+                        <div className="grid grid-cols-2 gap-3 md:gap-md">
+                            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-3 md:p-md">
+                                <div className="flex items-center gap-xs mb-2 md:mb-sm">
+                                    <span className="material-symbols-outlined text-primary text-sm">fitness_center</span>
+                                    <p className="font-label-bold text-on-surface text-xs md:text-sm">전문 분야</p>
                                 </div>
-                                <div className="flex flex-wrap gap-xs">
+                                <div className="flex flex-wrap gap-1 md:gap-xs">
                                     {trainer.sports?.split(',').map((s, i) => (
                                         <span
                                             key={i}
-                                            className="text-label-md font-label-md bg-surface-container text-on-surface-variant px-sm py-xs rounded"
+                                            className="text-label-md font-label-md bg-surface-container text-on-surface-variant px-xs md:px-sm py-xs rounded text-xs"
                                         >
                                             {s.trim()}
                                         </span>
                                     )) ?? (
-                                        <span className="text-body-sm text-on-surface-variant">
-                                            미설정
-                                        </span>
+                                        <span className="text-body-sm text-on-surface-variant">미설정</span>
                                     )}
                                 </div>
                             </div>
                             {/* 수업 유형 */}
-                            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md">
-                                <div className="flex items-center gap-xs mb-sm">
-                                    <span className="material-symbols-outlined text-primary text-sm">
-                                        assignment
-                                    </span>
-                                    <p className="font-label-bold text-on-surface">수업 유형</p>
+                            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-3 md:p-md">
+                                <div className="flex items-center gap-xs mb-2 md:mb-sm">
+                                    <span className="material-symbols-outlined text-primary text-sm">assignment</span>
+                                    <p className="font-label-bold text-on-surface text-xs md:text-sm">수업 유형</p>
                                 </div>
                                 <div className="space-y-xs">
                                     <div className="flex items-center gap-xs">
-                                        <span className="material-symbols-outlined text-sm text-primary">
-                                            check_circle
-                                        </span>
-                                        <span className="text-body-sm">
+                                        <span className="material-symbols-outlined text-sm text-primary">check_circle</span>
+                                        <span className="text-body-sm text-xs md:text-sm">
                                             {trainer.lessonType === 'ONE_TO_ONE'
-                                                ? '1:1 퍼스널 트레이닝'
+                                                ? '1:1 퍼스널'
                                                 : trainer.lessonType === 'GROUP'
                                                   ? '그룹 레슨'
                                                   : '온라인 코칭'}
@@ -390,27 +376,19 @@ export default function TrainerDetailPage({ params }: Props) {
                         </div>
 
                         {/* 레슨 수준 */}
-                        <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md">
-                            <div className="flex items-center gap-xs mb-sm">
-                                <span className="material-symbols-outlined text-primary text-sm">
-                                    bar_chart
-                                </span>
+                        <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-3 md:p-md">
+                            <div className="flex items-center gap-xs mb-2 md:mb-sm">
+                                <span className="material-symbols-outlined text-primary text-sm">bar_chart</span>
                                 <p className="font-label-bold text-on-surface">레슨 수준</p>
                             </div>
                             <div className="flex gap-sm flex-wrap">
                                 {trainer.lessonLevel?.split(',').map((level, i) => (
                                     <div key={i} className="flex items-center gap-xs">
-                                        <span className="material-symbols-outlined text-sm text-primary">
-                                            check
-                                        </span>
-                                        <span className="text-body-sm text-on-surface-variant">
-                                            {level.trim()}
-                                        </span>
+                                        <span className="material-symbols-outlined text-sm text-primary">check</span>
+                                        <span className="text-body-sm text-on-surface-variant">{level.trim()}</span>
                                     </div>
                                 )) ?? (
-                                    <span className="text-body-sm text-on-surface-variant">
-                                        미설정
-                                    </span>
+                                    <span className="text-body-sm text-on-surface-variant">미설정</span>
                                 )}
                             </div>
                         </div>
@@ -418,9 +396,7 @@ export default function TrainerDetailPage({ params }: Props) {
                         {/* 수업 사진 */}
                         <div>
                             <div className="flex items-center justify-between mb-sm">
-                                <h2 className="font-headline-sm text-headline-sm text-on-surface">
-                                    수업 사진
-                                </h2>
+                                <h2 className="font-headline-sm text-headline-sm text-on-surface">수업 사진</h2>
                                 {trainer.lessonPhotos && trainer.lessonPhotos.length > 4 && (
                                     <button
                                         className="text-primary text-body-sm font-label-bold hover:underline"
@@ -430,7 +406,7 @@ export default function TrainerDetailPage({ params }: Props) {
                                     </button>
                                 )}
                             </div>
-                            <div className="grid grid-cols-4 gap-sm">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-sm">
                                 {trainer.lessonPhotos && trainer.lessonPhotos.length > 0
                                     ? (showAllPhotos
                                           ? trainer.lessonPhotos
@@ -453,9 +429,7 @@ export default function TrainerDetailPage({ params }: Props) {
                                               key={i}
                                               className="aspect-square bg-surface-container rounded-xl flex items-center justify-center"
                                           >
-                                              <span className="material-symbols-outlined text-outline-variant">
-                                                  image
-                                              </span>
+                                              <span className="material-symbols-outlined text-outline-variant">image</span>
                                           </div>
                                       ))}
                             </div>
@@ -464,9 +438,7 @@ export default function TrainerDetailPage({ params }: Props) {
                         {/* 회원 후기 */}
                         <div>
                             <div className="flex items-center gap-sm mb-md">
-                                <h2 className="font-headline-sm text-headline-sm text-on-surface">
-                                    회원 후기
-                                </h2>
+                                <h2 className="font-headline-sm text-headline-sm text-on-surface">회원 후기</h2>
                                 {rating && rating.reviewCount ? (
                                     <div className="flex items-center gap-xs">
                                         <span
@@ -554,17 +526,15 @@ export default function TrainerDetailPage({ params }: Props) {
                     </div>
 
                     {/* 오른쪽 - 가격/매칭 버튼 (sticky) */}
-                    <div className="md:col-span-1">
+                    <div className="md:col-span-1 order-1 md:order-2">
                         <div
-                            className="sticky top-24 bg-surface-container-lowest border border-outline-variant rounded-2xl p-md space-y-md"
+                            className="md:sticky md:top-24 bg-surface-container-lowest border border-outline-variant rounded-2xl p-md space-y-md"
                             style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
                         >
                             <div>
                                 <p className="text-headline-md font-headline-md text-on-surface">
                                     ₩{trainer.price?.toLocaleString()}
-                                    <span className="text-body-md font-normal text-on-surface-variant ml-xs">
-                                        / 세션
-                                    </span>
+                                    <span className="text-body-md font-normal text-on-surface-variant ml-xs">/ 세션</span>
                                 </p>
                             </div>
                             <div className="space-y-xs">
@@ -583,21 +553,28 @@ export default function TrainerDetailPage({ params }: Props) {
                             <button className="w-full bg-primary text-on-primary py-sm rounded-xl font-label-bold hover:shadow-lg active:scale-95 transition-all">
                                 매칭 요청하기
                             </button>
-                            <button className="w-full border border-outline-variant text-on-surface py-sm rounded-xl font-label-bold hover:bg-surface-container transition flex items-center justify-center gap-xs">
+                            <button
+                                className="w-full border border-outline-variant text-on-surface py-sm rounded-xl font-label-bold hover:bg-surface-container transition flex items-center justify-center gap-xs cursor-pointer"
+                                onClick={() => {
+                                    window.dispatchEvent(new CustomEvent('open-chat-with-trainer', {
+                                        detail: {
+                                            trainerId: trainer.memberId,
+                                            name: trainer.nickname ?? '',
+                                            profileImage: trainer.profileImage ?? '',
+                                        },
+                                    }))
+                                }}
+                            >
                                 <span className="material-symbols-outlined text-sm">chat</span>
                                 {trainer.nickname}와 상담하기
                             </button>
                             <div className="space-y-xs pt-sm border-t border-outline-variant">
                                 <div className="flex items-center gap-xs text-body-sm text-on-surface-variant">
-                                    <span className="material-symbols-outlined text-sm">
-                                        schedule
-                                    </span>
+                                    <span className="material-symbols-outlined text-sm">schedule</span>
                                     평균 응답: 2시간 이내
                                 </div>
                                 <div className="flex items-start gap-xs text-body-sm text-on-surface-variant">
-                                    <span className="material-symbols-outlined text-sm flex-shrink-0 mt-0.5">
-                                        calendar_month
-                                    </span>
+                                    <span className="material-symbols-outlined text-sm flex-shrink-0 mt-0.5">calendar_month</span>
                                     <span>
                                         활동 시간:{' '}
                                         {trainer.availableTimes && trainer.availableTimes.length > 0
@@ -612,17 +589,11 @@ export default function TrainerDetailPage({ params }: Props) {
                                                       SUNDAY: '일',
                                                   }
                                                   const days = trainer.availableTimes
-                                                      .map(
-                                                          (t) =>
-                                                              dayMap[t.dayOfWeek ?? ''] ??
-                                                              t.dayOfWeek
-                                                      )
+                                                      .map((t) => dayMap[t.dayOfWeek ?? ''] ?? t.dayOfWeek)
                                                       .join(', ')
                                                   const first = trainer.availableTimes[0]
-                                                  const startTime =
-                                                      first?.startTime?.substring(0, 5) ?? ''
-                                                  const endTime =
-                                                      first?.endTime?.substring(0, 5) ?? ''
+                                                  const startTime = first?.startTime?.substring(0, 5) ?? ''
+                                                  const endTime = first?.endTime?.substring(0, 5) ?? ''
                                                   return `${days} · ${startTime} - ${endTime}`
                                               })()
                                             : '미설정'}

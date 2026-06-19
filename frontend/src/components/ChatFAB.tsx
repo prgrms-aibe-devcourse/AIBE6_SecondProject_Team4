@@ -172,6 +172,30 @@ export default function ChatFAB() {
         return () => window.removeEventListener('open-chat-room', handler)
     }, [user])
 
+    // 트레이너 상세 페이지 상담하기 버튼에서 채팅 열기
+    useEffect(() => {
+        const handler = async (e: Event) => {
+            const { trainerId, name, profileImage } = (e as CustomEvent<{ trainerId: number; name: string; profileImage: string }>).detail
+            if (!user || !trainerId) return
+            const { data: room } = await apiClient.POST('/api/chat', {
+                body: { trainerId, userId: user.memberId },
+                headers: { Authorization: `Bearer ${user.token}` },
+            })
+            if (!room) return
+            await openChat({
+                roomId: room.chatRoomId ?? 0,
+                name,
+                src: profileImage ?? '',
+                lastMsg: '',
+                time: '',
+                unread: 0,
+                lastMessageAt: '',
+            })
+        }
+        window.addEventListener('open-chat-with-trainer', handler)
+        return () => window.removeEventListener('open-chat-with-trainer', handler)
+    }, [user])
+
     // 로그인 시 초기 배지 + WebSocket 실시간 구독
     useEffect(() => {
         if (!user) return
@@ -366,10 +390,10 @@ export default function ChatFAB() {
     )
 
     return (
-        <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end gap-4">
+        <div className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-50 flex flex-col items-end gap-4">
             {/* 채팅 목록 패널 */}
             {view === 'list' && (
-                <div className="w-[360px] bg-surface-container-lowest rounded-2xl shadow-2xl border border-outline-variant overflow-hidden flex flex-col">
+                <div className="w-[calc(100vw-2rem)] sm:w-[360px] bg-surface-container-lowest rounded-2xl shadow-2xl border border-outline-variant overflow-hidden flex flex-col">
                     <div className="bg-primary p-4 text-on-primary flex items-center justify-between">
                         <h3 className="font-headline-sm text-headline-sm">채팅</h3>
                         <button
@@ -433,7 +457,7 @@ export default function ChatFAB() {
 
             {/* 새 채팅 (트레이너 선택) */}
             {view === 'new' && (
-                <div className="w-[360px] bg-surface-container-lowest rounded-2xl shadow-2xl border border-outline-variant overflow-hidden flex flex-col">
+                <div className="w-[calc(100vw-2rem)] sm:w-[360px] bg-surface-container-lowest rounded-2xl shadow-2xl border border-outline-variant overflow-hidden flex flex-col">
                     <div className="bg-primary p-4 text-on-primary space-y-3">
                         <div className="flex items-center gap-2">
                             <button
@@ -489,7 +513,7 @@ export default function ChatFAB() {
 
             {/* 개별 채팅창 */}
             {view === 'chat' && selectedChat && (
-                <div className="w-[360px] bg-surface-container-lowest rounded-2xl shadow-2xl border border-outline-variant overflow-hidden flex flex-col">
+                <div className="w-[calc(100vw-2rem)] sm:w-[360px] bg-surface-container-lowest rounded-2xl shadow-2xl border border-outline-variant overflow-hidden flex flex-col">
                     <div className="bg-primary p-4 flex items-center justify-between text-on-primary">
                         <div className="flex items-center gap-3">
                             <button
