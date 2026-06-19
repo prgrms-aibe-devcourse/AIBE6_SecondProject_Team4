@@ -156,7 +156,12 @@ function ResultMessage({ icon, title, description, showAction = true }: ResultMe
             <span className="material-symbols-outlined text-5xl text-outline">{icon}</span>
             <h2 className="mt-md font-headline-sm text-headline-sm text-on-surface">{title}</h2>
             {description && (
-                <p className="mt-xs max-w-lg text-body-md text-on-surface-variant">{description}</p>
+                <p
+                    className="mt-xs text-body-md text-on-surface-variant"
+                    style={{ width: '100%', maxWidth: '32rem' }}
+                >
+                    {description}
+                </p>
             )}
             {showAction && (
                 <Link

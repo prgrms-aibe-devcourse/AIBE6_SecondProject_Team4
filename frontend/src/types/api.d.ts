@@ -342,6 +342,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ai/matching/parse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** AI 한 줄 매칭 조건 해석 */
+        post: operations["parseMatchingQuery"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/inquiries/{inquiryId}/answer": {
         parameters: {
             query?: never;
@@ -779,6 +796,8 @@ export interface components {
             goal?: string;
         };
         AvailableTimeRequest: {
+            /** Format: int64 */
+            id?: number;
             dayOfWeek?: string;
             startTime?: string;
             endTime?: string;
@@ -890,6 +909,9 @@ export interface components {
             preferredEndTime?: string;
             trainerStartTime?: string;
             trainerEndTime?: string;
+            /** Format: int32 */
+            aiRank?: number;
+            aiReason?: string;
         };
         LessonRequestCreateRequest: {
             /** Format: int64 */
@@ -1026,6 +1048,26 @@ export interface components {
             isRead?: boolean;
             /** Format: date-time */
             createdAt?: string;
+        };
+        AiMatchingParseRequest: {
+            query: string;
+        };
+        AiMatchingParseResponse: {
+            sports?: string;
+            level?: string;
+            lessonType?: string;
+            region?: string;
+            /** Format: int32 */
+            budgetMin?: number;
+            /** Format: int32 */
+            budgetMax?: number;
+            preferredTimes?: components["schemas"]["PreferredTime"][];
+            lessonContent?: string;
+        };
+        PreferredTime: {
+            dayOfWeek?: string;
+            startTime?: string;
+            endTime?: string;
         };
         InquiryAnswerRequest: {
             answer?: string;
@@ -1893,6 +1935,30 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    parseMatchingQuery: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiMatchingParseRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["AiMatchingParseResponse"];
+                };
             };
         };
     };

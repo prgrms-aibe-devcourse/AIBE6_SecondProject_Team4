@@ -1,5 +1,7 @@
 package com.fitmate.matching.service;
 
+import com.fitmate.ai.dto.AiRankingResult;
+import com.fitmate.ai.service.AiMatchingRecommendationService;
 import com.fitmate.matching.dto.MatchingResultResponse;
 import com.fitmate.matching.entity.MatchingResult;
 import com.fitmate.trainer.entity.TrainerAvailableTime;
@@ -25,6 +27,9 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Arrays;
 import java.util.function.Function;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +42,7 @@ public class MatchingService {
     private final MemberRepository memberRepository;
     private final TrainerProfileRepository trainerProfileRepository;
     private final TrainerAvailableTimeRepository trainerAvailableTimeRepository;
+    private final AiMatchingRecommendationService aiMatchingRecommendationService;
 
     @Transactional
     public MatchingCreateResponse createMatchingRequest(String userId, MatchingRequestDto requestDto) {
@@ -69,62 +75,186 @@ public class MatchingService {
 
         return new MatchingCreateResponse(savedMatchingRequest.getId());
     }
-// 매칭 요청을 불러와서 결과 생성
-    @Transactional
-    public List<MatchingResultResponse> createMatchingResults(Long matchingId) {
-        MatchingRequest matchingRequest = matchingRequestRepository.findById(matchingId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매칭 요청입니다."));
+// 매칭 요청 조건을 비교하고 AI 추천 결과 생성
+@Transactional
+public List<MatchingResultResponse> createMatchingResults(
+        Long matchingId
+) {
+    MatchingRequest matchingRequest =
+            matchingRequestRepository.findById(matchingId)
+                    .orElseThrow(
+                            () -> new IllegalArgumentException(
+                                    "존재하지 않는 매칭 요청입니다."
+                            )
+                    );
 
-        List<MatchingResult> existingResults = matchingResultRepository.findByMatchingRequestId(matchingId);
-        if (!existingResults.isEmpty()) {
-            return existingResults.stream()
-                    .map(this::toMatchingResultResponse)
-                    .toList();
+    // 이미 생성된 결과가 있으면 다시 생성하지 않고 조회
+    List<MatchingResult> existingResults =
+            matchingResultRepository.findByMatchingRequestId(
+                    matchingId
+            );
+
+    if (!existingResults.isEmpty()) {
+        return toSortedResponses(existingResults);
+    }
+
+    // 사용자가 입력한 선호 시간 조회
+    List<MatchingPreferredTime> preferredTimes =
+            matchingPreferredTimeRepository
+                    .findByMatchingRequestId(matchingId);
+
+    // 등록된 전체 트레이너 프로필 조회
+    List<TrainerProfile> trainerProfiles =
+            trainerProfileRepository.findAll();
+
+    List<MatchingResult> matchingResults =
+            new ArrayList<>();
+
+    for (TrainerProfile trainerProfile : trainerProfiles) {
+
+        // 사용자가 자신의 트레이너 프로필과 매칭되지 않도록 제외
+        if (Objects.equals(
+                trainerProfile.getMember().getId(),
+                matchingRequest.getMember().getId()
+        )) {
+            continue;
         }
-        //원하는 시간 대조
-        List<MatchingPreferredTime> preferredTimes =
-                matchingPreferredTimeRepository.findByMatchingRequestId(matchingId);
 
-        //트레이너 프로필
-        List<TrainerProfile> trainerProfiles = trainerProfileRepository.findAll();
-        List<MatchingResult> matchingResults = new ArrayList<>();
+        // 종목, 수준, 유형, 지역, 가격 비교
+        if (!matchesBasicConditions(
+                matchingRequest,
+                trainerProfile
+        )) {
+            continue;
+        }
 
-        for (TrainerProfile trainerProfile : trainerProfiles) {
-            if (Objects.equals(trainerProfile.getMember().getId(), matchingRequest.getMember().getId())) {
-                continue;
-            }
+        // 현재 트레이너의 활동 가능 시간 조회
+        List<TrainerAvailableTime> availableTimes =
+                trainerAvailableTimeRepository
+                        .findByTrainerProfileId(
+                                trainerProfile.getId()
+                        );
 
-            if (!matchesBasicConditions(matchingRequest, trainerProfile)) {
-                continue;
-            }
-            //트레이너 가능 시간 가져오기
-            List<TrainerAvailableTime> availableTimes =
-                    trainerAvailableTimeRepository.findByTrainerProfileId(trainerProfile.getId());
+        /*
+         * 선호 시간과 트레이너 가능 시간을 비교합니다.
+         * 한 트레이너가 여러 시간에 맞더라도 결과는 한 번만 생성합니다.
+         */
+        MatchingResult matchingResult =
+                findFirstMatchingResult(
+                        matchingRequest,
+                        trainerProfile,
+                        preferredTimes,
+                        availableTimes
+                );
 
-            for (MatchingPreferredTime preferredTime : preferredTimes) {
-                for (TrainerAvailableTime availableTime : availableTimes) {
-                    if (matchesTime(preferredTime, availableTime)) {
-                       //조건과 시간이 맞으면 matching_results에 넣을 객체 생성
-                                 matchingResults.add(MatchingResult.builder()
-                                .matchingRequest(matchingRequest)
-                                .trainerProfile(trainerProfile)
-                                .preferredTime(preferredTime)
-                                .trainerAvailableTime(availableTime)
-                                .build());
-                    }
+        if (matchingResult != null) {
+            matchingResults.add(matchingResult);
+        }
+    }
+
+    // DB 조건에 맞는 트레이너가 없는 경우
+    if (matchingResults.isEmpty()) {
+        return List.of();
+    }
+
+    // DB 조건을 통과한 트레이너를 Gemini가 재정렬
+    List<AiRankingResult> aiRankings =
+            aiMatchingRecommendationService.rankCandidates(
+                    matchingRequest,
+                    matchingResults
+            );
+
+    // Gemini 추천 순위와 추천 사유를 엔티티에 적용
+    applyAiRankings(
+            matchingResults,
+            aiRankings
+    );
+
+    // AI 추천 정보까지 matching_results 테이블에 저장
+    List<MatchingResult> savedResults =
+            matchingResultRepository.saveAll(matchingResults);
+
+    // AI 추천 순위대로 정렬해서 프론트에 응답
+    return toSortedResponses(savedResults);
+}
+
+    private MatchingResult findFirstMatchingResult(
+            MatchingRequest matchingRequest,
+            TrainerProfile trainerProfile,
+            List<MatchingPreferredTime> preferredTimes,
+            List<TrainerAvailableTime> availableTimes
+    ) {
+        for (MatchingPreferredTime preferredTime : preferredTimes) {
+            for (TrainerAvailableTime availableTime : availableTimes) {
+
+                if (matchesTime(preferredTime, availableTime)) {
+                    return MatchingResult.builder()
+                            .matchingRequest(matchingRequest)
+                            .trainerProfile(trainerProfile)
+                            .preferredTime(preferredTime)
+                            .trainerAvailableTime(availableTime)
+                            .build();
                 }
             }
         }
-//matching_results에 저장 후 응답 DTO로 변환
-        return matchingResultRepository.saveAll(matchingResults).stream()
+
+        return null;
+    }
+
+    private void applyAiRankings(
+            List<MatchingResult> matchingResults,
+            List<AiRankingResult> aiRankings
+    ) {
+        Map<Long, AiRankingResult> rankingByTrainerId =
+                new HashMap<>();
+
+        for (AiRankingResult ranking : aiRankings) {
+            rankingByTrainerId.put(
+                    ranking.trainerProfileId(),
+                    ranking
+            );
+        }
+
+        for (MatchingResult matchingResult : matchingResults) {
+            Long trainerProfileId =
+                    matchingResult.getTrainerProfile().getId();
+
+            AiRankingResult ranking =
+                    rankingByTrainerId.get(trainerProfileId);
+
+            if (ranking != null) {
+                matchingResult.applyAiRecommendation(
+                        ranking.rank(),
+                        ranking.reason()
+                );
+            }
+        }
+    }
+    public List<MatchingResultResponse> getMatchingResults(
+            Long matchingId
+    ) {
+        List<MatchingResult> matchingResults =
+                matchingResultRepository
+                        .findByMatchingRequestId(matchingId);
+
+        return toSortedResponses(matchingResults);
+    }
+    private List<MatchingResultResponse> toSortedResponses(
+            List<MatchingResult> matchingResults
+    ) {
+        return matchingResults.stream()
+                .sorted(
+                        Comparator.comparing(
+                                MatchingResult::getAiRank,
+                                Comparator.nullsLast(
+                                        Integer::compareTo
+                                )
+                        )
+                )
                 .map(this::toMatchingResultResponse)
                 .toList();
     }
-    public List<MatchingResultResponse> getMatchingResults(Long matchingId) {
-        return matchingResultRepository.findByMatchingRequestId(matchingId).stream()
-                .map(this::toMatchingResultResponse)
-                .toList();
-    }
+
     // 사용자 요청 조건과 트레이너 프로필 조건 비교
     private boolean matchesBasicConditions(
             MatchingRequest request,
@@ -216,11 +346,20 @@ public class MatchingService {
                 && !availableEndTime.isBefore(preferredEndTime);
     }
 
-    private MatchingResultResponse toMatchingResultResponse(MatchingResult matchingResult) {
-        TrainerProfile trainerProfile = matchingResult.getTrainerProfile();
-        Member trainerMember = trainerProfile.getMember();
-        MatchingPreferredTime preferredTime = matchingResult.getPreferredTime();
-        TrainerAvailableTime trainerAvailableTime = matchingResult.getTrainerAvailableTime();
+    private MatchingResultResponse toMatchingResultResponse(
+            MatchingResult matchingResult
+    ) {
+        TrainerProfile trainerProfile =
+                matchingResult.getTrainerProfile();
+
+        Member trainerMember =
+                trainerProfile.getMember();
+
+        MatchingPreferredTime preferredTime =
+                matchingResult.getPreferredTime();
+
+        TrainerAvailableTime trainerAvailableTime =
+                matchingResult.getTrainerAvailableTime();
 
         return new MatchingResultResponse(
                 matchingResult.getId(),
@@ -237,7 +376,11 @@ public class MatchingService {
                 preferredTime.getStartTime(),
                 preferredTime.getEndTime(),
                 trainerAvailableTime.getStartTime(),
-                trainerAvailableTime.getEndTime()
+                trainerAvailableTime.getEndTime(),
+
+                // matching_results에 저장된 AI 추천 정보
+                matchingResult.getAiRank(),
+                matchingResult.getAiReason()
         );
     }
 

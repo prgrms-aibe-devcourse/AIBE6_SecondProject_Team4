@@ -10,23 +10,40 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
+
     List<Review> findByTrainerId(Long trainerId);
+
     Optional<Review> findByMatchingRequestId(Long matchingRequestId);
 
     // 트레이너별 평균 평점
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.trainer.id = :trainerId")
     Double findAverageRatingByTrainerId(Long trainerId);
 
-    // ReviewRepository에 추가
-    @Query("SELECT r.rating, COUNT(r) FROM Review r WHERE r.trainer.id = :trainerId GROUP BY r.rating")
+    @Query("""
+            SELECT r.rating, COUNT(r)
+            FROM Review r
+            WHERE r.trainer.id = :trainerId
+            GROUP BY r.rating
+            """)
     List<Object[]> countRatingDistributionByTrainerId(Long trainerId);
 
     // 트레이너별 후기 개수
     long countByTrainerId(Long trainerId);
 
-    // ReviewRepository에 추가
     List<Review> findByReviewerId(Long reviewerId);
 
-    Page<Review> findByReviewerId(Long reviewerId, Pageable pageable);
-    Page<Review> findByTrainerId(Long trainerId, Pageable pageable);
+    Page<Review> findByReviewerId(
+            Long reviewerId,
+            Pageable pageable
+    );
+
+    Page<Review> findByTrainerId(
+            Long trainerId,
+            Pageable pageable
+    );
+
+    // AI 추천 사유 생성에 사용할 최근 리뷰 3개
+    List<Review> findTop3ByTrainerIdOrderByCreatedAtDesc(
+            Long trainerId
+    );
 }
