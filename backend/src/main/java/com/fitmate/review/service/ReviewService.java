@@ -25,6 +25,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.fitmate.review.dto.PopularTrainerResponse;
+import com.fitmate.review.dto.RealReviewResponse;
+import com.fitmate.trainer.repository.TrainerProfileRepository;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -41,6 +45,7 @@ public class ReviewService {
     private final MatchingRequestRepository matchingRequestRepository;
     private final AlertService alertService;
     private final LessonRequestRepository lessonRequestRepository;
+    private final TrainerProfileRepository trainerProfileRepository;
 
     // 후기 작성
     @Transactional
@@ -152,6 +157,52 @@ public class ReviewService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         return reviewRepository.findByTrainerId(trainer.getId(), pageable)
                 .map(ReviewResponse::from);
+    }
+
+    // 리얼 후기 (메인 페이지) — 별점 4↑ + 내용 15자↑ 최신 N개
+    public List<RealReviewResponse> getRealReviews(int size) {
+        Pageable pageable = PageRequest.of(0, size);
+        return reviewRepository.findRealReviews(pageable).stream()
+                .map(r -> new RealReviewResponse(
+                        r.getId(),
+                        r.getReviewer().getNickname(),
+                        r.getTrainer().getNickname(),
+                        r.getRating(),
+                        r.getContent(),
+                        r.getCreatedAt() == null ? null : r.getCreatedAt().toString()
+                ))
+                .toList();
+    }
+
+    // 인기 트레이너 (메인 페이지) — 평점 높은 순 → 후기 많은 순 N명
+    public List<PopularTrainerResponse> getPopularTrainers(int size) {
+        Pageable pageable = PageRequest.of(0, size);
+        List<Object[]> rows = reviewRepository.findPopularTrainers(pageable);
+
+        List<PopularTrainerResponse> result = new ArrayList<>();
+        for (Object[] row : rows) {
+            Long trainerId = (Long) row[0];
+            double avg = row[1] == null ? 0.0 : Math.round(((Double) row[1]) * 10) / 10.0;
+            long count = (Long) row[2];
+
+            Member trainer = memberRepository.findById(trainerId).orElse(null);
+            if (trainer == null) continue;
+
+            // 트레이너 프로필 (종목, 프로필 id) — 없을 수도 있으니 방어
+            TrainerProfile profile = trainerProfileRepository.findByMemberId(trainerId).orElse(null);
+
+            result.add(new PopularTrainerResponse(
+                    trainerId,
+                    profile != null ? profile.getId() : null,
+                    trainer.getNickname(),
+                    trainer.getProfileImage(),
+                    profile != null ? profile.getSports() : null,
+                    trainer.getRegion(),   // region 은 Member 에 있음
+                    avg,
+                    count
+            ));
+        }
+        return result;
     }
 
     // 작성 가능한 후기 조회 (매칭 성사 + 미작성)
