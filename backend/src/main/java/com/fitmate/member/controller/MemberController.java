@@ -58,9 +58,10 @@ public class MemberController {
 
     @PatchMapping("/me/role")
     public ResponseEntity<Void> changeRole(
-            @AuthenticationPrincipal String userId,
+            Authentication authentication,
             @Valid @RequestBody RoleChangeRequest request
     ) {
+        String userId = authentication.getName();
         memberService.changeRole(userId, request);
         return ResponseEntity.ok().build();
     }

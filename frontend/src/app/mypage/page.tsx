@@ -1,12 +1,43 @@
 'use client'
 
-import MyReviewList from '@/components/MyReviewList'
-import { useAuth } from '@/context/AuthContext'
-import type { components } from '@/types/api'
-import { getAuthClient, getImageUrl } from '@/utils/apiClient'
-import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { Fragment, useEffect, useRef, useState } from 'react'
+import MyReviewList from '@/components/MyReviewList';
+import { useAuth } from '@/context/AuthContext';
+import type { components } from '@/types/api';
+import { getAuthClient, getImageUrl } from '@/utils/apiClient';
+import { Fragment, useEffect, useRef, useState } from 'react';
+
+
+
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 type TrainerProfile = components['schemas']['TrainerProfileResponse']
 type UserProfile = components['schemas']['UserProfileResponse']
@@ -374,6 +405,13 @@ export default function MyPage() {
     const [loading, setLoading] = useState(true)
     const [hydrated, setHydrated] = useState(false)
     const [activeTab, setActiveTab] = useState('matching')
+    const [showPasswordModal, setShowPasswordModal] = useState(false)
+    const [pwCurrent, setPwCurrent] = useState('')
+    const [pwNew, setPwNew] = useState('')
+    const [pwConfirm, setPwConfirm] = useState('')
+    const [pwError, setPwError] = useState('')
+    const [pwSuccess, setPwSuccess] = useState(false)
+    const [pwLoading, setPwLoading] = useState(false)
 
     useEffect(() => {
         setHydrated(true)
@@ -716,24 +754,204 @@ export default function MyPage() {
                                     boxShadow: 'inset 0 2px 4px rgba(116,119,129,0.08)',
                                 }}
                             >
-                                <button className="flex w-full items-center justify-between border-b border-outline-variant p-md transition-colors hover:bg-white/50">
+                                {/* 비밀번호 변경 버튼 */}
+                                <button
+                                    className="flex w-full items-center justify-between border-b border-outline-variant p-md transition-colors hover:bg-white/50"
+                                    onClick={() => {
+                                        setPwCurrent('')
+                                        setPwNew('')
+                                        setPwConfirm('')
+                                        setPwError('')
+                                        setPwSuccess(false)
+                                        setShowPasswordModal(true)
+                                    }}
+                                >
                                     <div className="flex items-center gap-md">
-                    <span className="material-symbols-outlined text-on-surface-variant">
-                      lock
-                    </span>
+                                        <span className="material-symbols-outlined text-on-surface-variant">lock</span>
                                         <div className="text-left">
-                                            <p className="text-label-bold text-on-surface">
-                                                비밀번호 및 보안
-                                            </p>
-                                            <p className="text-body-sm text-on-surface-variant">
-                                                비밀번호 변경 및 2단계 인증 설정
-                                            </p>
+                                            <p className="text-label-bold text-on-surface">비밀번호 변경</p>
+                                            <p className="text-body-sm text-on-surface-variant">현재 비밀번호 확인 후 새 비밀번호로 변경</p>
                                         </div>
                                     </div>
-                                    <span className="material-symbols-outlined text-outline">
-                    chevron_right
-                  </span>
+                                    <span className="material-symbols-outlined text-outline">chevron_right</span>
                                 </button>
+
+                                {/* 비밀번호 변경 모달 */}
+                                {showPasswordModal && (
+                                    <div
+                                        style={{
+                                            position: 'fixed', inset: 0,
+                                            background: 'rgba(0,0,0,0.4)',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            zIndex: 1000, padding: '16px',
+                                        }}
+                                        onClick={() => setShowPasswordModal(false)}
+                                    >
+                                        <div
+                                            style={{
+                                                background: 'white', borderRadius: '16px', padding: '32px',
+                                                width: '100%', maxWidth: '400px',
+                                                boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                                            }}
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            {pwSuccess ? (
+                                                <div style={{ textAlign: 'center', padding: '16px 0' }}>
+                                <span
+                                    className="material-symbols-outlined"
+                                    style={{ fontSize: '48px', color: '#0057CD', display: 'block', marginBottom: '16px' }}
+                                >
+                                    check_circle
+                                </span>
+                                                    <p style={{ fontSize: '18px', fontWeight: 700, color: '#0B1C30', marginBottom: '8px' }}>
+                                                        비밀번호가 변경되었습니다
+                                                    </p>
+                                                    <p style={{ fontSize: '14px', color: '#424654', marginBottom: '24px' }}>
+                                                        다음 로그인부터 새 비밀번호를 사용해 주세요.
+                                                    </p>
+                                                    <button
+                                                        onClick={() => setShowPasswordModal(false)}
+                                                        style={{
+                                                            width: '100%', padding: '12px',
+                                                            background: '#0057CD', color: 'white',
+                                                            border: 'none', borderRadius: '10px',
+                                                            fontSize: '15px', fontWeight: 600, cursor: 'pointer',
+                                                        }}
+                                                    >
+                                                        확인
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+                                                        <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0B1C30', margin: 0 }}>
+                                                            비밀번호 변경
+                                                        </h2>
+                                                        <button
+                                                            onClick={() => setShowPasswordModal(false)}
+                                                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+                                                        >
+                                                            <span className="material-symbols-outlined" style={{ color: '#9097a8' }}>close</span>
+                                                        </button>
+                                                    </div>
+
+                                                    <form
+                                                        onSubmit={async (e) => {
+                                                            e.preventDefault()
+                                                            e.stopPropagation()
+                                                            setPwError('')
+
+                                                            if (pwNew !== pwConfirm) {
+                                                                setPwError('새 비밀번호가 일치하지 않습니다.')
+                                                                return
+                                                            }
+                                                            if (pwNew.length < 8) {
+                                                                setPwError('새 비밀번호는 8자 이상이어야 합니다.')
+                                                                return
+                                                            }
+
+                                                            setPwLoading(true)
+                                                            try {
+                                                                const stored = localStorage.getItem('fitmate_user')
+                                                                const token = stored ? JSON.parse(stored).token : null
+
+                                                                const res = await fetch('http://localhost:8080/api/members/me/password', {
+                                                                    method: 'PATCH',
+                                                                    credentials: 'include',
+                                                                    headers: {
+                                                                        'Content-Type': 'application/json',
+                                                                        'Authorization': `Bearer ${token}`,
+                                                                    },
+                                                                    body: JSON.stringify({
+                                                                        currentPassword: pwCurrent,
+                                                                        newPassword: pwNew,
+                                                                    }),
+                                                                })
+
+                                                                if (!res.ok) {
+                                                                    setPwError('현재 비밀번호가 올바르지 않습니다.')
+                                                                    return
+                                                                }
+                                                                setPwSuccess(true)
+                                                                setTimeout(() => {
+                                                                    setShowPasswordModal(false)
+                                                                    logout()
+                                                                    router.push('/auth/login')
+                                                                }, 1500)
+                                                            } catch {
+                                                                setPwError('서버 연결에 실패했습니다.')
+                                                            } finally {
+                                                                setPwLoading(false)
+                                                            }
+                                                        }}
+                                                        style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+                                                    >
+                                                        {[
+                                                            { label: '현재 비밀번호', value: pwCurrent, onChange: setPwCurrent, placeholder: '현재 비밀번호를 입력하세요' },
+                                                            { label: '새 비밀번호', value: pwNew, onChange: setPwNew, placeholder: '새 비밀번호를 입력하세요 (8자 이상)' },
+                                                            { label: '새 비밀번호 확인', value: pwConfirm, onChange: setPwConfirm, placeholder: '새 비밀번호를 다시 입력하세요' },
+                                                        ].map(({ label, value, onChange, placeholder }) => (
+                                                            <div key={label} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                                                <label style={{ fontSize: '13px', fontWeight: 500, color: '#424655' }}>{label}</label>
+                                                                <input
+                                                                    type="password"
+                                                                    value={value}
+                                                                    onChange={(e) => onChange(e.target.value)}
+                                                                    placeholder={placeholder}
+                                                                    required
+                                                                    style={{
+                                                                        width: '100%', border: '1px solid #c2c6d8',
+                                                                        borderRadius: '10px', padding: '10px 14px',
+                                                                        fontSize: '14px', outline: 'none', boxSizing: 'border-box',
+                                                                    }}
+                                                                    onFocus={(e) => (e.target.style.borderColor = '#0057cd')}
+                                                                    onBlur={(e) => (e.target.style.borderColor = '#c2c6d8')}
+                                                                />
+                                                            </div>
+                                                        ))}
+
+                                                        {pwError && (
+                                                            <p style={{ fontSize: '13px', color: '#ba1a1a', textAlign: 'center', margin: 0 }}>
+                                                                {pwError}
+                                                            </p>
+                                                        )}
+
+                                                        <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setShowPasswordModal(false)}
+                                                                style={{
+                                                                    flex: 1, padding: '12px', background: 'white',
+                                                                    color: '#424654', border: '1px solid #c2c6d8',
+                                                                    borderRadius: '10px', fontSize: '15px',
+                                                                    fontWeight: 600, cursor: 'pointer',
+                                                                }}
+                                                            >
+                                                                취소
+                                                            </button>
+                                                            <button
+                                                                type="submit"
+                                                                disabled={pwLoading}
+                                                                style={{
+                                                                    flex: 1, padding: '12px',
+                                                                    background: pwLoading ? '#93b4e8' : '#0057CD',
+                                                                    color: 'white', border: 'none',
+                                                                    borderRadius: '10px', fontSize: '15px',
+                                                                    fontWeight: 600,
+                                                                    cursor: pwLoading ? 'not-allowed' : 'pointer',
+                                                                }}
+                                                            >
+                                                                {pwLoading ? '변경 중...' : '변경하기'}
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* 로그아웃 */}
                                 <button
                                     className="group flex w-full items-center justify-between p-md transition-colors hover:bg-error-container/20"
                                     onClick={() => {
@@ -745,14 +963,12 @@ export default function MyPage() {
                                         <span className="material-symbols-outlined">logout</span>
                                         <div className="text-left">
                                             <p className="text-label-bold">로그아웃</p>
-                                            <p className="text-body-sm opacity-80">
-                                                계정에서 안전하게 로그아웃합니다
-                                            </p>
+                                            <p className="text-body-sm opacity-80">계정에서 안전하게 로그아웃합니다</p>
                                         </div>
                                     </div>
                                     <span className="material-symbols-outlined text-error opacity-0 transition-opacity group-hover:opacity-100">
                     arrow_forward
-                  </span>
+                </span>
                                 </button>
                             </div>
                         </section>
