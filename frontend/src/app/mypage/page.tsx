@@ -118,22 +118,22 @@ function InquirySection() {
             </div>
 
             {/* 요약 카드 */}
-            <div className="grid grid-cols-3 gap-md">
+            <div className="grid grid-cols-3 gap-2 sm:gap-md">
                 {[
                     { label: '전체 문의', value: totalElements, icon: 'description', color: 'text-on-surface', bg: 'bg-surface-container' },
                     { label: '답변 완료', value: totalResolved, icon: 'task_alt', color: 'text-primary', bg: 'bg-primary/10' },
                     { label: '답변 대기', value: totalPending, icon: 'pending', color: 'text-on-surface-variant', bg: 'bg-surface-container-high' },
                 ].map(({ label, value, icon, color, bg }) => (
-                    <div key={label} className="bg-surface-container-lowest p-md rounded-xl border border-outline-variant flex items-center justify-between" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
+                    <div key={label} className="bg-surface-container-lowest p-3 sm:p-md rounded-xl border border-outline-variant flex items-center justify-between" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
                         <div>
-                            <p className="text-body-sm text-on-surface-variant mb-1">{label}</p>
+                            <p className="text-[11px] sm:text-body-sm text-on-surface-variant mb-1 whitespace-nowrap">{label}</p>
                             {loading ? (
-                                <div className="h-7 w-10 rounded-md bg-surface-container animate-pulse mt-1" />
+                                <div className="h-6 w-8 sm:h-7 sm:w-10 rounded-md bg-surface-container animate-pulse mt-1" />
                             ) : (
-                                <p className={`text-headline-md font-bold ${color}`}>{value}</p>
+                                <p className={`text-base sm:text-headline-md font-bold ${color}`}>{value}</p>
                             )}
                         </div>
-                        <div className={`w-11 h-11 rounded-full ${bg} flex items-center justify-center`}>
+                        <div className={`hidden sm:flex w-11 h-11 rounded-full ${bg} items-center justify-center`}>
                             <span className={`material-symbols-outlined ${color}`}>{icon}</span>
                         </div>
                     </div>
@@ -438,6 +438,76 @@ export default function MyPage() {
     const profile = user?.role === 'TRAINER' ? trainerProfile : userProfile
 
     if (!hydrated || loading) {
+        const skeletonTab = searchParams.get('tab') ?? 'matching'
+
+        const contentSkeleton = (() => {
+            if (skeletonTab === 'reviews') {
+                return (
+                    <div className="flex flex-col gap-md">
+                        {/* 탭 헤더 스켈레톤 */}
+                        <div className="flex items-end justify-between border-b border-outline-variant pb-0">
+                            <div className="flex gap-md pb-2.5">
+                                <div className="h-6 w-20 rounded bg-surface-container animate-pulse" />
+                                <div className="h-6 w-28 rounded bg-surface-container animate-pulse" />
+                            </div>
+                            <div className="mb-2 h-8 w-32 rounded-full bg-surface-container animate-pulse" />
+                        </div>
+                        {/* 리뷰 카드 스켈레톤 */}
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
+                                <div className="mb-4 flex items-start justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-12 w-12 flex-shrink-0 rounded-full bg-surface-container animate-pulse" />
+                                        <div className="space-y-2">
+                                            <div className="h-4 w-24 rounded bg-surface-container animate-pulse" />
+                                            <div className="h-4 w-32 rounded bg-surface-container animate-pulse" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="h-3 rounded bg-surface-container animate-pulse" style={{ width: `${70 + (i * 11) % 25}%` }} />
+                                    <div className="h-3 rounded bg-surface-container animate-pulse" style={{ width: `${50 + (i * 17) % 30}%` }} />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )
+            }
+
+            if (skeletonTab === 'inquiries') {
+                return (
+                    <div className="space-y-md">
+                        <div className="grid grid-cols-3 gap-md">
+                            {Array.from({ length: 3 }).map((_, i) => (
+                                <div key={i} className="h-24 rounded-xl bg-surface-container animate-pulse" />
+                            ))}
+                        </div>
+                        <div className="rounded-xl border border-outline-variant overflow-hidden bg-surface-container-lowest" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
+                            <div className="h-12 bg-surface-container-low border-b border-outline-variant animate-pulse" />
+                            <div className="divide-y divide-outline-variant/30">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                    <div key={i} className="flex items-center gap-4 px-4 py-4">
+                                        <div className="h-6 w-16 rounded-full bg-surface-container animate-pulse" />
+                                        <div className="h-4 flex-1 rounded bg-surface-container animate-pulse" style={{ maxWidth: `${50 + (i * 13) % 35}%` }} />
+                                        <div className="hidden md:block h-4 w-20 rounded bg-surface-container animate-pulse" />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            // matching / account / default
+            return (
+                <div className="grid grid-cols-1 gap-md md:grid-cols-3">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="h-40 rounded-xl bg-surface-container animate-pulse" />
+                    ))}
+                </div>
+            )
+        })()
+
         return (
             <main className="mx-auto flex w-full max-w-[1440px] flex-grow flex-col gap-md px-margin-mobile pb-lg pt-20 md:px-margin-desktop">
                 {/* 프로필 헤더 스켈레톤 */}
@@ -454,7 +524,6 @@ export default function MyPage() {
 
                 {/* 사이드바 + 콘텐츠 스켈레톤 */}
                 <div className="flex flex-grow flex-col gap-md lg:flex-row">
-                    {/* 사이드바 */}
                     <aside className="flex-shrink-0 lg:w-64">
                         <div className="space-y-xs">
                             {Array.from({ length: 4 }).map((_, i) => (
@@ -462,28 +531,8 @@ export default function MyPage() {
                             ))}
                         </div>
                     </aside>
-
-                    {/* 콘텐츠 */}
-                    <div className="flex-grow space-y-md">
-                        {/* 요약 카드 3개 */}
-                        <div className="grid grid-cols-3 gap-md">
-                            {Array.from({ length: 3 }).map((_, i) => (
-                                <div key={i} className="h-24 rounded-xl bg-surface-container animate-pulse" />
-                            ))}
-                        </div>
-                        {/* 테이블 */}
-                        <div className="rounded-xl border border-outline-variant overflow-hidden bg-surface-container-lowest" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
-                            <div className="h-12 bg-surface-container-low border-b border-outline-variant animate-pulse" />
-                            <div className="divide-y divide-outline-variant/30">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                    <div key={i} className="flex items-center gap-4 px-4 py-4">
-                                        <div className="h-6 w-16 rounded-full bg-surface-container animate-pulse" />
-                                        <div className="h-4 flex-1 rounded bg-surface-container animate-pulse" style={{ maxWidth: `${50 + (i * 13) % 35}%` }} />
-                                        <div className="hidden md:block h-4 w-20 rounded bg-surface-container animate-pulse" />
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                    <div className="flex-grow">
+                        {contentSkeleton}
                     </div>
                 </div>
             </main>
@@ -499,7 +548,7 @@ export default function MyPage() {
             >
                 <div className="flex items-center gap-md">
                     <div className="relative flex-shrink-0">
-                        <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-surface-container shadow-sm sm:h-24 sm:w-24">
+                        <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-surface-container shadow-sm sm:h-24 sm:w-24">
                             {(user?.profileImage || profile?.profileImage) ? (
                                 <img
                                     src={getImageUrl(user?.profileImage || profile?.profileImage)}
@@ -518,14 +567,14 @@ export default function MyPage() {
                             onChange={handleProfileImageChange}
                         />
                         <button
-                            className="absolute bottom-0 right-0 rounded-full border-2 border-white bg-primary p-1 text-white shadow-lg transition-transform hover:scale-110 disabled:opacity-50 sm:p-1.5"
+                            className="absolute bottom-0 right-0 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-primary text-white shadow-lg transition-transform hover:scale-110 disabled:opacity-50 sm:h-7 sm:w-7"
                             onClick={() => fileInputRef.current?.click()}
                             disabled={uploadingImage}
                         >
                             {uploadingImage ? (
-                                <span className="material-symbols-outlined animate-spin text-[16px] sm:text-[18px]">progress_activity</span>
+                                <span className="material-symbols-outlined animate-spin text-[12px] sm:text-[14px]">progress_activity</span>
                             ) : (
-                                <span className="material-symbols-outlined text-[16px] sm:text-[18px]">edit</span>
+                                <span className="material-symbols-outlined text-[12px] sm:text-[14px]">edit</span>
                             )}
                         </button>
                     </div>
@@ -566,7 +615,7 @@ export default function MyPage() {
                                         ? 'bg-primary text-on-primary'
                                         : 'text-on-surface-variant hover:bg-surface-container-low'
                                 }`}
-                                onClick={() => setActiveTab(id)}
+                                onClick={() => router.replace(`/mypage?tab=${id}`)}
                             >
                                 <span className="material-symbols-outlined">{icon}</span>
                                 {label}
