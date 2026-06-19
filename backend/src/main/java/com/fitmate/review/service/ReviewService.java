@@ -166,6 +166,7 @@ public class ReviewService {
                 .map(r -> new RealReviewResponse(
                         r.getId(),
                         r.getReviewer().getNickname(),
+                        r.getReviewer().getProfileImage(),
                         r.getTrainer().getNickname(),
                         r.getRating(),
                         r.getContent(),
