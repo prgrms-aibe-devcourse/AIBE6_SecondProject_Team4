@@ -1,9 +1,17 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useAuth } from '@/context/AuthContext';
+import { apiClient } from '@/utils/apiClient';
+import { useCallback, useEffect, useState } from 'react';
 
-import { useAuth } from '@/context/AuthContext'
-import { apiClient } from '@/utils/apiClient'
+
+
+
+
+
+
+
+
 
 // 서버에서 받는 후기 형태 (ReviewResponse 와 일치)
 export interface Review {
@@ -11,8 +19,10 @@ export interface Review {
     matchingId: number
     reviewerId: number
     reviewerNickname: string
+    reviewerProfileImage: string | null
     trainerId: number
     trainerNickname: string
+    trainerProfileImage: string | null
     rating: number
     content: string
     createdAt: string
