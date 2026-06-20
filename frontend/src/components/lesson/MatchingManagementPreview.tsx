@@ -52,7 +52,9 @@ export default function MatchingManagementPreview() {
         user?.role === 'TRAINER'
             ? sortedRequests.filter((request) => request.status === 'PENDING')
             : []
-    const acceptedRequests = sortedRequests.filter((request) => request.status === 'ACCEPTED')
+    const acceptedRequests = sortedRequests.filter(
+        (request) => request.status === 'ACCEPTED' || request.status === 'COMPLETED'
+    )
     const counterpart = user?.role === 'TRAINER' ? 'member' : 'trainer'
 
     return (

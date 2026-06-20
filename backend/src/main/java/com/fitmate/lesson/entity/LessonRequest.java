@@ -70,4 +70,7 @@ public class LessonRequest extends BaseEntity {
     public void cancel() {
         this.status = LessonRequestStatus.CANCELED;
     }
+    public void complete() {
+        this.status = LessonRequestStatus.COMPLETED;
+    }
 }
