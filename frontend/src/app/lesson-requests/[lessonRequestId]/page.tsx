@@ -1,12 +1,73 @@
 'use client'
 
-import { useAuth } from '@/context/AuthContext'
-import type { components } from '@/types/api'
-import { getAuthClient, getImageUrl } from '@/utils/apiClient'
-import { useEffect, useMemo, useState } from 'react'
+import { useAuth } from '@/context/AuthContext';
+import type { components } from '@/types/api';
+import { getAuthClient, getImageUrl } from '@/utils/apiClient';
+import { startPayment } from '@/utils/payment';
+import { useEffect, useMemo, useState } from 'react';
 
-import Link from 'next/link'
-import { useParams, useRouter } from 'next/navigation'
+
+
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 type LessonRequest = components['schemas']['LessonRequestResponse']
 type LessonRequestStatus = NonNullable<LessonRequest['status']>
@@ -14,9 +75,10 @@ type ResultModalType = 'ACCEPTED' | 'REJECTED' | null
 
 const STATUS_LABELS: Record<LessonRequestStatus, string> = {
     PENDING: '답변 대기',
-    ACCEPTED: '수락됨',
+    ACCEPTED: '결제 대기',
     REJECTED: '거절됨',
     CANCELED: '취소됨',
+    COMPLETED: '매칭 완료',
 }
 
 const DAY_LABELS = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일']
@@ -380,6 +442,15 @@ function SchedulePanel({
                 <p className="mt-md rounded-lg bg-surface-container-low p-sm text-center font-label-bold text-on-surface-variant">
                     트레이너의 답변을 기다리고 있습니다.
                 </p>
+            ) : request.status === 'ACCEPTED' && !canManage ? (
+                <button
+                    type="button"
+                    onClick={() => startPayment(request.lessonRequestId!)}
+                    className="mt-md flex h-12 w-full items-center justify-center gap-xs rounded-lg bg-primary font-label-bold text-on-primary transition-colors hover:bg-primary/90"
+                >
+                    <span className="material-symbols-outlined">payments</span>
+                    결제하기
+                </button>
             ) : (
                 <p className="mt-md rounded-lg bg-surface-container-low p-sm text-center font-label-bold text-on-surface-variant">
                     {getProcessedRequestMessage(request.status)}
@@ -393,6 +464,7 @@ function getProcessedRequestMessage(status?: LessonRequestStatus) {
     if (status === 'ACCEPTED') return '이미 수락된 요청입니다.'
     if (status === 'REJECTED') return '이미 거절된 요청입니다.'
     if (status === 'CANCELED') return '이미 취소된 요청입니다.'
+    if (status === 'COMPLETED') return '결제가 완료된 레슨입니다.'
     return '이미 처리된 요청입니다.'
 }
 

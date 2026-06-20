@@ -1,10 +1,13 @@
 'use client'
 
-import TrainerRatingStats from '@/components/TrainerRatingStats'
-import WritableReviewList from '@/components/WritableReviewList'
-import { useAuth } from '@/context/AuthContext'
-import { Review, useMyReviews } from '@/hooks/useMyReviews'
-import { useState } from 'react'
+import TrainerRatingStats from '@/components/TrainerRatingStats';
+import WritableReviewList from '@/components/WritableReviewList';
+import { useAuth } from '@/context/AuthContext';
+import { Review, useMyReviews } from '@/hooks/useMyReviews';
+import { getImageUrl } from '@/utils/apiClient';
+import { useState } from 'react';
+
+
 
 // 별점 표시 — 머티리얼 아이콘 star (채움/빈)
 function StarRating({ rating }: { rating: number }) {
@@ -45,7 +48,25 @@ function ReviewCard({
             {/* 상단: 프로필 + 별점 + (수정/삭제) */}
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-center gap-3 min-w-0">
-                    <div className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 rounded-full bg-gradient-to-br from-primary-fixed to-primary-fixed-dim" />
+                    {(() => {
+                        const img = isTrainer
+                            ? review.reviewerProfileImage
+                            : review.trainerProfileImage
+                        return img ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                                src={getImageUrl(img)}
+                                alt=""
+                                className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 rounded-full object-cover"
+                            />
+                        ) : (
+                            <div className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 rounded-full bg-surface-container flex items-center justify-center">
+                                <span className="material-symbols-outlined text-outline-variant">
+                                    person
+                                </span>
+                            </div>
+                        )
+                    })()}
                     <div className="min-w-0">
                         <span className="block truncate text-body-md font-bold text-on-surface">
                             {isTrainer ? review.reviewerNickname : review.trainerNickname}

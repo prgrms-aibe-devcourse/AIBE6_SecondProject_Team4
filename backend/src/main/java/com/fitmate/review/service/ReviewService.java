@@ -12,6 +12,7 @@ import com.fitmate.matching.entity.MatchingRequest;
 import com.fitmate.matching.repository.MatchingRequestRepository;
 import com.fitmate.member.entity.Member;
 import com.fitmate.member.repository.MemberRepository;
+import com.fitmate.payment.repository.PaymentRepository;
 import com.fitmate.review.dto.ReviewRequest;
 import com.fitmate.review.dto.ReviewResponse;
 import com.fitmate.review.dto.ReviewUpdateRequest;
@@ -29,6 +30,7 @@ import com.fitmate.review.dto.PopularTrainerResponse;
 import com.fitmate.review.dto.RealReviewResponse;
 import com.fitmate.trainer.repository.TrainerProfileRepository;
 import org.springframework.data.domain.PageRequest;
+
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -217,8 +219,8 @@ public class ReviewService {
 
         List<WritableReviewResponse> result = new ArrayList<>();
         for (LessonRequest lesson : lessons) {
-            // 1) 성사(ACCEPTED)된 레슨만
-            if (lesson.getStatus() != LessonRequestStatus.ACCEPTED) {
+            // 1) 결제 완료(COMPLETED = 매칭 완료)된 레슨만 (PAY-03)
+            if (lesson.getStatus() != LessonRequestStatus.COMPLETED) {
                 continue;
             }
 

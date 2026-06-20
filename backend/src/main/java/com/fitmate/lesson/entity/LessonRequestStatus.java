@@ -4,5 +4,6 @@ public enum LessonRequestStatus {
     PENDING,
     ACCEPTED,
     REJECTED,
-    CANCELED
+    CANCELED,
+    COMPLETED
 }
