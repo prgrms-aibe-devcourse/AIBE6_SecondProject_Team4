@@ -100,7 +100,7 @@ export default function LessonRequestDetailPage() {
     const [errorMessage, setErrorMessage] = useState('')
     const [modalType, setModalType] = useState<ResultModalType>(null)
     const isTrainer = user?.role === 'TRAINER'
-    const requestListHref = isTrainer ? '/lesson-requests/received' : '/lesson-requests/sent'
+    const matchingManagementHref = '/mypage?tab=matching'
 
     useEffect(() => {
         if (!lessonRequestId) {
@@ -194,7 +194,7 @@ export default function LessonRequestDetailPage() {
 
     const closeModal = () => {
         setModalType(null)
-        router.push(requestListHref)
+        router.push(matchingManagementHref)
     }
 
     return (
@@ -203,11 +203,11 @@ export default function LessonRequestDetailPage() {
                 <div className="flex flex-wrap items-start justify-between gap-sm">
                     <div>
                         <Link
-                            href={requestListHref}
+                            href={matchingManagementHref}
                             className="inline-flex items-center gap-1 text-body-sm text-on-surface-variant transition-colors hover:text-primary"
                         >
                             <span className="material-symbols-outlined text-xl">arrow_back</span>
-                            요청 목록으로 돌아가기
+                            매칭 관리로 돌아가기
                         </Link>
                         <h1 className="mt-sm font-headline-md text-headline-md text-on-surface">
                             레슨 요청 상세 내역
