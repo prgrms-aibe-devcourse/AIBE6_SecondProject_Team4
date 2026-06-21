@@ -2,6 +2,7 @@
 
 import type { components } from '@/types/api'
 import { getAuthClient, getImageUrl } from '@/utils/apiClient'
+import { formatLessonType } from '@/utils/lessonDisplay'
 import { FormEvent, useMemo, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
@@ -152,7 +153,12 @@ export default function LessonRequestForm({ result, summary }: LessonRequestForm
                         {result.trainerName ?? '트레이너'}
                     </h2>
                     <div className="mt-xs flex flex-wrap gap-xs">
-                        {[result.lessonType, result.sports]
+                        {[
+                            result.lessonType
+                                ? formatLessonType(result.lessonType)
+                                : undefined,
+                            result.sports,
+                        ]
                             .filter((value): value is string => Boolean(value))
                             .map((value) => (
                                 <span
@@ -252,7 +258,11 @@ export default function LessonRequestForm({ result, summary }: LessonRequestForm
 
                 <dl className="mt-md space-y-sm">
                     <SummaryRow icon="fitness_center" label="운동 종목" value={result.sports} />
-                    <SummaryRow icon="groups" label="레슨 유형" value={result.lessonType} />
+                    <SummaryRow
+                        icon="groups"
+                        label="레슨 유형"
+                        value={formatLessonType(result.lessonType)}
+                    />
                     <SummaryRow
                         icon="trending_up"
                         label="레슨 수준"
