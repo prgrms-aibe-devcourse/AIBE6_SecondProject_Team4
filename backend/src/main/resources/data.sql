@@ -172,14 +172,6 @@ FROM members WHERE user_id = 'user03';
 -- 알림 (alert)
 -- =============================================
 INSERT IGNORE INTO alert (receiver_id, type, target_id, content, is_read, created_at, updated_at)
-SELECT id, 'MATCHING', 1, '매칭 요청이 수락되었습니다.', false, NOW(), NOW()
-FROM members WHERE user_id = 'user01';
-
-INSERT IGNORE INTO alert (receiver_id, type, target_id, content, is_read, created_at, updated_at)
-SELECT id, 'MATCHING', 2, '매칭 요청이 수락되었습니다.', true, NOW(), NOW()
-FROM members WHERE user_id = 'user02';
-
-INSERT IGNORE INTO alert (receiver_id, type, target_id, content, is_read, created_at, updated_at)
 SELECT id, 'INQUIRY', 1, '문의하신 내용에 답변이 등록되었습니다.', false, NOW(), NOW()
 FROM members WHERE user_id = 'user03';
 
@@ -1183,3 +1175,96 @@ FROM matching_results mr
     JOIN members trainer ON tp.user_id = trainer.id
 WHERE req.lesson_content = '[복수추천09] 근지구력 중심의 헬스 코칭을 원해요'
   AND trainer.user_id = 'trainer11';
+
+-- =============================================
+-- 레슨 요청 상태별 알림 더미
+-- 실제 서비스에서는 LessonRequestService와 PaymentService가 생성합니다.
+-- =============================================
+
+-- PENDING: 요청을 받은 트레이너에게 알림
+INSERT INTO alert (receiver_id, type, target_id, content, is_read, created_at, updated_at)
+SELECT trainer.id,
+       'LESSON_REQUEST',
+       lr.id,
+       CONCAT(requester.nickname, '님이 레슨을 요청했습니다.'),
+       false,
+       NOW(),
+       NOW()
+FROM lesson_requests lr
+    JOIN members requester ON lr.member_id = requester.id
+    JOIN trainer_profiles tp ON lr.trainer_profile_id = tp.id
+    JOIN members trainer ON tp.user_id = trainer.id
+WHERE lr.status = 'PENDING'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM alert a
+      WHERE a.receiver_id = trainer.id
+        AND a.type = 'LESSON_REQUEST'
+        AND a.target_id = lr.id
+  );
+
+-- ACCEPTED: 요청을 보낸 사용자에게 결제 대기 알림
+INSERT INTO alert (receiver_id, type, target_id, content, is_read, created_at, updated_at)
+SELECT requester.id,
+       'LESSON_REQUEST',
+       lr.id,
+       CONCAT(trainer.nickname, ' 트레이너가 레슨 요청을 수락했습니다. 결제를 진행해 주세요.'),
+       false,
+       NOW(),
+       NOW()
+FROM lesson_requests lr
+    JOIN members requester ON lr.member_id = requester.id
+    JOIN trainer_profiles tp ON lr.trainer_profile_id = tp.id
+    JOIN members trainer ON tp.user_id = trainer.id
+WHERE lr.status = 'ACCEPTED'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM alert a
+      WHERE a.receiver_id = requester.id
+        AND a.type = 'LESSON_REQUEST'
+        AND a.target_id = lr.id
+  );
+
+-- COMPLETED: 사용자에게 매칭 완료 알림
+INSERT INTO alert (receiver_id, type, target_id, content, is_read, created_at, updated_at)
+SELECT requester.id,
+       'MATCHING_COMPLETED',
+       lr.id,
+       CONCAT(trainer.nickname, ' 트레이너와의 레슨 매칭이 완료되었습니다.'),
+       false,
+       NOW(),
+       NOW()
+FROM lesson_requests lr
+    JOIN members requester ON lr.member_id = requester.id
+    JOIN trainer_profiles tp ON lr.trainer_profile_id = tp.id
+    JOIN members trainer ON tp.user_id = trainer.id
+WHERE lr.status = 'COMPLETED'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM alert a
+      WHERE a.receiver_id = requester.id
+        AND a.type = 'MATCHING_COMPLETED'
+        AND a.target_id = lr.id
+  );
+
+-- COMPLETED: 트레이너에게 매칭 완료 알림
+INSERT INTO alert (receiver_id, type, target_id, content, is_read, created_at, updated_at)
+SELECT trainer.id,
+       'MATCHING_COMPLETED',
+       lr.id,
+       CONCAT(requester.nickname, '님과의 레슨 매칭이 완료되었습니다.'),
+       false,
+       NOW(),
+       NOW()
+FROM lesson_requests lr
+    JOIN members requester ON lr.member_id = requester.id
+    JOIN trainer_profiles tp ON lr.trainer_profile_id = tp.id
+    JOIN members trainer ON tp.user_id = trainer.id
+WHERE lr.status = 'COMPLETED'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM alert a
+      WHERE a.receiver_id = trainer.id
+        AND a.type = 'MATCHING_COMPLETED'
+        AND a.target_id = lr.id
+  );
