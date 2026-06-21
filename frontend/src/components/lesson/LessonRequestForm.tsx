@@ -26,6 +26,7 @@ type DirectTrainerInfo = {
     lessonType?: string
     lessonLevel?: string
     price?: number
+    lessonDurationMinutes?: number
     availableTimes: Array<{
         dayOfWeek: string
         startTime: string
@@ -124,6 +125,39 @@ export default function LessonRequestForm({
               )
             : undefined
 
+    // 트레이너 직접 모드: 선택한 날짜의 가능시간 블록을 레슨 시간 단위로 잘라서 시작시간 목록 생성
+    const lessonDuration = directTrainer?.lessonDurationMinutes ?? 60
+
+    const timeSlotOptions = useMemo(() => {
+        if (!selectedDayTime) return []
+
+        const [startH, startM] = selectedDayTime.startTime.split(':').map(Number)
+        const [endH, endM] = selectedDayTime.endTime.split(':').map(Number)
+
+        const startMinutes = startH * 60 + startM
+        const endMinutes = endH * 60 + endM
+
+        const slots: string[] = []
+        for (let t = startMinutes; t + lessonDuration <= endMinutes; t += lessonDuration) {
+            const h = Math.floor(t / 60)
+            const m = t % 60
+            slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
+        }
+        return slots
+    }, [selectedDayTime, lessonDuration])
+
+    const [selectedStartTime, setSelectedStartTime] = useState('')
+
+    // 선택된 시작시간 + 레슨 시간으로 종료시간 계산
+    const selectedEndTime = useMemo(() => {
+        if (!selectedStartTime) return ''
+        const [h, m] = selectedStartTime.split(':').map(Number)
+        const totalMinutes = h * 60 + m + lessonDuration
+        const endH = Math.floor(totalMinutes / 60)
+        const endM = totalMinutes % 60
+        return `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`
+    }, [selectedStartTime, lessonDuration])
+
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
 
@@ -136,12 +170,12 @@ export default function LessonRequestForm({
         let requestedEndTime: string | undefined
 
         if (isDirectMode) {
-            if (!selectedDayTime) {
-                setErrorMessage('선택한 날짜의 가능 시간을 확인할 수 없습니다.')
+            if (!selectedStartTime) {
+                setErrorMessage('레슨 시작 시간을 선택해 주세요.')
                 return
             }
-            requestedStartTime = selectedDayTime.startTime
-            requestedEndTime = selectedDayTime.endTime
+            requestedStartTime = toApiTime(selectedStartTime)
+            requestedEndTime = toApiTime(selectedEndTime)
         } else {
             if (!matchingResult?.matchingResultId) {
                 setErrorMessage('선택한 매칭 결과를 확인할 수 없습니다.')
@@ -250,7 +284,10 @@ export default function LessonRequestForm({
                 <div className="mt-md grid grid-cols-1 gap-md md:grid-cols-2">
                     <LessonCalendar
                         selectedDate={selectedDate}
-                        onSelect={setSelectedDate}
+                        onSelect={(date) => {
+                            setSelectedDate(date)
+                            setSelectedStartTime('')
+                        }}
                         allowedDayIndices={allowedDayIndices}
                     />
 
@@ -261,15 +298,43 @@ export default function LessonRequestForm({
                             </p>
                             {isDirectMode ? (
                                 selectedDayTime ? (
-                                    <div className="mt-xs rounded-lg border-2 border-primary bg-primary-fixed/35 p-sm">
-                                        <p className="font-label-bold text-primary">
-                                            {formatTime(selectedDayTime.startTime)} -{' '}
-                                            {formatTime(selectedDayTime.endTime)}
-                                        </p>
-                                        <p className="mt-1 text-body-sm text-on-surface-variant">
-                                            트레이너가 가능한 시간대입니다.
-                                        </p>
-                                    </div>
+                                    timeSlotOptions.length > 0 ? (
+                                        <div className="mt-xs space-y-sm">
+                                            <p className="text-label-sm text-on-surface-variant">
+                                                가능 시간 {formatTime(selectedDayTime.startTime)} -{' '}
+                                                {formatTime(selectedDayTime.endTime)} (레슨{' '}
+                                                {lessonDuration}분)
+                                            </p>
+                                            <div className="grid grid-cols-3 gap-xs">
+                                                {timeSlotOptions.map((time) => (
+                                                    <button
+                                                        key={time}
+                                                        type="button"
+                                                        onClick={() => setSelectedStartTime(time)}
+                                                        className={`h-10 rounded-lg border text-body-sm font-label-bold transition-colors ${
+                                                            selectedStartTime === time
+                                                                ? 'border-primary bg-primary text-on-primary'
+                                                                : 'border-outline-variant bg-surface-container-low text-on-surface-variant hover:border-primary hover:text-primary'
+                                                        }`}
+                                                    >
+                                                        {time}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            {selectedStartTime && (
+                                                <p className="text-body-sm text-primary font-label-bold">
+                                                    선택된 시간: {selectedStartTime} -{' '}
+                                                    {selectedEndTime}
+                                                </p>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="mt-xs rounded-lg border border-outline-variant p-sm">
+                                            <p className="text-body-sm text-on-surface-variant">
+                                                이 날짜에는 예약 가능한 시간이 없습니다.
+                                            </p>
+                                        </div>
+                                    )
                                 ) : (
                                     <div className="mt-xs rounded-lg border border-outline-variant p-sm">
                                         <p className="text-body-sm text-on-surface-variant">

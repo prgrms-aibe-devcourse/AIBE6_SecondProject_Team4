@@ -80,6 +80,7 @@ export default function LessonRequestDirectCreatePage() {
                             lessonType: trainer.lessonType,
                             lessonLevel: trainer.lessonLevel,
                             price: trainer.price,
+                            lessonDurationMinutes: trainer.lessonDurationMinutes ?? 60,
                             availableTimes: (trainer.availableTimes ?? []).map((t) => ({
                                 dayOfWeek: t.dayOfWeek ?? '',
                                 startTime: t.startTime ?? '',
