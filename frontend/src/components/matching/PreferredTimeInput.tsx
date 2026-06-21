@@ -1,4 +1,4 @@
-import { DAYS_OF_WEEK, TIME_OPTIONS } from '@/constants/matchingOptions'
+import { DAYS_OF_WEEK } from '@/constants/matchingOptions'
 
 export type PreferredTime = {
     id: number
@@ -91,20 +91,13 @@ function TimeSelect({ label, value, onChange }: TimeSelectProps) {
         <label className="text-label-md font-label-md text-on-surface-variant">
             {label}
             <span className="relative mt-xs block">
-                <select
+                <input
+                    type="time"
+                    step="1800"
                     value={value}
                     onChange={(event) => onChange(event.target.value)}
-                    className="w-full h-11 appearance-none rounded-lg border border-outline-variant bg-surface-container-lowest px-sm pr-10 text-body-md text-on-surface outline-none transition-colors hover:border-outline focus:border-primary focus:ring-2 focus:ring-primary-fixed"
-                >
-                    {TIME_OPTIONS.map((time) => (
-                        <option key={time} value={time}>
-                            {time}
-                        </option>
-                    ))}
-                </select>
-                <span className="material-symbols-outlined pointer-events-none absolute right-sm top-1/2 -translate-y-1/2 text-xl text-on-surface-variant">
-                    schedule
-                </span>
+                    className="w-full h-11 rounded-lg border border-outline-variant bg-surface-container-lowest px-sm text-body-md text-on-surface outline-none transition-colors hover:border-outline focus:border-primary focus:ring-2 focus:ring-primary-fixed"
+                />
             </span>
         </label>
     )
