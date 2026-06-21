@@ -461,7 +461,7 @@ function SchedulePanel({
 }
 
 function getProcessedRequestMessage(status?: LessonRequestStatus) {
-    if (status === 'ACCEPTED') return '이미 수락된 요청입니다.'
+    if (status === 'ACCEPTED') return '결제 대기 중인 요청입니다.'
     if (status === 'REJECTED') return '이미 거절된 요청입니다.'
     if (status === 'CANCELED') return '이미 취소된 요청입니다.'
     if (status === 'COMPLETED') return '결제가 완료된 레슨입니다.'
