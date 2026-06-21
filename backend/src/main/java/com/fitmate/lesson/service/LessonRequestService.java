@@ -206,12 +206,12 @@ public class LessonRequestService {
                 matchingResult.getId(),
 
                 member.getId(),
-                member.getUserName(),
+                member.getNickname(),
                 member.getProfileImage(),
                 member.getIntroduction(),
 
                 trainerProfile.getId(),
-                trainerMember.getUserName(),
+                trainerMember.getNickname(),
                 trainerMember.getProfileImage(),
 
                 matchingRequest.getSports(),
