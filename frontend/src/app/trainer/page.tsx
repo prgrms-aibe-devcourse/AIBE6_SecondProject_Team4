@@ -484,7 +484,9 @@ export default function ExplorePage() {
                                                 className="bg-primary text-on-primary px-2 md:px-md py-sm rounded-lg text-label-bold font-label-bold hover:shadow active:scale-95 transition-all flex-shrink-0 ml-2 md:ml-sm text-xs md:text-sm"
                                                 onClick={(e) => {
                                                     e.stopPropagation()
-                                                    router.push(`/trainer/${trainer.id}`)
+                                                    router.push(
+                                                        `/lesson-requests/new/trainer/${trainer.id}`
+                                                    )
                                                 }}
                                             >
                                                 예약하기

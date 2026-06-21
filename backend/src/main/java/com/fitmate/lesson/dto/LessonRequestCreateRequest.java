@@ -7,7 +7,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public record LessonRequestCreateRequest(
-        @NotNull Long matchingResultId,
+        Long matchingResultId,
+
+        Long trainerProfileId,
 
         @NotNull LessonPassType lessonPassType,
 

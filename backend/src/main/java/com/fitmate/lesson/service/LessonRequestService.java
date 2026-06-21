@@ -14,6 +14,8 @@ import com.fitmate.matching.repository.MatchingResultRepository;
 import com.fitmate.member.entity.Member;
 import com.fitmate.member.repository.MemberRepository;
 import com.fitmate.trainer.entity.TrainerProfile;
+import com.fitmate.trainer.repository.TrainerAvailableTimeRepository;
+import com.fitmate.trainer.repository.TrainerProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,8 +30,10 @@ public class LessonRequestService {
     private final LessonRequestRepository lessonRequestRepository;
     private final MatchingResultRepository matchingResultRepository;
     private final MemberRepository memberRepository;
+    private final TrainerProfileRepository trainerProfileRepository;
+    private final TrainerAvailableTimeRepository trainerAvailableTimeRepository;
 
-    // 사용자가 추천 결과를 선택해서 트레이너에게 레슨 요청서를 보냄
+    // 사용자가 추천 결과를 선택하거나, 트레이너를 직접 선택해서 레슨 요청서를 보냄
     @Transactional
     public LessonRequestResponse createLessonRequest(String userId, LessonRequestCreateRequest request) {
 
@@ -37,35 +41,71 @@ public class LessonRequestService {
         Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        // 사용자가 선택한 매칭 결과를 DB에서 찾음
-        MatchingResult matchingResult = matchingResultRepository.findById(request.matchingResultId())
-                .orElseThrow(() -> new CustomException(ErrorCode.MATCHING_RESULT_NOT_FOUND));
-
-        // 이 매칭 결과가 로그인한 사용자의 것인지 확인
-        validateOwner(member, matchingResult);
-
-        // 시간, 정기권 주당 횟수 같은 입력값 검사
+        // 시간, 정기권 주당 횟수 같은 입력값 검사 (공통)
         validateRequest(request);
 
-        // 같은 매칭 결과로 이미 요청서를 보냈는지 확인
-        validateDuplicateRequest(matchingResult.getId());
+        LessonRequest lessonRequest;
 
-        // 매칭 결과에 연결된 트레이너 프로필을 가져옴
-        TrainerProfile trainerProfile = matchingResult.getTrainerProfile();
+        if (request.matchingResultId() != null) {
+            // ===== AI 매칭 경로 (기존 로직) =====
 
-        // lesson_requests 테이블에 저장할 엔티티 생성
-        LessonRequest lessonRequest = LessonRequest.builder()
-                .matchingResult(matchingResult)
-                .member(member)
-                .trainerProfile(trainerProfile)
-                .lessonPassType(request.lessonPassType())
-                .weeklyCount(request.weeklyCount())
-                .requestedDate(request.requestedDate())
-                .requestedStartTime(request.requestedStartTime())
-                .requestedEndTime(request.requestedEndTime())
-                .message(request.message())
-                .status(LessonRequestStatus.PENDING) // 처음 요청 상태는 대기중
-                .build();
+            // 사용자가 선택한 매칭 결과를 DB에서 찾음
+            MatchingResult matchingResult = matchingResultRepository.findById(request.matchingResultId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.MATCHING_RESULT_NOT_FOUND));
+
+            // 이 매칭 결과가 로그인한 사용자의 것인지 확인
+            validateOwner(member, matchingResult);
+
+            // 같은 매칭 결과로 이미 요청서를 보냈는지 확인
+            validateDuplicateRequest(matchingResult.getId());
+
+            // 매칭 결과에 연결된 트레이너 프로필을 가져옴
+            TrainerProfile trainerProfile = matchingResult.getTrainerProfile();
+
+            lessonRequest = LessonRequest.builder()
+                    .matchingResult(matchingResult)
+                    .member(member)
+                    .trainerProfile(trainerProfile)
+                    .lessonPassType(request.lessonPassType())
+                    .weeklyCount(request.weeklyCount())
+                    .requestedDate(request.requestedDate())
+                    .requestedStartTime(request.requestedStartTime())
+                    .requestedEndTime(request.requestedEndTime())
+                    .message(request.message())
+                    .status(LessonRequestStatus.PENDING)
+                    .build();
+
+        } else if (request.trainerProfileId() != null) {
+            // ===== 트레이너 직접 선택 경로 (신규) =====
+
+            // 요청한 트레이너 프로필을 DB에서 찾음
+            TrainerProfile trainerProfile =
+                    trainerProfileRepository.findById(request.trainerProfileId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.TRAINER_PROFILE_NOT_FOUND));
+
+            // 같은 회원이 같은 트레이너에게 보낸 대기중 요청이 있는지 확인
+            validateDuplicateDirectRequest(member.getId(), trainerProfile.getId());
+
+            // 요청한 날짜의 요일이 트레이너의 가능 시간대에 포함되는지, 시간이 그 범위 안인지 확인
+            validateAvailableTime(trainerProfile, request);
+
+            lessonRequest = LessonRequest.builder()
+                    .matchingResult(null)
+                    .member(member)
+                    .trainerProfile(trainerProfile)
+                    .lessonPassType(request.lessonPassType())
+                    .weeklyCount(request.weeklyCount())
+                    .requestedDate(request.requestedDate())
+                    .requestedStartTime(request.requestedStartTime())
+                    .requestedEndTime(request.requestedEndTime())
+                    .message(request.message())
+                    .status(LessonRequestStatus.PENDING)
+                    .build();
+
+        } else {
+            // 둘 다 없으면 잘못된 요청
+            throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
 
         // DB에 요청서 저장
         LessonRequest savedLessonRequest = lessonRequestRepository.save(lessonRequest);
@@ -99,6 +139,7 @@ public class LessonRequestService {
 
         return toResponse(lessonRequest);
     }
+
     // 트레이너가 레슨 요청서를 수락
     @Transactional
     public LessonRequestResponse acceptLessonRequest(Long lessonRequestId, String trainerUserId) {
@@ -164,6 +205,7 @@ public class LessonRequestService {
             throw new CustomException(ErrorCode.LESSON_REQUEST_ALREADY_PROCESSED);
         }
     }
+
     // 매칭 결과의 주인이 현재 로그인한 사용자인지 확인
     private void validateOwner(Member member, MatchingResult matchingResult) {
         Member requestMember = matchingResult.getMatchingRequest().getMember();
@@ -195,15 +237,33 @@ public class LessonRequestService {
     // LessonRequest 엔티티를 프론트에 보낼 응답 DTO로 변환
     private LessonRequestResponse toResponse(LessonRequest lessonRequest) {
         MatchingResult matchingResult = lessonRequest.getMatchingResult();
-        MatchingRequest matchingRequest = matchingResult.getMatchingRequest();
         TrainerProfile trainerProfile = lessonRequest.getTrainerProfile();
 
         Member member = lessonRequest.getMember();
         Member trainerMember = trainerProfile.getMember();
 
+        // 매칭 결과가 있으면 거기서, 없으면(트레이너 직접 선택) 트레이너 프로필에서 직접 가져옴
+        String sports;
+        String lessonType;
+        String level;
+        String region;
+
+        if (matchingResult != null) {
+            MatchingRequest matchingRequest = matchingResult.getMatchingRequest();
+            sports = matchingRequest.getSports();
+            lessonType = matchingRequest.getLessonType();
+            level = matchingRequest.getLevel();
+            region = matchingRequest.getRegion();
+        } else {
+            sports = trainerProfile.getSports();
+            lessonType = trainerProfile.getLessonType();
+            level = trainerProfile.getLessonLevel();
+            region = trainerMember.getRegion();
+        }
+
         return new LessonRequestResponse(
                 lessonRequest.getId(),
-                matchingResult.getId(),
+                matchingResult != null ? matchingResult.getId() : null,
 
                 member.getId(),
                 member.getUserName(),
@@ -214,10 +274,10 @@ public class LessonRequestService {
                 trainerMember.getUserName(),
                 trainerMember.getProfileImage(),
 
-                matchingRequest.getSports(),
-                matchingRequest.getLessonType(),
-                matchingRequest.getLevel(),
-                matchingRequest.getRegion(),
+                sports,
+                lessonType,
+                level,
+                region,
                 trainerProfile.getPrice(),
 
                 lessonRequest.getLessonPassType(),
@@ -232,6 +292,33 @@ public class LessonRequestService {
 
                 lessonRequest.getCreatedAt()
         );
+    }
 
+    // 트레이너 직접 선택 경로에서 중복 요청 방지
+    private void validateDuplicateDirectRequest(Long memberId, Long trainerProfileId) {
+        boolean exists = lessonRequestRepository.existsByMemberIdAndTrainerProfileIdAndStatus(
+                memberId, trainerProfileId, LessonRequestStatus.PENDING
+        );
+
+        if (exists) {
+            throw new CustomException(ErrorCode.LESSON_REQUEST_ALREADY_EXISTS);
+        }
+    }
+
+    // 요청한 날짜/시간이 트레이너의 실제 가능 시간대에 포함되는지 확인
+    private void validateAvailableTime(TrainerProfile trainerProfile, LessonRequestCreateRequest request) {
+        String requestedDayOfWeek = request.requestedDate().getDayOfWeek().name(); // 예: "MONDAY"
+
+        boolean matches = trainerAvailableTimeRepository.findByTrainerProfileId(trainerProfile.getId())
+                .stream()
+                .anyMatch(time ->
+                        time.getDayOfWeek().equalsIgnoreCase(requestedDayOfWeek)
+                                && !request.requestedStartTime().isBefore(time.getStartTime())
+                                && !request.requestedEndTime().isAfter(time.getEndTime())
+                );
+
+        if (!matches) {
+            throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
     }
 }
