@@ -27,31 +27,42 @@ const LESSON_LEVELS = ['전체', '입문/초보', '중급', '고급/대회준비
 export default function ExplorePage() {
     const router = useRouter()
     const searchParams = useSearchParams()
+
+    // URL에서 직접 읽어오는 "적용된" 필터/페이지/정렬 값
+    const sport = searchParams.get('sport') ?? ''
+    const region = searchParams.get('region') ?? ''
+    const lessonLevel = searchParams.get('level') ?? ''
+    const lessonType = searchParams.get('lessonType') ?? ''
+    const minPrice = searchParams.get('minPrice') ?? ''
+    const maxPrice = searchParams.get('maxPrice') ?? ''
+    const currentPage = Number(searchParams.get('page') ?? '0')
+    const sort = searchParams.get('sort') ?? 'latest'
+
     const [trainers, setTrainers] = useState<Trainer[]>([])
     const [loading, setLoading] = useState(true)
-    const [currentPage, setCurrentPage] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
     const [totalElements, setTotalElements] = useState(0)
-    const [sort, setSort] = useState('latest')
-    const [filters, setFilters] = useState({
-        sport: searchParams.get('sport') ?? '',
-        lessonType: '',
-        lessonLevel: searchParams.get('level') ?? '',
-        minPrice: '',
-        maxPrice: '',
-        region: searchParams.get('region') ?? '',
+
+    // 검색창에서 "입력 중인" 임시 필터 값 (검색 버튼 눌러야 URL/적용 값으로 반영)
+    const [draftFilters, setDraftFilters] = useState({
+        sport,
+        lessonType,
+        lessonLevel,
+        minPrice,
+        maxPrice,
+        region,
     })
 
-    const fetchTrainers = async (page = 0, retried = false) => {
+    const fetchTrainers = async (retried = false) => {
         setLoading(true)
         const query = {
-            sport: filters.sport || undefined,
-            lessonType: filters.lessonType || undefined,
-            lessonLevel: filters.lessonLevel || undefined,
-            minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
-            maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
-            region: filters.region || undefined,
-            page,
+            sport: sport || undefined,
+            lessonType: lessonType || undefined,
+            lessonLevel: lessonLevel || undefined,
+            minPrice: minPrice ? Number(minPrice) : undefined,
+            maxPrice: maxPrice ? Number(maxPrice) : undefined,
+            region: region || undefined,
+            page: currentPage,
             size: 8,
             sort,
         }
@@ -62,27 +73,78 @@ export default function ExplorePage() {
             setTrainers((data as any).content ?? [])
             setTotalPages((data as any).totalPages ?? 0)
             setTotalElements((data as any).totalElements ?? 0)
-            setCurrentPage(page)
             setLoading(false)
         } else if (response.status === 401 && !retried) {
             // 미들웨어가 토큰을 갱신했지만 data가 올라오지 않은 경우 — 새 토큰으로 1회 재시도
-            fetchTrainers(page, true)
+            fetchTrainers(true)
         } else {
             setLoading(false)
         }
     }
 
+    // URL(쿼리 파라미터)이 바뀔 때마다 그 값으로 다시 조회
     useEffect(() => {
-        fetchTrainers(0)
-    }, [sort])
+        fetchTrainers()
+        // draftFilters는 검색창 입력용이라 의도적으로 의존성에서 제외
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [sport, region, lessonLevel, lessonType, minPrice, maxPrice, currentPage, sort])
+
+    // 검색창 입력값을 바탕으로 쿼리스트링 만들어서 push하는 공통 함수
+    const pushQuery = (
+        next: Partial<{
+            sport: string
+            region: string
+            lessonLevel: string
+            lessonType: string
+            minPrice: string
+            maxPrice: string
+            page: number
+            sort: string
+        }>
+    ) => {
+        const params = new URLSearchParams(searchParams.toString())
+
+        const merged = {
+            sport: draftFilters.sport,
+            region: draftFilters.region,
+            lessonLevel: draftFilters.lessonLevel,
+            lessonType: draftFilters.lessonType,
+            minPrice: draftFilters.minPrice,
+            maxPrice: draftFilters.maxPrice,
+            page: currentPage,
+            sort,
+            ...next,
+        }
+
+        const setOrDelete = (key: string, value: string) => {
+            if (value) params.set(key, value)
+            else params.delete(key)
+        }
+
+        setOrDelete('sport', merged.sport)
+        setOrDelete('region', merged.region)
+        setOrDelete('level', merged.lessonLevel)
+        setOrDelete('lessonType', merged.lessonType)
+        setOrDelete('minPrice', merged.minPrice)
+        setOrDelete('maxPrice', merged.maxPrice)
+        setOrDelete('sort', merged.sort === 'latest' ? '' : merged.sort)
+
+        if (merged.page > 0) params.set('page', String(merged.page))
+        else params.delete('page')
+
+        router.push(`/trainer?${params.toString()}`)
+    }
 
     const handleSearch = () => {
-        setCurrentPage(0)
-        fetchTrainers(0)
+        pushQuery({ page: 0 })
     }
 
     const handlePageChange = (page: number) => {
-        fetchTrainers(page)
+        pushQuery({ page })
+    }
+
+    const handleSortChange = (value: string) => {
+        pushQuery({ sort: value, page: 0 })
     }
 
     const getPageNumbers = () => {
@@ -104,9 +166,9 @@ export default function ExplorePage() {
                         </label>
                         <select
                             className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-36"
-                            value={filters.sport}
+                            value={draftFilters.sport}
                             onChange={(e) =>
-                                setFilters((f) => ({
+                                setDraftFilters((f) => ({
                                     ...f,
                                     sport: e.target.value === '모든 종목' ? '' : e.target.value,
                                 }))
@@ -123,9 +185,9 @@ export default function ExplorePage() {
                         </label>
                         <select
                             className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-36"
-                            value={filters.region}
+                            value={draftFilters.region}
                             onChange={(e) =>
-                                setFilters((f) => ({
+                                setDraftFilters((f) => ({
                                     ...f,
                                     region: e.target.value === '모든 지역' ? '' : e.target.value,
                                 }))
@@ -150,11 +212,13 @@ export default function ExplorePage() {
                                 <button
                                     key={label}
                                     className={`px-sm md:px-md h-11 rounded-lg text-label-bold font-label-bold transition-all border ${
-                                        filters.lessonType === value
+                                        draftFilters.lessonType === value
                                             ? 'bg-primary text-on-primary border-primary'
                                             : 'bg-surface-container-low border-outline-variant text-on-surface-variant hover:bg-surface-container'
                                     }`}
-                                    onClick={() => setFilters((f) => ({ ...f, lessonType: value }))}
+                                    onClick={() =>
+                                        setDraftFilters((f) => ({ ...f, lessonType: value }))
+                                    }
                                 >
                                     {label}
                                 </button>
@@ -167,9 +231,9 @@ export default function ExplorePage() {
                         </label>
                         <select
                             className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-36"
-                            value={filters.lessonLevel}
+                            value={draftFilters.lessonLevel}
                             onChange={(e) =>
-                                setFilters((f) => ({
+                                setDraftFilters((f) => ({
                                     ...f,
                                     lessonLevel: e.target.value === '전체' ? '' : e.target.value,
                                 }))
@@ -189,9 +253,9 @@ export default function ExplorePage() {
                                 className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-20 md:w-24"
                                 placeholder="최소"
                                 type="number"
-                                value={filters.minPrice}
+                                value={draftFilters.minPrice}
                                 onChange={(e) =>
-                                    setFilters((f) => ({ ...f, minPrice: e.target.value }))
+                                    setDraftFilters((f) => ({ ...f, minPrice: e.target.value }))
                                 }
                             />
                             <span className="text-on-surface-variant">-</span>
@@ -199,9 +263,9 @@ export default function ExplorePage() {
                                 className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-20 md:w-24"
                                 placeholder="최대"
                                 type="number"
-                                value={filters.maxPrice}
+                                value={draftFilters.maxPrice}
                                 onChange={(e) =>
-                                    setFilters((f) => ({ ...f, maxPrice: e.target.value }))
+                                    setDraftFilters((f) => ({ ...f, maxPrice: e.target.value }))
                                 }
                             />
                         </div>
@@ -236,7 +300,7 @@ export default function ExplorePage() {
                             <select
                                 className="bg-surface-container-low border border-outline-variant rounded-lg px-sm py-xs text-body-sm"
                                 value={sort}
-                                onChange={(e) => setSort(e.target.value)}
+                                onChange={(e) => handleSortChange(e.target.value)}
                             >
                                 <option value="latest">최신순</option>
                                 <option value="priceAsc">가격 낮은순</option>
