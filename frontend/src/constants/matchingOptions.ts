@@ -1,6 +1,6 @@
 export const SPORTS = ['헬스', '필라테스', '수영', '요가', '크로스핏', '테니스', '골프']
 
-export const LEVELS = ['초급', '중급', '고급']
+export const LEVELS = ['입문/초급', '중급', '고급/대회준비']
 
 export const LESSON_TYPES = ['1:1 PT', '그룹', '온라인']
 
@@ -17,11 +17,3 @@ export const DISTRICTS: Record<string, string[]> = {
 }
 
 export const DAYS_OF_WEEK = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일']
-
-export const TIME_OPTIONS = Array.from({ length: 36 }, (_, index) => {
-    const totalMinutes = 6 * 60 + index * 30
-    const hour = Math.floor(totalMinutes / 60)
-    const minute = totalMinutes % 60
-
-    return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
-})
