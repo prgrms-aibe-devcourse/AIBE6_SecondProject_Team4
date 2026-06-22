@@ -5,7 +5,8 @@ import WritableReviewList from '@/components/WritableReviewList';
 import { useAuth } from '@/context/AuthContext';
 import { Review, useMyReviews } from '@/hooks/useMyReviews';
 import { getImageUrl } from '@/utils/apiClient';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 
 
@@ -250,7 +251,10 @@ export default function MyReviewList() {
         updateReview,
         deleteReview,
     } = useMyReviews()
-    const [tab, setTab] = useState<Tab>('all')
+    const searchParams = useSearchParams()
+    const [tab, setTab] = useState<Tab>(() =>
+        !isTrainer && searchParams.get('subtab') === 'writable' ? 'writable' : 'all'
+    )
     const [editing, setEditing] = useState<Review | null>(null)
 
     const handleDelete = async (id: number) => {
