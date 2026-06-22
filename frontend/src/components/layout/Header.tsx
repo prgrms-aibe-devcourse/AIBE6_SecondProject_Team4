@@ -5,36 +5,8 @@ import { type AlertItem, useAlert } from '@/hooks/useAlert';
 import { getImageUrl } from '@/utils/apiClient';
 import { useEffect, useRef, useState } from 'react';
 
-
-
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function getAlertHref(alert: AlertItem): string {
     if (!alert.targetId) return '#'
