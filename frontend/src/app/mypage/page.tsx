@@ -395,7 +395,7 @@ export default function MyPage() {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
     const [loading, setLoading] = useState(true)
     const [hydrated, setHydrated] = useState(false)
-    const [activeTab, setActiveTab] = useState('matching')
+    const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') ?? 'matching')
     const [showPasswordModal, setShowPasswordModal] = useState(false)
     const [pwCurrent, setPwCurrent] = useState('')
     const [pwNew, setPwNew] = useState('')
@@ -475,7 +475,7 @@ export default function MyPage() {
 
     const profile = user?.role === 'TRAINER' ? trainerProfile : userProfile
 
-    if (!hydrated || loading) {
+    if ((!hydrated || loading) && searchParams.get('tab') !== 'account') {
         const skeletonTab = searchParams.get('tab') ?? 'matching'
 
         const tabTitles: Record<string, { title: string; subtitle: string }> = {
@@ -721,9 +721,10 @@ export default function MyPage() {
 
                     {activeTab === 'account' && (
                         <section className="space-y-md">
-                            <h2 className="text-headline-sm font-headline-sm text-on-surface">
-                                계정 설정
-                            </h2>
+                            <div>
+                                <h2 className="font-headline-md text-headline-md text-on-surface">계정 설정</h2>
+                                <p className="mt-xs text-body-md text-on-surface-variant">비밀번호 변경 및 회원 탈퇴를 관리하세요.</p>
+                            </div>
                             <div
                                 className="overflow-hidden rounded-xl border border-outline-variant"
                                 style={{
