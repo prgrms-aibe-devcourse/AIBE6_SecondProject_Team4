@@ -1,15 +1,17 @@
 package com.fitmate.lesson.controller;
 
+import com.fitmate.lesson.dto.BookedTimeResponse;
 import com.fitmate.lesson.dto.LessonRequestCreateRequest;
 import com.fitmate.lesson.dto.LessonRequestResponse;
 import com.fitmate.lesson.service.LessonRequestService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import io.swagger.v3.oas.annotations.Operation;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -86,5 +88,15 @@ public class LessonRequestController {
         String trainerUserId = authentication.getName();
 
         return ResponseEntity.ok(lessonRequestService.rejectLessonRequest(lessonRequestId, trainerUserId));
+    }
+
+    // 특정 트레이너의 특정 날짜에 이미 확정된 레슨 시간대 조회 (예약 가능 시간 계산용)
+    @Operation(summary = "트레이너 예약된 시간대 조회")
+    @GetMapping("/api/trainers/{trainerProfileId}/booked-times")
+    public ResponseEntity<List<BookedTimeResponse>> getBookedTimes(
+            @PathVariable Long trainerProfileId,
+            @RequestParam LocalDate date
+    ) {
+        return ResponseEntity.ok(lessonRequestService.getBookedTimes(trainerProfileId, date));
     }
 }

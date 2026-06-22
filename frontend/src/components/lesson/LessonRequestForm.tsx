@@ -3,7 +3,7 @@
 import type { components } from '@/types/api'
 import { getAuthClient, getImageUrl } from '@/utils/apiClient'
 import { formatLessonType } from '@/utils/lessonDisplay'
-import { FormEvent, useMemo, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -240,10 +240,43 @@ export default function LessonRequestForm({
               )
             : []
 
+    // 트레이너 직접 모드: 선택한 날짜에 이미 확정된 레슨 시간대 (중복 예약 방지)
+    const [bookedTimes, setBookedTimes] = useState<Array<{ startTime?: string; endTime?: string }>>(
+        []
+    )
+    useEffect(() => {
+        if (!isDirectMode || !selectedDate || !directTrainer) {
+            setBookedTimes([])
+            return
+        }
+
+        const loadBookedTimes = async () => {
+            const client = getAuthClient()
+            const { data } = await client.GET('/api/trainers/{trainerProfileId}/booked-times', {
+                params: {
+                    path: { trainerProfileId: directTrainer.trainerProfileId },
+                    query: { date: selectedDate },
+                },
+            })
+            setBookedTimes(data ?? [])
+        }
+
+        void loadBookedTimes()
+    }, [isDirectMode, selectedDate, directTrainer])
+
     // 선택한 트레이너의 가능시간 블록을 레슨 시간 단위로 잘라서 시작시간 목록 생성
     const lessonDuration = scheduleTrainer?.lessonDurationMinutes ?? 60
 
     const timeSlotOptions = useMemo(() => {
+        // 이미 확정된 레슨 시간대를 분 단위 [시작, 끝] 범위로 변환
+        const bookedRanges = bookedTimes
+            .filter((bt) => bt.startTime && bt.endTime)
+            .map((bt) => {
+                const [bsH, bsM] = bt.startTime!.split(':').map(Number)
+                const [beH, beM] = bt.endTime!.split(':').map(Number)
+                return { start: bsH * 60 + bsM, end: beH * 60 + beM }
+            })
+
         const slots = selectedDayTimes.flatMap((availableTime) => {
             const [startH, startM] = availableTime.startTime.split(':').map(Number)
             const [endH, endM] = availableTime.endTime.split(':').map(Number)
@@ -257,18 +290,27 @@ export default function LessonRequestForm({
                 time + lessonDuration <= endMinutes;
                 time += lessonDuration
             ) {
-                const hour = Math.floor(time / 60)
-                const minute = time % 60
-                availableSlots.push(
-                    `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+                const slotEnd = time + lessonDuration
+
+                // 이 슬롯이 이미 확정된 시간대 중 하나와 겹치는지 확인
+                const isOverlapping = bookedRanges.some(
+                    (range) => time < range.end && slotEnd > range.start
                 )
+
+                if (!isOverlapping) {
+                    const hour = Math.floor(time / 60)
+                    const minute = time % 60
+                    availableSlots.push(
+                        `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+                    )
+                }
             }
 
             return availableSlots
         })
 
         return [...new Set(slots)].sort()
-    }, [selectedDayTimes, lessonDuration])
+    }, [selectedDayTimes, lessonDuration, bookedTimes])
 
     const [selectedStartTime, setSelectedStartTime] = useState('')
 
@@ -467,6 +509,7 @@ export default function LessonRequestForm({
                     </div>
                 </div>
             </section>
+
             <section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-md md:p-lg">
                 <div>
                     <h2 className="font-headline-sm text-headline-sm text-on-surface">

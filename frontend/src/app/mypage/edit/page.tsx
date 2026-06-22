@@ -23,7 +23,7 @@ export default function ProfileEditPage() {
     const [trainerId, setTrainerId] = useState<number | null>(null)
     const [trainerForm, setTrainerForm] = useState({
         sports: [] as string[],
-        lessonType: 'ONE_TO_ONE',
+        lessonType: [] as string[],
         lessonLevel: [] as string[],
         price: '',
         careerYears: '',
@@ -73,7 +73,9 @@ export default function ProfileEditPage() {
                 setTrainerId(data.id ?? null)
                 setTrainerForm({
                     sports: data.sports ? data.sports.split(',').map((s) => s.trim()) : [],
-                    lessonType: data.lessonType ?? 'ONE_TO_ONE',
+                    lessonType: data.lessonType
+                        ? data.lessonType.split(',').map((t) => t.trim())
+                        : [],
                     lessonLevel: data.lessonLevel
                         ? data.lessonLevel.split(',').map((l) => l.trim())
                         : [],
@@ -194,7 +196,7 @@ export default function ProfileEditPage() {
         if (user?.role === 'TRAINER') {
             const body = {
                 sports: trainerForm.sports.join(','),
-                lessonType: trainerForm.lessonType,
+                lessonType: trainerForm.lessonType.join(','),
                 lessonLevel: trainerForm.lessonLevel.join(','),
                 price: Number(trainerForm.price),
                 careerYears: Number(trainerForm.careerYears),
@@ -319,7 +321,7 @@ export default function ProfileEditPage() {
         if (user?.role === 'TRAINER') {
             const fields = [
                 trainerForm.sports.length > 0,
-                trainerForm.lessonType !== '',
+                trainerForm.lessonLevel.length > 0,
                 trainerForm.lessonLevel.length > 0,
                 trainerForm.price !== '',
                 trainerForm.careerYears !== '',
@@ -573,14 +575,18 @@ export default function ProfileEditPage() {
                                             <button
                                                 key={value}
                                                 className={`py-sm rounded-lg text-label-bold font-label-bold border transition-all ${
-                                                    trainerForm.lessonType === value
+                                                    trainerForm.lessonType.includes(value)
                                                         ? 'bg-primary text-on-primary border-primary'
                                                         : 'bg-surface-container-low border-outline-variant text-on-surface-variant hover:border-primary'
                                                 }`}
                                                 onClick={() =>
                                                     setTrainerForm((f) => ({
                                                         ...f,
-                                                        lessonType: value,
+                                                        lessonType: f.lessonType.includes(value)
+                                                            ? f.lessonType.filter(
+                                                                  (t) => t !== value
+                                                              )
+                                                            : [...f.lessonType, value],
                                                     }))
                                                 }
                                             >
