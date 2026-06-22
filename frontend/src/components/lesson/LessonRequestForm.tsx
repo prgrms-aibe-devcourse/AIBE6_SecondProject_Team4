@@ -3,7 +3,7 @@
 import type { components } from '@/types/api'
 import { getAuthClient, getImageUrl } from '@/utils/apiClient'
 import { formatLessonType } from '@/utils/lessonDisplay'
-import { FormEvent, useMemo, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -126,6 +126,30 @@ export default function LessonRequestForm({
               )
             : undefined
 
+    // 트레이너 직접 모드: 선택한 날짜에 이미 확정된 레슨 시간대 (중복 예약 방지)
+    const [bookedTimes, setBookedTimes] = useState<Array<{ startTime?: string; endTime?: string }>>(
+        []
+    )
+    useEffect(() => {
+        if (!isDirectMode || !selectedDate || !directTrainer) {
+            setBookedTimes([])
+            return
+        }
+
+        const loadBookedTimes = async () => {
+            const client = getAuthClient()
+            const { data } = await client.GET('/api/trainers/{trainerProfileId}/booked-times', {
+                params: {
+                    path: { trainerProfileId: directTrainer.trainerProfileId },
+                    query: { date: selectedDate },
+                },
+            })
+            setBookedTimes(data ?? [])
+        }
+
+        void loadBookedTimes()
+    }, [isDirectMode, selectedDate, directTrainer])
+
     // 트레이너 직접 모드: 선택한 날짜의 가능시간 블록을 레슨 시간 단위로 잘라서 시작시간 목록 생성
     const lessonDuration = directTrainer?.lessonDurationMinutes ?? 60
 
@@ -138,17 +162,77 @@ export default function LessonRequestForm({
         const startMinutes = startH * 60 + startM
         const endMinutes = endH * 60 + endM
 
+        // 이미 확정된 레슨 시간대를 분 단위 [시작, 끝] 범위로 변환
+        const bookedRanges = bookedTimes
+            .filter((bt) => bt.startTime && bt.endTime)
+            .map((bt) => {
+                const [bsH, bsM] = bt.startTime!.split(':').map(Number)
+                const [beH, beM] = bt.endTime!.split(':').map(Number)
+                return { start: bsH * 60 + bsM, end: beH * 60 + beM }
+            })
         const slots: string[] = []
         for (let t = startMinutes; t + lessonDuration <= endMinutes; t += lessonDuration) {
-            const h = Math.floor(t / 60)
-            const m = t % 60
-            slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
+            const slotEnd = t + lessonDuration
+
+            // 이 슬롯[t, slotEnd]이 이미 확정된 시간대 중 하나와 겹치는지 확인
+            const isOverlapping = bookedRanges.some(
+                (range) => t < range.end && slotEnd > range.start
+            )
+
+            if (!isOverlapping) {
+                const h = Math.floor(t / 60)
+                const m = t % 60
+                slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
+            }
         }
         return slots
-    }, [selectedDayTime, lessonDuration])
+    }, [selectedDayTime, lessonDuration, bookedTimes])
 
     const [selectedStartTime, setSelectedStartTime] = useState('')
+    const [selectedSport, setSelectedSport] = useState('')
 
+    // 트레이너 직접 모드: 트레이너가 가르치는 종목 목록 (콤마로 구분된 문자열을 배열로)
+    const sportOptions = isDirectMode
+        ? (directTrainer!.sports ?? '')
+              .split(',')
+              .map((s) => s.trim())
+              .filter(Boolean)
+        : []
+    // 트레이너 직접 모드: 종목이 하나뿐이면 자동으로 선택
+    useEffect(() => {
+        if (sportOptions.length === 1) {
+            setSelectedSport(sportOptions[0])
+        }
+    }, [sportOptions])
+
+    const [selectedLessonType, setSelectedLessonType] = useState('')
+    const [selectedLessonLevel, setSelectedLessonLevel] = useState('')
+
+    // 트레이너 직접 모드: 트레이너가 제공하는 레슨 유형 목록
+    const lessonTypeOptions = isDirectMode
+        ? (directTrainer!.lessonType ?? '')
+              .split(',')
+              .map((t) => t.trim())
+              .filter(Boolean)
+        : []
+    useEffect(() => {
+        if (lessonTypeOptions.length === 1) {
+            setSelectedLessonType(lessonTypeOptions[0])
+        }
+    }, [lessonTypeOptions])
+
+    // 트레이너 직접 모드: 트레이너가 제공하는 레슨 수준 목록
+    const lessonLevelOptions = isDirectMode
+        ? (directTrainer!.lessonLevel ?? '')
+              .split(',')
+              .map((l) => l.trim())
+              .filter(Boolean)
+        : []
+    useEffect(() => {
+        if (lessonLevelOptions.length === 1) {
+            setSelectedLessonLevel(lessonLevelOptions[0])
+        }
+    }, [lessonLevelOptions])
     // 선택된 시작시간 + 레슨 시간으로 종료시간 계산
     const selectedEndTime = useMemo(() => {
         if (!selectedStartTime) return ''
@@ -205,6 +289,11 @@ export default function LessonRequestForm({
                     requestedStartTime,
                     requestedEndTime,
                     message: message.trim() || undefined,
+                    selectedSport: isDirectMode && selectedSport ? selectedSport : undefined,
+                    selectedLessonType:
+                        isDirectMode && selectedLessonType ? selectedLessonType : undefined,
+                    selectedLessonLevel:
+                        isDirectMode && selectedLessonLevel ? selectedLessonLevel : undefined,
                 },
             })
 
@@ -268,6 +357,93 @@ export default function LessonRequestForm({
                     </div>
                 </div>
             </section>
+            {isDirectMode &&
+                (sportOptions.length > 1 ||
+                    lessonTypeOptions.length > 1 ||
+                    lessonLevelOptions.length > 1) && (
+                    <section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-md md:p-lg space-y-md">
+                        <div>
+                            <h2 className="font-headline-sm text-headline-sm text-on-surface">
+                                레슨 선택
+                            </h2>
+                            <p className="mt-xs text-body-sm text-on-surface-variant">
+                                트레이너가 제공하는 옵션 중에서 원하는 항목을 선택해 주세요.
+                            </p>
+                        </div>
+
+                        {sportOptions.length > 1 && (
+                            <div>
+                                <p className="text-label-md font-label-md text-on-surface-variant mb-xs">
+                                    받고 싶은 종목
+                                </p>
+                                <div className="grid grid-cols-2 gap-xs">
+                                    {sportOptions.map((sport) => (
+                                        <button
+                                            key={sport}
+                                            type="button"
+                                            onClick={() => setSelectedSport(sport)}
+                                            className={`h-11 rounded-lg border text-body-sm font-label-bold transition-colors ${
+                                                selectedSport === sport
+                                                    ? 'border-primary bg-primary text-on-primary'
+                                                    : 'border-outline-variant bg-surface-container-low text-on-surface-variant hover:border-primary hover:text-primary'
+                                            }`}
+                                        >
+                                            {sport}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {lessonTypeOptions.length > 1 && (
+                            <div>
+                                <p className="text-label-md font-label-md text-on-surface-variant mb-xs">
+                                    레슨 유형
+                                </p>
+                                <div className="grid grid-cols-2 gap-xs">
+                                    {lessonTypeOptions.map((type) => (
+                                        <button
+                                            key={type}
+                                            type="button"
+                                            onClick={() => setSelectedLessonType(type)}
+                                            className={`h-11 rounded-lg border text-body-sm font-label-bold transition-colors ${
+                                                selectedLessonType === type
+                                                    ? 'border-primary bg-primary text-on-primary'
+                                                    : 'border-outline-variant bg-surface-container-low text-on-surface-variant hover:border-primary hover:text-primary'
+                                            }`}
+                                        >
+                                            {formatLessonType(type)}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {lessonLevelOptions.length > 1 && (
+                            <div>
+                                <p className="text-label-md font-label-md text-on-surface-variant mb-xs">
+                                    레슨 수준
+                                </p>
+                                <div className="grid grid-cols-2 gap-xs">
+                                    {lessonLevelOptions.map((level) => (
+                                        <button
+                                            key={level}
+                                            type="button"
+                                            onClick={() => setSelectedLessonLevel(level)}
+                                            className={`h-11 rounded-lg border text-body-sm font-label-bold transition-colors ${
+                                                selectedLessonLevel === level
+                                                    ? 'border-primary bg-primary text-on-primary'
+                                                    : 'border-outline-variant bg-surface-container-low text-on-surface-variant hover:border-primary hover:text-primary'
+                                            }`}
+                                        >
+                                            {level}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </section>
+                )}
             <section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-md md:p-lg">
                 <div className="flex flex-wrap items-start justify-between gap-xs">
                     <div>
@@ -406,20 +582,32 @@ export default function LessonRequestForm({
                 </h2>
 
                 <dl className="mt-md space-y-sm">
-                    <SummaryRow icon="fitness_center" label="운동 종목" value={displaySports} />
+                    <SummaryRow
+                        icon="fitness_center"
+                        label="운동 종목"
+                        value={isDirectMode && selectedSport ? selectedSport : displaySports}
+                    />
                     <SummaryRow
                         icon="groups"
                         label="레슨 유형"
-                        value={displayLessonType ? formatLessonType(displayLessonType) : undefined}
+                        value={
+                            isDirectMode && selectedLessonType
+                                ? formatLessonType(selectedLessonType)
+                                : displayLessonType
+                                  ? formatLessonType(displayLessonType)
+                                  : undefined
+                        }
                     />
                     <SummaryRow
                         icon="trending_up"
                         label="레슨 수준"
                         value={
-                            summary?.level ??
-                            (isDirectMode
-                                ? directTrainer!.lessonLevel
-                                : matchingResult?.lessonLevel)
+                            isDirectMode && selectedLessonLevel
+                                ? selectedLessonLevel
+                                : (summary?.level ??
+                                  (isDirectMode
+                                      ? directTrainer!.lessonLevel
+                                      : matchingResult?.lessonLevel))
                         }
                     />
                     <SummaryRow icon="location_on" label="장소" value={location || '-'} />

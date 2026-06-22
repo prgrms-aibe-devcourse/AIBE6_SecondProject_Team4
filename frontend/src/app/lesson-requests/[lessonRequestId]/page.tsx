@@ -1,73 +1,14 @@
 'use client'
 
-import { useAuth } from '@/context/AuthContext';
-import type { components } from '@/types/api';
-import { getAuthClient, getImageUrl } from '@/utils/apiClient';
-import { startPayment } from '@/utils/payment';
-import { useEffect, useMemo, useState } from 'react';
+import { useAuth } from '@/context/AuthContext'
+import type { components } from '@/types/api'
+import { getAuthClient, getImageUrl } from '@/utils/apiClient'
+import { formatLessonType } from '@/utils/lessonDisplay'
+import { startPayment } from '@/utils/payment'
+import { useEffect, useMemo, useState } from 'react'
 
-
-
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+import Link from 'next/link'
+import { useParams, useRouter } from 'next/navigation'
 
 type LessonRequest = components['schemas']['LessonRequestResponse']
 type LessonRequestStatus = NonNullable<LessonRequest['status']>
@@ -300,7 +241,7 @@ function ParticipantProfileCard({
 function RequestSummary({ request }: { request: LessonRequest }) {
     const items = [
         { icon: 'sports_gymnastics', label: '운동 종목', value: request.sports },
-        { icon: 'groups', label: '레슨 유형', value: request.lessonType },
+        { icon: 'groups', label: '레슨 유형', value: formatLessonType(request.lessonType) },
         { icon: 'trending_up', label: '레슨 수준', value: request.lessonLevel },
         {
             icon: 'confirmation_number',

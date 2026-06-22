@@ -3,6 +3,7 @@ package com.fitmate.lesson.service;
 import com.fitmate.alert.entity.AlertType;
 import com.fitmate.global.exception.CustomException;
 import com.fitmate.global.exception.ErrorCode;
+import com.fitmate.lesson.dto.BookedTimeResponse;
 import com.fitmate.lesson.dto.LessonRequestCreateRequest;
 import com.fitmate.lesson.dto.LessonRequestResponse;
 import com.fitmate.lesson.entity.LessonPassType;
@@ -23,6 +24,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -97,6 +99,9 @@ public class LessonRequestService {
                     .requestedStartTime(request.requestedStartTime())
                     .requestedEndTime(request.requestedEndTime())
                     .message(request.message())
+                    .selectedSport(request.selectedSport())
+                    .selectedLessonType(request.selectedLessonType())
+                    .selectedLessonLevel(request.selectedLessonLevel())
                     .status(LessonRequestStatus.PENDING)
                     .build();
 
@@ -267,9 +272,15 @@ public class LessonRequestService {
             level = matchingRequest.getLevel();
             region = matchingRequest.getRegion();
         } else {
-            sports = trainerProfile.getSports();
-            lessonType = trainerProfile.getLessonType();
-            level = trainerProfile.getLessonLevel();
+            sports = lessonRequest.getSelectedSport() != null
+                    ? lessonRequest.getSelectedSport()
+                    : trainerProfile.getSports();
+            lessonType = lessonRequest.getSelectedLessonType() != null
+                    ? lessonRequest.getSelectedLessonType()
+                    : trainerProfile.getLessonType();
+            level = lessonRequest.getSelectedLessonLevel() != null
+                    ? lessonRequest.getSelectedLessonLevel()
+                    : trainerProfile.getLessonLevel();
             region = trainerMember.getRegion();
         }
 
@@ -332,5 +343,16 @@ public class LessonRequestService {
         if (!matches) {
             throw new CustomException(ErrorCode.INVALID_INPUT);
         }
+    }
+
+    // 특정 트레이너의 특정 날짜에 이미 확정된 레슨 시간대 목록 조회 (시간 슬롯 중복 방지용)
+    public List<BookedTimeResponse> getBookedTimes(Long trainerProfileId, LocalDate date) {
+        return lessonRequestRepository
+                .findByTrainerProfileIdAndRequestedDateAndStatus(
+                        trainerProfileId, date, LessonRequestStatus.ACCEPTED
+                )
+                .stream()
+                .map(lr -> new BookedTimeResponse(lr.getRequestedStartTime(), lr.getRequestedEndTime()))
+                .toList();
     }
 }

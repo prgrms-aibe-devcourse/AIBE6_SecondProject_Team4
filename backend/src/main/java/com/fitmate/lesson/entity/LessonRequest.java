@@ -49,6 +49,15 @@ public class LessonRequest extends BaseEntity {
     @Column(length = 500)
     private String message;
 
+    @Column(name = "selected_sport", length = 50)
+    private String selectedSport;
+
+    @Column(name = "selected_lesson_type", length = 50)
+    private String selectedLessonType;
+
+    @Column(name = "selected_lesson_level", length = 50)
+    private String selectedLessonLevel;
+    
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private LessonRequestStatus status;
@@ -64,6 +73,7 @@ public class LessonRequest extends BaseEntity {
     public void cancel() {
         this.status = LessonRequestStatus.CANCELED;
     }
+
     public void complete() {
         this.status = LessonRequestStatus.COMPLETED;
     }

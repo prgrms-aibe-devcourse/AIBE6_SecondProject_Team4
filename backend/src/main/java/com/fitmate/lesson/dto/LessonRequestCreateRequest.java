@@ -21,6 +21,12 @@ public record LessonRequestCreateRequest(
 
         @NotNull LocalTime requestedEndTime,
 
-        String message
+        String message,
+
+        String selectedSport,
+
+        String selectedLessonType,
+        
+        String selectedLessonLevel
 ) {
 }
