@@ -1,4 +1,5 @@
 import type { components } from '@/types/api'
+import { getImageUrl } from '@/utils/apiClient'
 import { formatLessonType } from '@/utils/lessonDisplay'
 
 import Link from 'next/link'
@@ -29,7 +30,7 @@ export default function MatchingResultCard({ result, onLessonRequest }: Matching
             <div className="aspect-[4/3] bg-surface-container">
                 {result.profileImage ? (
                     <img
-                        src={result.profileImage}
+                        src={getImageUrl(result.profileImage)}
                         alt={`${result.trainerName ?? '트레이너'} 프로필`}
                         className="h-full w-full object-cover"
                     />
