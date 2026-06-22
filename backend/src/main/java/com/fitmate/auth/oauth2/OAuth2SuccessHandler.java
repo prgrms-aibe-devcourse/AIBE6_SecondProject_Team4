@@ -10,6 +10,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -27,7 +28,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    private static final String FRONTEND_REDIRECT_URI = "http://localhost:3000/oauth2/redirect";
+    @Value("${custom.frontend-redirect-uri}")
+    private String frontendRedirectUri;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -56,7 +58,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         refreshCookie.setMaxAge((int) (jwtProvider.getRefreshExpirationMs() / 1000));
         response.addCookie(refreshCookie);
 
-        String redirectUrl = FRONTEND_REDIRECT_URI + "?accessToken=" + accessToken;
+        String redirectUrl = frontendRedirectUri + "?accessToken=" + accessToken;
         response.sendRedirect(redirectUrl);
     }
 
