@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Arrays;
@@ -95,6 +94,29 @@ public List<MatchingResultResponse> createMatchingResults(
             );
 
     if (!existingResults.isEmpty()) {
+        boolean hasAiRecommendation =
+                existingResults.stream()
+                        .anyMatch(result ->
+                                result.getAiRank() != null
+                                        && result.getAiReason() != null
+                        );
+
+        /*
+         * Gemini 호출 실패 등으로 AI 정보가 비어 있는 기존 결과는
+         * 결과 생성 API를 다시 호출했을 때 한 번 재추천합니다.
+         */
+        if (!hasAiRecommendation) {
+            List<AiRankingResult> aiRankings =
+                    aiMatchingRecommendationService.rankCandidates(
+                            matchingRequest,
+                            existingResults
+                    );
+
+            applyAiRankings(existingResults, aiRankings);
+            existingResults =
+                    matchingResultRepository.saveAll(existingResults);
+        }
+
         return toSortedResponses(existingResults);
     }
 
@@ -106,6 +128,19 @@ public List<MatchingResultResponse> createMatchingResults(
     // 등록된 전체 트레이너 프로필 조회
     List<TrainerProfile> trainerProfiles =
             trainerProfileRepository.findAll();
+
+    Map<Long, List<TrainerAvailableTime>> availableTimesByTrainerId =
+            new HashMap<>();
+
+    for (TrainerAvailableTime availableTime :
+            trainerAvailableTimeRepository.findAll()) {
+        availableTimesByTrainerId
+                .computeIfAbsent(
+                        availableTime.getTrainerProfile().getId(),
+                        ignored -> new ArrayList<>()
+                )
+                .add(availableTime);
+    }
 
     List<MatchingResult> matchingResults =
             new ArrayList<>();
@@ -128,16 +163,16 @@ public List<MatchingResultResponse> createMatchingResults(
             continue;
         }
 
-        // 현재 트레이너의 활동 가능 시간 조회
+        // 미리 조회해 둔 현재 트레이너의 활동 가능 시간 사용
         List<TrainerAvailableTime> availableTimes =
-                trainerAvailableTimeRepository
-                        .findByTrainerProfileId(
-                                trainerProfile.getId()
-                        );
+                availableTimesByTrainerId.getOrDefault(
+                        trainerProfile.getId(),
+                        List.of()
+                );
 
         /*
-         * 선호 시간과 트레이너 가능 시간을 비교합니다.
-         * 한 트레이너가 여러 시간에 맞더라도 결과는 한 번만 생성합니다.
+         * 선호 요일과 트레이너 가능 요일을 비교합니다.
+         * 한 트레이너가 여러 요일에 맞더라도 결과는 한 번만 생성합니다.
          */
         MatchingResult matchingResult =
                 findFirstMatchingResult(
@@ -187,7 +222,7 @@ public List<MatchingResultResponse> createMatchingResults(
         for (MatchingPreferredTime preferredTime : preferredTimes) {
             for (TrainerAvailableTime availableTime : availableTimes) {
 
-                if (matchesTime(preferredTime, availableTime)) {
+                if (matchesDay(preferredTime, availableTime)) {
                     return MatchingResult.builder()
                             .matchingRequest(matchingRequest)
                             .trainerProfile(trainerProfile)
@@ -302,20 +337,14 @@ public List<MatchingResultResponse> createMatchingResults(
 
         return price >= budgetMin && price <= budgetMax;
     }
-    //매칭 선호 시간 , 트레이너 선호 시간 비교
-    private boolean matchesTime(
+    // 매칭 단계에서는 구체적인 시간이 아니라 가능한 요일만 비교
+    private boolean matchesDay(
             MatchingPreferredTime preferredTime,
             TrainerAvailableTime availableTime
     ) {
         return Objects.equals(
                 normalizeDay(preferredTime.getDayOfWeek()),
                 normalizeDay(availableTime.getDayOfWeek())
-        )
-                && containsTime(
-                availableTime.getStartTime(),
-                availableTime.getEndTime(),
-                preferredTime.getStartTime(),
-                preferredTime.getEndTime()
         );
     }
 
@@ -340,16 +369,6 @@ public List<MatchingResultResponse> createMatchingResults(
                 .map(normalizer)
                 .filter(value -> !value.isBlank())
                 .anyMatch(normalizedRequests::contains);
-    }
-
-    private boolean containsTime(
-            LocalTime availableStartTime,
-            LocalTime availableEndTime,
-            LocalTime preferredStartTime,
-            LocalTime preferredEndTime
-    ) {
-        return !availableStartTime.isAfter(preferredStartTime)
-                && !availableEndTime.isBefore(preferredEndTime);
     }
 
     private MatchingResultResponse toMatchingResultResponse(
@@ -378,7 +397,7 @@ public List<MatchingResultResponse> createMatchingResults(
                 trainerProfile.getLessonLevel(),
                 trainerMember.getRegion(),
                 trainerProfile.getPrice(),
-                preferredTime.getDayOfWeek(),
+                findMatchedDays(matchingResult),
                 preferredTime.getStartTime(),
                 preferredTime.getEndTime(),
                 trainerAvailableTime.getStartTime(),
@@ -388,6 +407,40 @@ public List<MatchingResultResponse> createMatchingResults(
                 matchingResult.getAiRank(),
                 matchingResult.getAiReason()
         );
+    }
+
+    private String findMatchedDays(MatchingResult matchingResult) {
+        List<MatchingPreferredTime> preferredTimes =
+                matchingPreferredTimeRepository.findByMatchingRequestId(
+                        matchingResult.getMatchingRequest().getId()
+                );
+
+        List<TrainerAvailableTime> availableTimes =
+                trainerAvailableTimeRepository.findByTrainerProfileId(
+                        matchingResult.getTrainerProfile().getId()
+                );
+
+        List<String> matchedDays = new ArrayList<>();
+
+        for (MatchingPreferredTime preferredTime : preferredTimes) {
+            boolean matches = availableTimes.stream()
+                    .anyMatch(availableTime ->
+                            matchesDay(preferredTime, availableTime)
+                    );
+
+            boolean alreadyAdded = matchedDays.stream()
+                    .anyMatch(day ->
+                            normalizeDay(day).equals(
+                                    normalizeDay(preferredTime.getDayOfWeek())
+                            )
+                    );
+
+            if (matches && !alreadyAdded) {
+                matchedDays.add(preferredTime.getDayOfWeek());
+            }
+        }
+
+        return String.join(", ", matchedDays);
     }
 
     private String normalizeSport(String value) {

@@ -50,13 +50,8 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
     const [district, setDistrict] = useState('강남구')
     const [budgetMin, setBudgetMin] = useState(50000)
     const [budgetMax, setBudgetMax] = useState(80000)
-    const [dayOfWeek, setDayOfWeek] = useState('월요일')
-    const [startTime, setStartTime] = useState('19:00')
-    const [endTime, setEndTime] = useState('20:00')
     const [lessonContent, setLessonContent] = useState('')
-    const [preferredTimes, setPreferredTimes] = useState<PreferredTime[]>([
-        { id: 1, dayOfWeek: '월요일', startTime: '19:00', endTime: '20:00' },
-    ])
+    const [preferredTimes, setPreferredTimes] = useState<PreferredTime[]>([])
     const [formError, setFormError] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -128,31 +123,15 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
 
         const parsedTimes =
             initialDraft.preferredTimes
-                ?.filter((time) => time.dayOfWeek && time.startTime && time.endTime)
+                ?.filter((time) => time.dayOfWeek)
                 .map((time, index) => ({
                     id: Date.now() + index,
                     dayOfWeek: DAY_LABELS[time.dayOfWeek!] ?? time.dayOfWeek!,
-                    startTime: time.startTime!.slice(0, 5),
-                    endTime: time.endTime!.slice(0, 5),
+                    startTime: '00:00',
+                    endTime: '23:59:59',
                 })) ?? []
 
-        const firstParsedDay = initialDraft.preferredTimes?.find(
-            (time) => time.dayOfWeek
-        )?.dayOfWeek
-
-        if (firstParsedDay) {
-            setDayOfWeek(DAY_LABELS[firstParsedDay] ?? firstParsedDay)
-        }
-
         setPreferredTimes(parsedTimes)
-
-        if (parsedTimes.length > 0) {
-            const firstTime = parsedTimes[0]
-
-            setDayOfWeek(firstTime.dayOfWeek)
-            setStartTime(firstTime.startTime)
-            setEndTime(firstTime.endTime)
-        }
 
         setFormError('')
     }, [initialDraft])
@@ -191,25 +170,22 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
         setFormError('')
     }
 
-    const addPreferredTime = () => {
-        if (startTime >= endTime) {
-            setFormError('종료 시간은 시작 시간보다 늦어야 합니다.')
-            return
-        }
+    const togglePreferredDay = (day: string) => {
+        setPreferredTimes((times) => {
+            if (times.some((time) => time.dayOfWeek === day)) {
+                return times.filter((time) => time.dayOfWeek !== day)
+            }
 
-        const isDuplicate = preferredTimes.some(
-            (time) =>
-                time.dayOfWeek === dayOfWeek &&
-                time.startTime === startTime &&
-                time.endTime === endTime
-        )
-
-        if (isDuplicate) {
-            setFormError('이미 추가한 선호 시간입니다.')
-            return
-        }
-
-        setPreferredTimes((times) => [...times, { id: Date.now(), dayOfWeek, startTime, endTime }])
+            return [
+                ...times,
+                {
+                    id: Date.now(),
+                    dayOfWeek: day,
+                    startTime: '00:00',
+                    endTime: '23:59:59',
+                },
+            ]
+        })
         setFormError('')
     }
 
@@ -222,7 +198,7 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
         }
 
         if (preferredTimes.length === 0) {
-            setFormError('선호 시간을 한 개 이상 추가해 주세요.')
+            setFormError('선호 요일을 한 개 이상 선택해 주세요.')
             return
         }
 
@@ -242,8 +218,8 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
                     lessonContent,
                     preferredTimes: preferredTimes.map((time) => ({
                         dayOfWeek: time.dayOfWeek,
-                        startTime: `${time.startTime}:00`,
-                        endTime: `${time.endTime}:00`,
+                        startTime: '00:00:00',
+                        endTime: '23:59:59',
                     })),
                 },
             })
@@ -277,6 +253,7 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
                     budgetMin,
                     budgetMax,
                     lessonContent,
+                    preferredDays: preferredTimes.map((time) => time.dayOfWeek),
                 })
             )
 
@@ -318,17 +295,13 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
                         legend="레슨 수준"
                         options={LEVELS}
                         selected={levels}
-                        onToggle={(option) =>
-                            toggleSelection(option, levels, setLevels)
-                        }
+                        onToggle={(option) => toggleSelection(option, levels, setLevels)}
                     />
                     <ChoiceButtons
                         legend="레슨 유형"
                         options={LESSON_TYPES}
                         selected={lessonTypes}
-                        onToggle={(option) =>
-                            toggleSelection(option, lessonTypes, setLessonTypes)
-                        }
+                        onToggle={(option) => toggleSelection(option, lessonTypes, setLessonTypes)}
                     />
                 </section>
 
@@ -387,21 +360,12 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
                         일정 및 목표
                     </h3>
                     <p className="mt-xs text-body-sm text-on-surface-variant">
-                        선호하는 요일과 시간은 여러 개 추가할 수 있습니다.
+                        가능한 요일을 여러 개 선택하면 더 다양한 트레이너를 추천합니다.
                     </p>
 
                     <PreferredTimeInput
-                        dayOfWeek={dayOfWeek}
-                        startTime={startTime}
-                        endTime={endTime}
                         preferredTimes={preferredTimes}
-                        onDayChange={setDayOfWeek}
-                        onStartTimeChange={setStartTime}
-                        onEndTimeChange={setEndTime}
-                        onAdd={addPreferredTime}
-                        onRemove={(id) =>
-                            setPreferredTimes((times) => times.filter((time) => time.id !== id))
-                        }
+                        onToggle={togglePreferredDay}
                     />
 
                     <label className="block mt-md text-label-md font-label-md text-on-surface-variant">

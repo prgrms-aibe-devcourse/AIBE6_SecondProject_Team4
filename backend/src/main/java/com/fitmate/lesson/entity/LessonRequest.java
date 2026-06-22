@@ -37,6 +37,16 @@ public class LessonRequest extends BaseEntity {
     @Column(name = "weekly_count")
     private Integer weeklyCount;
 
+    @Column(name = "selected_sports", length = 255)
+    private String selectedSports;
+
+    @Column(name = "selected_lesson_level", length = 50)
+    private String selectedLessonLevel;
+
+    @Column(name = "selected_lesson_type", length = 50)
+    private String selectedLessonType;
+
+    // 기존 결제 및 상세 화면 호환을 위해 첫 번째 일정을 함께 저장합니다.
     @Column(name = "requested_date", nullable = false)
     private LocalDate requestedDate;
 
@@ -49,15 +59,6 @@ public class LessonRequest extends BaseEntity {
     @Column(length = 500)
     private String message;
 
-    @Column(name = "selected_sport", length = 50)
-    private String selectedSport;
-
-    @Column(name = "selected_lesson_type", length = 50)
-    private String selectedLessonType;
-
-    @Column(name = "selected_lesson_level", length = 50)
-    private String selectedLessonLevel;
-    
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private LessonRequestStatus status;

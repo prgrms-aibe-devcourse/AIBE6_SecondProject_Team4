@@ -40,6 +40,8 @@ public class GeminiClient {
             return Optional.empty();
         }
 
+        long startedAt = System.nanoTime();
+
         try {
             Map<String, Object> requestBody = Map.of(
                     "contents", List.of(Map.of(
@@ -81,11 +83,23 @@ public class GeminiClient {
             }
 
             JsonNode parsed = objectMapper.readTree(text);
+            log.debug(
+                    "Gemini JSON generation completed in {} ms",
+                    elapsedMillis(startedAt)
+            );
             return parsed.isMissingNode() ? Optional.empty() : Optional.of(parsed);
         } catch (RestClientException | JacksonException exception) {
-            log.warn("Gemini JSON generation failed ({})",
-                    exception.getClass().getSimpleName());
+            log.warn(
+                    "Gemini JSON generation failed after {} ms ({}: {})",
+                    elapsedMillis(startedAt),
+                    exception.getClass().getSimpleName(),
+                    exception.getMessage()
+            );
             return Optional.empty();
         }
+    }
+
+    private long elapsedMillis(long startedAt) {
+        return (System.nanoTime() - startedAt) / 1_000_000;
     }
 }

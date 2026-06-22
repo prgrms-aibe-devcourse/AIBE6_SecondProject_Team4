@@ -314,6 +314,17 @@ function SchedulePanel({
     onReject: () => void
 }) {
     const pending = request.status === 'PENDING'
+    const schedules =
+        request.schedules && request.schedules.length > 0
+            ? request.schedules
+            : [
+                  {
+                      scheduleId: undefined,
+                      requestedDate: request.requestedDate,
+                      startTime: request.requestedStartTime,
+                      endTime: request.requestedEndTime,
+                  },
+              ]
 
     return (
         <aside className="rounded-lg border border-primary/20 bg-surface-container-lowest p-md lg:sticky lg:top-24">
@@ -330,24 +341,37 @@ function SchedulePanel({
                 </span>
             </div>
 
-            <RequestCalendar requestedDate={request.requestedDate} />
+            <RequestCalendar
+                requestedDates={schedules
+                    .map((schedule) => schedule.requestedDate)
+                    .filter((date): date is string => Boolean(date))}
+            />
 
-            <div className="mt-md rounded-lg border border-outline-variant bg-surface-container-low p-sm">
-                <div className="flex items-center gap-xs">
-                    <span className="material-symbols-outlined text-primary">schedule</span>
-                    <div className="min-w-0 flex-1">
-                        <p className="font-label-bold text-on-surface">
-                            {getRequestedDayLabel(request.requestedDate)}
-                        </p>
-                        <p className="text-label-sm text-on-surface-variant">
-                            {formatDate(request.requestedDate)} 시작
-                        </p>
+            <div className="mt-md space-y-xs">
+                {schedules.map((schedule, index) => (
+                    <div
+                        key={
+                            schedule.scheduleId ??
+                            `${schedule.requestedDate}-${schedule.startTime}-${index}`
+                        }
+                        className="rounded-lg border border-outline-variant bg-surface-container-low p-sm"
+                    >
+                        <div className="flex items-center gap-xs">
+                            <span className="material-symbols-outlined text-primary">schedule</span>
+                            <div className="min-w-0 flex-1">
+                                <p className="font-label-bold text-on-surface">
+                                    {getRequestedDayLabel(schedule.requestedDate)}
+                                </p>
+                                <p className="text-label-sm text-on-surface-variant">
+                                    {formatDate(schedule.requestedDate)} 시작
+                                </p>
+                            </div>
+                            <strong className="whitespace-nowrap text-body-md text-on-surface">
+                                {formatTime(schedule.startTime)} - {formatTime(schedule.endTime)}
+                            </strong>
+                        </div>
                     </div>
-                    <strong className="whitespace-nowrap text-body-md text-on-surface">
-                        {formatTime(request.requestedStartTime)} -{' '}
-                        {formatTime(request.requestedEndTime)}
-                    </strong>
-                </div>
+                ))}
             </div>
 
             {errorMessage && (
@@ -409,11 +433,12 @@ function getProcessedRequestMessage(status?: LessonRequestStatus) {
     return '이미 처리된 요청입니다.'
 }
 
-function RequestCalendar({ requestedDate }: { requestedDate?: string }) {
-    const selectedDate = useMemo(
-        () => (requestedDate ? new Date(`${requestedDate}T00:00:00`) : null),
-        [requestedDate]
+function RequestCalendar({ requestedDates }: { requestedDates: string[] }) {
+    const selectedDates = useMemo(
+        () => requestedDates.map((date) => new Date(`${date}T00:00:00`)),
+        [requestedDates]
     )
+    const selectedDate = selectedDates[0] ?? null
 
     if (!selectedDate) {
         return null
@@ -446,7 +471,12 @@ function RequestCalendar({ requestedDate }: { requestedDate?: string }) {
                         <span
                             key={date.toISOString()}
                             className={`flex aspect-square items-center justify-center rounded-md text-body-sm ${
-                                date.getDate() === selectedDate.getDate()
+                                selectedDates.some(
+                                    (selected) =>
+                                        selected.getFullYear() === date.getFullYear() &&
+                                        selected.getMonth() === date.getMonth() &&
+                                        selected.getDate() === date.getDate()
+                                )
                                     ? 'bg-primary font-semibold text-on-primary'
                                     : 'text-on-surface'
                             }`}
