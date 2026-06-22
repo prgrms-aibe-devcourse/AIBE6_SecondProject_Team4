@@ -1,22 +1,11 @@
 'use client'
 
-import { getAuthClient } from '@/utils/apiClient';
-import { useEffect, useRef, useState } from 'react';
+import { getAuthClient } from '@/utils/apiClient'
+import { Suspense, useEffect, useRef, useState } from 'react'
 
+import { useRouter, useSearchParams } from 'next/navigation'
 
-
-import { useRouter, useSearchParams } from 'next/navigation';
-
-
-
-
-
-
-
-
-
-
-export default function PaymentSuccess() {
+function PaymentSuccessContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
@@ -189,5 +178,13 @@ export default function PaymentSuccess() {
                 )}
             </div>
         </main>
+    )
+}
+
+export default function PaymentSuccess() {
+    return (
+        <Suspense fallback={null}>
+            <PaymentSuccessContent />
+        </Suspense>
     )
 }

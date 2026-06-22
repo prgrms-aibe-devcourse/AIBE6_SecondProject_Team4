@@ -2,8 +2,33 @@
 
 import type { components } from '@/types/api';
 import { getAuthClient, getImageUrl } from '@/utils/apiClient';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+
+
+
 import { useRouter, useSearchParams } from 'next/navigation';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 type Trainer = components['schemas']['TrainerProfileResponse']
 
@@ -23,7 +48,7 @@ const REGIONS = ['모든 지역', '서울', '경기', '부산', '대구', '인�
 
 const LESSON_LEVELS = ['전체', '입문/초보', '중급', '고급/대회준비']
 
-export default function ExplorePage() {
+function ExplorePageContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
 
@@ -575,5 +600,12 @@ export default function ExplorePage() {
                 )}
             </div>
         </main>
+    )
+}
+export default function ExplorePage() {
+    return (
+        <Suspense fallback={null}>
+            <ExplorePageContent />
+        </Suspense>
     )
 }

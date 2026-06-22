@@ -68,7 +68,10 @@ public class PaymentService {
         String orderId = "ORDER_" + UUID.randomUUID().toString().replace("-", "");
         String trainerNickname = lesson.getTrainerProfile().getMember().getNickname();
         String sports = lesson.getTrainerProfile().getSports();
-        String orderName = trainerNickname + " - " + sports + " 레슨";
+        String passName = lesson.getLessonPassType() == LessonPassType.PACKAGE
+                ? lesson.getPackageCount() + "회권"
+                : "1회권";
+        String orderName = trainerNickname + " - " + sports + " " + passName;
 
         Payment payment = Payment.builder()
                 .lessonRequest(lesson)
@@ -80,7 +83,7 @@ public class PaymentService {
 
         return new PaymentInfoResponse(
                 lessonRequestId, trainerNickname, sports,
-                lesson.getLessonPassType().name(), lesson.getWeeklyCount(),
+                lesson.getLessonPassType().name(), lesson.getPackageCount(),
                 lesson.getTrainerProfile().getPrice(), amount, orderId, orderName
         );
     }
@@ -155,11 +158,12 @@ public class PaymentService {
         }
     }
 
-    // ── 금액 계산: 단발 = 단가, 정기 = 단가 × 주당횟수 ──
+    // ── 금액 계산: 1회권 = 단가, 패키지권 = 단가 × 패키지 횟수 ──
     private int calculateAmount(LessonRequest lesson) {
         int price = lesson.getTrainerProfile().getPrice();
-        if (lesson.getLessonPassType() == LessonPassType.REGULAR && lesson.getWeeklyCount() != null) {
-            return price * lesson.getWeeklyCount();
+        if (lesson.getLessonPassType() == LessonPassType.PACKAGE
+                && lesson.getPackageCount() != null) {
+            return price * lesson.getPackageCount();
         }
         return price; // ONE_TIME
     }
