@@ -17,7 +17,7 @@ import java.util.Set;
 public class AiMatchingParseService {
 
     private static final Set<String> SPORTS =
-            Set.of("헬스", "필라테스", "수영", "요가", "크로스핏", "테니스", "골프");
+            Set.of("헬스", "필라테스", "수영", "요가", "크로스핏", "테니스", "골프", "댄스");
 
     private static final Set<String> LEVELS =
             Set.of("초급", "중급", "고급");
@@ -111,7 +111,7 @@ public class AiMatchingParseService {
                 해당 JSON 필드를 생략하세요.
 
                 사용할 수 있는 값:
-                sports: 헬스, 필라테스, 수영, 요가, 크로스핏, 테니스, 골프
+                sports: 헬스, 필라테스, 수영, 요가, 크로스핏, 테니스, 골프, 댄스
                 level: 초급, 중급, 고급
                 lessonType: 1:1 PT, 그룹, 온라인
                 region: 서울, 경기, 인천, 부산, 대구, 광주, 대전
