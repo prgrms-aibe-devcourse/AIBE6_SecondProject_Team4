@@ -3,6 +3,7 @@
 import { useAuth } from '@/context/AuthContext'
 import type { components } from '@/types/api'
 import { getAuthClient, getImageUrl } from '@/utils/apiClient'
+import { formatLessonType } from '@/utils/lessonDisplay'
 import { useEffect, useMemo, useState } from 'react'
 
 import Link from 'next/link'
@@ -138,8 +139,7 @@ export default function MatchingManagementPreview() {
             <div className="overflow-x-auto border-b border-outline-variant">
                 <div className="flex min-w-max gap-xs">
                     {FILTERS.map(({ value, label }) => {
-                        const count =
-                            value === 'ALL' ? sortedRequests.length : statusCounts[value]
+                        const count = value === 'ALL' ? sortedRequests.length : statusCounts[value]
 
                         return (
                             <button
@@ -200,18 +200,10 @@ export default function MatchingManagementPreview() {
     )
 }
 
-function LessonRequestCard({
-    request,
-    isTrainer,
-}: {
-    request: LessonRequest
-    isTrainer: boolean
-}) {
+function LessonRequestCard({ request, isTrainer }: { request: LessonRequest; isTrainer: boolean }) {
     const status = request.status ?? 'PENDING'
     const name = isTrainer ? request.memberName : request.trainerName
-    const profileImage = isTrainer
-        ? request.memberProfileImage
-        : request.trainerProfileImage
+    const profileImage = isTrainer ? request.memberProfileImage : request.trainerProfileImage
 
     return (
         <article
@@ -245,7 +237,12 @@ function LessonRequestCard({
                     </p>
 
                     <div className="mt-xs flex flex-wrap gap-xs">
-                        {[request.sports, request.lessonType, request.lessonLevel, request.region]
+                        {[
+                            request.sports,
+                            request.lessonType ? formatLessonType(request.lessonType) : undefined,
+                            request.lessonLevel,
+                            request.region,
+                        ]
                             .filter((value): value is string => Boolean(value))
                             .map((value) => (
                                 <span
