@@ -11,13 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "lesson_requests",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uq_lesson_requests_matching_result",
-                        columnNames = "matching_result_id"
-                )
-        })
+@Table(name = "lesson_requests")
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -25,7 +19,7 @@ import java.time.LocalTime;
 public class LessonRequest extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "matching_result_id", nullable = false)
+    @JoinColumn(name = "matching_result_id")
     private MatchingResult matchingResult;
 
     @ManyToOne(fetch = FetchType.LAZY)
