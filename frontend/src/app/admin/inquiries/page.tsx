@@ -2,7 +2,7 @@
 
 import { getAuthClient } from '@/utils/apiClient'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import type { components } from '@/types/api'
 
 type InquiryResponse = components['schemas']['InquiryResponse']
@@ -19,7 +19,7 @@ const formatDate = (str?: string) => {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
-export default function AdminInquiriesPage() {
+function AdminInquiriesContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const [allInquiries, setAllInquiries] = useState<InquiryResponse[]>([])
@@ -256,5 +256,12 @@ export default function AdminInquiriesPage() {
                 )}
             </div>
         </>
+    )
+}
+export default function AdminInquiriesPage() {
+    return (
+        <Suspense fallback={null}>
+            <AdminInquiriesContent />
+        </Suspense>
     )
 }
