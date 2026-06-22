@@ -234,7 +234,7 @@ export default function Header() {
                                     href={user.role === 'ADMIN' ? '/admin/inquiries' : '/mypage'}
                                     className="font-label-bold text-on-surface hover:text-primary transition-colors"
                                 >
-                                    {user.userName} 님
+                                    {user.nickname} 님
                                 </Link>
                                 <Link
                                     href={user.role === 'ADMIN' ? '/admin/inquiries' : '/mypage'}
@@ -327,7 +327,7 @@ export default function Header() {
                                         )}
                                     </div>
                                     <span className="font-label-bold text-on-surface">
-                                        {user.userName} 님
+                                        {user.nickname} 님
                                     </span>
                                 </Link>
                                 <button

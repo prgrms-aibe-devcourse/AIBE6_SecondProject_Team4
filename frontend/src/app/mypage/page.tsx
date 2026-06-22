@@ -614,7 +614,7 @@ export default function MyPage() {
                     </div>
                     <div className="min-w-0">
                         <h1 className="truncate text-title-lg font-bold text-on-surface sm:text-headline-md sm:font-headline-md">
-                            {user?.userName}
+                            {user?.nickname}
                         </h1>
                         <p className="flex items-center gap-xs text-body-sm text-on-surface-variant sm:text-body-md">
                             <span className="material-symbols-outlined text-[16px]">fitness_center</span>

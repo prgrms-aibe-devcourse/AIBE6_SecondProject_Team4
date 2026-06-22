@@ -43,6 +43,7 @@ export default function LoginPage() {
             login({
                 memberId: data.memberId!,
                 userName: data.userName!,
+                nickname: data.nickname!,
                 role: data.role!,
                 token,
                 profileImage,
