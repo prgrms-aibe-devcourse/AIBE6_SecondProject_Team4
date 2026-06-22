@@ -349,9 +349,12 @@ export default function MyReviewList() {
                 ) : error ? (
                     <p className="py-xl text-center text-error">{error}</p>
                 ) : reviews.length === 0 ? (
-                    <p className="py-xl text-center text-outline">
-                        {isTrainer ? '받은 후기가 없습니다.' : '작성한 후기가 없습니다.'}
-                    </p>
+                    <div className="mt-lg flex flex-col items-center gap-md rounded-xl border-2 border-dashed border-outline-variant p-xl opacity-40">
+                        <span className="material-symbols-outlined text-[48px]">reviews</span>
+                        <p className="text-body-md font-label-bold">
+                            {isTrainer ? '받은 후기가 없습니다.' : '작성한 후기가 없습니다.'}
+                        </p>
+                    </div>
                 ) : (
                     <>
                         <div className="flex flex-col gap-md">
