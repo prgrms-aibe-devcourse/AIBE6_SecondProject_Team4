@@ -5,7 +5,7 @@ import WritableReviewList from '@/components/WritableReviewList';
 import { useAuth } from '@/context/AuthContext';
 import { Review, useMyReviews } from '@/hooks/useMyReviews';
 import { getImageUrl } from '@/utils/apiClient';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 
@@ -251,6 +251,7 @@ export default function MyReviewList() {
         updateReview,
         deleteReview,
     } = useMyReviews()
+    const listTopRef = useRef<HTMLDivElement>(null)
     const searchParams = useSearchParams()
     const [tab, setTab] = useState<Tab>(() =>
         !isTrainer && searchParams.get('subtab') === 'writable' ? 'writable' : 'all'
@@ -271,7 +272,7 @@ export default function MyReviewList() {
     }
 
     return (
-        <div className="flex flex-col gap-md">
+        <div ref={listTopRef} className="flex flex-col gap-md">
             {/* 헤더: 탭 */}
             <div className="flex flex-col gap-2 border-b border-outline-variant sm:flex-row sm:items-end sm:justify-between">
                 <div className="flex gap-md">
@@ -372,7 +373,14 @@ export default function MyReviewList() {
                                 />
                             ))}
                         </div>
-                        <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+                        <Pagination
+                            page={page}
+                            totalPages={totalPages}
+                            onChange={(p) => {
+                                setPage(p)
+                                listTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                            }}
+                        />
                     </>
                 ))}
 

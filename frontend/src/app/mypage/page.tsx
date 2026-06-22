@@ -48,6 +48,7 @@ function InquirySection() {
     const [editForm, setEditForm] = useState<{ type: string; title: string; content: string }>({ type: '', title: '', content: '' })
     const [saving, setSaving] = useState(false)
     const [deletingId, setDeletingId] = useState<number | null>(null)
+    const listTopRef = useRef<HTMLElement>(null)
 
 
     const client = getAuthClient()
@@ -122,7 +123,7 @@ function InquirySection() {
     }
 
     return (
-        <section className="space-y-md">
+        <section ref={listTopRef} className="space-y-md">
             {/* 헤더 */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <h2 className="text-headline-sm font-headline-sm text-on-surface">문의 내역 관리</h2>
@@ -348,7 +349,7 @@ function InquirySection() {
                         {totalPages > 1 && (
                             <div className="px-6 py-4 border-t border-outline-variant/30 flex items-center justify-center gap-2">
                                 <button
-                                    onClick={() => fetchInquiries(page - 1)}
+                                    onClick={() => { fetchInquiries(page - 1); listTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
                                     disabled={page === 0}
                                     className="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container text-on-surface-variant transition-all disabled:opacity-40 cursor-pointer"
                                 >
@@ -357,7 +358,7 @@ function InquirySection() {
                                 {Array.from({ length: totalPages }, (_, i) => (
                                     <button
                                         key={i}
-                                        onClick={() => fetchInquiries(i)}
+                                        onClick={() => { fetchInquiries(i); listTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
                                         className={`w-8 h-8 flex items-center justify-center rounded font-label-bold text-sm transition-all cursor-pointer ${
                                             i === page ? 'bg-primary text-on-primary' : 'hover:bg-surface-container text-on-surface-variant'
                                         }`}
@@ -366,7 +367,7 @@ function InquirySection() {
                                     </button>
                                 ))}
                                 <button
-                                    onClick={() => fetchInquiries(page + 1)}
+                                    onClick={() => { fetchInquiries(page + 1); listTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
                                     disabled={page === totalPages - 1}
                                     className="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container text-on-surface-variant transition-all disabled:opacity-40 cursor-pointer"
                                 >
