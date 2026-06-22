@@ -44,11 +44,17 @@ const reissueMiddleware: Middleware = {
 
         onTokenRefreshed?.(newToken)
 
-        const retryRequest = new Request(request, {
+        const cloned = request.clone()
+        const retryRequest = new Request(cloned.url, {
+            method: cloned.method,
             headers: {
-                ...Object.fromEntries(request.headers.entries()),
+                ...Object.fromEntries(cloned.headers.entries()),
                 Authorization: `Bearer ${newToken}`,
             },
+            body: ['GET', 'HEAD'].includes(cloned.method) ? undefined : await cloned.text(),
+            credentials: cloned.credentials,
+            mode: cloned.mode,
+            cache: cloned.cache,
         })
         return fetch(retryRequest)
     },
