@@ -397,7 +397,7 @@ export default function ChatFAB() {
                     <div className="bg-primary p-4 text-on-primary flex items-center justify-between">
                         <h3 className="font-headline-sm text-headline-sm">채팅</h3>
                         <button
-                            className="material-symbols-outlined hover:bg-white/10 rounded-full p-1"
+                            className="material-symbols-outlined hover:bg-white/10 rounded-full p-1 cursor-pointer"
                             onClick={() => setView('closed')}
                         >
                             close
@@ -445,7 +445,7 @@ export default function ChatFAB() {
 
                     <div className="p-3 border-t border-outline-variant bg-surface-container-lowest">
                         <button
-                            className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-primary text-on-primary text-label-bold font-label-bold hover:opacity-90 transition-opacity"
+                            className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-primary text-on-primary text-label-bold font-label-bold hover:opacity-90 transition-opacity cursor-pointer"
                             onClick={() => setView('new')}
                         >
                             <span className="material-symbols-outlined text-base">add</span>
@@ -461,7 +461,7 @@ export default function ChatFAB() {
                     <div className="bg-primary p-4 text-on-primary space-y-3">
                         <div className="flex items-center gap-2">
                             <button
-                                className="material-symbols-outlined hover:bg-white/10 rounded-full p-1"
+                                className="material-symbols-outlined hover:bg-white/10 rounded-full p-1 cursor-pointer"
                                 onClick={() => setView('list')}
                             >
                                 arrow_back
@@ -517,7 +517,7 @@ export default function ChatFAB() {
                     <div className="bg-primary p-4 flex items-center justify-between text-on-primary">
                         <div className="flex items-center gap-3">
                             <button
-                                className="material-symbols-outlined hover:bg-white/10 rounded-full p-1"
+                                className="material-symbols-outlined hover:bg-white/10 rounded-full p-1 cursor-pointer"
                                 onClick={() => setView('list')}
                             >
                                 arrow_back
@@ -534,14 +534,14 @@ export default function ChatFAB() {
                         </div>
                         <div className="flex items-center gap-1">
                             <button
-                                className="material-symbols-outlined hover:bg-white/10 rounded-full p-1 text-[20px]"
+                                className="material-symbols-outlined hover:bg-white/10 rounded-full p-1 text-[20px] cursor-pointer"
                                 title="채팅방 나가기"
                                 onClick={handleLeaveRoom}
                             >
                                 exit_to_app
                             </button>
                             <button
-                                className="material-symbols-outlined hover:bg-white/10 rounded-full p-1"
+                                className="material-symbols-outlined hover:bg-white/10 rounded-full p-1 cursor-pointer"
                                 onClick={() => setView('closed')}
                             >
                                 close
@@ -624,7 +624,7 @@ export default function ChatFAB() {
                                 onKeyDown={handleKeyDown}
                             />
                             <button
-                                className="material-symbols-outlined text-primary hover:scale-110 transition-transform disabled:opacity-40"
+                                className="material-symbols-outlined text-primary hover:scale-110 transition-transform disabled:opacity-40 cursor-pointer"
                                 onClick={handleSend}
                                 disabled={!inputText.trim()}
                             >
@@ -638,7 +638,7 @@ export default function ChatFAB() {
             {/* FAB 버튼 - 패널 닫혀있을 때만 표시 */}
             {view === 'closed' && (
                 <button
-                    className="relative w-14 h-14 bg-primary text-on-primary rounded-full shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
+                    className="relative w-14 h-14 bg-primary text-on-primary rounded-full shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all cursor-pointer"
                     onClick={() => setView('list')}
                 >
                     <span className="material-symbols-outlined text-3xl">chat</span>

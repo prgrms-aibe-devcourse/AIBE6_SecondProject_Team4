@@ -52,7 +52,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <div className="border-t border-surface-container-high pt-4">
                     <button
                         onClick={() => router.push('/')}
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors text-sm"
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors text-sm cursor-pointer"
                     >
                         <span className="material-symbols-outlined text-[20px]">arrow_back</span>
                         사이트로 돌아가기

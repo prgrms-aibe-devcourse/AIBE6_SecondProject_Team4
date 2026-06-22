@@ -238,7 +238,7 @@ export default function AdminInquiriesPage() {
                                     <span className="px-1 text-on-surface-variant">...</span>
                                     <button
                                         onClick={() => setPage(totalPages - 1)}
-                                        className="h-9 w-9 rounded-lg text-sm font-bold hover:bg-surface-container text-on-surface-variant"
+                                        className="h-9 w-9 rounded-lg text-sm font-bold hover:bg-surface-container text-on-surface-variant cursor-pointer"
                                     >
                                         {totalPages}
                                     </button>

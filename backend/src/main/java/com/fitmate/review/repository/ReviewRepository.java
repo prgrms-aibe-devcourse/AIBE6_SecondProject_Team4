@@ -33,9 +33,13 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     List<Review> findByReviewerId(Long reviewerId);
 
-    Page<Review> findByReviewerId(Long reviewerId, Pageable pageable);
+    @Query(value = "SELECT r FROM Review r JOIN FETCH r.reviewer JOIN FETCH r.trainer WHERE r.reviewer.id = :reviewerId",
+           countQuery = "SELECT COUNT(r) FROM Review r WHERE r.reviewer.id = :reviewerId")
+    Page<Review> findByReviewerId(@Param("reviewerId") Long reviewerId, Pageable pageable);
 
-    Page<Review> findByTrainerId(Long trainerId, Pageable pageable);
+    @Query(value = "SELECT r FROM Review r JOIN FETCH r.reviewer JOIN FETCH r.trainer WHERE r.trainer.id = :trainerId",
+           countQuery = "SELECT COUNT(r) FROM Review r WHERE r.trainer.id = :trainerId")
+    Page<Review> findByTrainerId(@Param("trainerId") Long trainerId, Pageable pageable);
 
     // AI 추천 사유 생성에 사용할 최근 리뷰 3개
     List<Review> findTop3ByTrainerIdOrderByCreatedAtDesc(Long trainerId);
