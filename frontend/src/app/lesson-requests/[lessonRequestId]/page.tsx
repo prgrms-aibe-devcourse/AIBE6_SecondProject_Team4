@@ -247,9 +247,9 @@ function RequestSummary({ request }: { request: LessonRequest }) {
             icon: 'confirmation_number',
             label: '수강 유형',
             value:
-                request.lessonPassType === 'REGULAR'
-                    ? `정기권 (주 ${request.weeklyCount ?? '-'}회)`
-                    : '1회성',
+                request.lessonPassType === 'PACKAGE'
+                    ? `${request.packageCount ?? '-'}회권`
+                    : '1회권',
         },
         {
             icon: 'payments',
@@ -335,9 +335,9 @@ function SchedulePanel({
 
             <div className="mt-xs">
                 <span className="inline-flex rounded-full bg-secondary-container px-xs py-1 text-label-sm text-on-secondary-container">
-                    {request.lessonPassType === 'REGULAR'
-                        ? `정기권 (주 ${request.weeklyCount ?? '-'}회)`
-                        : '1회성'}
+                    {request.lessonPassType === 'PACKAGE'
+                        ? `${request.packageCount ?? '-'}회권`
+                        : '1회권'}
                 </span>
             </div>
 

@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +16,7 @@ import java.util.Set;
 public class AiMatchingParseService {
 
     private static final Set<String> SPORTS =
-            Set.of("헬스", "필라테스", "수영", "요가", "크로스핏", "테니스", "골프");
+            Set.of("헬스", "필라테스", "수영", "요가", "크로스핏", "테니스", "골프", "댄스");
 
     private static final Set<String> LEVELS =
             Set.of("초급", "중급", "고급");
@@ -83,18 +82,12 @@ public class AiMatchingParseService {
                     DAYS
             );
 
-            LocalTime startTime =
-                    readTime(timeNode, "startTime");
-
-            LocalTime endTime =
-                    readTime(timeNode, "endTime");
-
             if (dayOfWeek != null) {
                 result.add(
                         new AiMatchingParseResponse.PreferredTime(
                                 dayOfWeek,
-                                startTime,
-                                endTime
+                                null,
+                                null
                         )
                 );
             }
@@ -111,7 +104,7 @@ public class AiMatchingParseService {
                 해당 JSON 필드를 생략하세요.
 
                 사용할 수 있는 값:
-                sports: 헬스, 필라테스, 수영, 요가, 크로스핏, 테니스, 골프
+                sports: 헬스, 필라테스, 수영, 요가, 크로스핏, 테니스, 골프, 댄스
                 level: 초급, 중급, 고급
                 lessonType: 1:1 PT, 그룹, 온라인
                 region: 서울, 경기, 인천, 부산, 대구, 광주, 대전
@@ -120,8 +113,8 @@ public class AiMatchingParseService {
                 MONDAY, TUESDAY, WEDNESDAY, THURSDAY,
                 FRIDAY, SATURDAY, SUNDAY
 
-                시간은 HH:mm:ss 형식으로 반환하세요.
-                '저녁'처럼 정확한 시간이 없으면 시간을 생략하세요.
+                시간 정보는 추출하지 말고 요일만 preferredTimes에 반환하세요.
+                사용자가 시간을 입력해도 startTime과 endTime은 반환하지 마세요.
                 예산은 원 단위 숫자로 반환하세요.
 
                 사용자 문장:
@@ -139,9 +132,7 @@ public class AiMatchingParseService {
         Map<String, Object> preferredTimeSchema = Map.of(
                 "type", "object",
                 "properties", Map.of(
-                        "dayOfWeek", stringSchema,
-                        "startTime", stringSchema,
-                        "endTime", stringSchema
+                        "dayOfWeek", stringSchema
                 )
         );
 
@@ -183,20 +174,6 @@ public class AiMatchingParseService {
         int number = value.intValue();
 
         return number > 0 ? number : null;
-    }
-
-    private LocalTime readTime(JsonNode node, String fieldName) {
-        String value = readText(node, fieldName);
-
-        if (value == null) {
-            return null;
-        }
-
-        try {
-            return LocalTime.parse(value);
-        } catch (Exception exception) {
-            return null;
-        }
     }
 
     private String allowedValue(

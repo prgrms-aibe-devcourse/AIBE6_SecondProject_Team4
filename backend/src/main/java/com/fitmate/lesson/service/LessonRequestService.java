@@ -27,11 +27,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -40,6 +37,8 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class LessonRequestService {
+
+    private static final Set<Integer> PACKAGE_COUNTS = Set.of(5, 10, 20);
 
     private final LessonRequestRepository lessonRequestRepository;
     private final LessonRequestScheduleRepository lessonRequestScheduleRepository;
@@ -58,7 +57,7 @@ public class LessonRequestService {
         Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        // 시간, 정기권 주당 횟수 같은 입력값 검사 (공통)
+        // 시간, 수강권 유형, 패키지 횟수 같은 입력값 검사
         validateRequest(request);
 
         LessonRequest lessonRequest;
@@ -89,7 +88,7 @@ public class LessonRequestService {
                     .member(member)
                     .trainerProfile(trainerProfile)
                     .lessonPassType(request.lessonPassType())
-                    .weeklyCount(request.weeklyCount())
+                    .packageCount(request.packageCount())
                     .selectedSports(request.selectedSports())
                     .selectedLessonLevel(request.selectedLessonLevel())
                     .selectedLessonType(request.selectedLessonType())
@@ -116,7 +115,7 @@ public class LessonRequestService {
                     .member(member)
                     .trainerProfile(trainerProfile)
                     .lessonPassType(request.lessonPassType())
-                    .weeklyCount(request.weeklyCount())
+                    .packageCount(request.packageCount())
                     .selectedSports(request.selectedSports())
                     .selectedLessonLevel(request.selectedLessonLevel())
                     .selectedLessonType(request.selectedLessonType())
@@ -275,54 +274,26 @@ public class LessonRequestService {
         }
     }
 
-    // 요청 시간이 올바른지, 정기권이면 주당 횟수가 있는지 검사
+    // 1회권은 packageCount가 없어야 하고, 패키지권은 5·10·20회만 허용합니다.
     private void validateRequest(LessonRequestCreateRequest request) {
-        if (request.lessonPassType() == LessonPassType.REGULAR
-                && (request.weeklyCount() == null
-                || request.weeklyCount() <= 0
-                || request.schedules().size() != request.weeklyCount())) {
+        if (request.schedules().size() != 1) {
             throw new CustomException(ErrorCode.INVALID_INPUT);
         }
 
         if (request.lessonPassType() == LessonPassType.ONE_TIME
-                && request.schedules().size() != 1) {
+                && request.packageCount() != null) {
             throw new CustomException(ErrorCode.INVALID_INPUT);
         }
 
-        Set<String> uniqueSchedules = new HashSet<>();
-        Set<DayOfWeek> uniqueDays = new HashSet<>();
-        LocalDate regularWeekStart = null;
+        if (request.lessonPassType() == LessonPassType.PACKAGE
+                && !PACKAGE_COUNTS.contains(request.packageCount())) {
+            throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
 
         for (LessonRequestCreateRequest.ScheduleRequest schedule :
                 request.schedules()) {
             if (!schedule.startTime().isBefore(schedule.endTime())) {
                 throw new CustomException(ErrorCode.INVALID_INPUT);
-            }
-
-            String scheduleKey =
-                    schedule.requestedDate()
-                            + "|"
-                            + schedule.startTime()
-                            + "|"
-                            + schedule.endTime();
-
-            if (!uniqueSchedules.add(scheduleKey)) {
-                throw new CustomException(ErrorCode.INVALID_INPUT);
-            }
-
-            if (request.lessonPassType() == LessonPassType.REGULAR) {
-                if (!uniqueDays.add(schedule.requestedDate().getDayOfWeek())) {
-                    throw new CustomException(ErrorCode.INVALID_INPUT);
-                }
-
-                LocalDate scheduleWeekStart = schedule.requestedDate()
-                        .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-
-                if (regularWeekStart == null) {
-                    regularWeekStart = scheduleWeekStart;
-                } else if (!regularWeekStart.equals(scheduleWeekStart)) {
-                    throw new CustomException(ErrorCode.INVALID_INPUT);
-                }
             }
         }
     }
@@ -401,7 +372,7 @@ public class LessonRequestService {
                 trainerProfile.getPrice(),
 
                 lessonRequest.getLessonPassType(),
-                lessonRequest.getWeeklyCount(),
+                lessonRequest.getPackageCount(),
 
                 lessonRequest.getRequestedDate(),
                 lessonRequest.getRequestedStartTime(),

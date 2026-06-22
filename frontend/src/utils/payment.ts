@@ -8,7 +8,7 @@ interface PrepareResponse {
     trainerNickname: string
     sports: string
     lessonPassType: string
-    weeklyCount: number | null
+    packageCount: number | null
     pricePerSession: number
     amount: number
     orderId: string

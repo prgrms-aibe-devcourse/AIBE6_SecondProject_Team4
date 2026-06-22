@@ -40,38 +40,39 @@ VALUES
 INSERT
 IGNORE INTO members (user_id, user_name, password, nickname, email, role, profile_image, region, introduction, phone, created_at, updated_at)
 VALUES
-    -- 남자 트레이너 15명
-    ('trainer19', '김도현', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '도현코치', 'trainer19@fitmate.com', 'TRAINER', NULL, '서울', '근력 운동 전문 트레이너입니다.', '010-6001-0019', NOW(), NOW()),
-    ('trainer20', '이상우', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '상우코치', 'trainer20@fitmate.com', 'TRAINER', NULL, '서울', '크로스핏 코치입니다.', '010-6001-0020', NOW(), NOW()),
-    ('trainer21', '박지훈', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '지훈코치', 'trainer21@fitmate.com', 'TRAINER', NULL, '서울', '헬스 전문 트레이너입니다.', '010-6001-0021', NOW(), NOW()),
-    ('trainer22', '최성호', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '성호코치', 'trainer22@fitmate.com', 'TRAINER', NULL, '경기', '크로스핏과 헬스를 가르칩니다.', '010-6001-0022', NOW(), NOW()),
-    ('trainer23', '정우진', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '우진코치', 'trainer23@fitmate.com', 'TRAINER', NULL, '경기', '헬스 전문 트레이너입니다.', '010-6001-0023', NOW(), NOW()),
-    ('trainer24', '한승민', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '승민코치', 'trainer24@fitmate.com', 'TRAINER', NULL, '부산', '테니스 레슨 전문입니다.', '010-6001-0024', NOW(), NOW()),
-('trainer25', '윤재호', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '재호프로', 'trainer25@fitmate.com', 'TRAINER', NULL, '부산', '골프 스윙 교정 전문가입니다.', '010-6001-0025', NOW(), NOW()),    ('trainer26', '강민수', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '민수코치', 'trainer26@fitmate.com', 'TRAINER', NULL, '인천', '헬스 전문 트레이너입니다.', '010-6001-0026', NOW(), NOW()),
-    ('trainer27', '조현준', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '현준코치', 'trainer27@fitmate.com', 'TRAINER', NULL, '인천', '크로스핏 코치입니다.', '010-6001-0027', NOW(), NOW()),
-    ('trainer28', '신동현', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '동현코치', 'trainer28@fitmate.com', 'TRAINER', NULL, '대구', '수영 전문 트레이너입니다.', '010-6001-0028', NOW(), NOW()),
-    ('trainer29', '임태준', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '태준코치', 'trainer29@fitmate.com', 'TRAINER', NULL, '대구', '헬스 전문 트레이너입니다.', '010-6001-0029', NOW(), NOW()),
-    ('trainer30', '오준영', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '준영코치', 'trainer30@fitmate.com', 'TRAINER', NULL, '광주', '크로스핏과 헬스를 가르칩니다.', '010-6001-0030', NOW(), NOW()),
-    ('trainer31', '서민재', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '민재코치', 'trainer31@fitmate.com', 'TRAINER', NULL, '광주', '헬스 전문 트레이너입니다.', '010-6001-0031', NOW(), NOW()),
-    ('trainer32', '권용우', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '용우코치', 'trainer32@fitmate.com', 'TRAINER', NULL, '대전', '골프 레슨 전문가입니다.', '010-6001-0032', NOW(), NOW()),
-    ('trainer33', '황지석', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '지석코치', 'trainer33@fitmate.com', 'TRAINER', NULL, '대전', '테니스, 수영 트레이너입니다.', '010-6001-0033', NOW(), NOW()),
-    ('trainer34', '문서준', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '서준코치', 'trainer34@fitmate.com', 'TRAINER', NULL, '서울', '크로스핏 코치입니다.', '010-6001-0034', NOW(), NOW()),
+    -- 남자 트레이너 16명
+    ('trainer19', '김도현', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '도현코치', 'trainer19@fitmate.com', 'TRAINER', '/uploads/profile/도현코치.png', '서울', '근력 운동 전문 트레이너입니다.', '010-6001-0019', NOW(), NOW()),
+    ('trainer20', '이상우', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '상우코치', 'trainer20@fitmate.com', 'TRAINER', '/uploads/profile/상우코치.png', '서울', '크로스핏 코치입니다.', '010-6001-0020', NOW(), NOW()),
+    ('trainer21', '박지훈', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '지훈코치', 'trainer21@fitmate.com', 'TRAINER', '/uploads/profile/지훈코치.png', '서울', '헬스 전문 트레이너입니다.', '010-6001-0021', NOW(), NOW()),
+    ('trainer22', '최성호', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '성호코치', 'trainer22@fitmate.com', 'TRAINER', '/uploads/profile/성호코치.png', '경기', '크로스핏과 헬스를 가르칩니다.', '010-6001-0022', NOW(), NOW()),
+    ('trainer23', '정우진', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '우진코치', 'trainer23@fitmate.com', 'TRAINER', '/uploads/profile/우진코치.png', '경기', '헬스 전문 트레이너입니다.', '010-6001-0023', NOW(), NOW()),
+    ('trainer24', '한승민', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '승민코치', 'trainer24@fitmate.com', 'TRAINER', '/uploads/profile/승민코치.png', '부산', '테니스 레슨 전문입니다.', '010-6001-0024', NOW(), NOW()),
+    ('trainer25', '윤재호', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '재호프로', 'trainer25@fitmate.com', 'TRAINER', '/uploads/profile/재호프로.png', '부산', '골프 스윙 교정 전문가입니다.', '010-6001-0025', NOW(), NOW()),
+    ('trainer26', '강민수', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '민수코치', 'trainer26@fitmate.com', 'TRAINER', '/uploads/profile/민수코치.png', '인천', '헬스 전문 트레이너입니다.', '010-6001-0026', NOW(), NOW()),
+    ('trainer27', '조현준', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '현준코치', 'trainer27@fitmate.com', 'TRAINER', '/uploads/profile/현준코치.png', '인천', '크로스핏 코치입니다.', '010-6001-0027', NOW(), NOW()),
+    ('trainer28', '신동현', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '동현코치', 'trainer28@fitmate.com', 'TRAINER', '/uploads/profile/동현코치.png', '대구', '수영 전문 트레이너입니다.', '010-6001-0028', NOW(), NOW()),
+    ('trainer29', '임태준', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '태준코치', 'trainer29@fitmate.com', 'TRAINER', '/uploads/profile/태준코치.png', '대구', '헬스 전문 트레이너입니다.', '010-6001-0029', NOW(), NOW()),
+    ('trainer30', '오준영', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '준영코치', 'trainer30@fitmate.com', 'TRAINER', '/uploads/profile/준영코치.png', '광주', '크로스핏과 헬스를 가르칩니다.', '010-6001-0030', NOW(), NOW()),
+    ('trainer31', '서민재', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '민재코치', 'trainer31@fitmate.com', 'TRAINER', '/uploads/profile/민재코치.png', '광주', '헬스 전문 트레이너입니다.', '010-6001-0031', NOW(), NOW()),
+    ('trainer32', '권용우', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '용우프로', 'trainer32@fitmate.com', 'TRAINER', '/uploads/profile/용우프로.png', '대전', '골프 레슨 전문가입니다.', '010-6001-0032', NOW(), NOW()),
+    ('trainer33', '황지석', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '지석코치', 'trainer33@fitmate.com', 'TRAINER', '/uploads/profile/지석코치.png', '대전', '테니스 트레이너입니다.', '010-6001-0033', NOW(), NOW()),
+    ('trainer34', '문서준', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '서준코치', 'trainer34@fitmate.com', 'TRAINER', '/uploads/profile/서준코치.png', '서울', '크로스핏 코치입니다.', '010-6001-0034', NOW(), NOW()),
 
     -- 여자 트레이너 15명
-    ('trainer35', '김다은', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '다은코치', 'trainer35@fitmate.com', 'TRAINER', NULL, '서울', '필라테스 전문 강사입니다.', '010-6001-0035', NOW(), NOW()),
-    ('trainer36', '이서윤', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '서윤코치', 'trainer36@fitmate.com', 'TRAINER', NULL, '서울', '요가 강사입니다.', '010-6001-0036', NOW(), NOW()),
-('trainer37', '박지민', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '지민트레이너', 'trainer37@fitmate.com', 'TRAINER', NULL, '서울', '헬스 전문 트레이너입니다.', '010-6001-0037', NOW(), NOW()),
-    ('trainer38', '최유나', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '유나코치', 'trainer38@fitmate.com', 'TRAINER', NULL, '경기', '필라테스, 요가 강사입니다.', '010-6001-0038', NOW(), NOW()),
-    ('trainer39', '정하윤', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '하윤코치', 'trainer39@fitmate.com', 'TRAINER', NULL, '경기', '요가 강사입니다.', '010-6001-0039', NOW(), NOW()),
-    ('trainer40', '한소연', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '소연코치', 'trainer40@fitmate.com', 'TRAINER', NULL, '부산', '댄스 전문 강사입니다.', '010-6001-0040', NOW(), NOW()),
-    ('trainer41', '윤채영', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '채영코치', 'trainer41@fitmate.com', 'TRAINER', NULL, '부산', '필라테스 전문 강사입니다.', '010-6001-0041', NOW(), NOW()),
-    ('trainer42', '강은서', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '은서코치', 'trainer42@fitmate.com', 'TRAINER', NULL, '인천', '헬스 전문 트레이너입니다.', '010-6001-0042', NOW(), NOW()),
-    ('trainer43', '조수아', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '수아코치', 'trainer43@fitmate.com', 'TRAINER', NULL, '인천', '요가, 필라테스 강사입니다.', '010-6001-0043', NOW(), NOW()),
-    ('trainer44', '신예은', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '예은코치', 'trainer44@fitmate.com', 'TRAINER', NULL, '대구', '댄스 전문 강사입니다.', '010-6001-0044', NOW(), NOW()),
-    ('trainer45', '임수빈', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '수빈코치', 'trainer45@fitmate.com', 'TRAINER', NULL, '대구', '필라테스 전문 강사입니다.', '010-6001-0045', NOW(), NOW()),
-    ('trainer46', '오지유', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '지유코치', 'trainer46@fitmate.com', 'TRAINER', NULL, '광주', '요가 강사입니다.', '010-6001-0046', NOW(), NOW()),
-    ('trainer47', '배수정', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '수정코치', 'trainer47@fitmate.com', 'TRAINER', NULL, '대전', '골프 레슨 전문가입니다.', '010-6001-0047', NOW(), NOW()),
-    ('trainer48', '권나윤', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '나윤코치', 'trainer48@fitmate.com', 'TRAINER', NULL, '대전', '필라테스, 헬스 트레이너입니다.', '010-6001-0048', NOW(), NOW());
+    ('trainer35', '김다은', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '다은코치', 'trainer35@fitmate.com', 'TRAINER', '/uploads/profile/다은코치.png', '서울', '필라테스 전문 강사입니다.', '010-6001-0035', NOW(), NOW()),
+    ('trainer36', '이서윤', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '서윤코치', 'trainer36@fitmate.com', 'TRAINER', '/uploads/profile/서윤코치.png', '서울', '요가 강사입니다.', '010-6001-0036', NOW(), NOW()),
+    ('trainer37', '박지민', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '지민트레이너', 'trainer37@fitmate.com', 'TRAINER', '/uploads/profile/지민트레이너.png' , '서울', '헬스 전문 트레이너입니다.', '010-6001-0037', NOW(), NOW()),
+    ('trainer38', '최유나', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '유나코치', 'trainer38@fitmate.com', 'TRAINER', '/uploads/profile/유나코치.png', '경기', '필라테스, 요가 강사입니다.', '010-6001-0038', NOW(), NOW()),
+    ('trainer39', '정하윤', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '하윤코치', 'trainer39@fitmate.com', 'TRAINER', '/uploads/profile/하윤코치.png', '경기', '요가 강사입니다.', '010-6001-0039', NOW(), NOW()),
+    ('trainer40', '한소연', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '소연T', 'trainer40@fitmate.com', 'TRAINER', '/uploads/profile/소연T.png', '부산', '댄스 전문 강사입니다.', '010-6001-0040', NOW(), NOW()),
+    ('trainer41', '윤채영', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '채영코치', 'trainer41@fitmate.com', 'TRAINER', '/uploads/profile/채영코치.png', '부산', '필라테스 전문 강사입니다.', '010-6001-0041', NOW(), NOW()),
+    ('trainer42', '강은서', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '은서코치', 'trainer42@fitmate.com', 'TRAINER', '/uploads/profile/은서코치.png', '인천', '헬스 전문 트레이너입니다.', '010-6001-0042', NOW(), NOW()),
+    ('trainer43', '조수아', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '수아코치', 'trainer43@fitmate.com', 'TRAINER', '/uploads/profile/수아코치.png', '인천', '요가, 필라테스 강사입니다.', '010-6001-0043', NOW(), NOW()),
+    ('trainer44', '신예은', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '예은T', 'trainer44@fitmate.com', 'TRAINER', '/uploads/profile/예은T.png', '대구', '댄스 전문 강사입니다.', '010-6001-0044', NOW(), NOW()),
+    ('trainer45', '임수빈', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '수빈코치', 'trainer45@fitmate.com', 'TRAINER', '/uploads/profile/수빈코치.png', '대구', '필라테스 전문 강사입니다.', '010-6001-0045', NOW(), NOW()),
+    ('trainer46', '오지유', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '지유코치', 'trainer46@fitmate.com', 'TRAINER', '/uploads/profile/지유코치.png', '광주', '요가 강사입니다.', '010-6001-0046', NOW(), NOW()),
+    ('trainer47', '배수정', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '수정프로', 'trainer47@fitmate.com', 'TRAINER', '/uploads/profile/수정프로.png', '대전', '골프 레슨 전문가입니다.', '010-6001-0047', NOW(), NOW()),
+    ('trainer48', '권나윤', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '나윤코치', 'trainer48@fitmate.com', 'TRAINER', '/uploads/profile/나윤코치.png', '대전', '필라테스, 헬스 트레이너입니다.', '010-6001-0048', NOW(), NOW());
 
 -- =============================================
 -- 회원 추가 (user06~user25)
@@ -620,7 +621,7 @@ WHERE user_id = 'trainer32';
 INSERT
 IGNORE INTO trainer_profiles (user_id, sports, lesson_type, lesson_level, price, career_years, created_at, updated_at)
 SELECT id,
-       '테니스,수영',
+       '테니스',
        'ONE_TO_ONE',
        '입문/초보,중급',
        90000,
@@ -1482,7 +1483,7 @@ SELECT (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가
 
 -- 5) 레슨 요청 (lesson_requests → ACCEPTED = 성사!)
 INSERT
-IGNORE INTO lesson_requests (matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count, requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at)
+IGNORE INTO lesson_requests (matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count, requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at)
 SELECT (SELECT mr.id
         FROM matching_results mr
         WHERE mr.matching_id = (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능] 접영 배우고 싶어요' LIMIT 1)
@@ -1687,7 +1688,7 @@ SELECT (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가
 
 -- 5) 레슨 요청 (ACCEPTED = 성사)
 INSERT
-IGNORE INTO lesson_requests (matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count, requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at)
+IGNORE INTO lesson_requests (matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count, requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at)
 SELECT (SELECT mr.id
         FROM matching_results mr
         WHERE mr.matching_id = (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능2] 기초 근력 만들고 싶어요' LIMIT 1)
@@ -1760,7 +1761,7 @@ SELECT (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가
 
 -- 5) 레슨 요청 (ACCEPTED = 성사)
 INSERT
-IGNORE INTO lesson_requests (matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count, requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at)
+IGNORE INTO lesson_requests (matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count, requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at)
 SELECT (SELECT mr.id
         FROM matching_results mr
         WHERE mr.matching_id = (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능3] 크로스핏 입문하고 싶어요' LIMIT 1)
@@ -3121,14 +3122,14 @@ WHERE mr.lesson_content = '[복수추천09] 근지구력 중심의 헬스 코칭
 -- =============================================
 INSERT
 IGNORE INTO lesson_requests (
-    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count,
     requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
 )
 SELECT mr.id,
        requester.id,
        tp.id,
-       'REGULAR',
-       2,
+       'PACKAGE',
+       10,
        '2026-06-22',
        '10:00:00',
        '11:00:00',
@@ -3146,18 +3147,18 @@ WHERE req.lesson_content = '[복수추천01] 자세 교정 필라테스를 배�
 
 INSERT
 IGNORE INTO lesson_requests (
-    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count,
     requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
 )
 SELECT mr.id,
        requester.id,
        tp.id,
-       'REGULAR',
-       3,
+       'PACKAGE',
+       20,
        '2026-06-23',
        '14:00:00',
        '15:00:00',
-       '주 3회 꾸준히 체력 향상을 목표로 하고 있습니다.',
+       '20회 패키지로 꾸준히 체력 향상을 목표로 하고 있습니다.',
        'ACCEPTED',
        NOW(),
        NOW()
@@ -3171,7 +3172,7 @@ WHERE req.lesson_content = '[복수추천02] 그룹 크로스핏으로 체력을
 
 INSERT
 IGNORE INTO lesson_requests (
-    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count,
     requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
 )
 SELECT mr.id,
@@ -3196,7 +3197,7 @@ WHERE req.lesson_content = '[복수추천03] 허리 부담이 적은 요가를 �
 
 INSERT
 IGNORE INTO lesson_requests (
-    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count,
     requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
 )
 SELECT mr.id,
@@ -3221,14 +3222,14 @@ WHERE req.lesson_content = '[복수추천04] 기초 근력 운동을 시작하�
 
 INSERT
 IGNORE INTO lesson_requests (
-    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count,
     requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
 )
 SELECT mr.id,
        requester.id,
        tp.id,
-       'REGULAR',
-       2,
+       'PACKAGE',
+       10,
        '2026-06-26',
        '19:00:00',
        '20:00:00',
@@ -3246,7 +3247,7 @@ WHERE req.lesson_content = '[복수추천05] 수영 지구력과 영법을 개�
 
 INSERT
 IGNORE INTO lesson_requests (
-    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count,
     requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
 )
 SELECT mr.id,
@@ -3271,14 +3272,14 @@ WHERE req.lesson_content = '[복수추천06] 테니스 스트로크를 교정하
 
 INSERT
 IGNORE INTO lesson_requests (
-    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count,
     requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
 )
 SELECT mr.id,
        requester.id,
        tp.id,
-       'REGULAR',
-       1,
+       'PACKAGE',
+       5,
        '2026-06-28',
        '13:00:00',
        '14:00:00',
@@ -3296,14 +3297,14 @@ WHERE req.lesson_content = '[복수추천07] 골프 스윙을 안정적으로 �
 
 INSERT
 IGNORE INTO lesson_requests (
-    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count,
     requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
 )
 SELECT mr.id,
        requester.id,
        tp.id,
-       'REGULAR',
-       2,
+       'PACKAGE',
+       10,
        '2026-06-30',
        '16:00:00',
        '17:00:00',
@@ -3321,14 +3322,14 @@ WHERE req.lesson_content = '[복수추천08] 재미있게 댄스 기초를 배�
 
 INSERT
 IGNORE INTO lesson_requests (
-    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count,
     requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
 )
 SELECT mr.id,
        requester.id,
        tp.id,
-       'REGULAR',
-       2,
+       'PACKAGE',
+       10,
        '2026-07-01',
        '18:00:00',
        '19:00:00',

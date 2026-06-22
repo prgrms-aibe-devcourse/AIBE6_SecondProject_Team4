@@ -8,7 +8,7 @@ import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 type MatchingResult = components['schemas']['MatchingResultResponse']
-type LessonPassType = 'ONE_TIME' | 'REGULAR'
+type LessonPassType = 'ONE_TIME' | 'PACKAGE'
 type SelectedSchedule = {
     id: string
     requestedDate: string
@@ -79,13 +79,6 @@ const toDateValue = (date: Date) => {
     const month = String(date.getMonth() + 1).padStart(2, '0')
     const day = String(date.getDate()).padStart(2, '0')
     return `${year}-${month}-${day}`
-}
-
-const getWeekStartValue = (dateValue: string) => {
-    const date = new Date(`${dateValue}T00:00:00`)
-    const dayOffset = date.getDay() === 0 ? 6 : date.getDay() - 1
-    date.setDate(date.getDate() - dayOffset)
-    return toDateValue(date)
 }
 
 const splitValues = (value?: string) =>
@@ -171,7 +164,7 @@ export default function LessonRequestForm({
     const router = useRouter()
     const [selectedDate, setSelectedDate] = useState('')
     const [lessonPassType, setLessonPassType] = useState<LessonPassType>('ONE_TIME')
-    const [weeklyCount, setWeeklyCount] = useState(2)
+    const [packageCount, setPackageCount] = useState(5)
     const [message, setMessage] = useState(summary?.lessonContent ?? '')
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
@@ -229,9 +222,6 @@ export default function LessonRequestForm({
         : (scheduleTrainer?.availableTimes
               .map((time) => DAY_INDEX[time.dayOfWeek])
               .filter((day): day is number => day !== undefined) ?? [])
-    const uniqueAllowedDayCount = new Set(allowedDayIndices).size
-    const maximumWeeklyCount = Math.max(1, Math.min(uniqueAllowedDayCount || 1, 7))
-
     // 트레이너 직접 모드: 사용자가 선택한 날짜의 요일에 해당하는 가능시간 슬롯 찾기
     const selectedDayTimes =
         scheduleTrainer && selectedDate
@@ -330,42 +320,14 @@ export default function LessonRequestForm({
         setSelectedDate('')
         setSelectedStartTime('')
 
-        if (nextType === 'REGULAR') {
-            setWeeklyCount(Math.min(2, maximumWeeklyCount))
+        if (nextType === 'PACKAGE') {
+            setPackageCount(5)
         }
-    }
-
-    const handleWeeklyCountChange = (count: number) => {
-        setWeeklyCount(count)
-        setSelectedSchedules([])
-        setSelectedDate('')
-        setSelectedStartTime('')
     }
 
     const addSelectedSchedule = () => {
         if (!selectedDate || !selectedStartTime || !selectedEndTime) {
             setErrorMessage('날짜와 시작 시간을 먼저 선택해 주세요.')
-            return
-        }
-
-        const selectedDayIndex = new Date(`${selectedDate}T00:00:00`).getDay()
-        const alreadySelectedDay = selectedSchedules.some(
-            (schedule) =>
-                new Date(`${schedule.requestedDate}T00:00:00`).getDay() === selectedDayIndex
-        )
-
-        if (lessonPassType === 'REGULAR' && alreadySelectedDay) {
-            setErrorMessage('정기권 일정은 서로 다른 요일로 선택해 주세요.')
-            return
-        }
-
-        if (
-            lessonPassType === 'REGULAR' &&
-            selectedSchedules.length > 0 &&
-            getWeekStartValue(selectedSchedules[0].requestedDate) !==
-                getWeekStartValue(selectedDate)
-        ) {
-            setErrorMessage('정기권의 첫 일정들은 같은 주 안에서 선택해 주세요.')
             return
         }
 
@@ -376,15 +338,8 @@ export default function LessonRequestForm({
             endTime: selectedEndTime,
         }
 
-        if (lessonPassType === 'ONE_TIME') {
-            setSelectedSchedules([nextSchedule])
-        } else {
-            if (selectedSchedules.length >= weeklyCount) {
-                setErrorMessage(`정기권은 주 ${weeklyCount}회까지만 선택할 수 있습니다.`)
-                return
-            }
-            setSelectedSchedules((current) => [...current, nextSchedule])
-        }
+        // 1회권과 패키지권 모두 요청 단계에서는 첫 레슨 일정 하나만 선택합니다.
+        setSelectedSchedules([nextSchedule])
 
         setSelectedDate('')
         setSelectedStartTime('')
@@ -403,14 +358,8 @@ export default function LessonRequestForm({
             return
         }
 
-        const requiredScheduleCount = lessonPassType === 'REGULAR' ? weeklyCount : 1
-
-        if (selectedSchedules.length !== requiredScheduleCount) {
-            setErrorMessage(
-                lessonPassType === 'REGULAR'
-                    ? `서로 다른 요일의 일정을 ${weeklyCount}개 선택해 주세요.`
-                    : '레슨 일정을 1개 선택해 주세요.'
-            )
+        if (selectedSchedules.length !== 1) {
+            setErrorMessage('첫 레슨 일정을 1개 선택해 주세요.')
             return
         }
 
@@ -433,7 +382,7 @@ export default function LessonRequestForm({
                     matchingResultId: isDirectMode ? undefined : matchingResult!.matchingResultId,
                     trainerProfileId: isDirectMode ? directTrainer!.trainerProfileId : undefined,
                     lessonPassType,
-                    weeklyCount: lessonPassType === 'REGULAR' ? weeklyCount : undefined,
+                    packageCount: lessonPassType === 'PACKAGE' ? packageCount : undefined,
                     selectedSports,
                     selectedLessonLevel,
                     selectedLessonType,
@@ -643,8 +592,7 @@ export default function LessonRequestForm({
                                         확정할 일정
                                     </p>
                                     <span className="text-label-sm text-primary">
-                                        {selectedSchedules.length}/
-                                        {lessonPassType === 'REGULAR' ? weeklyCount : 1}
+                                        {selectedSchedules.length}/1
                                     </span>
                                 </div>
                                 <div className="mt-xs space-y-xs">
@@ -687,35 +635,34 @@ export default function LessonRequestForm({
                                     selected={lessonPassType === 'ONE_TIME'}
                                     onClick={() => handlePassTypeChange('ONE_TIME')}
                                 >
-                                    1회성
+                                    1회권
                                 </PassTypeButton>
                                 <PassTypeButton
-                                    selected={lessonPassType === 'REGULAR'}
-                                    onClick={() => handlePassTypeChange('REGULAR')}
+                                    selected={lessonPassType === 'PACKAGE'}
+                                    onClick={() => handlePassTypeChange('PACKAGE')}
                                 >
-                                    정기권
+                                    레슨 횟수 패키지
                                 </PassTypeButton>
                             </div>
                         </fieldset>
-                        {lessonPassType === 'REGULAR' && (
+                        {lessonPassType === 'PACKAGE' && (
                             <label className="block text-label-md font-label-md text-on-surface-variant">
-                                주당 횟수
+                                패키지 횟수
                                 <select
-                                    value={weeklyCount}
-                                    onChange={(event) =>
-                                        handleWeeklyCountChange(Number(event.target.value))
-                                    }
+                                    value={packageCount}
+                                    onChange={(event) => setPackageCount(Number(event.target.value))}
                                     className="mt-xs h-12 w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-sm text-body-md outline-none focus:border-primary"
                                 >
-                                    {Array.from(
-                                        { length: maximumWeeklyCount },
-                                        (_, index) => index + 1
-                                    ).map((count) => (
+                                    {[5, 10, 20].map((count) => (
                                         <option key={count} value={count}>
-                                            주 {count}회
+                                            {count}회권
                                         </option>
                                     ))}
                                 </select>
+                                <span className="mt-xs block text-label-sm text-outline">
+                                    요청 단계에서는 첫 레슨 일정만 선택하며, 나머지 일정은 결제 후
+                                    협의합니다.
+                                </span>
                             </label>
                         )}
                     </div>
@@ -732,9 +679,21 @@ export default function LessonRequestForm({
                     <SummaryRow icon="trending_up" label="레슨 수준" value={selectedLessonLevel} />
                     <SummaryRow icon="location_on" label="장소" value={location || '-'} />
                     <SummaryRow
+                        icon="confirmation_number"
+                        label="수강권"
+                        value={lessonPassType === 'PACKAGE' ? `${packageCount}회권` : '1회권'}
+                    />
+                    <SummaryRow
                         icon="payments"
-                        label="금액 (1회)"
-                        value={displayPrice ? `${displayPrice.toLocaleString('ko-KR')}원` : '-'}
+                        label="예상 결제 금액"
+                        value={
+                            displayPrice
+                                ? `${(
+                                      displayPrice *
+                                      (lessonPassType === 'PACKAGE' ? packageCount : 1)
+                                  ).toLocaleString('ko-KR')}원`
+                                : '-'
+                        }
                         emphasized
                     />
                 </dl>

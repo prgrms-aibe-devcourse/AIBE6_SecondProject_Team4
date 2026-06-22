@@ -72,6 +72,8 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
 
         if (parsedLevels.length > 0) {
             setLevels([...new Set(parsedLevels)])
+        } else {
+            setLevels([...LEVELS])
         }
 
         const parsedLessonTypes =
@@ -82,6 +84,8 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
 
         if (parsedLessonTypes.length > 0) {
             setLessonTypes([...new Set(parsedLessonTypes)])
+        } else {
+            setLessonTypes([...LESSON_TYPES])
         }
 
         if (initialDraft.region && REGIONS.includes(initialDraft.region)) {
