@@ -3,20 +3,7 @@
 import type { components } from '@/types/api';
 import { getAuthClient, getImageUrl } from '@/utils/apiClient';
 import { useEffect, useState } from 'react';
-
-
-
 import { useRouter, useSearchParams } from 'next/navigation';
-
-
-
-
-
-
-
-
-
-
 
 type Trainer = components['schemas']['TrainerProfileResponse']
 

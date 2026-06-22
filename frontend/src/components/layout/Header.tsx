@@ -1,12 +1,12 @@
 'use client'
 
-import { useAuth } from '@/context/AuthContext'
-import { type AlertItem, useAlert } from '@/hooks/useAlert'
-import { getImageUrl } from '@/utils/apiClient'
-import { useEffect, useRef, useState } from 'react'
+import { useAuth } from '@/context/AuthContext';
+import { type AlertItem, useAlert } from '@/hooks/useAlert';
+import { getImageUrl } from '@/utils/apiClient';
+import { useEffect, useRef, useState } from 'react';
 
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 function getAlertHref(alert: AlertItem): string {
     if (!alert.targetId) return '#'
@@ -36,19 +36,21 @@ function formatRelativeTime(dateStr?: string): string {
     return `${Math.floor(hr / 24)}일 전`
 }
 
-const NAV_LINKS = [
-    { label: '트레이너 찾기', href: '/trainer' },
-    { label: 'AI매칭', href: '/matching' },
-    { label: '고객센터', href: '/faq' },
-    { label: '마이페이지', href: '/mypage' },
-]
-
 export default function Header() {
     const [scrolled, setScrolled] = useState(false)
     const [alertOpen, setAlertOpen] = useState(false)
     const [menuOpen, setMenuOpen] = useState(false)
     const alertRef = useRef<HTMLDivElement>(null)
     const { user, initialized, logout } = useAuth()
+    const navLinks = [
+        { label: '트레이너 찾기', href: '/trainer' },
+        { label: 'AI매칭', href: '/matching' },
+        { label: '고객센터', href: '/faq' },
+        {
+            label: user?.role === 'ADMIN' ? '관리자 페이지' : '마이페이지',
+            href: user?.role === 'ADMIN' ? '/admin/inquiries' : '/mypage',
+        },
+    ]
     const router = useRouter()
     const { alerts, unreadCount, markOneRead, markAllRead, deleteOne, deleteAll } = useAlert()
 
@@ -85,7 +87,7 @@ export default function Header() {
                 </Link>
 
                 <nav className="hidden md:flex items-center gap-gutter">
-                    {NAV_LINKS.map(({ label, href }) => (
+                    {navLinks.map(({ label, href }) => (
                         <Link
                             key={label}
                             href={href}
