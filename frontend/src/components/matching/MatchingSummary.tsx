@@ -37,7 +37,7 @@ export default function MatchingSummary({
                 <SummaryItem label="레벨" value={level} />
                 <SummaryItem label="유형" value={lessonType} />
                 <SummaryItem label="지역" value={`${region} ${district}`} />
-                <SummaryItem label="선호 시간" value={`${preferredTimeCount}개`} />
+                <SummaryItem label="선호 요일" value={`${preferredTimeCount}개`} />
                 <div className="flex justify-between gap-md pt-sm border-t border-outline-variant">
                     <dt className="text-on-surface-variant">예산(1회)</dt>
                     <dd className="font-bold text-primary text-right">

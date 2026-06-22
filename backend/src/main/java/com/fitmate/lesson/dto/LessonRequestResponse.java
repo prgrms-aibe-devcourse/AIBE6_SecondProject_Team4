@@ -6,6 +6,7 @@ import com.fitmate.lesson.entity.LessonRequestStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 public record LessonRequestResponse(
         Long lessonRequestId,
@@ -32,10 +33,18 @@ public record LessonRequestResponse(
         LocalDate requestedDate,
         LocalTime requestedStartTime,
         LocalTime requestedEndTime,
+        List<ScheduleResponse> schedules,
 
         String message,
         LessonRequestStatus status,
 
         LocalDateTime createdAt
 ) {
+    public record ScheduleResponse(
+            Long scheduleId,
+            LocalDate requestedDate,
+            LocalTime startTime,
+            LocalTime endTime
+    ) {
+    }
 }

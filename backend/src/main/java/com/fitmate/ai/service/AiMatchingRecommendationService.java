@@ -5,8 +5,6 @@ import com.fitmate.ai.config.GeminiProperties;
 import com.fitmate.ai.dto.AiRankingResult;
 import com.fitmate.matching.entity.MatchingRequest;
 import com.fitmate.matching.entity.MatchingResult;
-import com.fitmate.review.entity.Review;
-import com.fitmate.review.repository.ReviewRepository;
 import com.fitmate.trainer.entity.TrainerProfile;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -34,7 +32,6 @@ public class AiMatchingRecommendationService {
 
     private final GeminiClient geminiClient;
     private final GeminiProperties geminiProperties;
-    private final ReviewRepository reviewRepository;
     private final ObjectMapper objectMapper;
 
     public List<AiRankingResult> rankCandidates(
@@ -116,7 +113,7 @@ public class AiMatchingRecommendationService {
                     다음 규칙을 반드시 지키세요.
 
                     1. 제공된 후보 트레이너만 사용할 수 있습니다.
-                    2. 트레이너 프로필과 리뷰에 없는 전문성이나 자격을 만들지 마세요.
+                    2. 트레이너 프로필에 없는 전문성이나 자격을 만들지 마세요.
                     3. 질병을 진단하거나 치료 효과를 보장하지 마세요.
                     4. 사용자의 목표 및 요청사항과 관련성이 높은 후보를 우선하세요.
                     5. 추천 사유는 한국어로 작성하고 500자를 넘지 마세요.
@@ -162,18 +159,6 @@ public class AiMatchingRecommendationService {
         TrainerProfile trainerProfile =
                 matchingResult.getTrainerProfile();
 
-        Long trainerMemberId =
-                trainerProfile.getMember().getId();
-
-        List<String> recentReviews =
-                reviewRepository
-                        .findTop3ByTrainerIdOrderByCreatedAtDesc(
-                                trainerMemberId
-                        )
-                        .stream()
-                        .map(Review::getContent)
-                        .toList();
-
         Map<String, Object> data = new LinkedHashMap<>();
 
         data.put(
@@ -217,47 +202,8 @@ public class AiMatchingRecommendationService {
         );
 
         data.put(
-                "averageRating",
-                reviewRepository.findAverageRatingByTrainerId(
-                        trainerMemberId
-                )
-        );
-
-        data.put(
-                "reviewCount",
-                reviewRepository.countByTrainerId(
-                        trainerMemberId
-                )
-        );
-
-        data.put(
-                "recentReviews",
-                recentReviews
-        );
-
-        data.put(
                 "matchedDayOfWeek",
                 matchingResult.getPreferredTime().getDayOfWeek()
-        );
-
-        data.put(
-                "preferredStartTime",
-                matchingResult.getPreferredTime().getStartTime()
-        );
-
-        data.put(
-                "preferredEndTime",
-                matchingResult.getPreferredTime().getEndTime()
-        );
-
-        data.put(
-                "trainerStartTime",
-                matchingResult.getTrainerAvailableTime().getStartTime()
-        );
-
-        data.put(
-                "trainerEndTime",
-                matchingResult.getTrainerAvailableTime().getEndTime()
         );
 
         return data;
@@ -348,7 +294,7 @@ public class AiMatchingRecommendationService {
                         new AiRankingResult(
                                 trainerProfileId,
                                 normalizedResults.size() + 1,
-                                null
+                                createFallbackReason()
                         )
                 );
             }
@@ -373,12 +319,16 @@ public class AiMatchingRecommendationService {
                     new AiRankingResult(
                             trainerProfileId,
                             index + 1,
-                            null
+                            createFallbackReason()
                     )
             );
         }
 
         return results;
+    }
+
+    private String createFallbackReason() {
+        return "요청한 종목, 레슨 수준, 유형, 지역, 예산과 선호 시간 조건을 모두 충족하는 트레이너입니다.";
     }
 
     private Map<String, Object> createResponseSchema() {
