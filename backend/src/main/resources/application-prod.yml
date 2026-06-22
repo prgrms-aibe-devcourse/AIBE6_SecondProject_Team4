@@ -9,9 +9,24 @@ spring:
     console:
       enabled: false
 
+  sql:
+    init:
+      mode: always          # ← 첫 배포는 always (더미 주입). 더미 들어간 후 never로 변경 예정
+
   jpa:
+    show-sql: false         # ← 추가: 운영 로그 정리
     hibernate:
-      ddl-auto: create
+      ddl-auto: create      # ← 첫 배포는 create. 더미 들어간 후 update로 변경 예정
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: false       # ← 추가
+        highlight_sql: false    # ← 추가
+        use_sql_comments: false # ← 추가
+
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: INFO              # ← TRACE 덮어씀 (비번 로그 차단)
+    org.hibernate.orm.jdbc.extract: INFO           # ← 추가
+    org.springframework.transaction.interceptor: INFO  # ← 추가
+    com.fitmate: INFO                              # ← DEBUG → INFO (운영)
