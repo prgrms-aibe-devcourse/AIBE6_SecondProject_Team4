@@ -1244,14 +1244,6 @@ WHERE user_id = 'user03';
 -- trainer01: 5,4,5,3 / trainer02: 4,5  → 별점 분포가 다양하게 보이도록 구성
 -- =============================================
 
--- [trainer01] user01의 기존 헬스 매칭에 대한 후기 (5점)
-INSERT
-IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
-SELECT (SELECT id FROM matching_request WHERE lesson_content = '체중 감량과 기초 체력 향상을 원합니다.' LIMIT 1),
-    (SELECT id FROM members WHERE user_id = 'user01'),
-    (SELECT id FROM members WHERE user_id = 'trainer01'),
-    5, '자세를 꼼꼼하게 잡아주셔서 운동이 훨씬 수월해졌어요. 강력 추천합니다!', NOW() - INTERVAL 10 DAY, NOW() - INTERVAL 10 DAY;
-
 -- [trainer01] user02의 추가 헬스 매칭에 대한 후기 (4점)
 INSERT
 IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
@@ -3590,3 +3582,205 @@ FROM trainer_profiles tp
                UNION ALL
                SELECT 'trainer18', 'https://placehold.co/600x400/bfdbfe/1e3a8a?text=Lesson+4') photo
               ON photo.user_id = m.user_id;
+
+-- =============================================
+-- 추가 리뷰 더미 데이터
+-- trainer03 (필라테스)
+-- =============================================
+
+INSERT IGNORE INTO matching_request
+(member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id,'초급','필라테스','1:1','서울',50000,90000,'[리뷰더미] 허리 통증 개선',NOW(),NOW()
+FROM members WHERE user_id='user06';
+
+INSERT IGNORE INTO matching_request
+(member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id,'초급','필라테스','1:1','서울',50000,90000,'[리뷰더미] 자세 교정 목적',NOW(),NOW()
+FROM members WHERE user_id='user07';
+
+INSERT IGNORE INTO matching_request
+(member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id,'중급','필라테스','1:1','서울',50000,90000,'[리뷰더미] 코어 강화',NOW(),NOW()
+FROM members WHERE user_id='user08';
+
+
+INSERT IGNORE INTO review
+(matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content='[리뷰더미] 허리 통증 개선'),
+    (SELECT id FROM members WHERE user_id='user06'),
+    (SELECT id FROM members WHERE user_id='trainer03'),
+    5,
+    '허리 통증이 많이 개선되었습니다. 설명도 친절해요.',
+    NOW()-INTERVAL 5 DAY,
+    NOW()-INTERVAL 5 DAY;
+
+INSERT IGNORE INTO review
+(matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content='[리뷰더미] 자세 교정 목적'),
+    (SELECT id FROM members WHERE user_id='user07'),
+    (SELECT id FROM members WHERE user_id='trainer03'),
+    4,
+    '체형 교정에 큰 도움이 되었습니다.',
+    NOW()-INTERVAL 3 DAY,
+    NOW()-INTERVAL 3 DAY;
+
+INSERT IGNORE INTO review
+(matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content='[리뷰더미] 코어 강화'),
+    (SELECT id FROM members WHERE user_id='user08'),
+    (SELECT id FROM members WHERE user_id='trainer03'),
+    5,
+    '코어 운동 설명이 이해하기 쉬웠습니다.',
+    NOW()-INTERVAL 1 DAY,
+    NOW()-INTERVAL 1 DAY;
+
+
+-- =============================================
+-- trainer05 (요가)
+-- =============================================
+
+INSERT IGNORE INTO matching_request
+(member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id,'초급','요가','1:1','인천',50000,100000,'[리뷰더미] 유연성 향상',NOW(),NOW()
+FROM members WHERE user_id='user09';
+
+INSERT IGNORE INTO matching_request
+(member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id,'초급','요가','1:1','인천',50000,100000,'[리뷰더미] 스트레스 해소',NOW(),NOW()
+FROM members WHERE user_id='user10';
+
+INSERT IGNORE INTO review
+(matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content='[리뷰더미] 유연성 향상'),
+    (SELECT id FROM members WHERE user_id='user09'),
+    (SELECT id FROM members WHERE user_id='trainer05'),
+    5,
+    '몸이 훨씬 가벼워졌어요.',
+    NOW()-INTERVAL 8 DAY,
+    NOW()-INTERVAL 8 DAY;
+
+INSERT IGNORE INTO review
+(matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content='[리뷰더미] 스트레스 해소'),
+    (SELECT id FROM members WHERE user_id='user10'),
+    (SELECT id FROM members WHERE user_id='trainer05'),
+    5,
+    '수업 분위기가 좋아서 스트레스가 풀립니다.',
+    NOW()-INTERVAL 2 DAY,
+    NOW()-INTERVAL 2 DAY;
+
+
+-- =============================================
+-- trainer08 (테니스)
+-- =============================================
+
+INSERT IGNORE INTO matching_request
+(member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id,'초급','테니스','1:1','대전',80000,150000,'[리뷰더미] 백핸드 교정',NOW(),NOW()
+FROM members WHERE user_id='user15';
+
+INSERT IGNORE INTO matching_request
+(member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id,'중급','테니스','1:1','대전',80000,150000,'[리뷰더미] 서브 향상',NOW(),NOW()
+FROM members WHERE user_id='user21';
+
+INSERT IGNORE INTO review
+(matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content='[리뷰더미] 백핸드 교정'),
+    (SELECT id FROM members WHERE user_id='user15'),
+    (SELECT id FROM members WHERE user_id='trainer08'),
+    4,
+    '백핸드 자세를 쉽게 알려주셨습니다.',
+    NOW()-INTERVAL 6 DAY,
+    NOW()-INTERVAL 6 DAY;
+
+INSERT IGNORE INTO review
+(matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content='[리뷰더미] 서브 향상'),
+    (SELECT id FROM members WHERE user_id='user21'),
+    (SELECT id FROM members WHERE user_id='trainer08'),
+    4,
+    '서브 정확도가 좋아졌습니다.',
+    NOW()-INTERVAL 4 DAY,
+    NOW()-INTERVAL 4 DAY;
+
+
+-- =============================================
+-- trainer11 (헬스)
+-- =============================================
+
+INSERT IGNORE INTO matching_request
+(member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id,'초급','헬스','1:1 PT','인천',50000,100000,'[리뷰더미] 체중 감량',NOW(),NOW()
+FROM members WHERE user_id='user17';
+
+INSERT IGNORE INTO matching_request
+(member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id,'중급','헬스','1:1 PT','인천',50000,100000,'[리뷰더미] 근력 증가',NOW(),NOW()
+FROM members WHERE user_id='user23';
+
+INSERT IGNORE INTO review
+(matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content='[리뷰더미] 체중 감량'),
+    (SELECT id FROM members WHERE user_id='user17'),
+    (SELECT id FROM members WHERE user_id='trainer11'),
+    5,
+    '식단과 운동을 함께 관리해주셔서 만족합니다.',
+    NOW()-INTERVAL 7 DAY,
+    NOW()-INTERVAL 7 DAY;
+
+INSERT IGNORE INTO review
+(matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content='[리뷰더미] 근력 증가'),
+    (SELECT id FROM members WHERE user_id='user23'),
+    (SELECT id FROM members WHERE user_id='trainer11'),
+    4,
+    '목표에 맞게 프로그램을 구성해주셨습니다.',
+    NOW()-INTERVAL 2 DAY,
+    NOW()-INTERVAL 2 DAY;
+
+
+-- =============================================
+-- trainer16 (골프)
+-- =============================================
+
+INSERT IGNORE INTO matching_request
+(member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id,'초급','골프','1:1','서울',100000,150000,'[리뷰더미] 스윙 교정',NOW(),NOW()
+FROM members WHERE user_id='user14';
+
+INSERT IGNORE INTO matching_request
+(member_id, level, sports, lesson_type, region, budget_min, budget_max, lesson_content, created_at, updated_at)
+SELECT id,'중급','골프','1:1','서울',100000,150000,'[리뷰더미] 비거리 향상',NOW(),NOW()
+FROM members WHERE user_id='user25';
+
+INSERT IGNORE INTO review
+(matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content='[리뷰더미] 스윙 교정'),
+    (SELECT id FROM members WHERE user_id='user14'),
+    (SELECT id FROM members WHERE user_id='trainer16'),
+    5,
+    '스윙이 안정적으로 바뀌었습니다.',
+    NOW()-INTERVAL 10 DAY,
+    NOW()-INTERVAL 10 DAY;
+
+INSERT IGNORE INTO review
+(matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
+SELECT
+    (SELECT id FROM matching_request WHERE lesson_content='[리뷰더미] 비거리 향상'),
+    (SELECT id FROM members WHERE user_id='user25'),
+    (SELECT id FROM members WHERE user_id='trainer16'),
+    5,
+    '비거리가 눈에 띄게 늘었습니다.',
+    NOW()-INTERVAL 1 DAY,
+    NOW()-INTERVAL 1 DAY;
