@@ -126,13 +126,13 @@ export default function Header() {
                                             <div className="flex gap-3">
                                                 <button
                                                     onClick={markAllRead}
-                                                    className="text-xs text-primary hover:underline"
+                                                    className="text-xs text-primary hover:underline cursor-pointer"
                                                 >
                                                     일괄 읽음
                                                 </button>
                                                 <button
                                                     onClick={deleteAll}
-                                                    className="text-xs text-secondary hover:underline"
+                                                    className="text-xs text-secondary hover:underline cursor-pointer"
                                                 >
                                                     일괄 삭제
                                                 </button>
@@ -263,7 +263,7 @@ export default function Header() {
                                         </Link>
                                         <button
                                             onClick={handleLogout}
-                                            className="w-full text-left px-4 py-3 text-body-sm text-error hover:bg-surface-container transition-colors"
+                                            className="w-full text-left px-4 py-3 text-body-sm text-error hover:bg-surface-container transition-colors cursor-pointer"
                                         >
                                             로그아웃
                                         </button>

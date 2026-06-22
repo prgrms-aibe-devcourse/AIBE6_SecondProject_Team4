@@ -55,7 +55,7 @@ export default function MatchingSummary({
             <button
                 type="submit"
                 disabled={isSubmitting}
-                className="mt-md w-full h-12 rounded-lg bg-primary text-on-primary font-label-bold shadow-md hover:shadow-lg active:scale-[0.99] transition disabled:opacity-60 disabled:cursor-not-allowed"
+                className="mt-md w-full h-12 rounded-lg bg-primary text-on-primary font-label-bold shadow-md hover:shadow-lg active:scale-[0.99] transition disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
             >
                 {isSubmitting ? '매칭 결과 생성 중...' : 'AI 매칭 시작하기'}
             </button>

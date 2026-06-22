@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation';
 
 
 const categories = [
-    { icon: 'fitness_center', label: '헬스', active: true },
+    { icon: 'fitness_center', label: '헬스', active: false },
     { icon: 'self_improvement', label: '필라테스' },
     { icon: 'air', label: '요가' },
     { icon: 'timer', label: '크로스핏' },
@@ -189,7 +189,7 @@ export default function Home() {
                             </div>
                             <div className="flex items-end">
                                 <button
-                                    className="w-full h-[52px] bg-primary text-on-primary rounded-xl font-label-bold text-label-bold flex items-center justify-center gap-2 hover:bg-primary-container hover:shadow-lg active:scale-[0.98] transition-all"
+                                    className="w-full h-[52px] bg-primary text-on-primary rounded-xl font-label-bold text-label-bold flex items-center justify-center gap-2 hover:bg-primary-container hover:shadow-lg active:scale-[0.98] transition-all cursor-pointer"
                                     onClick={handleSearch}
                                 >
                                     <span className="material-symbols-outlined">search</span>
@@ -252,14 +252,14 @@ export default function Home() {
                             </p>
                             <button
                                 onClick={() => router.push('/matching')}
-                                className="mt-4 bg-inverse-surface text-surface px-10 py-3 rounded-xl font-label-bold text-label-bold hover:shadow-xl active:scale-95 transition-all">
+                                className="mt-4 bg-inverse-surface text-surface px-10 py-3 rounded-xl font-label-bold text-label-bold hover:shadow-xl active:scale-95 transition-all cursor-pointer">
                                 지금 바로 시작하기
                             </button>
                         </div>
-                        <div className="opacity-10 absolute right-10 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <div className="opacity-10 absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none select-none leading-none">
                             <span
-                                className="material-symbols-outlined text-[300px] text-primary"
-                                style={{ fontVariationSettings: '"FILL" 1' }}
+                                className="material-symbols-outlined text-primary"
+                                style={{ fontVariationSettings: '"FILL" 1', fontSize: '280px', lineHeight: 1 }}
                             >
                                 psychology
                             </span>
@@ -273,7 +273,7 @@ export default function Home() {
                         <h2 className="font-headline-md text-headline-md">이달의 인기 트레이너</h2>
                         <button
                             onClick={() => router.push('/trainer')}
-                            className="text-primary font-label-bold text-label-bold flex items-center gap-1 hover:underline"
+                            className="text-primary font-label-bold text-label-bold flex items-center gap-1 hover:underline cursor-pointer"
                         >
                             전체보기
                             <span className="material-symbols-outlined text-sm">arrow_forward</span>

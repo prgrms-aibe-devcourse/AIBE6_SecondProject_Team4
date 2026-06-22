@@ -421,7 +421,7 @@ function ChoiceButtons({ legend, options, selected, onToggle }: ChoiceButtonsPro
                         type="button"
                         aria-pressed={selected.includes(option)}
                         onClick={() => onToggle(option)}
-                        className={`h-10 px-md rounded-full border text-body-sm transition-colors ${
+                        className={`h-10 px-md rounded-full border text-body-sm transition-colors cursor-pointer ${
                             selected.includes(option)
                                 ? 'border-primary bg-primary-fixed text-on-primary-fixed-variant font-semibold'
                                 : 'border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:border-primary'
@@ -530,7 +530,7 @@ function BudgetRange({
                 step="10000"
                 value={value}
                 onChange={(event) => onChange(Number(event.target.value))}
-                className="w-full accent-primary"
+                className="w-full accent-primary cursor-grab"
             />
         </label>
     )

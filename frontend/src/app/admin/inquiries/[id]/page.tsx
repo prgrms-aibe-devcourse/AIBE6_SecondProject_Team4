@@ -119,7 +119,7 @@ export default function AdminInquiryDetailPage() {
             <div className="flex flex-col items-center justify-center py-24 text-on-surface-variant">
                 <span className="material-symbols-outlined text-6xl mb-4">inbox</span>
                 <p>문의를 찾을 수 없습니다.</p>
-                <button onClick={() => router.push(backUrl)} className="mt-4 text-primary hover:underline">목록으로 돌아가기</button>
+                <button onClick={() => router.push(backUrl)} className="mt-4 text-primary hover:underline cursor-pointer">목록으로 돌아가기</button>
             </div>
         )
     }
@@ -129,13 +129,13 @@ export default function AdminInquiryDetailPage() {
             {/* 브레드크럼 & 뒤로가기 */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2 text-body-sm text-on-surface-variant">
-                    <button onClick={() => router.push(backUrl)} className="hover:text-primary transition-colors">문의 관리</button>
+                    <button onClick={() => router.push(backUrl)} className="hover:text-primary transition-colors cursor-pointer">문의 관리</button>
                     <span className="material-symbols-outlined text-[16px]">chevron_right</span>
                     <span className="text-on-surface font-bold">문의 상세</span>
                 </div>
                 <button
                     onClick={() => router.push(backUrl)}
-                    className="flex items-center gap-1 text-primary font-bold hover:underline text-sm"
+                    className="flex items-center gap-1 text-primary font-bold hover:underline text-sm cursor-pointer"
                 >
                     <span className="material-symbols-outlined text-[18px]">arrow_back</span>
                     목록으로 돌아가기

@@ -591,7 +591,7 @@ export default function LessonRequestForm({
                                                     key={time}
                                                     type="button"
                                                     onClick={() => setSelectedStartTime(time)}
-                                                    className={`h-10 rounded-lg border text-body-sm font-label-bold transition-colors ${
+                                                    className={`h-10 rounded-lg border text-body-sm font-label-bold transition-colors cursor-pointer ${
                                                         selectedStartTime === time
                                                             ? 'border-primary bg-primary text-on-primary'
                                                             : 'border-outline-variant bg-surface-container-low text-on-surface-variant hover:border-primary hover:text-primary'
@@ -610,7 +610,7 @@ export default function LessonRequestForm({
                                                 <button
                                                     type="button"
                                                     onClick={addSelectedSchedule}
-                                                    className="inline-flex h-10 items-center gap-1 rounded-lg bg-primary px-sm font-label-bold text-on-primary hover:bg-primary/90"
+                                                    className="inline-flex h-10 items-center gap-1 rounded-lg bg-primary px-sm font-label-bold text-on-primary hover:bg-primary/90 cursor-pointer"
                                                 >
                                                     <span className="material-symbols-outlined text-xl">
                                                         add
@@ -666,7 +666,7 @@ export default function LessonRequestForm({
                                                 type="button"
                                                 onClick={() => removeSelectedSchedule(schedule.id)}
                                                 aria-label={`${schedule.requestedDate} 일정 삭제`}
-                                                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-on-surface-variant hover:bg-error-container hover:text-error"
+                                                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-on-surface-variant hover:bg-error-container hover:text-error cursor-pointer"
                                             >
                                                 <span className="material-symbols-outlined">
                                                     close
@@ -761,7 +761,7 @@ export default function LessonRequestForm({
             <button
                 type="submit"
                 disabled={isSubmitting}
-                className="h-14 w-full rounded-lg bg-primary font-label-bold text-on-primary transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-outline-variant"
+                className="h-14 w-full rounded-lg bg-primary font-label-bold text-on-primary transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-outline-variant cursor-pointer"
             >
                 {isSubmitting ? '요청 전송 중...' : '레슨 요청 완료하기'}
             </button>
@@ -814,7 +814,7 @@ function LessonCalendar({ selectedDate, onSelect, allowedDayIndices }: LessonCal
                         onClick={() => moveMonth(-1)}
                         disabled={!canMovePrevious}
                         aria-label="이전 달"
-                        className="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container disabled:opacity-30"
+                        className="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container disabled:opacity-30 cursor-pointer"
                     >
                         <span className="material-symbols-outlined">chevron_left</span>
                     </button>
@@ -825,7 +825,7 @@ function LessonCalendar({ selectedDate, onSelect, allowedDayIndices }: LessonCal
                         type="button"
                         onClick={() => moveMonth(1)}
                         aria-label="다음 달"
-                        className="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container"
+                        className="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container cursor-pointer"
                     >
                         <span className="material-symbols-outlined">chevron_right</span>
                     </button>
@@ -859,7 +859,7 @@ function LessonCalendar({ selectedDate, onSelect, allowedDayIndices }: LessonCal
                                 type="button"
                                 disabled={disabled}
                                 onClick={() => onSelect(dateValue)}
-                                className={`aspect-square rounded-full text-body-sm transition-colors ${
+                                className={`aspect-square rounded-full text-body-sm transition-colors cursor-pointer ${
                                     selected
                                         ? 'bg-primary font-semibold text-on-primary'
                                         : disabled
@@ -904,7 +904,7 @@ function SingleChoiceGroup({
                             key={option}
                             type="button"
                             onClick={() => onSelect(option)}
-                            className={`min-h-10 rounded-lg border px-sm text-body-sm font-label-bold transition-colors ${
+                            className={`min-h-10 rounded-lg border px-sm text-body-sm font-label-bold transition-colors cursor-pointer ${
                                 selectedValue === option
                                     ? 'border-primary bg-primary text-on-primary'
                                     : 'border-outline-variant bg-surface-container-low text-on-surface-variant hover:border-primary hover:text-primary'
@@ -936,7 +936,7 @@ function PassTypeButton({
         <button
             type="button"
             onClick={onClick}
-            className={`h-12 rounded-lg border font-label-bold transition-colors ${
+            className={`h-12 rounded-lg border font-label-bold transition-colors cursor-pointer ${
                 selected
                     ? 'border-primary bg-primary text-on-primary'
                     : 'border-outline-variant bg-surface-container-low text-on-surface-variant hover:border-primary hover:text-primary'

@@ -93,7 +93,7 @@ export default function MatchingResultPage() {
                     </div>
                     <Link
                         href="/matching"
-                        className="inline-flex h-10 items-center justify-center rounded-lg border border-outline-variant bg-surface-container-lowest px-sm font-label-bold text-on-surface hover:border-primary hover:text-primary"
+                        className="inline-flex h-10 items-center justify-center rounded-lg border border-outline-variant bg-surface-container-lowest px-sm font-label-bold text-on-surface hover:border-primary hover:text-primary cursor-pointer"
                     >
                         조건 수정
                     </Link>
@@ -110,11 +110,7 @@ export default function MatchingResultPage() {
                 </div>
 
                 {isLoading ? (
-                    <ResultMessage
-                        icon="progress_activity"
-                        title="추천 결과를 불러오는 중입니다."
-                        showAction={false}
-                    />
+                    <SkeletonCards />
                 ) : errorMessage ? (
                     <ResultMessage
                         icon="error"
@@ -143,6 +139,57 @@ export default function MatchingResultPage() {
     )
 }
 
+function Bone({ className }: { className?: string }) {
+    return <div className={`animate-pulse rounded bg-surface-container ${className ?? ''}`} />
+}
+
+function SkeletonCards() {
+    return (
+        <div className="mt-lg grid grid-cols-1 gap-md md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest">
+                    {/* 이미지 영역 */}
+                    <Bone className="aspect-[4/3] w-full rounded-none" />
+                    <div className="p-md space-y-md">
+                        {/* 이름 + 순위 배지 */}
+                        <div className="flex items-start justify-between gap-sm">
+                            <div className="space-y-xs flex-1">
+                                <Bone className="h-6 w-32" />
+                                <div className="flex gap-1.5">
+                                    <Bone className="h-5 w-14 rounded-full" />
+                                    <Bone className="h-5 w-16 rounded-full" />
+                                    <Bone className="h-5 w-12 rounded-full" />
+                                </div>
+                            </div>
+                            <Bone className="h-6 w-20 rounded-full" />
+                        </div>
+                        {/* 소개 */}
+                        <div className="space-y-xs">
+                            <Bone className="h-4 w-full" />
+                            <Bone className="h-4 w-4/5" />
+                            <Bone className="h-4 w-3/5" />
+                        </div>
+                        {/* 추천이유 */}
+                        <Bone className="h-16 w-full rounded-lg" />
+                        {/* 요일/시간 */}
+                        <Bone className="h-14 w-full rounded-lg" />
+                        {/* 가격 */}
+                        <div className="border-t border-outline-variant pt-md space-y-xs">
+                            <Bone className="h-3 w-16" />
+                            <Bone className="h-7 w-28" />
+                        </div>
+                        {/* 버튼 */}
+                        <div className="grid grid-cols-2 gap-xs">
+                            <Bone className="h-11 rounded-lg" />
+                            <Bone className="h-11 rounded-lg" />
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    )
+}
+
 type ResultMessageProps = {
     icon: string
     title: string
@@ -166,7 +213,7 @@ function ResultMessage({ icon, title, description, showAction = true }: ResultMe
             {showAction && (
                 <Link
                     href="/matching"
-                    className="mt-md inline-flex h-11 items-center justify-center rounded-lg border border-primary px-md font-label-bold text-primary hover:bg-primary-fixed"
+                    className="mt-md inline-flex h-11 items-center justify-center rounded-lg border border-primary px-md font-label-bold text-primary hover:bg-primary-fixed cursor-pointer"
                 >
                     조건 다시 입력하기
                 </Link>

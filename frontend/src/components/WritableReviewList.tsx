@@ -161,7 +161,7 @@ function WritableCard({
                             </button>
                             <button
                                 onClick={handleSubmit}
-                                className="rounded-lg bg-primary px-xl py-2 text-label-bold font-label-bold text-on-primary shadow-sm transition-all hover:scale-[0.98]"
+                                className="rounded-lg bg-primary px-xl py-2 text-label-bold font-label-bold text-on-primary shadow-sm transition-all hover:scale-[0.98] cursor-pointer"
                             >
                                 등록
                             </button>

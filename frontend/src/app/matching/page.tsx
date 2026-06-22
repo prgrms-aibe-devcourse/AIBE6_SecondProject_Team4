@@ -117,7 +117,7 @@ export default function MatchingPage() {
 
                         <button
                             type="submit"
-                            className="h-12 whitespace-nowrap rounded-lg bg-primary px-md font-label-bold text-on-primary disabled:opacity-40"
+                            className="h-12 whitespace-nowrap rounded-lg bg-primary px-md font-label-bold text-on-primary disabled:opacity-40 cursor-pointer"
                             disabled={!quickQuery.trim() || isParsing}
                         >
                             {isParsing ? '분석 중...' : 'AI 추천받기'}
