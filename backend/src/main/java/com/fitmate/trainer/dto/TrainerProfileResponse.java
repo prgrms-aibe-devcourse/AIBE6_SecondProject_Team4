@@ -19,6 +19,7 @@ public record TrainerProfileResponse(
         String lessonLevel,
         Integer price,
         Integer careerYears,
+        Integer lessonDurationMinutes,
         List<AvailableTimeResponse> availableTimes,
         List<String> lessonPhotos,
         Boolean isPublic,
@@ -38,6 +39,7 @@ public record TrainerProfileResponse(
                 profile.getLessonLevel(),
                 profile.getPrice(),
                 profile.getCareerYears(),
+                profile.getLessonDurationMinutes(),
                 List.of(),
                 List.of(),
                 profile.getIsPublic(),
@@ -73,6 +75,7 @@ public record TrainerProfileResponse(
                 profile.getLessonLevel(),
                 profile.getPrice(),
                 profile.getCareerYears(),
+                profile.getLessonDurationMinutes(),
                 availableTimes.stream()
                         .map(AvailableTimeResponse::from)
                         .toList(),

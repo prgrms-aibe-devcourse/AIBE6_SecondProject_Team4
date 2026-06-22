@@ -1,6 +1,7 @@
 package com.fitmate.lesson.repository;
 
 import com.fitmate.lesson.entity.LessonRequest;
+import com.fitmate.lesson.entity.LessonRequestStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -13,6 +14,10 @@ public interface LessonRequestRepository extends JpaRepository<LessonRequest, Lo
 
     //중복 요청 방지용
     boolean existsByMatchingResultId(Long matchingResultId);
+    //중복 요청 방지용 (트레이너 직접 선택 경로) - 같은 회원이 같은 트레이너에게 보낸 대기중 요청이 있는지
+    boolean existsByMemberIdAndTrainerProfileIdAndStatus(
+            Long memberId, Long trainerProfileId, LessonRequestStatus status
+    );
     //트레이너가 받은 요청서 목록 조회용
     List<LessonRequest> findByTrainerProfileMemberUserIdOrderByCreatedAtDesc(String userId);
     //사용자가 보낸 요청서 목록 조회용

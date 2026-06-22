@@ -19,8 +19,25 @@ export type LessonRequestSummary = {
     lessonContent?: string
 }
 
+type DirectTrainerInfo = {
+    trainerProfileId: number
+    trainerName: string
+    profileImage?: string
+    sports?: string
+    lessonType?: string
+    lessonLevel?: string
+    price?: number
+    lessonDurationMinutes?: number
+    availableTimes: Array<{
+        dayOfWeek: string
+        startTime: string
+        endTime: string
+    }>
+}
+
 type LessonRequestFormProps = {
-    result: MatchingResult
+    matchingResult?: MatchingResult
+    directTrainer?: DirectTrainerInfo
     summary: LessonRequestSummary | null
 }
 
@@ -57,7 +74,11 @@ const toDateValue = (date: Date) => {
     return `${year}-${month}-${day}`
 }
 
-export default function LessonRequestForm({ result, summary }: LessonRequestFormProps) {
+export default function LessonRequestForm({
+    matchingResult,
+    directTrainer,
+    summary,
+}: LessonRequestFormProps) {
     const router = useRouter()
     const [selectedDate, setSelectedDate] = useState('')
     const [lessonPassType, setLessonPassType] = useState<LessonPassType>('ONE_TIME')
@@ -66,30 +87,107 @@ export default function LessonRequestForm({ result, summary }: LessonRequestForm
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
 
-    const matchedDayIndex = DAY_INDEX[result.dayOfWeek ?? '']
-    const matchedDayLabel =
-        matchedDayIndex === undefined ? result.dayOfWeek ?? '-' : `${DAY_LABELS[matchedDayIndex]}요일`
+    const isDirectMode = !!directTrainer
 
-    const location = [result.region ?? summary?.region, summary?.district]
+    const matchedDayIndex = matchingResult ? DAY_INDEX[matchingResult.dayOfWeek ?? ''] : undefined
+    const matchedDayLabel =
+        matchedDayIndex === undefined
+            ? (matchingResult?.dayOfWeek ?? '-')
+            : `${DAY_LABELS[matchedDayIndex]}요일`
+
+    const location = [matchingResult?.region ?? summary?.region, summary?.district]
         .filter(Boolean)
         .join(' ')
 
+    const displayProfileImage = isDirectMode
+        ? directTrainer!.profileImage
+        : matchingResult?.profileImage
+    const displayTrainerName = isDirectMode
+        ? directTrainer!.trainerName
+        : matchingResult?.trainerName
+    const displaySports = isDirectMode ? directTrainer!.sports : matchingResult?.sports
+    const displayLessonType = isDirectMode ? directTrainer!.lessonType : matchingResult?.lessonType
+    const displayPrice = isDirectMode ? directTrainer!.price : matchingResult?.price
+
+    // 트레이너 직접 모드: 캘린더에서 활성화할 요일들 (트레이너가 가능하다고 등록한 모든 요일)
+    const allowedDayIndices = isDirectMode
+        ? directTrainer!.availableTimes
+              .map((t) => DAY_INDEX[t.dayOfWeek])
+              .filter((d): d is number => d !== undefined)
+        : matchedDayIndex !== undefined
+          ? [matchedDayIndex]
+          : []
+
+    // 트레이너 직접 모드: 사용자가 선택한 날짜의 요일에 해당하는 가능시간 슬롯 찾기
+    const selectedDayTime =
+        isDirectMode && selectedDate
+            ? directTrainer!.availableTimes.find(
+                  (t) => DAY_INDEX[t.dayOfWeek] === new Date(`${selectedDate}T00:00:00`).getDay()
+              )
+            : undefined
+
+    // 트레이너 직접 모드: 선택한 날짜의 가능시간 블록을 레슨 시간 단위로 잘라서 시작시간 목록 생성
+    const lessonDuration = directTrainer?.lessonDurationMinutes ?? 60
+
+    const timeSlotOptions = useMemo(() => {
+        if (!selectedDayTime) return []
+
+        const [startH, startM] = selectedDayTime.startTime.split(':').map(Number)
+        const [endH, endM] = selectedDayTime.endTime.split(':').map(Number)
+
+        const startMinutes = startH * 60 + startM
+        const endMinutes = endH * 60 + endM
+
+        const slots: string[] = []
+        for (let t = startMinutes; t + lessonDuration <= endMinutes; t += lessonDuration) {
+            const h = Math.floor(t / 60)
+            const m = t % 60
+            slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
+        }
+        return slots
+    }, [selectedDayTime, lessonDuration])
+
+    const [selectedStartTime, setSelectedStartTime] = useState('')
+
+    // 선택된 시작시간 + 레슨 시간으로 종료시간 계산
+    const selectedEndTime = useMemo(() => {
+        if (!selectedStartTime) return ''
+        const [h, m] = selectedStartTime.split(':').map(Number)
+        const totalMinutes = h * 60 + m + lessonDuration
+        const endH = Math.floor(totalMinutes / 60)
+        const endM = totalMinutes % 60
+        return `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`
+    }, [selectedStartTime, lessonDuration])
+
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-
-        if (!result.matchingResultId) {
-            setErrorMessage('선택한 매칭 결과를 확인할 수 없습니다.')
-            return
-        }
 
         if (!selectedDate) {
             setErrorMessage('레슨을 시작할 날짜를 선택해 주세요.')
             return
         }
 
-        if (!result.preferredStartTime || !result.preferredEndTime) {
-            setErrorMessage('매칭된 레슨 시간을 확인할 수 없습니다.')
-            return
+        let requestedStartTime: string | undefined
+        let requestedEndTime: string | undefined
+
+        if (isDirectMode) {
+            if (!selectedStartTime) {
+                setErrorMessage('레슨 시작 시간을 선택해 주세요.')
+                return
+            }
+            requestedStartTime = toApiTime(selectedStartTime)
+            requestedEndTime = toApiTime(selectedEndTime)
+        } else {
+            if (!matchingResult?.matchingResultId) {
+                setErrorMessage('선택한 매칭 결과를 확인할 수 없습니다.')
+                return
+            }
+            if (!matchingResult.preferredStartTime || !matchingResult.preferredEndTime) {
+                setErrorMessage('매칭된 레슨 시간을 확인할 수 없습니다.')
+                return
+            }
+            requestedStartTime = toApiTime(matchingResult.preferredStartTime)
+            requestedEndTime = toApiTime(matchingResult.preferredEndTime)
         }
 
         setIsSubmitting(true)
@@ -99,12 +197,13 @@ export default function LessonRequestForm({ result, summary }: LessonRequestForm
             const client = getAuthClient()
             const { data, error } = await client.POST('/api/lesson-requests', {
                 body: {
-                    matchingResultId: result.matchingResultId,
+                    matchingResultId: isDirectMode ? undefined : matchingResult!.matchingResultId,
+                    trainerProfileId: isDirectMode ? directTrainer!.trainerProfileId : undefined,
                     lessonPassType,
                     weeklyCount: lessonPassType === 'REGULAR' ? weeklyCount : undefined,
                     requestedDate: selectedDate,
-                    requestedStartTime: toApiTime(result.preferredStartTime),
-                    requestedEndTime: toApiTime(result.preferredEndTime),
+                    requestedStartTime,
+                    requestedEndTime,
                     message: message.trim() || undefined,
                 },
             })
@@ -112,7 +211,7 @@ export default function LessonRequestForm({ result, summary }: LessonRequestForm
             if (error || !data) {
                 const apiError = error as { code?: string; message?: string } | undefined
 
-                if (apiError?.code === '409-6') {
+                if (apiError?.code === '409-6' || apiError?.code === '409-7') {
                     setErrorMessage('이미 이 트레이너에게 보낸 레슨 요청이 있습니다.')
                 } else {
                     setErrorMessage(apiError?.message ?? '레슨 요청을 전송하지 못했습니다.')
@@ -133,10 +232,10 @@ export default function LessonRequestForm({ result, summary }: LessonRequestForm
         <form onSubmit={handleSubmit} className="space-y-md">
             <section className="flex items-center gap-sm rounded-lg border border-outline-variant bg-surface-container-lowest p-md">
                 <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-surface-container">
-                    {result.profileImage ? (
+                    {displayProfileImage ? (
                         <img
-                            src={getImageUrl(result.profileImage)}
-                            alt={`${result.trainerName ?? '트레이너'} 프로필`}
+                            src={getImageUrl(displayProfileImage)}
+                            alt={`${displayTrainerName ?? '트레이너'} 프로필`}
                             className="h-full w-full object-cover"
                         />
                     ) : (
@@ -150,14 +249,12 @@ export default function LessonRequestForm({ result, summary }: LessonRequestForm
 
                 <div className="min-w-0">
                     <h2 className="font-headline-sm text-headline-sm text-on-surface">
-                        {result.trainerName ?? '트레이너'}
+                        {displayTrainerName ?? '트레이너'}
                     </h2>
                     <div className="mt-xs flex flex-wrap gap-xs">
                         {[
-                            result.lessonType
-                                ? formatLessonType(result.lessonType)
-                                : undefined,
-                            result.sports,
+                            displayLessonType ? formatLessonType(displayLessonType) : undefined,
+                            displaySports,
                         ]
                             .filter((value): value is string => Boolean(value))
                             .map((value) => (
@@ -171,7 +268,6 @@ export default function LessonRequestForm({ result, summary }: LessonRequestForm
                     </div>
                 </div>
             </section>
-
             <section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-md md:p-lg">
                 <div className="flex flex-wrap items-start justify-between gap-xs">
                     <div>
@@ -179,7 +275,9 @@ export default function LessonRequestForm({ result, summary }: LessonRequestForm
                             일정 확정
                         </h2>
                         <p className="mt-xs text-body-sm text-on-surface-variant">
-                            매칭된 {matchedDayLabel} 시간에 맞춰 시작 날짜를 선택해 주세요.
+                            {isDirectMode
+                                ? '트레이너가 가능한 날짜 중에서 선택해 주세요.'
+                                : `매칭된 ${matchedDayLabel} 시간에 맞춰 시작 날짜를 선택해 주세요.`}
                         </p>
                     </div>
                     <span className="rounded-md bg-primary-fixed px-xs py-1 text-label-sm text-primary">
@@ -190,25 +288,78 @@ export default function LessonRequestForm({ result, summary }: LessonRequestForm
                 <div className="mt-md grid grid-cols-1 gap-md md:grid-cols-2">
                     <LessonCalendar
                         selectedDate={selectedDate}
-                        onSelect={setSelectedDate}
-                        allowedDayIndex={matchedDayIndex}
+                        onSelect={(date) => {
+                            setSelectedDate(date)
+                            setSelectedStartTime('')
+                        }}
+                        allowedDayIndices={allowedDayIndices}
                     />
 
                     <div className="space-y-md">
                         <div>
                             <p className="text-label-md font-label-md text-on-surface-variant">
-                                매칭된 시간
+                                {isDirectMode ? '선택한 시간' : '매칭된 시간'}
                             </p>
-                            <div className="mt-xs rounded-lg border-2 border-primary bg-primary-fixed/35 p-sm">
-                                <p className="font-label-bold text-primary">
-                                    {matchedDayLabel} {formatTime(result.preferredStartTime)} -{' '}
-                                    {formatTime(result.preferredEndTime)}
-                                </p>
-                                <p className="mt-1 text-body-sm text-on-surface-variant">
-                                    트레이너 가능 시간 {formatTime(result.trainerStartTime)} -{' '}
-                                    {formatTime(result.trainerEndTime)}
-                                </p>
-                            </div>
+                            {isDirectMode ? (
+                                selectedDayTime ? (
+                                    timeSlotOptions.length > 0 ? (
+                                        <div className="mt-xs space-y-sm">
+                                            <p className="text-label-sm text-on-surface-variant">
+                                                가능 시간 {formatTime(selectedDayTime.startTime)} -{' '}
+                                                {formatTime(selectedDayTime.endTime)} (레슨{' '}
+                                                {lessonDuration}분)
+                                            </p>
+                                            <div className="grid grid-cols-3 gap-xs">
+                                                {timeSlotOptions.map((time) => (
+                                                    <button
+                                                        key={time}
+                                                        type="button"
+                                                        onClick={() => setSelectedStartTime(time)}
+                                                        className={`h-10 rounded-lg border text-body-sm font-label-bold transition-colors ${
+                                                            selectedStartTime === time
+                                                                ? 'border-primary bg-primary text-on-primary'
+                                                                : 'border-outline-variant bg-surface-container-low text-on-surface-variant hover:border-primary hover:text-primary'
+                                                        }`}
+                                                    >
+                                                        {time}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            {selectedStartTime && (
+                                                <p className="text-body-sm text-primary font-label-bold">
+                                                    선택된 시간: {selectedStartTime} -{' '}
+                                                    {selectedEndTime}
+                                                </p>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="mt-xs rounded-lg border border-outline-variant p-sm">
+                                            <p className="text-body-sm text-on-surface-variant">
+                                                이 날짜에는 예약 가능한 시간이 없습니다.
+                                            </p>
+                                        </div>
+                                    )
+                                ) : (
+                                    <div className="mt-xs rounded-lg border border-outline-variant p-sm">
+                                        <p className="text-body-sm text-on-surface-variant">
+                                            캘린더에서 날짜를 먼저 선택해 주세요.
+                                        </p>
+                                    </div>
+                                )
+                            ) : (
+                                <div className="mt-xs rounded-lg border-2 border-primary bg-primary-fixed/35 p-sm">
+                                    <p className="font-label-bold text-primary">
+                                        {matchedDayLabel}{' '}
+                                        {formatTime(matchingResult?.preferredStartTime)} -{' '}
+                                        {formatTime(matchingResult?.preferredEndTime)}
+                                    </p>
+                                    <p className="mt-1 text-body-sm text-on-surface-variant">
+                                        트레이너 가능 시간{' '}
+                                        {formatTime(matchingResult?.trainerStartTime)} -{' '}
+                                        {formatTime(matchingResult?.trainerEndTime)}
+                                    </p>
+                                </div>
+                            )}
                         </div>
 
                         <fieldset>
@@ -230,7 +381,6 @@ export default function LessonRequestForm({ result, summary }: LessonRequestForm
                                 </PassTypeButton>
                             </div>
                         </fieldset>
-
                         {lessonPassType === 'REGULAR' && (
                             <label className="block text-label-md font-label-md text-on-surface-variant">
                                 주당 횟수
@@ -250,38 +400,37 @@ export default function LessonRequestForm({ result, summary }: LessonRequestForm
                     </div>
                 </div>
             </section>
-
             <section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-md md:p-lg">
                 <h2 className="border-b border-outline-variant pb-sm font-headline-sm text-headline-sm text-on-surface">
                     레슨 상세 요약
                 </h2>
 
                 <dl className="mt-md space-y-sm">
-                    <SummaryRow icon="fitness_center" label="운동 종목" value={result.sports} />
+                    <SummaryRow icon="fitness_center" label="운동 종목" value={displaySports} />
                     <SummaryRow
                         icon="groups"
                         label="레슨 유형"
-                        value={formatLessonType(result.lessonType)}
+                        value={displayLessonType ? formatLessonType(displayLessonType) : undefined}
                     />
                     <SummaryRow
                         icon="trending_up"
                         label="레슨 수준"
-                        value={summary?.level ?? result.lessonLevel}
+                        value={
+                            summary?.level ??
+                            (isDirectMode
+                                ? directTrainer!.lessonLevel
+                                : matchingResult?.lessonLevel)
+                        }
                     />
                     <SummaryRow icon="location_on" label="장소" value={location || '-'} />
                     <SummaryRow
                         icon="payments"
                         label="금액 (1회)"
-                        value={
-                            result.price
-                                ? `${result.price.toLocaleString('ko-KR')}원`
-                                : '-'
-                        }
+                        value={displayPrice ? `${displayPrice.toLocaleString('ko-KR')}원` : '-'}
                         emphasized
                     />
                 </dl>
             </section>
-
             <section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-md md:p-lg">
                 <label className="font-headline-sm text-headline-sm text-on-surface">
                     트레이너에게 보내는 메시지
@@ -296,13 +445,11 @@ export default function LessonRequestForm({ result, summary }: LessonRequestForm
                 </label>
                 <p className="mt-xs text-right text-label-sm text-outline">{message.length}/500</p>
             </section>
-
             {errorMessage && (
                 <p className="rounded-lg bg-error-container p-sm text-body-sm text-on-error-container">
                     {errorMessage}
                 </p>
             )}
-
             <button
                 type="submit"
                 disabled={isSubmitting}
@@ -317,10 +464,10 @@ export default function LessonRequestForm({ result, summary }: LessonRequestForm
 type LessonCalendarProps = {
     selectedDate: string
     onSelect: (date: string) => void
-    allowedDayIndex?: number
+    allowedDayIndices?: number[]
 }
 
-function LessonCalendar({ selectedDate, onSelect, allowedDayIndex }: LessonCalendarProps) {
+function LessonCalendar({ selectedDate, onSelect, allowedDayIndices }: LessonCalendarProps) {
     const today = useMemo(() => {
         const date = new Date()
         date.setHours(0, 0, 0, 0)
@@ -346,9 +493,7 @@ function LessonCalendar({ selectedDate, onSelect, allowedDayIndex }: LessonCalen
     const canMovePrevious = visibleMonth.getTime() > currentMonth.getTime()
 
     const moveMonth = (offset: number) => {
-        setVisibleMonth(
-            (month) => new Date(month.getFullYear(), month.getMonth() + offset, 1)
-        )
+        setVisibleMonth((month) => new Date(month.getFullYear(), month.getMonth() + offset, 1))
     }
 
     return (
@@ -395,7 +540,8 @@ function LessonCalendar({ selectedDate, onSelect, allowedDayIndex }: LessonCalen
                         const dateValue = toDateValue(date)
                         const isPast = date.getTime() < today.getTime()
                         const isWrongDay =
-                            allowedDayIndex !== undefined && date.getDay() !== allowedDayIndex
+                            allowedDayIndices !== undefined &&
+                            !allowedDayIndices.includes(date.getDay())
                         const disabled = isPast || isWrongDay
                         const selected = selectedDate === dateValue
 

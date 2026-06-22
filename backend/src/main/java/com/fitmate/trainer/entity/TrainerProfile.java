@@ -35,6 +35,10 @@ public class TrainerProfile extends BaseEntity {
 
     private Integer careerYears;
 
+    @Column(name = "lesson_duration_minutes")
+    @Builder.Default
+    private Integer lessonDurationMinutes = 60;
+
     public void update(TrainerProfileUpdateRequest request) {
         if (request.sports() != null) this.sports = request.sports();
         if (request.lessonType() != null) this.lessonType = request.lessonType();
@@ -42,5 +46,6 @@ public class TrainerProfile extends BaseEntity {
         if (request.careerYears() != null) this.careerYears = request.careerYears();
         if (request.lessonLevel() != null) this.lessonLevel = request.lessonLevel();
         if (request.isPublic() != null) this.isPublic = request.isPublic();
+        if (request.lessonDurationMinutes() != null) this.lessonDurationMinutes = request.lessonDurationMinutes();
     }
 }
