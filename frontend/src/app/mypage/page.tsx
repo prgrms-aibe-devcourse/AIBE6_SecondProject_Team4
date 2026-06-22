@@ -535,9 +535,33 @@ export default function MyPage() {
 
             // matching / account / default
             return (
-                <div className="grid grid-cols-1 gap-md md:grid-cols-3">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                        <div key={i} className="h-40 rounded-xl bg-surface-container animate-pulse" />
+                <div className="space-y-sm">
+                    {/* 탭 필터 바 스켈레톤 */}
+                    <div className="flex gap-xs border-b border-outline-variant pb-0 overflow-x-auto">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className="h-12 w-20 shrink-0 rounded-md bg-surface-container animate-pulse mb-px" />
+                        ))}
+                    </div>
+                    {/* 카드 스켈레톤 */}
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="flex flex-col gap-md rounded-lg border border-outline-variant bg-surface-container-lowest p-md md:flex-row md:items-center" style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}>
+                            <div className="flex min-w-0 flex-1 items-start gap-sm">
+                                <div className="h-16 w-16 shrink-0 rounded-full bg-surface-container animate-pulse" />
+                                <div className="flex-1 space-y-sm">
+                                    <div className="h-5 w-32 rounded-md bg-surface-container animate-pulse" />
+                                    <div className="h-3 w-24 rounded-md bg-surface-container animate-pulse" />
+                                    <div className="flex gap-xs">
+                                        <div className="h-5 w-14 rounded-full bg-surface-container animate-pulse" />
+                                        <div className="h-5 w-16 rounded-full bg-surface-container animate-pulse" />
+                                        <div className="h-5 w-12 rounded-full bg-surface-container animate-pulse" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex shrink-0 items-center justify-end gap-sm border-t border-outline-variant pt-sm md:border-t-0 md:pt-0">
+                                <div className="h-7 w-16 rounded-full bg-surface-container animate-pulse" />
+                                <div className="h-11 w-32 rounded-lg bg-surface-container animate-pulse" />
+                            </div>
+                        </div>
                     ))}
                 </div>
             )

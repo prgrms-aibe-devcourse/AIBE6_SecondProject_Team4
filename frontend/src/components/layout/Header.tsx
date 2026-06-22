@@ -48,7 +48,7 @@ export default function Header() {
     const [alertOpen, setAlertOpen] = useState(false)
     const [menuOpen, setMenuOpen] = useState(false)
     const alertRef = useRef<HTMLDivElement>(null)
-    const { user, logout } = useAuth()
+    const { user, initialized, logout } = useAuth()
     const router = useRouter()
     const { alerts, unreadCount, markOneRead, markAllRead, deleteOne, deleteAll } = useAlert()
 
@@ -97,7 +97,7 @@ export default function Header() {
                 </nav>
 
                 <div className="flex items-center gap-4">
-                    {user ? (
+                    {!initialized ? null : user ? (
                         <>
                             {/* 알림 버튼 + 드롭다운 */}
                             <div className="relative flex items-center" ref={alertRef}>
@@ -306,7 +306,7 @@ export default function Header() {
                                 {label}
                             </Link>
                         ))}
-                        {user ? (
+                        {!initialized ? null : user ? (
                             <>
                                 <Link
                                     href={user.role === 'ADMIN' ? '/admin/inquiries' : '/mypage'}
