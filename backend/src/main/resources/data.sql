@@ -266,14 +266,6 @@ FROM members WHERE user_id = 'user03';
 -- trainer01: 5,4,5,3 / trainer02: 4,5  → 별점 분포가 다양하게 보이도록 구성
 -- =============================================
 
--- [trainer01] user01의 기존 헬스 매칭에 대한 후기 (5점)
-INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
-SELECT
-    (SELECT id FROM matching_request WHERE lesson_content = '체중 감량과 기초 체력 향상을 원합니다.' LIMIT 1),
-    (SELECT id FROM members WHERE user_id = 'user01'),
-    (SELECT id FROM members WHERE user_id = 'trainer01'),
-    5, '자세를 꼼꼼하게 잡아주셔서 운동이 훨씬 수월해졌어요. 강력 추천합니다!', NOW() - INTERVAL 10 DAY, NOW() - INTERVAL 10 DAY;
-
 -- [trainer01] user02의 추가 헬스 매칭에 대한 후기 (4점)
 INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
 SELECT
@@ -305,14 +297,6 @@ SELECT
     (SELECT id FROM members WHERE user_id = 'user02'),
     (SELECT id FROM members WHERE user_id = 'trainer02'),
     4, '수영 기초를 차근차근 알려주셔서 좋았어요.', NOW() - INTERVAL 3 DAY, NOW() - INTERVAL 3 DAY;
-
--- [trainer02] user01의 추가 수영 매칭에 대한 후기 (5점)
-INSERT IGNORE INTO review (matching_id, reviewer_id, trainer_id, rating, content, created_at, updated_at)
-SELECT
-    (SELECT id FROM matching_request WHERE lesson_content = '[더미후기] 생존 수영을 배우고 싶어요.' LIMIT 1),
-    (SELECT id FROM members WHERE user_id = 'user01'),
-    (SELECT id FROM members WHERE user_id = 'trainer02'),
-    5, '겁이 많았는데 안전하게 잘 이끌어주셨습니다. 감사해요!', NOW() - INTERVAL 1 DAY, NOW() - INTERVAL 1 DAY;
 
 -- =============================================
 -- [페이지네이션 테스트용] trainer01 후기 추가
