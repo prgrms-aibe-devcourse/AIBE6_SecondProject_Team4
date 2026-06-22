@@ -2,6 +2,7 @@
 
 import type { components } from '@/types/api'
 import { getAuthClient, getImageUrl } from '@/utils/apiClient'
+import { formatLessonType } from '@/utils/lessonDisplay'
 import { useEffect, useState } from 'react'
 
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -466,11 +467,7 @@ export default function ExplorePage() {
                                                 ))}
                                             {trainer.lessonType && (
                                                 <span className="text-label-md font-label-md bg-surface-container text-on-surface-variant px-sm py-xs rounded">
-                                                    {trainer.lessonType === 'ONE_TO_ONE'
-                                                        ? '1:1'
-                                                        : trainer.lessonType === 'GROUP'
-                                                          ? '그룹 레슨'
-                                                          : '온라인'}
+                                                    {formatLessonType(trainer.lessonType)}
                                                 </span>
                                             )}
                                             {trainer.lessonLevel

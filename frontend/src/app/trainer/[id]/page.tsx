@@ -3,6 +3,7 @@
 import { useAuth } from '@/context/AuthContext'
 import type { components } from '@/types/api'
 import { getAuthClient, getImageUrl } from '@/utils/apiClient'
+import { formatLessonType } from '@/utils/lessonDisplay'
 import { useEffect, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
@@ -386,11 +387,9 @@ export default function TrainerDetailPage({ params }: Props) {
                                             check_circle
                                         </span>
                                         <span className="text-body-sm text-xs md:text-sm">
-                                            {trainer.lessonType === 'ONE_TO_ONE'
-                                                ? '1:1 퍼스널'
-                                                : trainer.lessonType === 'GROUP'
-                                                  ? '그룹 레슨'
-                                                  : '온라인 코칭'}
+                                            {trainer.lessonType
+                                                ? formatLessonType(trainer.lessonType)
+                                                : '미설정'}
                                         </span>
                                     </div>
                                 </div>
