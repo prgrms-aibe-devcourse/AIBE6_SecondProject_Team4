@@ -45,4 +45,6 @@ db_dev.trace.db
 application-secret.yml
 .DS_Store
 
-uploads/
+uploads/*
+!uploads/profile
+!uploads/profile/*

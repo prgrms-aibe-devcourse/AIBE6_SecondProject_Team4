@@ -23,7 +23,7 @@ export default function ProfileEditPage() {
     const [trainerId, setTrainerId] = useState<number | null>(null)
     const [trainerForm, setTrainerForm] = useState({
         sports: [] as string[],
-        lessonType: 'ONE_TO_ONE',
+        lessonType: [] as string[],
         lessonLevel: [] as string[],
         price: '',
         careerYears: '',
@@ -59,7 +59,7 @@ export default function ProfileEditPage() {
     useEffect(() => {
         if (!hydrated) return
         if (!user) {
-            router.push('/auth/login')
+            router.push('/auth/login?redirect=/mypage/edit')
             return
         }
         fetchMyProfile()
@@ -73,7 +73,9 @@ export default function ProfileEditPage() {
                 setTrainerId(data.id ?? null)
                 setTrainerForm({
                     sports: data.sports ? data.sports.split(',').map((s) => s.trim()) : [],
-                    lessonType: data.lessonType ?? 'ONE_TO_ONE',
+                    lessonType: data.lessonType
+                        ? data.lessonType.split(',').map((t) => t.trim())
+                        : [],
                     lessonLevel: data.lessonLevel
                         ? data.lessonLevel.split(',').map((l) => l.trim())
                         : [],
@@ -194,7 +196,7 @@ export default function ProfileEditPage() {
         if (user?.role === 'TRAINER') {
             const body = {
                 sports: trainerForm.sports.join(','),
-                lessonType: trainerForm.lessonType,
+                lessonType: trainerForm.lessonType.join(','),
                 lessonLevel: trainerForm.lessonLevel.join(','),
                 price: Number(trainerForm.price),
                 careerYears: Number(trainerForm.careerYears),
@@ -319,7 +321,7 @@ export default function ProfileEditPage() {
         if (user?.role === 'TRAINER') {
             const fields = [
                 trainerForm.sports.length > 0,
-                trainerForm.lessonType !== '',
+                trainerForm.lessonLevel.length > 0,
                 trainerForm.lessonLevel.length > 0,
                 trainerForm.price !== '',
                 trainerForm.careerYears !== '',
@@ -362,7 +364,7 @@ export default function ProfileEditPage() {
                             {sidebarItems.map(({ id, icon, label }) => (
                                 <button
                                     key={id}
-                                    className={`flex-1 md:flex-none flex items-center justify-center md:justify-start gap-xs md:gap-sm px-sm py-sm rounded-lg text-label-bold font-label-bold transition-all ${
+                                    className={`flex-1 md:flex-none flex items-center justify-center md:justify-start gap-xs md:gap-sm px-sm py-sm rounded-lg text-label-bold font-label-bold transition-all cursor-pointer ${
                                         activeSection === id
                                             ? 'bg-primary text-on-primary'
                                             : 'text-on-surface-variant hover:bg-surface-container'
@@ -500,7 +502,7 @@ export default function ProfileEditPage() {
                                         return (
                                             <button
                                                 key={sport}
-                                                className={`py-sm rounded-lg text-label-bold font-label-bold border transition-all ${
+                                                className={`py-sm rounded-lg text-label-bold font-label-bold border transition-all cursor-pointer ${
                                                     selected
                                                         ? 'bg-primary text-on-primary border-primary'
                                                         : 'bg-surface-container-low border-outline-variant text-on-surface-variant hover:border-primary'
@@ -539,7 +541,7 @@ export default function ProfileEditPage() {
                                         </p>
                                     </div>
                                     <button
-                                        className={`relative w-12 h-7 rounded-full transition-colors ${
+                                        className={`relative w-12 h-7 rounded-full transition-colors cursor-pointer ${
                                             trainerForm.isPublic
                                                 ? 'bg-primary'
                                                 : 'bg-surface-container'
@@ -572,15 +574,19 @@ export default function ProfileEditPage() {
                                         ].map(({ label, value }) => (
                                             <button
                                                 key={value}
-                                                className={`py-sm rounded-lg text-label-bold font-label-bold border transition-all ${
-                                                    trainerForm.lessonType === value
+                                                className={`py-sm rounded-lg text-label-bold font-label-bold border transition-all cursor-pointer ${
+                                                    trainerForm.lessonType.includes(value)
                                                         ? 'bg-primary text-on-primary border-primary'
                                                         : 'bg-surface-container-low border-outline-variant text-on-surface-variant hover:border-primary'
                                                 }`}
                                                 onClick={() =>
                                                     setTrainerForm((f) => ({
                                                         ...f,
-                                                        lessonType: value,
+                                                        lessonType: f.lessonType.includes(value)
+                                                            ? f.lessonType.filter(
+                                                                  (t) => t !== value
+                                                              )
+                                                            : [...f.lessonType, value],
                                                     }))
                                                 }
                                             >
@@ -663,7 +669,7 @@ export default function ProfileEditPage() {
                                         {LESSON_LEVELS.map((level) => (
                                             <button
                                                 key={level}
-                                                className={`py-sm rounded-lg text-label-bold font-label-bold border transition-all ${
+                                                className={`py-sm rounded-lg text-label-bold font-label-bold border transition-all cursor-pointer ${
                                                     trainerForm.lessonLevel.includes(level)
                                                         ? 'bg-primary text-on-primary border-primary'
                                                         : 'bg-surface-container-low border-outline-variant text-on-surface-variant hover:border-primary'
@@ -716,7 +722,7 @@ export default function ProfileEditPage() {
                                             return (
                                                 <button
                                                     key={day}
-                                                    className={`w-10 h-10 rounded-full text-label-bold font-label-bold border transition-all ${
+                                                    className={`w-10 h-10 rounded-full text-label-bold font-label-bold border transition-all cursor-pointer ${
                                                         selected
                                                             ? 'bg-primary text-on-primary border-primary'
                                                             : 'bg-surface-container-low border-outline-variant text-on-surface-variant hover:border-primary'
@@ -825,7 +831,7 @@ export default function ProfileEditPage() {
                                                         className="w-full h-full object-cover"
                                                     />
                                                     <button
-                                                        className="absolute top-1 right-1 bg-error text-on-primary rounded-full w-6 h-6 flex items-center justify-center"
+                                                        className="absolute top-1 right-1 bg-error text-on-primary rounded-full w-6 h-6 flex items-center justify-center cursor-pointer"
                                                         onClick={() => removeLessonPhoto(index)}
                                                     >
                                                         <span className="material-symbols-outlined text-sm">
@@ -889,7 +895,7 @@ export default function ProfileEditPage() {
                                         {LESSON_LEVELS.map((level) => (
                                             <button
                                                 key={level}
-                                                className={`py-sm rounded-lg text-label-bold font-label-bold border transition-all ${
+                                                className={`py-sm rounded-lg text-label-bold font-label-bold border transition-all cursor-pointer ${
                                                     userForm.level === level
                                                         ? 'bg-primary text-on-primary border-primary'
                                                         : 'bg-surface-container-low border-outline-variant text-on-surface-variant hover:border-primary'
@@ -911,7 +917,7 @@ export default function ProfileEditPage() {
                                         {GOALS.map((goal) => (
                                             <button
                                                 key={goal}
-                                                className={`py-sm rounded-lg text-label-bold font-label-bold border transition-all ${
+                                                className={`py-sm rounded-lg text-label-bold font-label-bold border transition-all cursor-pointer ${
                                                     userForm.goal.includes(goal)
                                                         ? 'bg-primary text-on-primary border-primary'
                                                         : 'bg-surface-container-low border-outline-variant text-on-surface-variant hover:border-primary'
@@ -929,13 +935,13 @@ export default function ProfileEditPage() {
                         {/* 저장/취소 버튼 */}
                         <div className="flex justify-end gap-sm mt-lg pt-md border-t border-outline-variant">
                             <button
-                                className="px-md py-sm border border-outline-variant text-on-surface rounded-lg font-label-bold hover:bg-surface-container transition whitespace-nowrap"
+                                className="px-md py-sm border border-outline-variant text-on-surface rounded-lg font-label-bold hover:bg-surface-container transition whitespace-nowrap cursor-pointer"
                                 onClick={() => router.back()}
                             >
                                 취소
                             </button>
                             <button
-                                className="px-md py-sm bg-primary text-on-primary rounded-lg font-label-bold hover:shadow-lg active:scale-95 transition-all disabled:opacity-50 whitespace-nowrap"
+                                className="px-md py-sm bg-primary text-on-primary rounded-lg font-label-bold hover:shadow-lg active:scale-95 transition-all disabled:opacity-50 whitespace-nowrap cursor-pointer"
                                 onClick={handleSave}
                                 disabled={saving}
                             >

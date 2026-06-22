@@ -6,15 +6,25 @@ import { getAuthClient } from '@/utils/apiClient'
 import { useEffect, useState } from 'react'
 
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
+import { useAuth } from '@/context/AuthContext'
 
 type Trainer = components['schemas']['TrainerProfileResponse']
 
 export default function LessonRequestDirectCreatePage() {
     const { trainerId } = useParams<{ trainerId: string }>()
+    const router = useRouter()
+    const { user, initialized } = useAuth()
     const [trainer, setTrainer] = useState<Trainer | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [errorMessage, setErrorMessage] = useState('')
+
+    useEffect(() => {
+        if (initialized && !user) {
+            router.replace(`/auth/login?redirect=/lesson-requests/new/trainer/${trainerId}`)
+            return
+        }
+    }, [initialized, user, router, trainerId])
 
     useEffect(() => {
         if (!trainerId) {
@@ -64,10 +74,7 @@ export default function LessonRequestDirectCreatePage() {
                 </div>
 
                 {isLoading ? (
-                    <PageMessage
-                        icon="progress_activity"
-                        title="트레이너 정보를 불러오는 중입니다."
-                    />
+                    <SkeletonForm />
                 ) : errorMessage ? (
                     <PageMessage icon="error" title={errorMessage} showAction />
                 ) : trainer ? (
@@ -92,6 +99,68 @@ export default function LessonRequestDirectCreatePage() {
                 ) : null}
             </section>
         </main>
+    )
+}
+
+function Bone({ className }: { className?: string }) {
+    return <div className={`animate-pulse rounded-md bg-surface-container ${className}`} />
+}
+
+function SkeletonForm() {
+    return (
+        <div className="space-y-md">
+            <div className="flex items-center gap-sm rounded-lg border border-outline-variant bg-surface-container-lowest p-md">
+                <Bone className="h-20 w-20 shrink-0 rounded-lg" />
+                <div className="space-y-sm">
+                    <Bone className="h-6 w-36" />
+                    <div className="flex gap-xs">
+                        <Bone className="h-5 w-16 rounded-md" />
+                        <Bone className="h-5 w-20 rounded-md" />
+                    </div>
+                </div>
+            </div>
+            <div className="rounded-lg border border-outline-variant bg-surface-container-lowest p-md md:p-lg space-y-md">
+                <div className="space-y-xs">
+                    <Bone className="h-6 w-24" />
+                    <Bone className="h-4 w-64" />
+                </div>
+                <div className="grid grid-cols-1 gap-md md:grid-cols-2">
+                    <div className="rounded-lg border border-outline-variant p-sm space-y-sm">
+                        <div className="flex items-center justify-between">
+                            <Bone className="h-5 w-20" />
+                            <div className="flex gap-xs">
+                                <Bone className="h-8 w-8 rounded-full" />
+                                <Bone className="h-8 w-8 rounded-full" />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-7 gap-1">
+                            {Array.from({ length: 35 }).map((_, i) => (
+                                <Bone key={i} className="aspect-square rounded-md" />
+                            ))}
+                        </div>
+                    </div>
+                    <div className="space-y-md">
+                        <div className="space-y-xs">
+                            <Bone className="h-4 w-20" />
+                            <Bone className="h-14 w-full rounded-lg" />
+                        </div>
+                        <div className="space-y-xs">
+                            <Bone className="h-4 w-16" />
+                            <div className="grid grid-cols-2 gap-xs">
+                                <Bone className="h-12 rounded-lg" />
+                                <Bone className="h-12 rounded-lg" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="rounded-lg border border-outline-variant bg-surface-container-lowest p-md space-y-sm">
+                <Bone className="h-6 w-32" />
+                <Bone className="h-4 w-48" />
+                <Bone className="h-28 w-full rounded-lg" />
+            </div>
+            <Bone className="h-14 w-full rounded-lg" />
+        </div>
     )
 }
 

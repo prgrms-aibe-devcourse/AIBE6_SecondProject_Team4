@@ -6,6 +6,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 export interface AuthUser {
     memberId: number
     userName: string
+    nickname: string
     role: string
     token: string
     profileImage?: string | null

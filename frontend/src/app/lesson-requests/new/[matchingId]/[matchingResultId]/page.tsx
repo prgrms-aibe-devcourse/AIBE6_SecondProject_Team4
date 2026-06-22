@@ -110,7 +110,7 @@ export default function LessonRequestCreatePage() {
                 </div>
 
                 {isLoading ? (
-                    <PageMessage icon="progress_activity" title="매칭 정보를 불러오는 중입니다." />
+                    <SkeletonForm />
                 ) : errorMessage ? (
                     <PageMessage icon="error" title={errorMessage} showAction />
                 ) : result && trainerSchedule ? (
@@ -141,6 +141,77 @@ function toTrainerSchedule(trainer: Trainer): TrainerScheduleInfo {
             endTime: time.endTime ?? '',
         })),
     }
+}
+
+function Bone({ className }: { className?: string }) {
+    return <div className={`animate-pulse rounded-md bg-surface-container ${className}`} />
+}
+
+function SkeletonForm() {
+    return (
+        <div className="space-y-md">
+            {/* 트레이너 프로필 카드 */}
+            <div className="flex items-center gap-sm rounded-lg border border-outline-variant bg-surface-container-lowest p-md">
+                <Bone className="h-20 w-20 shrink-0 rounded-lg" />
+                <div className="space-y-sm">
+                    <Bone className="h-6 w-36" />
+                    <div className="flex gap-xs">
+                        <Bone className="h-5 w-16 rounded-md" />
+                        <Bone className="h-5 w-20 rounded-md" />
+                    </div>
+                </div>
+            </div>
+
+            {/* 일정 확정 섹션 */}
+            <div className="rounded-lg border border-outline-variant bg-surface-container-lowest p-md md:p-lg space-y-md">
+                <div className="space-y-xs">
+                    <Bone className="h-6 w-24" />
+                    <Bone className="h-4 w-64" />
+                </div>
+                <div className="grid grid-cols-1 gap-md md:grid-cols-2">
+                    {/* 캘린더 */}
+                    <div className="rounded-lg border border-outline-variant p-sm space-y-sm">
+                        <div className="flex items-center justify-between">
+                            <Bone className="h-5 w-20" />
+                            <div className="flex gap-xs">
+                                <Bone className="h-8 w-8 rounded-full" />
+                                <Bone className="h-8 w-8 rounded-full" />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-7 gap-1">
+                            {Array.from({ length: 35 }).map((_, i) => (
+                                <Bone key={i} className="aspect-square rounded-md" />
+                            ))}
+                        </div>
+                    </div>
+                    {/* 시간 + 수강유형 */}
+                    <div className="space-y-md">
+                        <div className="space-y-xs">
+                            <Bone className="h-4 w-20" />
+                            <Bone className="h-14 w-full rounded-lg" />
+                        </div>
+                        <div className="space-y-xs">
+                            <Bone className="h-4 w-16" />
+                            <div className="grid grid-cols-2 gap-xs">
+                                <Bone className="h-12 rounded-lg" />
+                                <Bone className="h-12 rounded-lg" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* 메시지 섹션 */}
+            <div className="rounded-lg border border-outline-variant bg-surface-container-lowest p-md space-y-sm">
+                <Bone className="h-6 w-32" />
+                <Bone className="h-4 w-48" />
+                <Bone className="h-28 w-full rounded-lg" />
+            </div>
+
+            {/* 제출 버튼 */}
+            <Bone className="h-14 w-full rounded-lg" />
+        </div>
+    )
 }
 
 function PageMessage({

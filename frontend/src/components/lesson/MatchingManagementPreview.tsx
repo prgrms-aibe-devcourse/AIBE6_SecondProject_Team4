@@ -3,6 +3,7 @@
 import { useAuth } from '@/context/AuthContext'
 import type { components } from '@/types/api'
 import { getAuthClient, getImageUrl } from '@/utils/apiClient'
+import { formatLessonType } from '@/utils/lessonDisplay'
 import { useEffect, useMemo, useState } from 'react'
 
 import Link from 'next/link'
@@ -138,15 +139,14 @@ export default function MatchingManagementPreview() {
             <div className="overflow-x-auto border-b border-outline-variant">
                 <div className="flex min-w-max gap-xs">
                     {FILTERS.map(({ value, label }) => {
-                        const count =
-                            value === 'ALL' ? sortedRequests.length : statusCounts[value]
+                        const count = value === 'ALL' ? sortedRequests.length : statusCounts[value]
 
                         return (
                             <button
                                 key={value}
                                 type="button"
                                 onClick={() => setFilter(value)}
-                                className={`flex h-12 items-center gap-2 border-b-2 px-sm text-body-sm transition-colors ${
+                                className={`flex h-12 items-center gap-2 border-b-2 px-sm text-body-sm transition-colors cursor-pointer ${
                                     filter === value
                                         ? 'border-primary font-semibold text-primary'
                                         : 'border-transparent text-on-surface-variant hover:text-on-surface'
@@ -169,7 +169,7 @@ export default function MatchingManagementPreview() {
             </div>
 
             {isLoading ? (
-                <PageMessage icon="progress_activity" message="요청 목록을 불러오는 중입니다." />
+                <SkeletonCards />
             ) : errorMessage ? (
                 <PageMessage icon="error" message={errorMessage} />
             ) : visibleRequests.length === 0 ? (
@@ -200,18 +200,10 @@ export default function MatchingManagementPreview() {
     )
 }
 
-function LessonRequestCard({
-    request,
-    isTrainer,
-}: {
-    request: LessonRequest
-    isTrainer: boolean
-}) {
+function LessonRequestCard({ request, isTrainer }: { request: LessonRequest; isTrainer: boolean }) {
     const status = request.status ?? 'PENDING'
     const name = isTrainer ? request.memberName : request.trainerName
-    const profileImage = isTrainer
-        ? request.memberProfileImage
-        : request.trainerProfileImage
+    const profileImage = isTrainer ? request.memberProfileImage : request.trainerProfileImage
 
     return (
         <article
@@ -245,7 +237,12 @@ function LessonRequestCard({
                     </p>
 
                     <div className="mt-xs flex flex-wrap gap-xs">
-                        {[request.sports, request.lessonType, request.lessonLevel, request.region]
+                        {[
+                            request.sports,
+                            request.lessonType ? formatLessonType(request.lessonType) : undefined,
+                            request.lessonLevel,
+                            request.region,
+                        ]
                             .filter((value): value is string => Boolean(value))
                             .map((value) => (
                                 <span
@@ -338,6 +335,43 @@ function Pagination({
                 <span className="material-symbols-outlined">chevron_right</span>
             </button>
         </nav>
+    )
+}
+
+function Bone({ className }: { className?: string }) {
+    return <div className={`animate-pulse rounded-md bg-surface-container ${className}`} />
+}
+
+function SkeletonCards() {
+    return (
+        <div className="space-y-sm">
+            {Array.from({ length: 3 }).map((_, i) => (
+                <div
+                    key={i}
+                    className="flex flex-col gap-md rounded-lg border border-outline-variant bg-surface-container-lowest p-md md:flex-row md:items-center"
+                    style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
+                >
+                    {/* 프로필 + 텍스트 */}
+                    <div className="flex min-w-0 flex-1 items-start gap-sm">
+                        <Bone className="h-16 w-16 shrink-0 rounded-full" />
+                        <div className="flex-1 space-y-sm">
+                            <Bone className="h-5 w-32" />
+                            <Bone className="h-3 w-24" />
+                            <div className="flex gap-xs">
+                                <Bone className="h-5 w-14 rounded-full" />
+                                <Bone className="h-5 w-16 rounded-full" />
+                                <Bone className="h-5 w-12 rounded-full" />
+                            </div>
+                        </div>
+                    </div>
+                    {/* 상태 + 버튼 */}
+                    <div className="flex shrink-0 items-center justify-end gap-sm border-t border-outline-variant pt-sm md:border-t-0 md:pt-0">
+                        <Bone className="h-7 w-16 rounded-full" />
+                        <Bone className="h-11 w-32 rounded-lg" />
+                    </div>
+                </div>
+            ))}
+        </div>
     )
 }
 

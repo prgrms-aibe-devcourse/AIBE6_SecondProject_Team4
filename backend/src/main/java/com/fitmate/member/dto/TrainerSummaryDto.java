@@ -10,7 +10,7 @@ public record TrainerSummaryDto(
     public static TrainerSummaryDto from(Member member) {
         return new TrainerSummaryDto(
                 member.getId(),
-                member.getUserName(),
+                member.getNickname(),
                 member.getProfileImage()
         );
     }

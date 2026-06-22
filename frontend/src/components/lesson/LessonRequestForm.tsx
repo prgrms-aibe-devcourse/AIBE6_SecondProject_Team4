@@ -3,7 +3,7 @@
 import type { components } from '@/types/api'
 import { getAuthClient, getImageUrl } from '@/utils/apiClient'
 import { formatLessonType } from '@/utils/lessonDisplay'
-import { FormEvent, useMemo, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -240,10 +240,43 @@ export default function LessonRequestForm({
               )
             : []
 
+    // 트레이너 직접 모드: 선택한 날짜에 이미 확정된 레슨 시간대 (중복 예약 방지)
+    const [bookedTimes, setBookedTimes] = useState<Array<{ startTime?: string; endTime?: string }>>(
+        []
+    )
+    useEffect(() => {
+        if (!isDirectMode || !selectedDate || !directTrainer) {
+            setBookedTimes([])
+            return
+        }
+
+        const loadBookedTimes = async () => {
+            const client = getAuthClient()
+            const { data } = await client.GET('/api/trainers/{trainerProfileId}/booked-times', {
+                params: {
+                    path: { trainerProfileId: directTrainer.trainerProfileId },
+                    query: { date: selectedDate },
+                },
+            })
+            setBookedTimes(data ?? [])
+        }
+
+        void loadBookedTimes()
+    }, [isDirectMode, selectedDate, directTrainer])
+
     // 선택한 트레이너의 가능시간 블록을 레슨 시간 단위로 잘라서 시작시간 목록 생성
     const lessonDuration = scheduleTrainer?.lessonDurationMinutes ?? 60
 
     const timeSlotOptions = useMemo(() => {
+        // 이미 확정된 레슨 시간대를 분 단위 [시작, 끝] 범위로 변환
+        const bookedRanges = bookedTimes
+            .filter((bt) => bt.startTime && bt.endTime)
+            .map((bt) => {
+                const [bsH, bsM] = bt.startTime!.split(':').map(Number)
+                const [beH, beM] = bt.endTime!.split(':').map(Number)
+                return { start: bsH * 60 + bsM, end: beH * 60 + beM }
+            })
+
         const slots = selectedDayTimes.flatMap((availableTime) => {
             const [startH, startM] = availableTime.startTime.split(':').map(Number)
             const [endH, endM] = availableTime.endTime.split(':').map(Number)
@@ -257,18 +290,27 @@ export default function LessonRequestForm({
                 time + lessonDuration <= endMinutes;
                 time += lessonDuration
             ) {
-                const hour = Math.floor(time / 60)
-                const minute = time % 60
-                availableSlots.push(
-                    `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+                const slotEnd = time + lessonDuration
+
+                // 이 슬롯이 이미 확정된 시간대 중 하나와 겹치는지 확인
+                const isOverlapping = bookedRanges.some(
+                    (range) => time < range.end && slotEnd > range.start
                 )
+
+                if (!isOverlapping) {
+                    const hour = Math.floor(time / 60)
+                    const minute = time % 60
+                    availableSlots.push(
+                        `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+                    )
+                }
             }
 
             return availableSlots
         })
 
         return [...new Set(slots)].sort()
-    }, [selectedDayTimes, lessonDuration])
+    }, [selectedDayTimes, lessonDuration, bookedTimes])
 
     const [selectedStartTime, setSelectedStartTime] = useState('')
 
@@ -467,6 +509,7 @@ export default function LessonRequestForm({
                     </div>
                 </div>
             </section>
+
             <section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-md md:p-lg">
                 <div>
                     <h2 className="font-headline-sm text-headline-sm text-on-surface">
@@ -548,7 +591,7 @@ export default function LessonRequestForm({
                                                     key={time}
                                                     type="button"
                                                     onClick={() => setSelectedStartTime(time)}
-                                                    className={`h-10 rounded-lg border text-body-sm font-label-bold transition-colors ${
+                                                    className={`h-10 rounded-lg border text-body-sm font-label-bold transition-colors cursor-pointer ${
                                                         selectedStartTime === time
                                                             ? 'border-primary bg-primary text-on-primary'
                                                             : 'border-outline-variant bg-surface-container-low text-on-surface-variant hover:border-primary hover:text-primary'
@@ -567,7 +610,7 @@ export default function LessonRequestForm({
                                                 <button
                                                     type="button"
                                                     onClick={addSelectedSchedule}
-                                                    className="inline-flex h-10 items-center gap-1 rounded-lg bg-primary px-sm font-label-bold text-on-primary hover:bg-primary/90"
+                                                    className="inline-flex h-10 items-center gap-1 rounded-lg bg-primary px-sm font-label-bold text-on-primary hover:bg-primary/90 cursor-pointer"
                                                 >
                                                     <span className="material-symbols-outlined text-xl">
                                                         add
@@ -623,7 +666,7 @@ export default function LessonRequestForm({
                                                 type="button"
                                                 onClick={() => removeSelectedSchedule(schedule.id)}
                                                 aria-label={`${schedule.requestedDate} 일정 삭제`}
-                                                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-on-surface-variant hover:bg-error-container hover:text-error"
+                                                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-on-surface-variant hover:bg-error-container hover:text-error cursor-pointer"
                                             >
                                                 <span className="material-symbols-outlined">
                                                     close
@@ -718,7 +761,7 @@ export default function LessonRequestForm({
             <button
                 type="submit"
                 disabled={isSubmitting}
-                className="h-14 w-full rounded-lg bg-primary font-label-bold text-on-primary transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-outline-variant"
+                className="h-14 w-full rounded-lg bg-primary font-label-bold text-on-primary transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-outline-variant cursor-pointer"
             >
                 {isSubmitting ? '요청 전송 중...' : '레슨 요청 완료하기'}
             </button>
@@ -771,7 +814,7 @@ function LessonCalendar({ selectedDate, onSelect, allowedDayIndices }: LessonCal
                         onClick={() => moveMonth(-1)}
                         disabled={!canMovePrevious}
                         aria-label="이전 달"
-                        className="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container disabled:opacity-30"
+                        className="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container disabled:opacity-30 cursor-pointer"
                     >
                         <span className="material-symbols-outlined">chevron_left</span>
                     </button>
@@ -782,7 +825,7 @@ function LessonCalendar({ selectedDate, onSelect, allowedDayIndices }: LessonCal
                         type="button"
                         onClick={() => moveMonth(1)}
                         aria-label="다음 달"
-                        className="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container"
+                        className="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container cursor-pointer"
                     >
                         <span className="material-symbols-outlined">chevron_right</span>
                     </button>
@@ -816,7 +859,7 @@ function LessonCalendar({ selectedDate, onSelect, allowedDayIndices }: LessonCal
                                 type="button"
                                 disabled={disabled}
                                 onClick={() => onSelect(dateValue)}
-                                className={`aspect-square rounded-full text-body-sm transition-colors ${
+                                className={`aspect-square rounded-full text-body-sm transition-colors cursor-pointer ${
                                     selected
                                         ? 'bg-primary font-semibold text-on-primary'
                                         : disabled
@@ -861,7 +904,7 @@ function SingleChoiceGroup({
                             key={option}
                             type="button"
                             onClick={() => onSelect(option)}
-                            className={`min-h-10 rounded-lg border px-sm text-body-sm font-label-bold transition-colors ${
+                            className={`min-h-10 rounded-lg border px-sm text-body-sm font-label-bold transition-colors cursor-pointer ${
                                 selectedValue === option
                                     ? 'border-primary bg-primary text-on-primary'
                                     : 'border-outline-variant bg-surface-container-low text-on-surface-variant hover:border-primary hover:text-primary'
@@ -893,7 +936,7 @@ function PassTypeButton({
         <button
             type="button"
             onClick={onClick}
-            className={`h-12 rounded-lg border font-label-bold transition-colors ${
+            className={`h-12 rounded-lg border font-label-bold transition-colors cursor-pointer ${
                 selected
                     ? 'border-primary bg-primary text-on-primary'
                     : 'border-outline-variant bg-surface-container-low text-on-surface-variant hover:border-primary hover:text-primary'

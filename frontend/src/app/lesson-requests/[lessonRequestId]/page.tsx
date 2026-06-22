@@ -1,73 +1,14 @@
 'use client'
 
-import { useAuth } from '@/context/AuthContext';
-import type { components } from '@/types/api';
-import { getAuthClient, getImageUrl } from '@/utils/apiClient';
-import { startPayment } from '@/utils/payment';
-import { useEffect, useMemo, useState } from 'react';
+import { useAuth } from '@/context/AuthContext'
+import type { components } from '@/types/api'
+import { getAuthClient, getImageUrl } from '@/utils/apiClient'
+import { formatLessonType } from '@/utils/lessonDisplay'
+import { startPayment } from '@/utils/payment'
+import { useEffect, useMemo, useState } from 'react'
 
-
-
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+import Link from 'next/link'
+import { useParams, useRouter } from 'next/navigation'
 
 type LessonRequest = components['schemas']['LessonRequestResponse']
 type LessonRequestStatus = NonNullable<LessonRequest['status']>
@@ -222,7 +163,7 @@ export default function LessonRequestDetailPage() {
                 </div>
 
                 {isLoading ? (
-                    <PageMessage icon="progress_activity" title="요청 내용을 불러오는 중입니다." />
+                    <SkeletonDetail />
                 ) : errorMessage && !request ? (
                     <PageMessage icon="error" title={errorMessage} />
                 ) : request ? (
@@ -300,7 +241,7 @@ function ParticipantProfileCard({
 function RequestSummary({ request }: { request: LessonRequest }) {
     const items = [
         { icon: 'sports_gymnastics', label: '운동 종목', value: request.sports },
-        { icon: 'groups', label: '레슨 유형', value: request.lessonType },
+        { icon: 'groups', label: '레슨 유형', value: formatLessonType(request.lessonType) },
         { icon: 'trending_up', label: '레슨 수준', value: request.lessonLevel },
         {
             icon: 'confirmation_number',
@@ -639,4 +580,71 @@ function PageMessage({ icon, title }: { icon: string; title: string }) {
 function getRequestedDayLabel(date?: string) {
     if (!date) return '요청 일정'
     return DAY_LABELS[new Date(`${date}T00:00:00`).getDay()]
+}
+
+function Bone({ className }: { className?: string }) {
+    return <div className={`animate-pulse rounded-md bg-surface-container ${className}`} />
+}
+
+function SkeletonDetail() {
+    return (
+        <div className="mt-lg grid grid-cols-1 items-start gap-md lg:grid-cols-[minmax(0,1fr)_380px]">
+            {/* 왼쪽 */}
+            <div className="space-y-md">
+                {/* 프로필 카드 */}
+                <div className="flex flex-col items-center gap-md rounded-lg border border-outline-variant bg-surface-container-lowest p-md sm:flex-row sm:items-start">
+                    <Bone className="h-24 w-24 shrink-0 rounded-full" />
+                    <div className="w-full space-y-sm">
+                        <Bone className="h-7 w-40" />
+                        <Bone className="h-4 w-full max-w-xs" />
+                        <div className="flex gap-xs">
+                            <Bone className="h-6 w-24 rounded-full" />
+                            <Bone className="h-6 w-28 rounded-full" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* 요청 요약 */}
+                <div className="rounded-lg border border-outline-variant bg-surface-container-lowest p-md">
+                    <Bone className="mb-md h-6 w-24" />
+                    <div className="grid grid-cols-1 gap-md sm:grid-cols-2">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className="flex items-start gap-sm">
+                                <Bone className="h-9 w-9 rounded-lg" />
+                                <div className="space-y-1">
+                                    <Bone className="h-3 w-16" />
+                                    <Bone className="h-5 w-24" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* 메시지 */}
+                <div className="rounded-lg border border-outline-variant bg-surface-container-lowest p-md">
+                    <Bone className="mb-sm h-6 w-28" />
+                    <Bone className="h-16 w-full rounded-lg" />
+                </div>
+            </div>
+
+            {/* 오른쪽 일정 패널 */}
+            <div className="rounded-lg border border-outline-variant bg-surface-container-lowest p-md space-y-md">
+                <Bone className="h-6 w-28" />
+                <Bone className="h-6 w-20 rounded-full" />
+                {/* 캘린더 */}
+                <div className="rounded-lg bg-surface-container-low p-sm">
+                    <Bone className="mb-sm h-5 w-20" />
+                    <div className="grid grid-cols-7 gap-1">
+                        {Array.from({ length: 35 }).map((_, i) => (
+                            <Bone key={i} className="aspect-square rounded-md" />
+                        ))}
+                    </div>
+                </div>
+                {/* 시간 */}
+                <Bone className="h-14 w-full rounded-lg" />
+                {/* 버튼 */}
+                <Bone className="h-12 w-full rounded-lg" />
+            </div>
+        </div>
+    )
 }

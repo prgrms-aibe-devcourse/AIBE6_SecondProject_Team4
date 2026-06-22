@@ -5,7 +5,9 @@ import WritableReviewList from '@/components/WritableReviewList';
 import { useAuth } from '@/context/AuthContext';
 import { Review, useMyReviews } from '@/hooks/useMyReviews';
 import { getImageUrl } from '@/utils/apiClient';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 
 
 
@@ -49,28 +51,29 @@ function ReviewCard({
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-center gap-3 min-w-0">
                     {(() => {
-                        const img = isTrainer
-                            ? review.reviewerProfileImage
-                            : review.trainerProfileImage
-                        return img ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                                src={getImageUrl(img)}
-                                alt=""
-                                className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 rounded-full object-cover"
-                            />
+                        const img = isTrainer ? review.reviewerProfileImage : review.trainerProfileImage
+                        const profileHref = !isTrainer && review.trainerProfileId ? `/trainer/${review.trainerProfileId}` : null
+                        const avatar = img ? (
+                            <img src={getImageUrl(img)} alt="" className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 rounded-full object-cover" />
                         ) : (
                             <div className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 rounded-full bg-surface-container flex items-center justify-center">
-                                <span className="material-symbols-outlined text-outline-variant">
-                                    person
-                                </span>
+                                <span className="material-symbols-outlined text-outline-variant">person</span>
                             </div>
                         )
+                        return profileHref ? (
+                            <Link href={profileHref} className="flex-shrink-0 hover:opacity-80 transition-opacity">{avatar}</Link>
+                        ) : avatar
                     })()}
                     <div className="min-w-0">
-                        <span className="block truncate text-body-md font-bold text-on-surface">
-                            {isTrainer ? review.reviewerNickname : review.trainerNickname}
-                        </span>
+                        {!isTrainer && review.trainerProfileId ? (
+                            <Link href={`/trainer/${review.trainerProfileId}`} className="block truncate text-body-md font-bold text-on-surface hover:text-primary transition-colors">
+                                {review.trainerNickname}
+                            </Link>
+                        ) : (
+                            <span className="block truncate text-body-md font-bold text-on-surface">
+                                {isTrainer ? review.reviewerNickname : review.trainerNickname}
+                            </span>
+                        )}
                         <div className="mt-1 flex flex-wrap items-center gap-1.5">
                             <StarRating rating={review.rating} />
                             <span className="text-label-md text-outline">
@@ -88,14 +91,14 @@ function ReviewCard({
                     <div className="flex flex-shrink-0 items-center gap-3 text-label-md self-end sm:self-start">
                         <button
                             onClick={() => onEdit(review)}
-                            className="text-on-surface-variant hover:text-primary"
+                            className="text-on-surface-variant hover:text-primary cursor-pointer"
                         >
                             수정
                         </button>
                         <span className="text-outline-variant">|</span>
                         <button
                             onClick={() => onDelete(review.id)}
-                            className="text-error hover:opacity-80"
+                            className="text-error hover:opacity-80 cursor-pointer"
                         >
                             삭제
                         </button>
@@ -250,7 +253,11 @@ export default function MyReviewList() {
         updateReview,
         deleteReview,
     } = useMyReviews()
-    const [tab, setTab] = useState<Tab>('all')
+    const listTopRef = useRef<HTMLDivElement>(null)
+    const searchParams = useSearchParams()
+    const [tab, setTab] = useState<Tab>(() =>
+        !isTrainer && searchParams.get('subtab') === 'writable' ? 'writable' : 'all'
+    )
     const [editing, setEditing] = useState<Review | null>(null)
 
     const handleDelete = async (id: number) => {
@@ -267,53 +274,55 @@ export default function MyReviewList() {
     }
 
     return (
-        <div className="flex flex-col gap-md">
+        <div ref={listTopRef} className="flex flex-col gap-sm">
             {/* 헤더: 탭 */}
-            <div className="flex flex-col gap-2 border-b border-outline-variant sm:flex-row sm:items-end sm:justify-between">
-                <div className="flex gap-md">
-                    <button
-                        onClick={() => setTab('all')}
-                        className={`px-2 pb-2.5 text-headline-sm font-headline-sm ${
-                            tab === 'all'
-                                ? 'border-b-2 border-primary text-primary'
-                                : 'text-on-surface-variant'
-                        }`}
-                    >
-                        {isTrainer ? '받은 후기' : '전체 후기'}
-                    </button>
-                    {!isTrainer && (
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className="overflow-x-auto border-b border-outline-variant">
+                    <div className="flex min-w-max">
                         <button
-                            onClick={() => setTab('writable')}
-                            className={`px-2 pb-2.5 text-headline-sm font-headline-sm ${
-                                tab === 'writable'
-                                    ? 'border-b-2 border-primary text-primary'
-                                    : 'text-on-surface-variant'
+                            onClick={() => setTab('all')}
+                            className={`flex h-12 items-center gap-2 border-b-2 px-sm text-body-sm transition-colors cursor-pointer ${
+                                tab === 'all'
+                                    ? 'border-primary font-semibold text-primary'
+                                    : 'border-transparent text-on-surface-variant hover:text-on-surface'
                             }`}
                         >
-                            작성 가능한 후기
+                            {isTrainer ? '받은 후기' : '전체 후기'}
                         </button>
-                    )}
+                        {!isTrainer && (
+                            <button
+                                onClick={() => setTab('writable')}
+                                className={`flex h-12 items-center gap-2 border-b-2 px-sm text-body-sm transition-colors cursor-pointer ${
+                                    tab === 'writable'
+                                        ? 'border-primary font-semibold text-primary'
+                                        : 'border-transparent text-on-surface-variant hover:text-on-surface'
+                                }`}
+                            >
+                                작성 가능한 후기
+                            </button>
+                        )}
+                    </div>
                 </div>
                 {tab === 'all' && (
-                    <div className="mb-2 flex w-fit items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-4 py-1.5 text-label-md">
+                    <div className="flex w-fit items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-4 py-1.5 text-label-md self-start sm:self-auto flex-shrink-0">
                         <button
                             onClick={() => setSort('latest')}
-                            className={
+                            className={`cursor-pointer ${
                                 sort === 'latest'
                                     ? 'font-semibold text-primary'
                                     : 'text-on-surface-variant'
-                            }
+                            }`}
                         >
                             최신순
                         </button>
                         <span className="text-outline-variant">|</span>
                         <button
                             onClick={() => setSort('rating')}
-                            className={
+                            className={`cursor-pointer ${
                                 sort === 'rating'
                                     ? 'font-semibold text-primary'
                                     : 'text-on-surface-variant'
-                            }
+                            }`}
                         >
                             별점 높은순
                         </button>
@@ -368,7 +377,14 @@ export default function MyReviewList() {
                                 />
                             ))}
                         </div>
-                        <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+                        <Pagination
+                            page={page}
+                            totalPages={totalPages}
+                            onChange={(p) => {
+                                setPage(p)
+                                listTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                            }}
+                        />
                     </>
                 ))}
 

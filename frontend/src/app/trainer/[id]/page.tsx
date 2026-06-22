@@ -217,7 +217,7 @@ export default function TrainerDetailPage({ params }: Props) {
             <main className="pt-16 md:pt-20">
                 <div className="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-md md:py-lg">
                     <button
-                        className="flex items-center gap-xs text-on-surface-variant mb-md hover:text-on-surface transition"
+                        className="flex items-center gap-xs text-on-surface-variant mb-md hover:text-on-surface transition cursor-pointer"
                         onClick={() => router.back()}
                     >
                         <span className="material-symbols-outlined">arrow_back</span>
@@ -244,7 +244,7 @@ export default function TrainerDetailPage({ params }: Props) {
             <div className="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-md md:py-lg">
                 {/* 뒤로가기 */}
                 <button
-                    className="flex items-center gap-xs text-on-surface-variant mb-md hover:text-on-surface transition"
+                    className="flex items-center gap-xs text-on-surface-variant mb-md hover:text-on-surface transition cursor-pointer"
                     onClick={() => router.back()}
                 >
                     <span className="material-symbols-outlined">arrow_back</span>
@@ -431,7 +431,7 @@ export default function TrainerDetailPage({ params }: Props) {
                                 </h2>
                                 {trainer.lessonPhotos && trainer.lessonPhotos.length > 4 && (
                                     <button
-                                        className="text-primary text-body-sm font-label-bold hover:underline"
+                                        className="text-primary text-body-sm font-label-bold hover:underline cursor-pointer"
                                         onClick={() => setShowAllPhotos((prev) => !prev)}
                                     >
                                         {showAllPhotos ? '접기 ↑' : '전체 보기 →'}
@@ -548,7 +548,7 @@ export default function TrainerDetailPage({ params }: Props) {
                                     {/* 더보기 / 접기 (후기 3개 초과일 때만) */}
                                     {reviews.length > 3 && (
                                         <button
-                                            className="w-full mt-md py-sm border border-outline-variant rounded-xl text-label-bold font-label-bold text-on-surface hover:bg-surface-container transition"
+                                            className="w-full mt-md py-sm border border-outline-variant rounded-xl text-label-bold font-label-bold text-on-surface hover:bg-surface-container transition cursor-pointer"
                                             onClick={() => setShowAllReviews((prev) => !prev)}
                                         >
                                             {showAllReviews
@@ -589,7 +589,7 @@ export default function TrainerDetailPage({ params }: Props) {
                                 </div>
                             </div>
                             <button
-                                className="w-full bg-primary text-on-primary py-sm rounded-xl font-label-bold hover:shadow-lg active:scale-95 transition-all"
+                                className="w-full bg-primary text-on-primary py-sm rounded-xl font-label-bold hover:shadow-lg active:scale-95 transition-all cursor-pointer"
                                 onClick={() =>
                                     router.push(`/lesson-requests/new/trainer/${trainer.id}`)
                                 }
@@ -666,7 +666,7 @@ export default function TrainerDetailPage({ params }: Props) {
                     onClick={() => setSelectedPhoto(null)}
                 >
                     <button
-                        className="absolute top-4 right-4 text-white hover:text-gray-300"
+                        className="absolute top-4 right-4 text-white hover:text-gray-300 cursor-pointer"
                         onClick={() => setSelectedPhoto(null)}
                     >
                         <span className="material-symbols-outlined text-3xl">close</span>

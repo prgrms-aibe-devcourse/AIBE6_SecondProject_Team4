@@ -14,24 +14,24 @@ VALUES
     ('user03', '박민준', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '민준', 'user03@fitmate.com', 'USER', NULL, '인천', '근육 키우고 싶어요.', '010-3333-3333', NOW(), NOW()),
     ('user04', '최유진', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '유진', 'user04@fitmate.com', 'USER', NULL, '서울', '자세 교정과 유연성 향상이 목표입니다.', '010-4444-0004', NOW(), NOW()),
     ('user05', '한지우', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '지우', 'user05@fitmate.com', 'USER', NULL, '부산', '꾸준히 운동할 수 있는 코치를 찾고 있습니다.', '010-5555-0005', NOW(), NOW()),
-    ('trainer01', '최민호', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '최코치', 'trainer01@fitmate.com', 'TRAINER', NULL, '서울', '10년 경력의 PT 전문 트레이너입니다.', '010-4444-4444', NOW(), NOW()),
-    ('trainer02', '정상훈', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '정코치', 'trainer02@fitmate.com', 'TRAINER', NULL, '부산', '수영, 필라테스 전문입니다.', '010-5555-5555', NOW(), NOW()),
-    ('trainer03', '김태양', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '태양코치', 'trainer03@fitmate.com', 'TRAINER', NULL, '서울', '필라테스 전문 트레이너입니다.', '010-6001-0003', NOW(), NOW()),
-    ('trainer04', '이준호', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '준호코치', 'trainer04@fitmate.com', 'TRAINER', NULL, '부산', '크로스핏 전문가입니다.', '010-6001-0004', NOW(), NOW()),
-    ('trainer05', '박서연', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '서연코치', 'trainer05@fitmate.com', 'TRAINER', NULL, '인천', '요가 10년 경력입니다.', '010-6001-0005', NOW(), NOW()),
-    ('trainer06', '최민기', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '민기코치', 'trainer06@fitmate.com', 'TRAINER', NULL, '대구', '헬스 전문 트레이너입니다.', '010-6001-0006', NOW(), NOW()),
-    ('trainer07', '정하은', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '하은코치', 'trainer07@fitmate.com', 'TRAINER', NULL, '광주', '수영 국가대표 출신입니다.', '010-6001-0007', NOW(), NOW()),
-    ('trainer08', '한도윤', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '도윤코치', 'trainer08@fitmate.com', 'TRAINER', NULL, '대전', '테니스 레슨 전문입니다.', '010-6001-0008', NOW(), NOW()),
-    ('trainer09', '오지민', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '지민코치', 'trainer09@fitmate.com', 'TRAINER', NULL, '서울', '골프 레슨 전문가입니다.', '010-6001-0009', NOW(), NOW()),
-    ('trainer10', '서윤아', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '윤아코치', 'trainer10@fitmate.com', 'TRAINER', NULL, '부산', '댄스 전문 강사입니다.', '010-6001-0010', NOW(), NOW()),
-    ('trainer11', '강현우', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '현우코치', 'trainer11@fitmate.com', 'TRAINER', NULL, '인천', '헬스, 크로스핏 트레이너입니다.', '010-6001-0011', NOW(), NOW()),
-    ('trainer12', '윤소희', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '소희코치', 'trainer12@fitmate.com', 'TRAINER', NULL, '서울', '필라테스, 요가 강사입니다.', '010-6001-0012', NOW(), NOW()),
-    ('trainer13', '임재현', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '재현코치', 'trainer13@fitmate.com', 'TRAINER', NULL, '대구', '수영 전문 트레이너입니다.', '010-6001-0013', NOW(), NOW()),
-    ('trainer14', '신예진', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '예진코치', 'trainer14@fitmate.com', 'TRAINER', NULL, '광주', '댄스, 요가 강사입니다.', '010-6001-0014', NOW(), NOW()),
-    ('trainer15', '조성민', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '성민코치', 'trainer15@fitmate.com', 'TRAINER', NULL, '대전', '헬스 전문 트레이너입니다.', '010-6001-0015', NOW(), NOW()),
-    ('trainer16', '권나연', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '나연코치', 'trainer16@fitmate.com', 'TRAINER', NULL, '서울', '테니스, 골프 트레이너입니다.', '010-6001-0016', NOW(), NOW()),
-    ('trainer17', '문재호', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '재호코치', 'trainer17@fitmate.com', 'TRAINER', NULL, '부산', '크로스핏 전문가입니다.', '010-6001-0017', NOW(), NOW()),
-    ('trainer18', '백수진', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '수진코치', 'trainer18@fitmate.com', 'TRAINER', NULL, '인천', '필라테스 전문 트레이너입니다.', '010-6001-0018', NOW(), NOW()),
+    ('trainer01', '최민호', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '최코치', 'trainer01@fitmate.com', 'TRAINER', '/uploads/profile/남3.png', '서울', '10년 경력의 PT 전문 트레이너입니다.', '010-4444-4444', NOW(), NOW()),
+    ('trainer02', '정상훈', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '정코치', 'trainer02@fitmate.com', 'TRAINER', '/uploads/profile/남5.png', '부산', '수영, 필라테스 전문입니다.', '010-5555-5555', NOW(), NOW()),
+    ('trainer03', '김태양', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '태양코치', 'trainer03@fitmate.com', 'TRAINER', '/uploads/profile/남8.png', '서울', '필라테스 전문 트레이너입니다.', '010-6001-0003', NOW(), NOW()),
+    ('trainer04', '이준호', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '준호코치', 'trainer04@fitmate.com', 'TRAINER', '/uploads/profile/남9.png', '부산', '크로스핏 전문가입니다.', '010-6001-0004', NOW(), NOW()),
+    ('trainer05', '박서연', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '서연코치', 'trainer05@fitmate.com', 'TRAINER', '/uploads/profile/여5.png', '인천', '요가 10년 경력입니다.', '010-6001-0005', NOW(), NOW()),
+    ('trainer06', '최민기', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '민기코치', 'trainer06@fitmate.com', 'TRAINER', '/uploads/profile/남7.png', '대구', '헬스 전문 트레이너입니다.', '010-6001-0006', NOW(), NOW()),
+    ('trainer07', '정하은', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '하은코치', 'trainer07@fitmate.com', 'TRAINER', '/uploads/profile/여6.png', '광주', '수영 국가대표 출신입니다.', '010-6001-0007', NOW(), NOW()),
+    ('trainer08', '한도윤', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '도윤코치', 'trainer08@fitmate.com', 'TRAINER', '/uploads/profile/남10.png', '대전', '테니스 레슨 전문입니다.', '010-6001-0008', NOW(), NOW()),
+    ('trainer09', '오지민', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '지민코치', 'trainer09@fitmate.com', 'TRAINER', '/uploads/profile/여7.png', '서울', '골프 레슨 전문가입니다.', '010-6001-0009', NOW(), NOW()),
+    ('trainer10', '서윤아', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '윤아코치', 'trainer10@fitmate.com', 'TRAINER', '/uploads/profile/여8.png', '부산', '댄스 전문 강사입니다.', '010-6001-0010', NOW(), NOW()),
+    ('trainer11', '강현우', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '현우코치', 'trainer11@fitmate.com', 'TRAINER', '/uploads/profile/남4.png', '인천', '헬스, 크로스핏 트레이너입니다.', '010-6001-0011', NOW(), NOW()),
+    ('trainer12', '윤소희', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '소희코치', 'trainer12@fitmate.com', 'TRAINER', '/uploads/profile/여4.png', '서울', '필라테스, 요가 강사입니다.', '010-6001-0012', NOW(), NOW()),
+    ('trainer13', '임재현', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '재현코치', 'trainer13@fitmate.com', 'TRAINER', '/uploads/profile/남2.png', '대구', '수영 전문 트레이너입니다.', '010-6001-0013', NOW(), NOW()),
+    ('trainer14', '신예진', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '예진코치', 'trainer14@fitmate.com', 'TRAINER', '/uploads/profile/여3.png', '광주', '댄스, 요가 강사입니다.', '010-6001-0014', NOW(), NOW()),
+    ('trainer15', '조성민', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '성민코치', 'trainer15@fitmate.com', 'TRAINER', '/uploads/profile/남6.png', '대전', '헬스 전문 트레이너입니다.', '010-6001-0015', NOW(), NOW()),
+    ('trainer16', '권나연', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '나연코치', 'trainer16@fitmate.com', 'TRAINER', '/uploads/profile/여2.png', '서울', '테니스, 골프 트레이너입니다.', '010-6001-0016', NOW(), NOW()),
+    ('trainer17', '문재호', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '재호코치', 'trainer17@fitmate.com', 'TRAINER', '/uploads/profile/남1.png', '부산', '크로스핏 전문가입니다.', '010-6001-0017', NOW(), NOW()),
+    ('trainer18', '백수진', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '수진코치', 'trainer18@fitmate.com', 'TRAINER', '/uploads/profile/여1.png', '인천', '필라테스 전문 트레이너입니다.', '010-6001-0018', NOW(), NOW()),
     ('admin01', '관리자', '$2a$10$N4tjEvVAtSjNWpipNlM42ekDjrErWjsaEJgbV5HIEVkNv3WDRUSAS', '관리자', 'admin@fitmate.com', 'ADMIN', NULL, NULL, NULL, '010-0000-0000', NOW(), NOW());
 
 -- =============================================
@@ -1380,3 +1380,85 @@ WHERE lr.status = 'COMPLETED'
         AND a.type = 'MATCHING_COMPLETED'
         AND a.target_id = lr.id
   );
+
+-- =============================================
+-- 트레이너 수업 사진 (trainer_lesson_photos)
+-- =============================================
+INSERT IGNORE INTO trainer_lesson_photos (trainer_profile_id, image_url, created_at, updated_at)
+SELECT tp.id, photo.url, NOW(), NOW()
+FROM trainer_profiles tp
+         JOIN members m ON tp.user_id = m.id
+         JOIN (
+    SELECT 'trainer01' AS user_id, 'https://placehold.co/600x400/fde68a/78350f?text=Lesson+1' AS url
+    UNION ALL SELECT 'trainer01', 'https://placehold.co/600x400/fde68a/78350f?text=Lesson+2'
+    UNION ALL SELECT 'trainer01', 'https://placehold.co/600x400/fde68a/78350f?text=Lesson+3'
+    UNION ALL SELECT 'trainer01', 'https://placehold.co/600x400/fde68a/78350f?text=Lesson+4'
+    UNION ALL SELECT 'trainer02', 'https://placehold.co/600x400/bfdbfe/1e3a8a?text=Lesson+1'
+    UNION ALL SELECT 'trainer02', 'https://placehold.co/600x400/bfdbfe/1e3a8a?text=Lesson+2'
+    UNION ALL SELECT 'trainer02', 'https://placehold.co/600x400/bfdbfe/1e3a8a?text=Lesson+3'
+    UNION ALL SELECT 'trainer02', 'https://placehold.co/600x400/bfdbfe/1e3a8a?text=Lesson+4'
+    UNION ALL SELECT 'trainer03', 'https://placehold.co/600x400/fbcfe8/831843?text=Lesson+1'
+    UNION ALL SELECT 'trainer03', 'https://placehold.co/600x400/fbcfe8/831843?text=Lesson+2'
+    UNION ALL SELECT 'trainer03', 'https://placehold.co/600x400/fbcfe8/831843?text=Lesson+3'
+    UNION ALL SELECT 'trainer03', 'https://placehold.co/600x400/fbcfe8/831843?text=Lesson+4'
+    UNION ALL SELECT 'trainer04', 'https://placehold.co/600x400/bbf7d0/14532d?text=Lesson+1'
+    UNION ALL SELECT 'trainer04', 'https://placehold.co/600x400/bbf7d0/14532d?text=Lesson+2'
+    UNION ALL SELECT 'trainer04', 'https://placehold.co/600x400/bbf7d0/14532d?text=Lesson+3'
+    UNION ALL SELECT 'trainer04', 'https://placehold.co/600x400/bbf7d0/14532d?text=Lesson+4'
+    UNION ALL SELECT 'trainer05', 'https://placehold.co/600x400/ddd6fe/4c1d95?text=Lesson+1'
+    UNION ALL SELECT 'trainer05', 'https://placehold.co/600x400/ddd6fe/4c1d95?text=Lesson+2'
+    UNION ALL SELECT 'trainer05', 'https://placehold.co/600x400/ddd6fe/4c1d95?text=Lesson+3'
+    UNION ALL SELECT 'trainer05', 'https://placehold.co/600x400/ddd6fe/4c1d95?text=Lesson+4'
+    UNION ALL SELECT 'trainer06', 'https://placehold.co/600x400/fed7aa/7c2d12?text=Lesson+1'
+    UNION ALL SELECT 'trainer06', 'https://placehold.co/600x400/fed7aa/7c2d12?text=Lesson+2'
+    UNION ALL SELECT 'trainer06', 'https://placehold.co/600x400/fed7aa/7c2d12?text=Lesson+3'
+    UNION ALL SELECT 'trainer06', 'https://placehold.co/600x400/fed7aa/7c2d12?text=Lesson+4'
+    UNION ALL SELECT 'trainer07', 'https://placehold.co/600x400/a5f3fc/164e63?text=Lesson+1'
+    UNION ALL SELECT 'trainer07', 'https://placehold.co/600x400/a5f3fc/164e63?text=Lesson+2'
+    UNION ALL SELECT 'trainer07', 'https://placehold.co/600x400/a5f3fc/164e63?text=Lesson+3'
+    UNION ALL SELECT 'trainer07', 'https://placehold.co/600x400/a5f3fc/164e63?text=Lesson+4'
+    UNION ALL SELECT 'trainer08', 'https://placehold.co/600x400/fecaca/7f1d1d?text=Lesson+1'
+    UNION ALL SELECT 'trainer08', 'https://placehold.co/600x400/fecaca/7f1d1d?text=Lesson+2'
+    UNION ALL SELECT 'trainer08', 'https://placehold.co/600x400/fecaca/7f1d1d?text=Lesson+3'
+    UNION ALL SELECT 'trainer08', 'https://placehold.co/600x400/fecaca/7f1d1d?text=Lesson+4'
+    UNION ALL SELECT 'trainer09', 'https://placehold.co/600x400/fde68a/78350f?text=Lesson+1'
+    UNION ALL SELECT 'trainer09', 'https://placehold.co/600x400/fde68a/78350f?text=Lesson+2'
+    UNION ALL SELECT 'trainer09', 'https://placehold.co/600x400/fde68a/78350f?text=Lesson+3'
+    UNION ALL SELECT 'trainer09', 'https://placehold.co/600x400/fde68a/78350f?text=Lesson+4'
+    UNION ALL SELECT 'trainer10', 'https://placehold.co/600x400/bfdbfe/1e3a8a?text=Lesson+1'
+    UNION ALL SELECT 'trainer10', 'https://placehold.co/600x400/bfdbfe/1e3a8a?text=Lesson+2'
+    UNION ALL SELECT 'trainer10', 'https://placehold.co/600x400/bfdbfe/1e3a8a?text=Lesson+3'
+    UNION ALL SELECT 'trainer10', 'https://placehold.co/600x400/bfdbfe/1e3a8a?text=Lesson+4'
+    UNION ALL SELECT 'trainer11', 'https://placehold.co/600x400/fbcfe8/831843?text=Lesson+1'
+    UNION ALL SELECT 'trainer11', 'https://placehold.co/600x400/fbcfe8/831843?text=Lesson+2'
+    UNION ALL SELECT 'trainer11', 'https://placehold.co/600x400/fbcfe8/831843?text=Lesson+3'
+    UNION ALL SELECT 'trainer11', 'https://placehold.co/600x400/fbcfe8/831843?text=Lesson+4'
+    UNION ALL SELECT 'trainer12', 'https://placehold.co/600x400/bbf7d0/14532d?text=Lesson+1'
+    UNION ALL SELECT 'trainer12', 'https://placehold.co/600x400/bbf7d0/14532d?text=Lesson+2'
+    UNION ALL SELECT 'trainer12', 'https://placehold.co/600x400/bbf7d0/14532d?text=Lesson+3'
+    UNION ALL SELECT 'trainer12', 'https://placehold.co/600x400/bbf7d0/14532d?text=Lesson+4'
+    UNION ALL SELECT 'trainer13', 'https://placehold.co/600x400/ddd6fe/4c1d95?text=Lesson+1'
+    UNION ALL SELECT 'trainer13', 'https://placehold.co/600x400/ddd6fe/4c1d95?text=Lesson+2'
+    UNION ALL SELECT 'trainer13', 'https://placehold.co/600x400/ddd6fe/4c1d95?text=Lesson+3'
+    UNION ALL SELECT 'trainer13', 'https://placehold.co/600x400/ddd6fe/4c1d95?text=Lesson+4'
+    UNION ALL SELECT 'trainer14', 'https://placehold.co/600x400/fed7aa/7c2d12?text=Lesson+1'
+    UNION ALL SELECT 'trainer14', 'https://placehold.co/600x400/fed7aa/7c2d12?text=Lesson+2'
+    UNION ALL SELECT 'trainer14', 'https://placehold.co/600x400/fed7aa/7c2d12?text=Lesson+3'
+    UNION ALL SELECT 'trainer14', 'https://placehold.co/600x400/fed7aa/7c2d12?text=Lesson+4'
+    UNION ALL SELECT 'trainer15', 'https://placehold.co/600x400/a5f3fc/164e63?text=Lesson+1'
+    UNION ALL SELECT 'trainer15', 'https://placehold.co/600x400/a5f3fc/164e63?text=Lesson+2'
+    UNION ALL SELECT 'trainer15', 'https://placehold.co/600x400/a5f3fc/164e63?text=Lesson+3'
+    UNION ALL SELECT 'trainer15', 'https://placehold.co/600x400/a5f3fc/164e63?text=Lesson+4'
+    UNION ALL SELECT 'trainer16', 'https://placehold.co/600x400/fecaca/7f1d1d?text=Lesson+1'
+    UNION ALL SELECT 'trainer16', 'https://placehold.co/600x400/fecaca/7f1d1d?text=Lesson+2'
+    UNION ALL SELECT 'trainer16', 'https://placehold.co/600x400/fecaca/7f1d1d?text=Lesson+3'
+    UNION ALL SELECT 'trainer16', 'https://placehold.co/600x400/fecaca/7f1d1d?text=Lesson+4'
+    UNION ALL SELECT 'trainer17', 'https://placehold.co/600x400/fde68a/78350f?text=Lesson+1'
+    UNION ALL SELECT 'trainer17', 'https://placehold.co/600x400/fde68a/78350f?text=Lesson+2'
+    UNION ALL SELECT 'trainer17', 'https://placehold.co/600x400/fde68a/78350f?text=Lesson+3'
+    UNION ALL SELECT 'trainer17', 'https://placehold.co/600x400/fde68a/78350f?text=Lesson+4'
+    UNION ALL SELECT 'trainer18', 'https://placehold.co/600x400/bfdbfe/1e3a8a?text=Lesson+1'
+    UNION ALL SELECT 'trainer18', 'https://placehold.co/600x400/bfdbfe/1e3a8a?text=Lesson+2'
+    UNION ALL SELECT 'trainer18', 'https://placehold.co/600x400/bfdbfe/1e3a8a?text=Lesson+3'
+    UNION ALL SELECT 'trainer18', 'https://placehold.co/600x400/bfdbfe/1e3a8a?text=Lesson+4'
+) photo ON photo.user_id = m.user_id;

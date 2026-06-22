@@ -9,11 +9,12 @@ import java.time.LocalDate;
  * 아직 후기를 작성하지 않은 트레이너 정보를 담는다.
  */
 public record WritableReviewResponse(
-        Long lessonRequestId,   // 레슨 요청 id
-        Long matchingId,        // 후기 작성 시 사용할 matching_id
-        Long trainerId,         // 후기 작성 시 사용할 trainer(Member) id
-        String trainerNickname, // 트레이너 닉네임
-        String sports,          // 종목
-        LocalDate lessonDate    // 수업 날짜 (요청 날짜)
+        Long lessonRequestId,       // 레슨 요청 id
+        Long matchingId,            // 후기 작성 시 사용할 matching_id
+        Long trainerId,             // 후기 작성 시 사용할 trainer(Member) id
+        String trainerNickname,     // 트레이너 닉네임
+        String trainerProfileImage, // 트레이너 프로필 이미지
+        String sports,              // 종목
+        LocalDate lessonDate        // 수업 날짜 (요청 날짜)
 ) {
 }

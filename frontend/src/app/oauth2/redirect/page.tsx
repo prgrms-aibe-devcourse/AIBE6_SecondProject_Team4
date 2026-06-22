@@ -39,8 +39,10 @@ export default function OAuth2RedirectPage() {
             login({
                 memberId: member.id,
                 userName: member.userName,
+                nickname: member.nickname,
                 role: member.role,
                 token: accessToken,
+                profileImage: member.profileImage ?? null,
             })
 
             const isNewSocialUser = member.phone === '000-0000-0000' || !member.email
