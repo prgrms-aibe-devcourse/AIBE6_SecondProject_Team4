@@ -1,6 +1,7 @@
 package com.fitmate.member.entity;
 
 import com.fitmate.global.entity.BaseEntity;
+import com.fitmate.member.dto.UserProfileUpdateRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,4 +22,13 @@ public class UserProfile extends BaseEntity {
 
     @Column(nullable = false, length = 50)
     private String level;
+
+    @Column(length = 50)
+    private String goal;
+
+    public void update(UserProfileUpdateRequest request) {
+        if (request.sports() != null) this.sports = request.sports();
+        if (request.level() != null) this.level = request.level();
+        if (request.goal() != null) this.goal = request.goal();
+    }
 }

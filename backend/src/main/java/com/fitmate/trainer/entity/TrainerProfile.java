@@ -2,6 +2,7 @@ package com.fitmate.trainer.entity;
 
 import com.fitmate.global.entity.BaseEntity;
 import com.fitmate.member.entity.Member;
+import com.fitmate.trainer.dto.TrainerProfileUpdateRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,5 +24,28 @@ public class TrainerProfile extends BaseEntity {
     @Column(name = "lesson_type", length = 50)
     private String lessonType;
 
+    @Column(name = "lesson_level", length = 100)
+    private String lessonLevel;
+
+    @Column(name = "is_public")
+    @Builder.Default
+    private Boolean isPublic = true;
+
     private Integer price;
+
+    private Integer careerYears;
+
+    @Column(name = "lesson_duration_minutes")
+    @Builder.Default
+    private Integer lessonDurationMinutes = 60;
+
+    public void update(TrainerProfileUpdateRequest request) {
+        if (request.sports() != null) this.sports = request.sports();
+        if (request.lessonType() != null) this.lessonType = request.lessonType();
+        if (request.price() != null) this.price = request.price();
+        if (request.careerYears() != null) this.careerYears = request.careerYears();
+        if (request.lessonLevel() != null) this.lessonLevel = request.lessonLevel();
+        if (request.isPublic() != null) this.isPublic = request.isPublic();
+        if (request.lessonDurationMinutes() != null) this.lessonDurationMinutes = request.lessonDurationMinutes();
+    }
 }

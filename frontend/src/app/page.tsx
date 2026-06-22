@@ -1,7 +1,23 @@
-import ChatFAB from '@/components/ChatFAB'
+'use client'
+
+import { apiClient, getImageUrl } from '@/utils/apiClient';
+import { useEffect, useState } from 'react';
+
+
+
+import { useRouter } from 'next/navigation';
+
+
+
+
+
+
+
+
+
 
 const categories = [
-    { icon: 'fitness_center', label: 'PT', active: true },
+    { icon: 'fitness_center', label: '헬스', active: false },
     { icon: 'self_improvement', label: '필라테스' },
     { icon: 'air', label: '요가' },
     { icon: 'timer', label: '크로스핏' },
@@ -11,64 +27,38 @@ const categories = [
     { icon: 'nightlife', label: '댄스' },
 ]
 
-const trainers = [
-    {
-        src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA09pq8e0kKsbZDTF-lUdSQIOoXVn-07pIYtLl_-Zaax5ktY-YqTykDCIktBi4cbscdTLvHEwvRSn1J8dPEm5rE-Hrx0IE2cSdReJduclUxdP7ThEZXQ-EzixnyTOdUTaR-2FfZS7ZdxqsDqcdJgSEMldAVcbfT-08eEaNDNY8mg6W6zi6LfwtMFbXqqFhYPwWs6ce-X6TNlQxHKPlDRH9xBBK5MCA9FehpMFMTRfzqiin-tgxB-uhjCEuayakmauWBFGL-WA135w',
-        alt: 'Male fitness trainer',
-        rating: '4.9',
-        name: '김민수 트레이너',
-        desc: '바디프로필 전문 · 강남구',
-    },
-    {
-        src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuANS3eiu5joNz0OgDfyWSG0n5JGEd8bxfMjP7hahcBnE6evfw8w4inqxaNE81XELr52Fwvkv8PSWndTmW192XnbGXoK79YG_H7GFnD9BNuGJmAV8hYvrnJtM2vCqqysWVNJRnZ4wFLQEwuGyqNi8cq8ouJR6TrtDbcXOCJ8EwVnfJxzWsNKA4WyIaivwztwWfU6zCN9xFRx872Rm2RArYIFn8_OsOtChHcUHR61M-d5YYxqwqCFSZ5SgwndzQKzSz_tm6pCjSswGw',
-        alt: 'Female yoga instructor',
-        rating: '4.8',
-        name: '이서연 트레이너',
-        desc: '체형 교정 & 요가 · 서초구',
-    },
-    {
-        src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCNpZpuHpNSp8s8JVMNc8popczKvH1wIhD3Eu9jvrvnhHIo6z5nZ-0mAnlw5fNIXsQK7pHxZRRlNRlZdY7-cp8pNKM3TILuvqYFpOOUPI-jDzpednr5mLQnkEqdXx3xuheEXOFwWep4MsF2lsLmfFh2rPSh4Qc5foOXfYvdWdvrjVlRdfn3qbWDe0seA-V4_TJvzZYS6PmP5WPP-jNsYryAGWfp9JT4R0SKKPcE4kkVUxHKlP5EvB0OTYjqCkt1ogUbZQDHPd1ScQ',
-        alt: 'Male HIIT trainer',
-        rating: '5.0',
-        name: '박준호 트레이너',
-        desc: '고강도 HIIT 전문 · 송파구',
-    },
-    {
-        src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuASA0uzgLYeb0CfbPrpu0fo0lIFLL8yHAF3T1rcRly0KKSH9m520u-dmSpIGxHvP1gIt8ZcQn0IatJxWrJpAci04rJCs4b9hILc8LrtCMWlAaP2A2gu7RDYZlfuv7YxgQDjkEntdU4PGvUkZzKCqouvEIVOi9NE2WXDvVcYyWobCV40FnobnyTK698CmtucSjzae9eAV2uA3A0Xefim433ZqKgyVLdzcKCjqAz2z5nWz-ftEVHIWxeU4SOou4wWdu9EdFt7TrKjsQ',
-        alt: 'Female pilates trainer',
-        rating: '4.9',
-        name: '최윤지 트레이너',
-        desc: '재활 필라테스 · 마포구',
-    },
-]
+// 인기 트레이너 (PopularTrainerResponse)
+interface PopularTrainer {
+    trainerId: number
+    trainerProfileId: number | null
+    nickname: string
+    profileImage: string | null
+    sports: string | null
+    region: string | null
+    averageRating: number
+    reviewCount: number
+}
 
-const reviews = [
-    {
-        src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCrr9_tt441jYIp_OxHVsLSm3vaNx758TS4EJARVAUa8RTJHRepO2uAnEiRiStNWYb_zReqM1-vGAmdUab7tnBPamqASF1C2JDkphwhbq0azHb0TqrTHssdVabGN5T97K15WDRJJGcSlulTVmK7tYlaUCWVQp78GX4wFRZBXU66EFE2E9QlHh8-woAaFU4FVurxGR7JV4WpvBDmoxXLNfPB54XKZlmBFfDDWWuVLMIqyUlOBcK2P_QUcnXny4wbpVvL9DygzT6asQ',
-        name: '한정우 님',
-        text: '"김민수 트레이너님 덕분에 3개월 만에 바디프로필 촬영 성공했어요! 식단부터 멘탈 관리까지 최고입니다. 운동 습관을 완전히 바꿨어요."',
-    },
-    {
-        src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuASA0uzgLYeb0CfbPrpu0fo0lIFLL8yHAF3T1rcRly0KKSH9m520u-dmSpIGxHvP1gIt8ZcQn0IatJxWrJpAci04rJCs4b9hILc8LrtCMWlAaP2A2gu7RDYZlfuv7YxgQDjkEntdU4PGvUkZzKCqouvEIVOi9NE2WXDvVcYyWobCV40FnobnyTK698CmtucSjzae9eAV2uA3A0Xefim433ZqKgyVLdzcKCjqAz2z5nWz-ftEVHIWxeU4SOou4wWdu9EdFt7TrKjsQ',
-        name: '최윤지 님',
-        text: '"재활 목적으로 요가 시작했는데, 이서연 트레이너님의 섬세한 티칭 덕분에 통증이 정말 많이 줄었어요. 삶의 활력을 되찾은 기분입니다."',
-    },
-    {
-        src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCrr9_tt441jYIp_OxHVsLSm3vaNx758TS4EJARVAUa8RTJHRepO2uAnEiRiStNWYb_zReqM1-vGAmdUab7tnBPamqASF1C2JDkphwhbq0azHb0TqrTHssdVabGN5T97K15WDRJJGcSlulTVmK7tYlaUCWVQp78GX4wFRZBXU66EFE2E9QlHh8-woAaFU4FVurxGR7JV4WpvBDmoxXLNfPB54XKZlmBFfDDWWuVLMIqyUlOBcK2P_QUcnXny4wbpVvL9DygzT6asQ',
-        name: '박민아 님',
-        text: '"박준호 트레이너님 프로그램은 힘들지만 확실히 효과가 있네요. 한 달 만에 체력이 눈에 띄게 좋아졌습니다. 강추합니다!"',
-        hiddenOnMd: true,
-    },
-]
+// 리얼 후기 (RealReviewResponse)
+interface RealReview {
+    id: number
+    reviewerNickname: string
+    reviewerProfileImage: string | null
+    trainerNickname: string
+    rating: number
+    content: string
+    createdAt: string
+}
 
-function StarRating() {
+// 별점 (채워진 개수만큼)
+function StarRating({ rating = 5 }: { rating?: number }) {
     return (
         <div className="flex gap-0.5 text-primary">
             {Array.from({ length: 5 }).map((_, i) => (
                 <span
                     key={i}
                     className="material-symbols-outlined text-sm"
-                    style={{ fontVariationSettings: '"FILL" 1' }}
+                    style={i < rating ? { fontVariationSettings: '"FILL" 1' } : undefined}
                 >
                     star
                 </span>
@@ -78,6 +68,41 @@ function StarRating() {
 }
 
 export default function Home() {
+    const router = useRouter()
+    const [trainers, setTrainers] = useState<PopularTrainer[]>([])
+    const [reviews, setReviews] = useState<RealReview[]>([])
+    const [sport, setSport] = useState('')
+    const [region, setRegion] = useState('')
+    const [level, setLevel] = useState('')
+
+    useEffect(() => {
+        const fetchMainData = async () => {
+            const [pt, rv] = await Promise.all([
+                apiClient.GET('/api/reviews/popular-trainers', {
+                    params: { query: { size: 4 } } as never,
+                }),
+                apiClient.GET('/api/reviews/real', {
+                    params: { query: { size: 3 } } as never,
+                }),
+            ])
+            setTrainers((pt.data as PopularTrainer[]) ?? [])
+            setReviews((rv.data as RealReview[]) ?? [])
+        }
+        fetchMainData()
+    }, [])
+
+    const handleSearch = () => {
+        const params = new URLSearchParams()
+        if (sport) params.set('sport', sport)
+        if (region) params.set('region', region)
+        if (level) params.set('level', level)
+        router.push(`/trainer?${params.toString()}`)
+    }
+
+    const handleCategoryClick = (label: string) => {
+        router.push(`/trainer?sport=${encodeURIComponent(label)}`)
+    }
+
     return (
         <main className="pt-16 md:pt-20">
             {/* Hero Section */}
@@ -113,9 +138,13 @@ export default function Home() {
                                 <label className="block font-label-md text-secondary ml-1">
                                     종목
                                 </label>
-                                <select className="w-full bg-surface-container border-none rounded-xl text-body-md px-4 py-3 focus:ring-2 focus:ring-primary">
+                                <select
+                                    className="w-full bg-surface-container border-none rounded-xl text-body-md px-4 py-3 focus:ring-2 focus:ring-primary"
+                                    value={sport}
+                                    onChange={(e) => setSport(e.target.value)}
+                                >
                                     <option value="">전체</option>
-                                    <option>PT</option>
+                                    <option>헬스</option>
                                     <option>필라테스</option>
                                     <option>요가</option>
                                     <option>크로스핏</option>
@@ -129,39 +158,40 @@ export default function Home() {
                                 <label className="block font-label-md text-secondary ml-1">
                                     지역
                                 </label>
-                                <select className="w-full bg-surface-container border-none rounded-xl text-body-md px-4 py-3 focus:ring-2 focus:ring-primary">
+                                <select
+                                    className="w-full bg-surface-container border-none rounded-xl text-body-md px-4 py-3 focus:ring-2 focus:ring-primary"
+                                    value={region}
+                                    onChange={(e) => setRegion(e.target.value)}
+                                >
                                     <option value="">전체</option>
-                                    <option>서울특별시</option>
-                                    <option>부산광역시</option>
-                                    <option>대구광역시</option>
-                                    <option>인천광역시</option>
-                                    <option>광주광역시</option>
-                                    <option>대전광역시</option>
-                                    <option>울산광역시</option>
-                                    <option>세종특별자치시</option>
-                                    <option>경기도</option>
-                                    <option>강원도</option>
-                                    <option>충청북도</option>
-                                    <option>충청남도</option>
-                                    <option>전라북도</option>
-                                    <option>전라남도</option>
-                                    <option>경상북도</option>
-                                    <option>경상남도</option>
-                                    <option>제주특별자치도</option>
+                                    <option>서울</option>
+                                    <option>부산</option>
+                                    <option>대구</option>
+                                    <option>인천</option>
+                                    <option>광주</option>
+                                    <option>대전</option>
                                 </select>
                             </div>
                             <div className="space-y-1">
                                 <label className="block font-label-md text-secondary ml-1">
                                     난이도
                                 </label>
-                                <select className="w-full bg-surface-container border-none rounded-xl text-body-md px-4 py-3 focus:ring-2 focus:ring-primary">
-                                    <option>초급</option>
+                                <select
+                                    className="w-full bg-surface-container border-none rounded-xl text-body-md px-4 py-3 focus:ring-2 focus:ring-primary"
+                                    value={level}
+                                    onChange={(e) => setLevel(e.target.value)}
+                                >
+                                    <option value="">전체</option>
+                                    <option>입문/초보</option>
                                     <option>중급</option>
-                                    <option>고급</option>
+                                    <option>고급/대회준비</option>
                                 </select>
                             </div>
                             <div className="flex items-end">
-                                <button className="w-full h-[52px] bg-primary text-on-primary rounded-xl font-label-bold text-label-bold flex items-center justify-center gap-2 hover:bg-primary-container hover:shadow-lg active:scale-[0.98] transition-all">
+                                <button
+                                    className="w-full h-[52px] bg-primary text-on-primary rounded-xl font-label-bold text-label-bold flex items-center justify-center gap-2 hover:bg-primary-container hover:shadow-lg active:scale-[0.98] transition-all cursor-pointer"
+                                    onClick={handleSearch}
+                                >
                                     <span className="material-symbols-outlined">search</span>
                                     트레이너 찾기
                                 </button>
@@ -176,7 +206,11 @@ export default function Home() {
                 <section className="py-xl">
                     <div className="grid grid-cols-4 md:grid-cols-8 gap-gutter">
                         {categories.map(({ icon, label, active }) => (
-                            <div key={label} className="flex flex-col items-center gap-3 group">
+                            <div
+                                key={label}
+                                className="flex flex-col items-center gap-3 group cursor-pointer"
+                                onClick={() => handleCategoryClick(label)}
+                            >
                                 <div
                                     className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center group-hover:scale-110 transition-all cursor-pointer shadow-sm ${
                                         active
@@ -216,14 +250,16 @@ export default function Home() {
                                 현재 운동 목표, 선호하는 시간대, 그리고 원하는 스타일까지 모두
                                 고려하여 최적의 매칭을 진행합니다.
                             </p>
-                            <button className="mt-4 bg-inverse-surface text-surface px-10 py-3 rounded-xl font-label-bold text-label-bold hover:shadow-xl active:scale-95 transition-all">
+                            <button
+                                onClick={() => router.push('/matching')}
+                                className="mt-4 bg-inverse-surface text-surface px-10 py-3 rounded-xl font-label-bold text-label-bold hover:shadow-xl active:scale-95 transition-all cursor-pointer">
                                 지금 바로 시작하기
                             </button>
                         </div>
-                        <div className="opacity-10 absolute right-10 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <div className="opacity-10 absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none select-none leading-none">
                             <span
-                                className="material-symbols-outlined text-[300px] text-primary"
-                                style={{ fontVariationSettings: '"FILL" 1' }}
+                                className="material-symbols-outlined text-primary"
+                                style={{ fontVariationSettings: '"FILL" 1', fontSize: '280px', lineHeight: 1 }}
                             >
                                 psychology
                             </span>
@@ -235,84 +271,119 @@ export default function Home() {
                 <section className="pb-xl">
                     <div className="flex justify-between items-end mb-8">
                         <h2 className="font-headline-md text-headline-md">이달의 인기 트레이너</h2>
-                        <button className="text-primary font-label-bold text-label-bold flex items-center gap-1 hover:underline">
+                        <button
+                            onClick={() => router.push('/trainer')}
+                            className="text-primary font-label-bold text-label-bold flex items-center gap-1 hover:underline cursor-pointer"
+                        >
                             전체보기
                             <span className="material-symbols-outlined text-sm">arrow_forward</span>
                         </button>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
-                        {trainers.map((trainer) => (
-                            <div
-                                key={trainer.name}
-                                className="group rounded-2xl overflow-hidden shadow-lg relative bg-surface-container"
-                            >
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                    className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-500"
-                                    alt={trainer.alt}
-                                    src={trainer.src}
-                                />
-                                <div className="absolute inset-0 trainer-card-overlay flex flex-col justify-end p-6">
-                                    <div className="flex items-center gap-1 mb-2">
-                                        <span
-                                            className="material-symbols-outlined text-primary-container text-sm"
-                                            style={{
-                                                fontVariationSettings: '"FILL" 1',
-                                            }}
-                                        >
-                                            star
-                                        </span>
-                                        <span className="text-white text-sm font-label-bold">
-                                            {trainer.rating}
-                                        </span>
+                    {trainers.length === 0 ? (
+                        <p className="py-lg text-center text-on-surface-variant">
+                            아직 인기 트레이너 정보가 없습니다.
+                        </p>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+                            {trainers.map((trainer) => (
+                                <div
+                                    key={trainer.trainerId}
+                                    onClick={() =>
+                                        trainer.trainerProfileId &&
+                                        router.push(`/trainer/${trainer.trainerProfileId}`)
+                                    }
+                                    className="group rounded-2xl overflow-hidden shadow-lg relative bg-surface-container cursor-pointer"
+                                >
+                                    {trainer.profileImage ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                            className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-500"
+                                            alt={trainer.nickname}
+                                            src={getImageUrl(trainer.profileImage)}
+                                        />
+                                    ) : (
+                                        <div className="w-full h-80 flex items-center justify-center bg-gradient-to-br from-primary-fixed to-primary-fixed-dim">
+                                            <span className="material-symbols-outlined text-8xl text-on-primary-fixed/40">
+                                                person
+                                            </span>
+                                        </div>
+                                    )}
+                                    <div className="absolute inset-0 trainer-card-overlay flex flex-col justify-end p-6">
+                                        <div className="flex items-center gap-1 mb-2">
+                                            <span
+                                                className="material-symbols-outlined text-primary-container text-sm"
+                                                style={{ fontVariationSettings: '"FILL" 1' }}
+                                            >
+                                                star
+                                            </span>
+                                            <span className="text-white text-sm font-label-bold">
+                                                {trainer.averageRating}
+                                            </span>
+                                            <span className="text-white/70 text-sm">
+                                                (후기 {trainer.reviewCount})
+                                            </span>
+                                        </div>
+                                        <h4 className="text-white font-headline-sm text-headline-sm">
+                                            {trainer.nickname}
+                                        </h4>
+                                        <p className="text-white/80 text-body-sm mt-1">
+                                            {trainer.sports ?? '전문 트레이너'}
+                                            {trainer.region ? ` · ${trainer.region}` : ''}
+                                        </p>
                                     </div>
-                                    <h4 className="text-white font-headline-sm text-headline-sm">
-                                        {trainer.name}
-                                    </h4>
-                                    <p className="text-white/80 text-body-sm mt-1">
-                                        {trainer.desc}
-                                    </p>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </section>
 
                 {/* Reviews */}
                 <section className="pb-xl">
                     <h2 className="font-headline-md text-headline-md mb-8">리얼 후기</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
-                        {reviews.map((review) => (
-                            <div
-                                key={review.name}
-                                className={`bg-surface-container-low p-6 rounded-2xl border border-outline-variant hover:shadow-md transition-shadow ${
-                                    review.hiddenOnMd ? 'hidden lg:block' : ''
-                                }`}
-                            >
-                                <div className="flex items-center gap-4 mb-4">
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
-                                        className="w-16 h-16 rounded-full object-cover shadow-sm"
-                                        alt="User profile"
-                                        src={review.src}
-                                    />
-                                    <div>
-                                        <p className="font-label-bold text-label-bold">
-                                            {review.name}
-                                        </p>
-                                        <StarRating />
+                    {reviews.length === 0 ? (
+                        <p className="py-lg text-center text-on-surface-variant">
+                            아직 등록된 후기가 없습니다.
+                        </p>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+                            {reviews.map((review, idx) => (
+                                <div
+                                    key={review.id}
+                                    className={`bg-surface-container-low p-6 rounded-2xl border border-outline-variant hover:shadow-md transition-shadow ${
+                                        idx === 2 ? 'hidden lg:block' : ''
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-4 mb-4">
+                                        {review.reviewerProfileImage ? (
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            <img
+                                                className="w-16 h-16 rounded-full object-cover shadow-sm"
+                                                alt={review.reviewerNickname}
+                                                src={getImageUrl(review.reviewerProfileImage)}
+                                            />
+                                        ) : (
+                                            <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center shadow-sm">
+                                                <span className="material-symbols-outlined text-outline-variant text-3xl">
+                                                    person
+                                                </span>
+                                            </div>
+                                        )}
+                                        <div>
+                                            <p className="font-label-bold text-label-bold">
+                                                {review.reviewerNickname} 님
+                                            </p>
+                                            <StarRating rating={review.rating} />
+                                        </div>
                                     </div>
+                                    <p className="font-body-md text-body-md text-on-surface italic leading-relaxed">
+                                        &ldquo;{review.content}&rdquo;
+                                    </p>
                                 </div>
-                                <p className="font-body-md text-body-md text-on-surface italic leading-relaxed">
-                                    {review.text}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </section>
             </div>
-
-            <ChatFAB />
         </main>
     )
 }

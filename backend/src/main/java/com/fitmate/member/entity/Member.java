@@ -1,5 +1,6 @@
 package com.fitmate.member.entity;
 
+import java.time.LocalDateTime;
 import com.fitmate.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,7 +25,7 @@ public class Member extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String nickname;
 
-    @Column(nullable = false, length = 255, unique = true)
+    @Column(length = 255, unique = true)
     private String email;
 
     @Enumerated(EnumType.STRING)
@@ -42,4 +43,32 @@ public class Member extends BaseEntity {
 
     @Column(nullable = false, length = 20)
     private String phone;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    public void updateProfile(String nickname, String profileImage, String region, String introduction, String phone, String email) {
+        if (nickname != null) this.nickname = nickname;
+        if (profileImage != null) this.profileImage = profileImage;
+        if (region != null) this.region = region;
+        if (introduction != null) this.introduction = introduction;
+        if (phone != null) this.phone = phone;
+        if (email != null) this.email = email;
+    }
+
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
+    }
+
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
+    public void changeRole(Role role) {
+        this.role = role;
+    }
 }
