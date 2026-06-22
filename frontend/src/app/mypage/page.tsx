@@ -5,7 +5,7 @@ import MatchingManagementPreview from '@/components/lesson/MatchingManagementPre
 import { useAuth } from '@/context/AuthContext';
 import type { components } from '@/types/api';
 import { getAuthClient, getImageUrl } from '@/utils/apiClient';
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, Suspense, useEffect, useRef, useState } from 'react';
 
 
 
@@ -385,7 +385,7 @@ function InquirySection() {
     )
 }
 
-export default function MyPage() {
+function MyPageContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const { user, logout, updateProfileImage } = useAuth()
@@ -1099,5 +1099,12 @@ export default function MyPage() {
                 </div>
             </div>
         </main>
+    )
+}
+export default function MyPage() {
+    return (
+        <Suspense fallback={null}>
+            <MyPageContent />
+        </Suspense>
     )
 }

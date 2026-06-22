@@ -32,10 +32,8 @@ import com.fitmate.trainer.repository.TrainerProfileRepository;
 import org.springframework.data.domain.PageRequest;
 
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Collections;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -185,13 +183,13 @@ public class ReviewService {
                 .toList();
     }
 
-    // 인기 트레이너 (메인 페이지) — 평점 높은 순 → 후기 많은 순 N명
+    // 인기 트레이너 (메인 페이지) — 평점 4.5↑ & 후기 2개↑ 트레이너를 랜덤으로 N명
     public List<PopularTrainerResponse> getPopularTrainers(int size) {
-        Pageable pageable = PageRequest.of(0, size);
-        List<Object[]> rows = reviewRepository.findPopularTrainers(pageable);
-
+        List<Object[]> rows = new ArrayList<>(reviewRepository.findPopularTrainers());
+        Collections.shuffle(rows);
         List<PopularTrainerResponse> result = new ArrayList<>();
         for (Object[] row : rows) {
+            if (result.size() >= size) break;
             Long trainerId = (Long) row[0];
             double avg = row[1] == null ? 0.0 : Math.round(((Double) row[1]) * 10) / 10.0;
             long count = (Long) row[2];

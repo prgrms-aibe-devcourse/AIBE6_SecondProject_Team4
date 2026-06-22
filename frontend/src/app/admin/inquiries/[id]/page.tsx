@@ -1,9 +1,21 @@
 'use client'
 
-import { getAuthClient } from '@/utils/apiClient'
-import { useRouter, useParams, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import type { components } from '@/types/api'
+import type { components } from '@/types/api';
+import { getAuthClient } from '@/utils/apiClient';
+import { Suspense, useEffect, useState } from 'react';
+
+
+
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+
+
+
+
+
+
+
+
+
 
 type InquiryResponse = components['schemas']['InquiryResponse']
 
@@ -32,7 +44,7 @@ const formatDate = (str?: string) => {
     return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
-export default function AdminInquiryDetailPage() {
+function AdminInquiryDetailContent() {
     const router = useRouter()
     const params = useParams()
     const searchParams = useSearchParams()
@@ -59,7 +71,7 @@ export default function AdminInquiryDetailPage() {
             params: { query: { page: 0, size: 9999 } as any },
         })
         if (data?.content) {
-            const found = (data.content as InquiryResponse[]).find(i => i.id === id)
+            const found = (data.content as InquiryResponse[]).find((i) => i.id === id)
             setInquiry(found ?? null)
             if (found?.answer) setAnswer(found.answer)
         }
@@ -91,7 +103,10 @@ export default function AdminInquiryDetailPage() {
 
     if (loading) {
         return (
-            <div className="bento-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(12,1fr)', gap: '24px' }}>
+            <div
+                className="bento-grid"
+                style={{ display: 'grid', gridTemplateColumns: 'repeat(12,1fr)', gap: '24px' }}
+            >
                 <div className="col-span-12 lg:col-span-7 space-y-4">
                     <div className="h-8 w-32 rounded-lg bg-surface-container animate-pulse" />
                     <div className="rounded-xl border border-surface-container-high bg-surface-container-lowest p-8 space-y-4">
@@ -119,6 +134,7 @@ export default function AdminInquiryDetailPage() {
             <div className="flex flex-col items-center justify-center py-24 text-on-surface-variant">
                 <span className="material-symbols-outlined text-6xl mb-4">inbox</span>
                 <p>문의를 찾을 수 없습니다.</p>
+
                 <button onClick={() => router.push(backUrl)} className="mt-4 text-primary hover:underline cursor-pointer">목록으로 돌아가기</button>
             </div>
         )
@@ -153,34 +169,50 @@ export default function AdminInquiryDetailPage() {
                                 <span className="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-xs font-bold mb-2 inline-block">
                                     {TYPE_LABEL[inquiry.type ?? ''] ?? inquiry.type}
                                 </span>
-                                <h2 className="text-xl font-bold text-on-surface mt-1">{inquiry.title}</h2>
+                                <h2 className="text-xl font-bold text-on-surface mt-1">
+                                    {inquiry.title}
+                                </h2>
                             </div>
-                            <span className="text-body-sm text-on-surface-variant whitespace-nowrap ml-4 shrink-0">{formatDate(inquiry.createdAt)}</span>
+                            <span className="text-body-sm text-on-surface-variant whitespace-nowrap ml-4 shrink-0">
+                                {formatDate(inquiry.createdAt)}
+                            </span>
                         </div>
 
                         {/* 작성자 */}
                         <div className="flex items-center gap-3 py-4 border-y border-surface-container mb-6">
-                            <p className="text-sm font-bold text-on-surface-variant">회원 ID <span className="text-on-surface">{inquiry.memberId}</span></p>
+                            <p className="text-sm font-bold text-on-surface-variant">
+                                회원 ID <span className="text-on-surface">{inquiry.memberId}</span>
+                            </p>
                             <span className="text-outline-variant">·</span>
                             {inquiry.status === 'RESOLVED' ? (
-                                <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">답변 완료</span>
+                                <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
+                                    답변 완료
+                                </span>
                             ) : (
-                                <span className="inline-flex items-center rounded-full bg-error-container px-2 py-0.5 text-xs font-bold text-on-error-container">답변 대기</span>
+                                <span className="inline-flex items-center rounded-full bg-error-container px-2 py-0.5 text-xs font-bold text-on-error-container">
+                                    답변 대기
+                                </span>
                             )}
                         </div>
 
                         {/* 본문 */}
-                        <p className="text-body-md text-on-surface-variant leading-relaxed whitespace-pre-wrap">{inquiry.content}</p>
+                        <p className="text-body-md text-on-surface-variant leading-relaxed whitespace-pre-wrap">
+                            {inquiry.content}
+                        </p>
                     </div>
 
                     {/* 기존 답변 (RESOLVED인 경우) */}
                     {inquiry.status === 'RESOLVED' && inquiry.answer && (
                         <div className="bg-primary/5 border border-primary/20 rounded-xl p-8">
                             <div className="flex items-center gap-2 mb-4">
-                                <span className="material-symbols-outlined text-primary">support_agent</span>
+                                <span className="material-symbols-outlined text-primary">
+                                    support_agent
+                                </span>
                                 <h3 className="font-bold text-primary">등록된 답변</h3>
                             </div>
-                            <p className="text-body-md text-on-surface leading-relaxed whitespace-pre-wrap">{inquiry.answer}</p>
+                            <p className="text-body-md text-on-surface leading-relaxed whitespace-pre-wrap">
+                                {inquiry.answer}
+                            </p>
                         </div>
                     )}
                 </div>
@@ -194,7 +226,9 @@ export default function AdminInquiryDetailPage() {
 
                         {/* 자주 쓰는 답변 */}
                         <div className="mb-4">
-                            <label className="block text-sm font-bold text-on-surface-variant mb-1">자주 쓰는 답변 선택</label>
+                            <label className="block text-sm font-bold text-on-surface-variant mb-1">
+                                자주 쓰는 답변 선택
+                            </label>
                             <div className="relative">
                                 <select
                                     value={selectedTemplate}
@@ -202,22 +236,28 @@ export default function AdminInquiryDetailPage() {
                                     className="w-full appearance-none bg-surface-container-high border-none rounded-lg px-4 py-3 text-body-sm focus:ring-2 focus:ring-primary pr-10"
                                 >
                                     <option value="">템플릿을 선택하세요</option>
-                                    {Object.keys(TEMPLATES).map(k => (
-                                        <option key={k} value={k}>{k}</option>
+                                    {Object.keys(TEMPLATES).map((k) => (
+                                        <option key={k} value={k}>
+                                            {k}
+                                        </option>
                                     ))}
                                 </select>
-                                <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                                <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">
+                                    expand_more
+                                </span>
                             </div>
                         </div>
 
                         {/* 답변 내용 */}
                         <div className="mb-6">
-                            <label className="block text-sm font-bold text-on-surface-variant mb-1">답변 내용</label>
+                            <label className="block text-sm font-bold text-on-surface-variant mb-1">
+                                답변 내용
+                            </label>
                             <textarea
                                 className="w-full h-80 bg-surface border border-outline-variant rounded-lg p-4 text-body-md focus:ring-2 focus:ring-primary focus:border-transparent resize-none leading-relaxed"
                                 placeholder="사용자에게 전달할 답변을 입력하세요..."
                                 value={answer}
-                                onChange={e => setAnswer(e.target.value)}
+                                onChange={(e) => setAnswer(e.target.value)}
                             />
                         </div>
 
@@ -228,16 +268,38 @@ export default function AdminInquiryDetailPage() {
                             className="w-full flex items-center justify-center gap-2 bg-primary text-on-primary font-bold py-4 rounded-lg hover:opacity-90 shadow-md transition-all active:scale-95 disabled:opacity-50"
                         >
                             {success ? (
-                                <><span className="material-symbols-outlined text-[20px]">check_circle</span>등록 완료!</>
+                                <>
+                                    <span className="material-symbols-outlined text-[20px]">
+                                        check_circle
+                                    </span>
+                                    등록 완료!
+                                </>
                             ) : submitting ? (
-                                <><span className="material-symbols-outlined text-[20px] animate-spin">sync</span>처리 중...</>
+                                <>
+                                    <span className="material-symbols-outlined text-[20px] animate-spin">
+                                        sync
+                                    </span>
+                                    처리 중...
+                                </>
                             ) : (
-                                <><span className="material-symbols-outlined text-[20px]">send</span>답변 등록</>
+                                <>
+                                    <span className="material-symbols-outlined text-[20px]">
+                                        send
+                                    </span>
+                                    답변 등록
+                                </>
                             )}
                         </button>
                     </div>
                 </div>
             </div>
         </div>
+    )
+}
+export default function AdminInquiryDetailPage() {
+    return (
+        <Suspense fallback={null}>
+            <AdminInquiryDetailContent />
+        </Suspense>
     )
 }

@@ -2,9 +2,9 @@
 
 import { useAuth } from '@/context/AuthContext'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 
-export default function LoginPage() {
+function LoginContent() {
     const { login } = useAuth()
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -170,5 +170,12 @@ export default function LoginPage() {
 
             </div>
         </main>
+    )
+}
+export default function LoginPage() {
+    return (
+        <Suspense fallback={null}>
+            <LoginContent />
+        </Suspense>
     )
 }
