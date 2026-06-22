@@ -1,10 +1,22 @@
 'use client'
 
-import { useAuth } from '@/context/AuthContext'
-import { getAuthClient, getImageUrl } from '@/utils/apiClient'
-import { useEffect, useState } from 'react'
+import { useAuth } from '@/context/AuthContext';
+import { API_BASE_URL, getAuthClient, getImageUrl } from '@/utils/apiClient';
+import { useEffect, useState } from 'react';
 
-import { useRouter } from 'next/navigation'
+
+
+import { useRouter } from 'next/navigation';
+
+
+
+
+
+
+
+
+
+
 
 const SPORTS_LIST = ['헬스', '필라테스', '요가', '크로스핏', '테니스', '골프', '수영', '댄스']
 const LESSON_LEVELS = ['입문/초보', '중급', '고급/대회준비']
@@ -146,7 +158,7 @@ export default function ProfileEditPage() {
         formData.append('file', file)
 
         try {
-            const res = await fetch('http://localhost:8080/api/files/upload', {
+            const res = await fetch(`${API_BASE_URL}/api/files/upload`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${JSON.parse(localStorage.getItem('fitmate_user') ?? '{}').token}`,

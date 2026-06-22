@@ -1,5 +1,42 @@
-import type { paths } from '@/types/api'
-import createClient, { type Middleware } from 'openapi-fetch'
+import type { paths } from '@/types/api';
+import createClient, { type Middleware } from 'openapi-fetch';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
 
 let onTokenRefreshed: ((token: string) => void) | null = null
 
@@ -13,7 +50,7 @@ let reissuePromise: Promise<string | null> | null = null
 async function reissueToken(): Promise<string | null> {
     if (reissuePromise) return reissuePromise
 
-    reissuePromise = fetch('http://localhost:8080/api/auth/reissue', {
+    reissuePromise = fetch(`${API_BASE_URL}/api/auth/reissue`, {
         method: 'POST',
         credentials: 'include',
     })
@@ -55,7 +92,7 @@ const reissueMiddleware: Middleware = {
 }
 
 export const apiClient = createClient<paths>({
-    baseUrl: 'http://localhost:8080',
+    baseUrl: API_BASE_URL,
     credentials: 'include',
 })
 
@@ -66,7 +103,7 @@ export function getAuthClient() {
     const token = stored ? JSON.parse(stored).token : null
 
     const client = createClient<paths>({
-        baseUrl: 'http://localhost:8080',
+        baseUrl: API_BASE_URL,
         credentials: 'include',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
@@ -78,5 +115,5 @@ export function getAuthClient() {
 export function getImageUrl(path?: string | null): string {
     if (!path) return ''
     if (path.startsWith('http')) return path
-    return `http://localhost:8080${path}`
+    return `${API_BASE_URL}${path}`
 }

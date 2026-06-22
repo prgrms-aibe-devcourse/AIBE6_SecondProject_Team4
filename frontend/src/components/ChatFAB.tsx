@@ -1,12 +1,36 @@
 'use client'
 
-import { useAuth } from '@/context/AuthContext'
-import { useChat } from '@/hooks/useChat'
-import type { components } from '@/types/api'
-import { apiClient } from '@/utils/apiClient'
-import { Client } from '@stomp/stompjs'
-import { useEffect, useRef, useState } from 'react'
-import SockJS from 'sockjs-client'
+import { useAuth } from '@/context/AuthContext';
+import { useChat } from '@/hooks/useChat';
+import type { components } from '@/types/api';
+import { API_BASE_URL, apiClient } from '@/utils/apiClient';
+import { Client } from '@stomp/stompjs';
+import { useEffect, useRef, useState } from 'react';
+import SockJS from 'sockjs-client';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 type View = 'closed' | 'list' | 'chat' | 'new'
 
@@ -206,19 +230,26 @@ export default function ChatFAB() {
             })
             .catch(() => {})
         const client = new Client({
-            webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+            webSocketFactory: () => new SockJS(`${API_BASE_URL}/ws`),
             onConnect: () => {
                 client.subscribe(`/sub/notify/${user.memberId}`, () => {
                     apiClient
-                        .GET('/api/chat', { params: { query: { memberId: user.memberId } }, headers: { Authorization: `Bearer ${user.token}` } })
+                        .GET('/api/chat', {
+                            params: { query: { memberId: user.memberId } },
+                            headers: { Authorization: `Bearer ${user.token}` },
+                        })
                         .then(({ data }) => {
                             if (!data) return
                             const currentRoomId = selectedChatRef.current?.roomId
                             // 현재 보고 있는 채팅방은 이미 읽는 중이므로 unread=0으로 처리
-                            const list = sortByRecent(data.map((dto) => {
-                                const entry = toEntry(dto, user.memberId)
-                                return entry.roomId === currentRoomId ? { ...entry, unread: 0 } : entry
-                            }))
+                            const list = sortByRecent(
+                                data.map((dto) => {
+                                    const entry = toEntry(dto, user.memberId)
+                                    return entry.roomId === currentRoomId
+                                        ? { ...entry, unread: 0 }
+                                        : entry
+                                })
+                            )
                             setChatList(list)
                             setUnread(list.reduce((s, c) => s + c.unread, 0))
                         })
@@ -234,12 +265,12 @@ export default function ChatFAB() {
     useEffect(() => {
         if (!selectedChat || !user) return
         const client = new Client({
-            webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+            webSocketFactory: () => new SockJS(`${API_BASE_URL}/ws`),
             onConnect: () => {
                 client.subscribe(`/sub/read/${selectedChat.roomId}`, () => {
-                    setHistory((prev) => prev.map((m) =>
-                        m.senderId === user.memberId ? { ...m, isRead: true } : m
-                    ))
+                    setHistory((prev) =>
+                        prev.map((m) => (m.senderId === user.memberId ? { ...m, isRead: true } : m))
+                    )
                     markAllRead(user.memberId)
                 })
             },

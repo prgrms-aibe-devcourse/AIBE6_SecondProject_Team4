@@ -1,8 +1,33 @@
 'use client'
 
-import { useAuth } from '@/context/AuthContext'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useAuth } from '@/context/AuthContext';
+import { API_BASE_URL } from '@/utils/apiClient';
+import { useEffect, useState } from 'react';
+
+
+
+import { useRouter } from 'next/navigation';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export default function OAuth2RedirectPage() {
     const { login } = useAuth()
@@ -24,7 +49,7 @@ export default function OAuth2RedirectPage() {
 
     async function fetchMyInfoAndLogin(accessToken: string) {
         try {
-            const res = await fetch('http://localhost:8080/api/members/me', {
+            const res = await fetch(`${API_BASE_URL}/api/members/me`, {
                 headers: { Authorization: `Bearer ${accessToken}` },
             })
 
