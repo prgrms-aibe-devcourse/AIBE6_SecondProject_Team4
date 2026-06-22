@@ -125,8 +125,11 @@ function InquirySection() {
     return (
         <section ref={listTopRef} className="space-y-md">
             {/* 헤더 */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <h2 className="text-headline-sm font-headline-sm text-on-surface">문의 내역 관리</h2>
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                <div>
+                    <h2 className="font-headline-md text-headline-md text-on-surface">문의 내역</h2>
+                    <p className="mt-xs text-body-md text-on-surface-variant">문의 내역을 확인하고 답변 상태를 관리하세요.</p>
+                </div>
                 <Link
                     href="/inquiry"
                     className="inline-flex items-center gap-2 bg-primary text-on-primary px-md py-sm rounded-lg font-label-bold hover:bg-primary-container transition-all active:scale-95 shadow-sm"
@@ -475,17 +478,25 @@ export default function MyPage() {
     if (!hydrated || loading) {
         const skeletonTab = searchParams.get('tab') ?? 'matching'
 
+        const tabTitles: Record<string, { title: string; subtitle: string }> = {
+            matching: { title: '매칭 관리', subtitle: '트레이너에게 보낸 레슨 요청과 결제 진행 상태를 확인하세요.' },
+            reviews:  { title: '리뷰 관리', subtitle: '내가 작성한 후기를 확인하고 수정하거나 삭제할 수 있어요.' },
+            inquiries:{ title: '문의 내역', subtitle: '문의 내역을 확인하고 답변 상태를 관리하세요.' },
+        }
+        const { title: skeletonTitle, subtitle: skeletonSubtitle } = tabTitles[skeletonTab] ?? tabTitles.matching
+
         const contentSkeleton = (() => {
             if (skeletonTab === 'reviews') {
                 return (
-                    <div className="flex flex-col gap-md">
-                        {/* 탭 헤더 스켈레톤 */}
-                        <div className="flex items-end justify-between border-b border-outline-variant pb-0">
-                            <div className="flex gap-md pb-2.5">
-                                <div className="h-6 w-20 rounded bg-surface-container animate-pulse" />
-                                <div className="h-6 w-28 rounded bg-surface-container animate-pulse" />
+                    <div className="flex flex-col gap-sm">
+                        {/* 탭 바 스켈레톤 */}
+                        <div className="flex items-center justify-between">
+                            <div className="overflow-x-auto border-b border-outline-variant w-full">
+                                <div className="flex min-w-max">
+                                    <div className="h-12 w-24 rounded-md bg-surface-container animate-pulse mx-1" />
+                                    <div className="h-12 w-32 rounded-md bg-surface-container animate-pulse mx-1" />
+                                </div>
                             </div>
-                            <div className="mb-2 h-8 w-32 rounded-full bg-surface-container animate-pulse" />
                         </div>
                         {/* 리뷰 카드 스켈레톤 */}
                         {Array.from({ length: 5 }).map((_, i) => (
@@ -533,16 +544,16 @@ export default function MyPage() {
                 )
             }
 
-            // matching / account / default
+            // matching / default
             return (
                 <div className="space-y-sm">
-                    {/* 탭 필터 바 스켈레톤 */}
-                    <div className="flex gap-xs border-b border-outline-variant pb-0 overflow-x-auto">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                            <div key={i} className="h-12 w-20 shrink-0 rounded-md bg-surface-container animate-pulse mb-px" />
-                        ))}
+                    <div className="overflow-x-auto border-b border-outline-variant">
+                        <div className="flex min-w-max gap-xs">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                                <div key={i} className="h-12 w-20 shrink-0 rounded-md bg-surface-container animate-pulse" />
+                            ))}
+                        </div>
                     </div>
-                    {/* 카드 스켈레톤 */}
                     {Array.from({ length: 5 }).map((_, i) => (
                         <div key={i} className="flex flex-col gap-md rounded-lg border border-outline-variant bg-surface-container-lowest p-md md:flex-row md:items-center" style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}>
                             <div className="flex min-w-0 flex-1 items-start gap-sm">
@@ -590,7 +601,11 @@ export default function MyPage() {
                             ))}
                         </div>
                     </aside>
-                    <div className="flex-grow min-h-[calc(100vh-200px)]">
+                    <div className="flex-grow min-h-[calc(100vh-200px)] space-y-md">
+                        <div>
+                            <h2 className="font-headline-md text-headline-md text-on-surface">{skeletonTitle}</h2>
+                            <p className="mt-xs text-body-md text-on-surface-variant">{skeletonSubtitle}</p>
+                        </div>
                         {contentSkeleton}
                     </div>
                 </div>
@@ -690,9 +705,14 @@ export default function MyPage() {
                     {/* 리뷰 관리 — 실제 후기 목록/통계/수정·삭제 (역할별 분기) */}
                     {activeTab === 'reviews' && (
                         <section className="space-y-md">
-                            <h2 className="text-headline-sm font-headline-sm text-on-surface">
-                                리뷰 관리
-                            </h2>
+                            <div>
+                                <h2 className="font-headline-md text-headline-md text-on-surface">리뷰 관리</h2>
+                                <p className="mt-xs text-body-md text-on-surface-variant">
+                                    {user?.role === 'TRAINER'
+                                        ? '내가 받은 후기를 확인하고 평점을 관리하세요.'
+                                        : '내가 작성한 후기를 확인하고 수정하거나 삭제할 수 있어요.'}
+                                </p>
+                            </div>
                             <MyReviewList />
                         </section>
                     )}

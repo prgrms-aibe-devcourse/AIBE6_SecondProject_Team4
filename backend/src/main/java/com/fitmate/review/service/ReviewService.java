@@ -92,7 +92,11 @@ public class ReviewService {
         Member reviewer = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         return reviewRepository.findByReviewerId(reviewer.getId(), pageable)
-                .map(ReviewResponse::from);
+                .map(review -> {
+                    Long profileId = trainerProfileRepository.findByMemberId(review.getTrainer().getId())
+                            .map(TrainerProfile::getId).orElse(null);
+                    return ReviewResponse.from(review, profileId);
+                });
     }
 
     // 후기 수정 (REV-06)
@@ -129,8 +133,10 @@ public class ReviewService {
 
     // 트레이너별 후기 조회 (공개 목록)
     public List<ReviewResponse> getReviewsByTrainer(Long trainerId) {
+        Long profileId = trainerProfileRepository.findByMemberId(trainerId)
+                .map(TrainerProfile::getId).orElse(null);
         return reviewRepository.findByTrainerId(trainerId).stream()
-                .map(ReviewResponse::from)
+                .map(review -> ReviewResponse.from(review, profileId))
                 .toList();
     }
 
@@ -157,8 +163,10 @@ public class ReviewService {
     public Page<ReviewResponse> getReceivedReviews(String userId, Pageable pageable) {
         Member trainer = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Long profileId = trainerProfileRepository.findByMemberId(trainer.getId())
+                .map(TrainerProfile::getId).orElse(null);
         return reviewRepository.findByTrainerId(trainer.getId(), pageable)
-                .map(ReviewResponse::from);
+                .map(review -> ReviewResponse.from(review, profileId));
     }
 
     // 리얼 후기 (메인 페이지) — 별점 4↑ + 내용 15자↑ 최신 N개
