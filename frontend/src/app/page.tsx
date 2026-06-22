@@ -250,7 +250,9 @@ export default function Home() {
                                 현재 운동 목표, 선호하는 시간대, 그리고 원하는 스타일까지 모두
                                 고려하여 최적의 매칭을 진행합니다.
                             </p>
-                            <button className="mt-4 bg-inverse-surface text-surface px-10 py-3 rounded-xl font-label-bold text-label-bold hover:shadow-xl active:scale-95 transition-all">
+                            <button
+                                onClick={() => router.push('/matching')}
+                                className="mt-4 bg-inverse-surface text-surface px-10 py-3 rounded-xl font-label-bold text-label-bold hover:shadow-xl active:scale-95 transition-all">
                                 지금 바로 시작하기
                             </button>
                         </div>
