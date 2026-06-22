@@ -1,10 +1,34 @@
 'use client'
 
-import type { components } from '@/types/api'
-import { getAuthClient, getImageUrl } from '@/utils/apiClient'
-import { useEffect, useState } from 'react'
+import type { components } from '@/types/api';
+import { getAuthClient, getImageUrl } from '@/utils/apiClient';
+import { useEffect, useState } from 'react';
 
-import { useRouter, useSearchParams } from 'next/navigation'
+
+
+import { useRouter, useSearchParams } from 'next/navigation';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 type Trainer = components['schemas']['TrainerProfileResponse']
 
@@ -32,7 +56,7 @@ export default function ExplorePage() {
     const [currentPage, setCurrentPage] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
     const [totalElements, setTotalElements] = useState(0)
-    const [sort, setSort] = useState('latest')
+    const [sort, setSort] = useState(searchParams.get('sort') ?? 'latest')
     const [filters, setFilters] = useState({
         sport: searchParams.get('sport') ?? '',
         lessonType: '',
@@ -236,12 +260,20 @@ export default function ExplorePage() {
                             <select
                                 className="bg-surface-container-low border border-outline-variant rounded-lg px-sm py-xs text-body-sm"
                                 value={sort}
-                                onChange={(e) => setSort(e.target.value)}
+                                onChange={(e) => {
+                                    setSort(e.target.value)
+                                    const params = new URLSearchParams(window.location.search)
+                                    params.set('sort', e.target.value)
+                                    router.replace(`/trainer?${params.toString()}`, {
+                                        scroll: false,
+                                    })
+                                }}
                             >
                                 <option value="latest">최신순</option>
                                 <option value="priceAsc">가격 낮은순</option>
                                 <option value="priceDesc">가격 높은순</option>
                                 <option value="careerDesc">경력순</option>
+                                <option value="reviewDesc">후기 많은순</option>
                             </select>
                         </div>
                     </div>
@@ -357,6 +389,12 @@ export default function ExplorePage() {
                                                         ? trainer.averageRating.toFixed(1)
                                                         : '신규'}
                                                 </span>
+                                                {trainer.reviewCount != null &&
+                                                    trainer.reviewCount > 0 && (
+                                                        <span className="text-body-sm text-on-surface-variant">
+                                                            ({trainer.reviewCount})
+                                                        </span>
+                                                    )}
                                             </div>
                                         </div>
                                         <p

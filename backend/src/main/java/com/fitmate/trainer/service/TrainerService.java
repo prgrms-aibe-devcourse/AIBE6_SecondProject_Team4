@@ -64,6 +64,36 @@ public class TrainerService {
             int size,
             String sort) {
 
+        // reviewDesc인 경우 별도 쿼리 사용
+        if ("reviewDesc".equals(sort)) {
+            Pageable pageableNoSort = PageRequest.of(page, size);
+            Page<TrainerProfile> profilePage = trainerProfileRepository.findByFiltersOrderByReviewCount(
+                    sport, lessonType, lessonLevel, minPrice, maxPrice, region, pageableNoSort);
+
+            // 이하 ratingMap, countMap 구성 및 map 로직 동일하게 처리
+            List<Long> trainerIds = profilePage.getContent().stream()
+                    .map(p -> p.getMember().getId()).toList();
+            Map<Long, Double> ratingMap = new HashMap<>();
+            Map<Long, Long> countMap = new HashMap<>();
+            if (!trainerIds.isEmpty()) {
+                List<Object[]> stats = reviewRepository.findRatingStatsByTrainerIds(trainerIds);
+                for (Object[] row : stats) {
+                    ratingMap.put((Long) row[0], (Double) row[1]);
+                    countMap.put((Long) row[0], (Long) row[2]);
+                }
+            }
+            return profilePage.map(p -> {
+                List<TrainerAvailableTime> availableTimes =
+                        trainerAvailableTimeRepository.findByTrainerProfileId(p.getId());
+                List<TrainerLessonPhoto> lessonPhotos =
+                        trainerLessonPhotoRepository.findByTrainerProfileId(p.getId());
+                return TrainerProfileResponse.from(p, availableTimes, lessonPhotos,
+                        ratingMap.get(p.getMember().getId()),
+                        countMap.getOrDefault(p.getMember().getId(), 0L));
+            });
+        }
+
+
         Sort sortObj = switch (sort) {
             case "priceAsc" -> Sort.by("price").ascending();
             case "priceDesc" -> Sort.by("price").descending();
