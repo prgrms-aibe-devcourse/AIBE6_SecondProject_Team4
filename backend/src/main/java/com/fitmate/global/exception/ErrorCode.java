@@ -16,6 +16,7 @@ public enum ErrorCode {
 
     // Auth
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "401-1", "아이디 또는 비밀번호가 올바르지 않습니다."),
+    WITHDRAWN_MEMBER(HttpStatus.UNAUTHORIZED, "401-3", "탈퇴된 계정입니다."),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "401-2", "인증이 필요합니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "403-1", "접근 권한이 없습니다."),
 

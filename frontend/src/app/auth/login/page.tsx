@@ -1,7 +1,6 @@
 'use client'
 
 import { useAuth } from '@/context/AuthContext'
-import { apiClient } from '@/utils/apiClient'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -19,16 +18,27 @@ export default function LoginPage() {
         setLoading(true)
 
         try {
-            const { data, error: apiError } = await apiClient.POST('/api/auth/login', {
-                body: { userId, password },
+            const res = await fetch('http://localhost:8080/api/auth/login', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, password }),
             })
 
-            if (apiError || !data) {
-                setError('아이디 또는 비밀번호가 올바르지 않습니다.')
+            if (!res.ok) {
+                const body = await res.json().catch(() => ({}))
+                const code = body?.code ?? ''
+                if (code === '401-3') {
+                    setError('탈퇴된 계정입니다. 로그인할 수 없습니다.')
+                } else {
+                    setError('아이디 또는 비밀번호가 올바르지 않습니다.')
+                }
                 return
             }
 
-            const token = data.accessToken!
+            const data = await res.json()
+            const token = data.accessToken
+
             let profileImage: string | null = null
             try {
                 const meRes = await fetch('http://localhost:8080/api/members/me', {
@@ -41,16 +51,16 @@ export default function LoginPage() {
             } catch {}
 
             login({
-                memberId: data.memberId!,
-                userName: data.userName!,
-                nickname: data.nickname!,
-                role: data.role!,
+                memberId: data.memberId,
+                userName: data.userName,
+                nickname: data.nickname,
+                role: data.role,
                 token,
                 profileImage,
             })
             router.push('/')
         } catch {
-            setError('서버 연결에 실패했습니다.')
+            setError('서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.')
         } finally {
             setLoading(false)
         }
