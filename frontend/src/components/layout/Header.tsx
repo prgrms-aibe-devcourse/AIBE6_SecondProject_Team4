@@ -17,6 +17,9 @@ function getAlertHref(alert: AlertItem): string {
             return `/mypage?tab=reviews`
         case 'INQUIRY':
             return `/mypage/inquiry/${alert.targetId}`
+        case 'LESSON_REQUEST':
+        case 'MATCHING_COMPLETED':
+            return `/lesson-requests/${alert.targetId}`
         default:
             return '#'
     }

@@ -1,5 +1,7 @@
 package com.fitmate.payment.service;
 
+import com.fitmate.alert.entity.AlertType;
+import com.fitmate.lesson.event.LessonAlertEvent;
 import com.fitmate.lesson.entity.LessonRequest;
 import com.fitmate.lesson.entity.LessonPassType;
 import com.fitmate.lesson.entity.LessonRequestStatus;
@@ -12,6 +14,7 @@ import com.fitmate.payment.entity.PaymentStatus;
 import com.fitmate.payment.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +35,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final LessonRequestRepository lessonRequestRepository;
     private final MemberRepository memberRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Value("${toss.secret-key}")
     private String tossSecretKey;
@@ -117,6 +121,23 @@ public class PaymentService {
             String method = response != null ? (String) response.get("method") : null;
             payment.complete(request.paymentKey(), method);
             payment.getLessonRequest().complete();
+
+            LessonRequest completedLesson = payment.getLessonRequest();
+            Member lessonMember = completedLesson.getMember();
+            Member trainerMember = completedLesson.getTrainerProfile().getMember();
+
+            eventPublisher.publishEvent(new LessonAlertEvent(
+                    lessonMember.getId(),
+                    AlertType.MATCHING_COMPLETED,
+                    completedLesson.getId(),
+                    trainerMember.getNickname() + " 트레이너와의 레슨 매칭이 완료되었습니다."
+            ));
+            eventPublisher.publishEvent(new LessonAlertEvent(
+                    trainerMember.getId(),
+                    AlertType.MATCHING_COMPLETED,
+                    completedLesson.getId(),
+                    lessonMember.getNickname() + "님과의 레슨 매칭이 완료되었습니다."
+            ));
 
             return PaymentResponse.from(payment);
 

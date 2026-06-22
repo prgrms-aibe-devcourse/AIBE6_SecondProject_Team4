@@ -2,6 +2,7 @@
 
 import type { components } from '@/types/api'
 import { getAuthClient, getImageUrl } from '@/utils/apiClient'
+import { formatLessonType } from '@/utils/lessonDisplay'
 import { FormEvent, useMemo, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
@@ -251,7 +252,10 @@ export default function LessonRequestForm({
                         {displayTrainerName ?? '트레이너'}
                     </h2>
                     <div className="mt-xs flex flex-wrap gap-xs">
-                        {[displayLessonType, displaySports]
+                        {[
+                            displayLessonType ? formatLessonType(displayLessonType) : undefined,
+                            displaySports,
+                        ]
                             .filter((value): value is string => Boolean(value))
                             .map((value) => (
                                 <span
@@ -403,7 +407,11 @@ export default function LessonRequestForm({
 
                 <dl className="mt-md space-y-sm">
                     <SummaryRow icon="fitness_center" label="운동 종목" value={displaySports} />
-                    <SummaryRow icon="groups" label="레슨 유형" value={displayLessonType} />
+                    <SummaryRow
+                        icon="groups"
+                        label="레슨 유형"
+                        value={displayLessonType ? formatLessonType(displayLessonType) : undefined}
+                    />
                     <SummaryRow
                         icon="trending_up"
                         label="레슨 수준"

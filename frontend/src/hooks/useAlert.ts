@@ -8,7 +8,13 @@ import SockJS from 'sockjs-client'
 
 export type AlertItem = {
     id?: number
-    type?: 'MESSAGE' | 'REVIEW' | 'MATCHING' | 'INQUIRY'
+    type?:
+        | 'MESSAGE'
+        | 'REVIEW'
+        | 'MATCHING'
+        | 'INQUIRY'
+        | 'LESSON_REQUEST'
+        | 'MATCHING_COMPLETED'
     targetId?: number
     content?: string
     isRead?: boolean

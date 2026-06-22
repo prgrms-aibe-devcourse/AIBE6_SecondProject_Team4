@@ -1,4 +1,5 @@
 import type { components } from '@/types/api'
+import { formatLessonType } from '@/utils/lessonDisplay'
 
 import Link from 'next/link'
 
@@ -12,7 +13,12 @@ type MatchingResultCardProps = {
 const formatTime = (time?: string) => time?.slice(0, 5) ?? '-'
 
 export default function MatchingResultCard({ result, onLessonRequest }: MatchingResultCardProps) {
-    const tags = [result.sports, result.lessonType, result.lessonLevel, result.region].filter(
+    const tags = [
+        result.sports,
+        result.lessonType ? formatLessonType(result.lessonType) : undefined,
+        result.lessonLevel,
+        result.region,
+    ].filter(
         (tag): tag is string => Boolean(tag)
     )
 

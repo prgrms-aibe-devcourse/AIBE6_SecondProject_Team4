@@ -1,5 +1,6 @@
 package com.fitmate.lesson.service;
 
+import com.fitmate.alert.entity.AlertType;
 import com.fitmate.global.exception.CustomException;
 import com.fitmate.global.exception.ErrorCode;
 import com.fitmate.lesson.dto.LessonRequestCreateRequest;
@@ -7,6 +8,7 @@ import com.fitmate.lesson.dto.LessonRequestResponse;
 import com.fitmate.lesson.entity.LessonPassType;
 import com.fitmate.lesson.entity.LessonRequest;
 import com.fitmate.lesson.entity.LessonRequestStatus;
+import com.fitmate.lesson.event.LessonAlertEvent;
 import com.fitmate.lesson.repository.LessonRequestRepository;
 import com.fitmate.matching.entity.MatchingRequest;
 import com.fitmate.matching.entity.MatchingResult;
@@ -17,6 +19,7 @@ import com.fitmate.trainer.entity.TrainerProfile;
 import com.fitmate.trainer.repository.TrainerAvailableTimeRepository;
 import com.fitmate.trainer.repository.TrainerProfileRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +35,8 @@ public class LessonRequestService {
     private final MemberRepository memberRepository;
     private final TrainerProfileRepository trainerProfileRepository;
     private final TrainerAvailableTimeRepository trainerAvailableTimeRepository;
+    private final ApplicationEventPublisher eventPublisher;
+
 
     // 사용자가 추천 결과를 선택하거나, 트레이너를 직접 선택해서 레슨 요청서를 보냄
     @Transactional
@@ -45,22 +50,19 @@ public class LessonRequestService {
         validateRequest(request);
 
         LessonRequest lessonRequest;
+        TrainerProfile trainerProfile;
 
         if (request.matchingResultId() != null) {
             // ===== AI 매칭 경로 (기존 로직) =====
 
-            // 사용자가 선택한 매칭 결과를 DB에서 찾음
             MatchingResult matchingResult = matchingResultRepository.findById(request.matchingResultId())
                     .orElseThrow(() -> new CustomException(ErrorCode.MATCHING_RESULT_NOT_FOUND));
 
-            // 이 매칭 결과가 로그인한 사용자의 것인지 확인
             validateOwner(member, matchingResult);
 
-            // 같은 매칭 결과로 이미 요청서를 보냈는지 확인
             validateDuplicateRequest(matchingResult.getId());
 
-            // 매칭 결과에 연결된 트레이너 프로필을 가져옴
-            TrainerProfile trainerProfile = matchingResult.getTrainerProfile();
+            trainerProfile = matchingResult.getTrainerProfile();
 
             lessonRequest = LessonRequest.builder()
                     .matchingResult(matchingResult)
@@ -78,15 +80,11 @@ public class LessonRequestService {
         } else if (request.trainerProfileId() != null) {
             // ===== 트레이너 직접 선택 경로 (신규) =====
 
-            // 요청한 트레이너 프로필을 DB에서 찾음
-            TrainerProfile trainerProfile =
-                    trainerProfileRepository.findById(request.trainerProfileId())
+            trainerProfile = trainerProfileRepository.findById(request.trainerProfileId())
                     .orElseThrow(() -> new CustomException(ErrorCode.TRAINER_PROFILE_NOT_FOUND));
 
-            // 같은 회원이 같은 트레이너에게 보낸 대기중 요청이 있는지 확인
             validateDuplicateDirectRequest(member.getId(), trainerProfile.getId());
 
-            // 요청한 날짜의 요일이 트레이너의 가능 시간대에 포함되는지, 시간이 그 범위 안인지 확인
             validateAvailableTime(trainerProfile, request);
 
             lessonRequest = LessonRequest.builder()
@@ -103,14 +101,20 @@ public class LessonRequestService {
                     .build();
 
         } else {
-            // 둘 다 없으면 잘못된 요청
             throw new CustomException(ErrorCode.INVALID_INPUT);
         }
 
-        // DB에 요청서 저장
+    // DB에 요청서 저장
         LessonRequest savedLessonRequest = lessonRequestRepository.save(lessonRequest);
 
-        // 저장된 요청서를 화면에 보여줄 응답 DTO로 변환
+        eventPublisher.publishEvent(new LessonAlertEvent(
+                trainerProfile.getMember().getId(),
+                AlertType.LESSON_REQUEST,
+                savedLessonRequest.getId(),
+                member.getNickname() + "님이 레슨을 요청했습니다."
+        ));
+
+    // 저장된 요청서를 화면에 보여줄 응답 DTO로 변환
         return toResponse(savedLessonRequest);
     }
 
@@ -154,6 +158,14 @@ public class LessonRequestService {
 
         // 상태를 ACCEPTED로 변경
         lessonRequest.accept();
+
+        eventPublisher.publishEvent(new LessonAlertEvent(
+                lessonRequest.getMember().getId(),
+                AlertType.LESSON_REQUEST,
+                lessonRequest.getId(),
+                lessonRequest.getTrainerProfile().getMember().getNickname()
+                        + " 트레이너가 레슨 요청을 수락했습니다. 결제를 진행해 주세요."
+        ));
 
         return toResponse(lessonRequest);
     }
@@ -266,12 +278,12 @@ public class LessonRequestService {
                 matchingResult != null ? matchingResult.getId() : null,
 
                 member.getId(),
-                member.getUserName(),
+                member.getNickname(),
                 member.getProfileImage(),
                 member.getIntroduction(),
 
                 trainerProfile.getId(),
-                trainerMember.getUserName(),
+                trainerMember.getNickname(),
                 trainerMember.getProfileImage(),
 
                 sports,

@@ -328,12 +328,18 @@ public List<MatchingResultResponse> createMatchingResults(
             return false;
         }
 
-        String normalizedRequest = normalizer.apply(requestedValue);
+        List<String> normalizedRequests =
+                Arrays.stream(requestedValue.split(","))
+                        .map(String::trim)
+                        .map(normalizer)
+                        .filter(value -> !value.isBlank())
+                        .toList();
 
         return Arrays.stream(storedValues.split(","))
                 .map(String::trim)
                 .map(normalizer)
-                .anyMatch(normalizedRequest::equals);
+                .filter(value -> !value.isBlank())
+                .anyMatch(normalizedRequests::contains);
     }
 
     private boolean containsTime(
@@ -364,7 +370,7 @@ public List<MatchingResultResponse> createMatchingResults(
         return new MatchingResultResponse(
                 matchingResult.getId(),
                 trainerProfile.getId(),
-                trainerMember.getUserName(),
+                trainerMember.getNickname(),
                 trainerMember.getProfileImage(),
                 trainerMember.getIntroduction(),
                 trainerProfile.getSports(),
@@ -404,7 +410,7 @@ public List<MatchingResultResponse> createMatchingResults(
 
     private String normalizeLessonLevel(String value) {
         return switch (normalizeText(value)) {
-            case "입문", "초보", "초급", "입문/초보" -> "BEGINNER";
+            case "입문", "초보", "초급", "입문/초보", "입문/초급" -> "BEGINNER";
             case "중급" -> "INTERMEDIATE";
             case "고급", "대회준비", "고급/대회준비" -> "ADVANCED";
             default -> normalizeText(value);

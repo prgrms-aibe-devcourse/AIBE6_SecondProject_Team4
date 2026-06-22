@@ -100,7 +100,7 @@ export default function LessonRequestDetailPage() {
     const [errorMessage, setErrorMessage] = useState('')
     const [modalType, setModalType] = useState<ResultModalType>(null)
     const isTrainer = user?.role === 'TRAINER'
-    const requestListHref = isTrainer ? '/lesson-requests/received' : '/lesson-requests/sent'
+    const matchingManagementHref = '/mypage?tab=matching'
 
     useEffect(() => {
         if (!lessonRequestId) {
@@ -194,7 +194,7 @@ export default function LessonRequestDetailPage() {
 
     const closeModal = () => {
         setModalType(null)
-        router.push(requestListHref)
+        router.push(matchingManagementHref)
     }
 
     return (
@@ -203,11 +203,11 @@ export default function LessonRequestDetailPage() {
                 <div className="flex flex-wrap items-start justify-between gap-sm">
                     <div>
                         <Link
-                            href={requestListHref}
+                            href={matchingManagementHref}
                             className="inline-flex items-center gap-1 text-body-sm text-on-surface-variant transition-colors hover:text-primary"
                         >
                             <span className="material-symbols-outlined text-xl">arrow_back</span>
-                            요청 목록으로 돌아가기
+                            매칭 관리로 돌아가기
                         </Link>
                         <h1 className="mt-sm font-headline-md text-headline-md text-on-surface">
                             레슨 요청 상세 내역
@@ -461,7 +461,7 @@ function SchedulePanel({
 }
 
 function getProcessedRequestMessage(status?: LessonRequestStatus) {
-    if (status === 'ACCEPTED') return '이미 수락된 요청입니다.'
+    if (status === 'ACCEPTED') return '결제 대기 중인 요청입니다.'
     if (status === 'REJECTED') return '이미 거절된 요청입니다.'
     if (status === 'CANCELED') return '이미 취소된 요청입니다.'
     if (status === 'COMPLETED') return '결제가 완료된 레슨입니다.'
