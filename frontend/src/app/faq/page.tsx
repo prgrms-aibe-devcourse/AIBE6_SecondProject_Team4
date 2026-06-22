@@ -230,7 +230,7 @@ export default function FaqPage() {
                                 >
                                     <button
                                         onClick={() => handleToggle(index)}
-                                        className="w-full flex items-center justify-between p-4 md:p-6 text-left hover:bg-[#f1f3ff] transition-colors group"
+                                        className="w-full flex items-center justify-between p-4 md:p-6 text-left hover:bg-[#f1f3ff] transition-colors group cursor-pointer"
                                     >
                                         <div className="flex flex-wrap items-center gap-2 pr-2">
                                             <span

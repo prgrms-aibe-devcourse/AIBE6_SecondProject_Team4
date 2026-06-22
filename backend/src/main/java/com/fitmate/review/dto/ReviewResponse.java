@@ -11,15 +11,15 @@ public record ReviewResponse(
         String reviewerNickname,
         String reviewerProfileImage,
         Long trainerId,
+        Long trainerProfileId,
         String trainerNickname,
         String trainerProfileImage,
         Integer rating,
         String content,
         LocalDateTime createdAt,
-        boolean edited            // ← 추가
+        boolean edited
 ) {
-    public static ReviewResponse from(Review review) {
-        // updatedAt이 createdAt보다 나중이면 수정된 것
+    public static ReviewResponse from(Review review, Long trainerProfileId) {
         boolean edited = review.getUpdatedAt() != null
                 && review.getUpdatedAt().isAfter(review.getCreatedAt());
 
@@ -30,12 +30,13 @@ public record ReviewResponse(
                 review.getReviewer().getNickname(),
                 review.getReviewer().getProfileImage(),
                 review.getTrainer().getId(),
+                trainerProfileId,
                 review.getTrainer().getNickname(),
                 review.getTrainer().getProfileImage(),
                 review.getRating(),
                 review.getContent(),
                 review.getCreatedAt(),
-                edited                // ← 추가
+                edited
         );
     }
 }

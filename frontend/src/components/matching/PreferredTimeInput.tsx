@@ -28,7 +28,7 @@ export default function PreferredTimeInput({ preferredTimes, onToggle }: Preferr
                             type="button"
                             aria-pressed={selected}
                             onClick={() => onToggle(day)}
-                            className={`h-11 rounded-lg border text-body-sm font-label-bold transition-colors ${
+                            className={`h-11 rounded-lg border text-body-sm font-label-bold transition-colors cursor-pointer ${
                                 selected
                                     ? 'border-primary bg-primary text-on-primary'
                                     : 'border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:border-primary hover:text-primary'

@@ -21,6 +21,7 @@ export interface Review {
     reviewerNickname: string
     reviewerProfileImage: string | null
     trainerId: number
+    trainerProfileId: number | null
     trainerNickname: string
     trainerProfileImage: string | null
     rating: number

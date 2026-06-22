@@ -62,7 +62,7 @@ export default function InquiryDetailPage() {
             <div className="flex flex-col items-center justify-center py-32 text-on-surface-variant">
                 <span className="material-symbols-outlined text-6xl mb-4">inbox</span>
                 <p>문의를 찾을 수 없습니다.</p>
-                <button onClick={() => router.push('/mypage?tab=inquiries')} className="mt-4 text-primary hover:underline">
+                <button onClick={() => router.push('/mypage?tab=inquiries')} className="mt-4 text-primary hover:underline cursor-pointer">
                     목록으로 돌아가기
                 </button>
             </div>
@@ -76,7 +76,7 @@ export default function InquiryDetailPage() {
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => router.back()}
-                        className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors"
+                        className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors cursor-pointer"
                     >
                         <span className="material-symbols-outlined text-on-surface-variant">arrow_back</span>
                     </button>
@@ -84,7 +84,7 @@ export default function InquiryDetailPage() {
                 </div>
                 <button
                     onClick={() => router.push('/mypage?tab=inquiries')}
-                    className="px-4 py-2 border border-outline-variant rounded-lg text-sm font-bold text-on-surface-variant hover:bg-surface-container transition-all"
+                    className="px-4 py-2 border border-outline-variant rounded-lg text-sm font-bold text-on-surface-variant hover:bg-surface-container transition-all cursor-pointer"
                 >
                     목록으로 돌아가기
                 </button>
@@ -144,13 +144,13 @@ export default function InquiryDetailPage() {
                 <div className="flex justify-end gap-3 pt-6 border-t border-surface-container-high">
                     <button
                         onClick={() => router.push('/mypage?tab=inquiries')}
-                        className="px-6 py-3 border border-outline-variant rounded-lg font-bold text-sm text-on-surface-variant hover:bg-surface-container transition-all"
+                        className="px-6 py-3 border border-outline-variant rounded-lg font-bold text-sm text-on-surface-variant hover:bg-surface-container transition-all cursor-pointer"
                     >
                         목록으로
                     </button>
                     <button
                         onClick={() => router.push('/inquiry')}
-                        className="px-6 py-3 bg-primary text-on-primary rounded-lg font-bold text-sm hover:shadow-lg transition-all active:scale-95"
+                        className="px-6 py-3 bg-primary text-on-primary rounded-lg font-bold text-sm hover:shadow-lg transition-all active:scale-95 cursor-pointer"
                     >
                         추가 문의하기
                     </button>

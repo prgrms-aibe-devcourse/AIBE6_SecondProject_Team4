@@ -7,24 +7,40 @@ export function setTokenRefreshHandler(handler: (token: string) => void) {
     onTokenRefreshed = handler
 }
 
+// 동시에 여러 401이 발생해도 reissue는 한 번만 호출
+let reissuePromise: Promise<string | null> | null = null
+
+async function reissueToken(): Promise<string | null> {
+    if (reissuePromise) return reissuePromise
+
+    reissuePromise = fetch('http://localhost:8080/api/auth/reissue', {
+        method: 'POST',
+        credentials: 'include',
+    })
+        .then(async (res) => {
+            if (!res.ok) return null
+            const data = await res.json()
+            return data.accessToken as string
+        })
+        .catch(() => null)
+        .finally(() => {
+            reissuePromise = null
+        })
+
+    return reissuePromise
+}
+
 const reissueMiddleware: Middleware = {
     async onResponse({ response, request }) {
         if (response.status !== 401) return response
-
         if (request.url.includes('/api/auth/reissue')) return response
 
-        const reissueRes = await fetch('http://localhost:8080/api/auth/reissue', {
-            method: 'POST',
-            credentials: 'include',
-        })
+        const newToken = await reissueToken()
 
-        if (!reissueRes.ok) {
+        if (!newToken) {
             window.dispatchEvent(new Event('auth:logout'))
             return response
         }
-
-        const data = await reissueRes.json()
-        const newToken: string = data.accessToken
 
         onTokenRefreshed?.(newToken)
 
