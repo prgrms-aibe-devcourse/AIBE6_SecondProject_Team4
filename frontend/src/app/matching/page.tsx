@@ -47,6 +47,11 @@ export default function MatchingPage() {
                 return
             }
 
+            if (!data.preferredTimes?.some((time) => time.dayOfWeek)) {
+                setQuickError('선호 요일을 입력해 주세요. 예: 월요일, 수요일')
+                return
+            }
+
             /*
              * lessonContent에는 원문이 항상 들어가므로,
              * 실제 조건 필드가 하나라도 해석됐는지 별도로 확인합니다.
@@ -61,7 +66,7 @@ export default function MatchingPage() {
                 Boolean(data.preferredTimes?.length)
 
             if (!hasParsedCondition) {
-                setQuickError('구체적인 운동 종목, 지역, 수준 또는 시간을 입력해 주세요.')
+                setQuickError('운동 종목, 지역 또는 레슨 유형을 입력해 주세요.')
                 return
             }
 
@@ -98,7 +103,7 @@ export default function MatchingPage() {
                     </h1>
 
                     <p className="mt-sm text-body-sm text-on-surface-variant md:text-body-md">
-                        운동 목표, 지역, 시간대를 자유롭게 입력하면 AI가 조건을 해석해
+                        운동 종목, 지역, 선호 요일을 자유롭게 입력하면 AI가 조건을 해석해
                         추천해드립니다.
                     </p>
 
@@ -111,7 +116,7 @@ export default function MatchingPage() {
                             onChange={(event) => setQuickQuery(event.target.value)}
                             maxLength={500}
                             className="h-12 min-w-0 flex-1 bg-transparent px-sm text-body-md outline-none placeholder:text-outline"
-                            placeholder="예: 강남에서 월, 수 저녁에 필라테스 1:1 받고 싶어요"
+                            placeholder="예: 부산에서 월, 수요일에 수영 그룹 레슨을 받고 싶어요"
                             aria-label="AI 트레이너 추천 문장"
                         />
 
