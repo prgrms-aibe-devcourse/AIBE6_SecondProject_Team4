@@ -6,15 +6,25 @@ import { getAuthClient } from '@/utils/apiClient'
 import { useEffect, useState } from 'react'
 
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
+import { useAuth } from '@/context/AuthContext'
 
 type Trainer = components['schemas']['TrainerProfileResponse']
 
 export default function LessonRequestDirectCreatePage() {
     const { trainerId } = useParams<{ trainerId: string }>()
+    const router = useRouter()
+    const { user, initialized } = useAuth()
     const [trainer, setTrainer] = useState<Trainer | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [errorMessage, setErrorMessage] = useState('')
+
+    useEffect(() => {
+        if (initialized && !user) {
+            router.replace(`/auth/login?redirect=/lesson-requests/new/trainer/${trainerId}`)
+            return
+        }
+    }, [initialized, user, router, trainerId])
 
     useEffect(() => {
         if (!trainerId) {
