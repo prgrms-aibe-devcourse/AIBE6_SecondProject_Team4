@@ -235,7 +235,7 @@ function ExplorePageContent() {
                             ].map(({ label, value }) => (
                                 <button
                                     key={label}
-                                    className={`px-sm md:px-md h-11 rounded-lg text-label-bold font-label-bold transition-all border ${
+                                    className={`px-sm md:px-md h-11 rounded-lg text-label-bold font-label-bold transition-all border cursor-pointer ${
                                         draftFilters.lessonType === value
                                             ? 'bg-primary text-on-primary border-primary'
                                             : 'bg-surface-container-low border-outline-variant text-on-surface-variant hover:bg-surface-container'
@@ -299,7 +299,7 @@ function ExplorePageContent() {
                             검색
                         </label>
                         <button
-                            className="bg-primary text-on-primary px-md h-11 rounded-lg font-label-bold hover:shadow-lg active:scale-95 transition-all"
+                            className="bg-primary text-on-primary px-md h-11 rounded-lg font-label-bold hover:shadow-lg active:scale-95 transition-all cursor-pointer"
                             onClick={handleSearch}
                         >
                             검색
@@ -512,7 +512,7 @@ function ExplorePageContent() {
                                                 </p>
                                             </div>
                                             <button
-                                                className="bg-primary text-on-primary px-2 md:px-md py-sm rounded-lg text-label-bold font-label-bold hover:shadow active:scale-95 transition-all flex-shrink-0 ml-2 md:ml-sm text-xs md:text-sm"
+                                                className="bg-primary text-on-primary px-2 md:px-md py-sm rounded-lg text-label-bold font-label-bold hover:shadow active:scale-95 transition-all flex-shrink-0 ml-2 md:ml-sm text-xs md:text-sm cursor-pointer"
                                                 onClick={(e) => {
                                                     e.stopPropagation()
                                                     router.push(
@@ -532,7 +532,7 @@ function ExplorePageContent() {
                         {totalPages > 1 && (
                             <div className="flex justify-center gap-xs mt-lg">
                                 <button
-                                    className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center hover:bg-surface-container text-on-surface-variant transition disabled:opacity-50"
+                                    className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center hover:bg-surface-container text-on-surface-variant transition disabled:opacity-50 cursor-pointer"
                                     onClick={() => handlePageChange(currentPage - 1)}
                                     disabled={currentPage === 0}
                                 >
@@ -545,7 +545,7 @@ function ExplorePageContent() {
                                 {getPageNumbers()[0] > 0 && (
                                     <>
                                         <button
-                                            className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center text-label-bold font-label-bold hover:bg-surface-container text-on-surface transition"
+                                            className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center text-label-bold font-label-bold hover:bg-surface-container text-on-surface transition cursor-pointer"
                                             onClick={() => handlePageChange(0)}
                                         >
                                             1
@@ -561,7 +561,7 @@ function ExplorePageContent() {
                                 {getPageNumbers().map((page) => (
                                     <button
                                         key={page}
-                                        className={`w-9 h-9 rounded-lg flex items-center justify-center text-label-bold font-label-bold transition-all ${
+                                        className={`w-9 h-9 rounded-lg flex items-center justify-center text-label-bold font-label-bold transition-all cursor-pointer ${
                                             page === currentPage
                                                 ? 'bg-primary text-on-primary'
                                                 : 'border border-outline-variant hover:bg-surface-container text-on-surface'
@@ -578,7 +578,7 @@ function ExplorePageContent() {
                                             ...
                                         </span>
                                         <button
-                                            className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center text-label-bold font-label-bold hover:bg-surface-container text-on-surface transition"
+                                            className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center text-label-bold font-label-bold hover:bg-surface-container text-on-surface transition cursor-pointer"
                                             onClick={() => handlePageChange(totalPages - 1)}
                                         >
                                             {totalPages}
@@ -586,7 +586,7 @@ function ExplorePageContent() {
                                     </>
                                 )}
                                 <button
-                                    className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center hover:bg-surface-container text-on-surface-variant transition disabled:opacity-50"
+                                    className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center hover:bg-surface-container text-on-surface-variant transition disabled:opacity-50 cursor-pointer"
                                     onClick={() => handlePageChange(currentPage + 1)}
                                     disabled={currentPage === totalPages - 1}
                                 >

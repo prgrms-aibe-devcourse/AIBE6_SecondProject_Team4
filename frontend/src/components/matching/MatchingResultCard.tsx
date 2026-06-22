@@ -114,7 +114,7 @@ export default function MatchingResultCard({ result, onLessonRequest }: Matching
                     {result.trainerProfileId ? (
                         <Link
                             href={`/trainer/${result.trainerProfileId}`}
-                            className="inline-flex h-11 items-center justify-center rounded-lg border border-primary font-label-bold text-primary hover:bg-primary-fixed"
+                            className="inline-flex h-11 items-center justify-center rounded-lg border border-primary font-label-bold text-primary hover:bg-primary-fixed cursor-pointer"
                         >
                             프로필 보기
                         </Link>
@@ -122,7 +122,7 @@ export default function MatchingResultCard({ result, onLessonRequest }: Matching
                         <button
                             type="button"
                             disabled
-                            className="h-11 rounded-lg border border-outline-variant text-outline"
+                            className="h-11 rounded-lg border border-outline-variant text-outline cursor-not-allowed"
                         >
                             프로필 보기
                         </button>
@@ -136,7 +136,7 @@ export default function MatchingResultCard({ result, onLessonRequest }: Matching
                                 onLessonRequest(result.matchingResultId)
                             }
                         }}
-                        className="h-11 rounded-lg bg-primary font-label-bold text-on-primary hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-outline-variant"
+                        className="h-11 rounded-lg bg-primary font-label-bold text-on-primary hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-outline-variant cursor-pointer"
                     >
                         레슨 요청하기
                     </button>

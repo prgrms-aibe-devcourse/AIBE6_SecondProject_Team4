@@ -14,7 +14,7 @@ function getAlertHref(alert: AlertItem): string {
         case 'MATCHING':
             return `/matching/${alert.targetId}`
         case 'REVIEW':
-            return `/mypage?tab=reviews`
+            return `/mypage?tab=reviews&subtab=writable`
         case 'INQUIRY':
             return `/mypage/inquiry/${alert.targetId}`
         case 'LESSON_REQUEST':
@@ -48,7 +48,7 @@ export default function Header() {
     const [alertOpen, setAlertOpen] = useState(false)
     const [menuOpen, setMenuOpen] = useState(false)
     const alertRef = useRef<HTMLDivElement>(null)
-    const { user, logout } = useAuth()
+    const { user, initialized, logout } = useAuth()
     const router = useRouter()
     const { alerts, unreadCount, markOneRead, markAllRead, deleteOne, deleteAll } = useAlert()
 
@@ -97,7 +97,7 @@ export default function Header() {
                 </nav>
 
                 <div className="flex items-center gap-4">
-                    {user ? (
+                    {!initialized ? null : user ? (
                         <>
                             {/* 알림 버튼 + 드롭다운 */}
                             <div className="relative flex items-center" ref={alertRef}>
@@ -126,13 +126,13 @@ export default function Header() {
                                             <div className="flex gap-3">
                                                 <button
                                                     onClick={markAllRead}
-                                                    className="text-xs text-primary hover:underline"
+                                                    className="text-xs text-primary hover:underline cursor-pointer"
                                                 >
                                                     일괄 읽음
                                                 </button>
                                                 <button
                                                     onClick={deleteAll}
-                                                    className="text-xs text-secondary hover:underline"
+                                                    className="text-xs text-secondary hover:underline cursor-pointer"
                                                 >
                                                     일괄 삭제
                                                 </button>
@@ -234,7 +234,7 @@ export default function Header() {
                                     href={user.role === 'ADMIN' ? '/admin/inquiries' : '/mypage'}
                                     className="font-label-bold text-on-surface hover:text-primary transition-colors"
                                 >
-                                    {user.userName} 님
+                                    {user.nickname} 님
                                 </Link>
                                 <Link
                                     href={user.role === 'ADMIN' ? '/admin/inquiries' : '/mypage'}
@@ -263,7 +263,7 @@ export default function Header() {
                                         </Link>
                                         <button
                                             onClick={handleLogout}
-                                            className="w-full text-left px-4 py-3 text-body-sm text-error hover:bg-surface-container transition-colors"
+                                            className="w-full text-left px-4 py-3 text-body-sm text-error hover:bg-surface-container transition-colors cursor-pointer"
                                         >
                                             로그아웃
                                         </button>
@@ -306,7 +306,7 @@ export default function Header() {
                                 {label}
                             </Link>
                         ))}
-                        {user ? (
+                        {!initialized ? null : user ? (
                             <>
                                 <Link
                                     href={user.role === 'ADMIN' ? '/admin/inquiries' : '/mypage'}
@@ -327,7 +327,7 @@ export default function Header() {
                                         )}
                                     </div>
                                     <span className="font-label-bold text-on-surface">
-                                        {user.userName} 님
+                                        {user.nickname} 님
                                     </span>
                                 </Link>
                                 <button

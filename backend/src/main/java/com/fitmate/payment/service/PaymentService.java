@@ -140,6 +140,12 @@ public class PaymentService {
                     completedLesson.getId(),
                     lessonMember.getNickname() + "님과의 레슨 매칭이 완료되었습니다."
             ));
+            eventPublisher.publishEvent(new LessonAlertEvent(
+                    lessonMember.getId(),
+                    AlertType.REVIEW,
+                    completedLesson.getId(),
+                    trainerMember.getNickname() + " 트레이너에 대한 후기를 작성해보세요!"
+            ));
 
             return PaymentResponse.from(payment);
 

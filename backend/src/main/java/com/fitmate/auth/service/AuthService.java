@@ -33,8 +33,12 @@ public class AuthService {
     @Transactional
     public LoginResult login(LoginRequest request) {
 
-        Member member = memberRepository.findByUserIdAndDeletedAtIsNull(request.userId())
+        Member member = memberRepository.findByUserId(request.userId())
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
+
+        if (member.isDeleted()) {
+            throw new CustomException(ErrorCode.WITHDRAWN_MEMBER);
+        }
 
         if (!passwordEncoder.matches(request.password(), member.getPassword())) {
             throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
@@ -45,7 +49,7 @@ public class AuthService {
 
         saveOrUpdateRefreshToken(member.getUserId(), refreshToken);
 
-        return new LoginResult(member.getId(), member.getUserName(), member.getRole().name(), accessToken, refreshToken);
+        return new LoginResult(member.getId(), member.getUserName(), member.getNickname(), member.getRole().name(), accessToken, refreshToken);
     }
 
     private void saveOrUpdateRefreshToken(String userId, String refreshToken) {

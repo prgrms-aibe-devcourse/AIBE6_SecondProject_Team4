@@ -48,6 +48,7 @@ function InquirySection() {
     const [editForm, setEditForm] = useState<{ type: string; title: string; content: string }>({ type: '', title: '', content: '' })
     const [saving, setSaving] = useState(false)
     const [deletingId, setDeletingId] = useState<number | null>(null)
+    const listTopRef = useRef<HTMLElement>(null)
 
 
     const client = getAuthClient()
@@ -122,10 +123,13 @@ function InquirySection() {
     }
 
     return (
-        <section className="space-y-md">
+        <section ref={listTopRef} className="space-y-md">
             {/* 헤더 */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <h2 className="text-headline-sm font-headline-sm text-on-surface">문의 내역 관리</h2>
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                <div>
+                    <h2 className="font-headline-md text-headline-md text-on-surface">문의 내역</h2>
+                    <p className="mt-xs text-body-md text-on-surface-variant">문의 내역을 확인하고 답변 상태를 관리하세요.</p>
+                </div>
                 <Link
                     href="/inquiry"
                     className="inline-flex items-center gap-2 bg-primary text-on-primary px-md py-sm rounded-lg font-label-bold hover:bg-primary-container transition-all active:scale-95 shadow-sm"
@@ -237,13 +241,13 @@ function InquirySection() {
                                                             />
                                                             <div className="flex gap-2 justify-end">
                                                                 <button
-                                                                    className="px-4 py-2 text-body-sm border border-outline-variant rounded-lg hover:bg-surface-container transition-all"
+                                                                    className="px-4 py-2 text-body-sm border border-outline-variant rounded-lg hover:bg-surface-container transition-all cursor-pointer"
                                                                     onClick={() => setEditingId(null)}
                                                                 >
                                                                     취소
                                                                 </button>
                                                                 <button
-                                                                    className="px-4 py-2 text-body-sm bg-primary text-on-primary rounded-lg hover:bg-primary-container transition-all disabled:opacity-50"
+                                                                    className="px-4 py-2 text-body-sm bg-primary text-on-primary rounded-lg hover:bg-primary-container transition-all disabled:opacity-50 cursor-pointer"
                                                                     onClick={handleEditSave}
                                                                     disabled={saving}
                                                                 >
@@ -316,7 +320,7 @@ function InquirySection() {
                                                                     <div className="flex items-center justify-end gap-2 pt-2 border-t border-outline-variant/30">
                                                                         {item.status === 'PENDING' && (
                                                                             <button
-                                                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-body-sm text-on-surface-variant border border-outline-variant hover:bg-surface-container hover:text-primary transition-all"
+                                                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-body-sm text-on-surface-variant border border-outline-variant hover:bg-surface-container hover:text-primary transition-all cursor-pointer"
                                                                                 onClick={(e) => { e.stopPropagation(); handleEdit(item) }}
                                                                             >
                                                                                 <span className="material-symbols-outlined text-base">edit</span>
@@ -324,7 +328,7 @@ function InquirySection() {
                                                                             </button>
                                                                         )}
                                                                         <button
-                                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-body-sm text-on-surface-variant border border-outline-variant hover:bg-error-container/30 hover:text-error hover:border-error/30 transition-all disabled:opacity-40"
+                                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-body-sm text-on-surface-variant border border-outline-variant hover:bg-error-container/30 hover:text-error hover:border-error/30 transition-all disabled:opacity-40 cursor-pointer"
                                                                             disabled={deletingId === item.id}
                                                                             onClick={(e) => { e.stopPropagation(); handleDelete(item.id!) }}
                                                                         >
@@ -348,17 +352,17 @@ function InquirySection() {
                         {totalPages > 1 && (
                             <div className="px-6 py-4 border-t border-outline-variant/30 flex items-center justify-center gap-2">
                                 <button
-                                    onClick={() => fetchInquiries(page - 1)}
+                                    onClick={() => { fetchInquiries(page - 1); listTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
                                     disabled={page === 0}
-                                    className="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container text-on-surface-variant transition-all disabled:opacity-40"
+                                    className="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container text-on-surface-variant transition-all disabled:opacity-40 cursor-pointer"
                                 >
                                     <span className="material-symbols-outlined text-sm">chevron_left</span>
                                 </button>
                                 {Array.from({ length: totalPages }, (_, i) => (
                                     <button
                                         key={i}
-                                        onClick={() => fetchInquiries(i)}
-                                        className={`w-8 h-8 flex items-center justify-center rounded font-label-bold text-sm transition-all ${
+                                        onClick={() => { fetchInquiries(i); listTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
+                                        className={`w-8 h-8 flex items-center justify-center rounded font-label-bold text-sm transition-all cursor-pointer ${
                                             i === page ? 'bg-primary text-on-primary' : 'hover:bg-surface-container text-on-surface-variant'
                                         }`}
                                     >
@@ -366,9 +370,9 @@ function InquirySection() {
                                     </button>
                                 ))}
                                 <button
-                                    onClick={() => fetchInquiries(page + 1)}
+                                    onClick={() => { fetchInquiries(page + 1); listTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
                                     disabled={page === totalPages - 1}
-                                    className="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container text-on-surface-variant transition-all disabled:opacity-40"
+                                    className="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container text-on-surface-variant transition-all disabled:opacity-40 cursor-pointer"
                                 >
                                     <span className="material-symbols-outlined text-sm">chevron_right</span>
                                 </button>
@@ -391,7 +395,7 @@ function MyPageContent() {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
     const [loading, setLoading] = useState(true)
     const [hydrated, setHydrated] = useState(false)
-    const [activeTab, setActiveTab] = useState('matching')
+    const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') ?? 'matching')
     const [showPasswordModal, setShowPasswordModal] = useState(false)
     const [pwCurrent, setPwCurrent] = useState('')
     const [pwNew, setPwNew] = useState('')
@@ -416,7 +420,7 @@ function MyPageContent() {
     useEffect(() => {
         if (!hydrated) return
         if (!user) {
-            router.push('/auth/login')
+            router.push('/auth/login?redirect=/mypage')
             return
         }
         fetchMyProfile()
@@ -471,20 +475,28 @@ function MyPageContent() {
 
     const profile = user?.role === 'TRAINER' ? trainerProfile : userProfile
 
-    if (!hydrated || loading) {
+    if ((!hydrated || loading) && searchParams.get('tab') !== 'account') {
         const skeletonTab = searchParams.get('tab') ?? 'matching'
+
+        const tabTitles: Record<string, { title: string; subtitle: string }> = {
+            matching: { title: '매칭 관리', subtitle: '트레이너에게 보낸 레슨 요청과 결제 진행 상태를 확인하세요.' },
+            reviews:  { title: '리뷰 관리', subtitle: '내가 작성한 후기를 확인하고 수정하거나 삭제할 수 있어요.' },
+            inquiries:{ title: '문의 내역', subtitle: '문의 내역을 확인하고 답변 상태를 관리하세요.' },
+        }
+        const { title: skeletonTitle, subtitle: skeletonSubtitle } = tabTitles[skeletonTab] ?? tabTitles.matching
 
         const contentSkeleton = (() => {
             if (skeletonTab === 'reviews') {
                 return (
-                    <div className="flex flex-col gap-md">
-                        {/* 탭 헤더 스켈레톤 */}
-                        <div className="flex items-end justify-between border-b border-outline-variant pb-0">
-                            <div className="flex gap-md pb-2.5">
-                                <div className="h-6 w-20 rounded bg-surface-container animate-pulse" />
-                                <div className="h-6 w-28 rounded bg-surface-container animate-pulse" />
+                    <div className="flex flex-col gap-sm">
+                        {/* 탭 바 스켈레톤 */}
+                        <div className="flex items-center justify-between">
+                            <div className="overflow-x-auto border-b border-outline-variant w-full">
+                                <div className="flex min-w-max">
+                                    <div className="h-12 w-24 rounded-md bg-surface-container animate-pulse mx-1" />
+                                    <div className="h-12 w-32 rounded-md bg-surface-container animate-pulse mx-1" />
+                                </div>
                             </div>
-                            <div className="mb-2 h-8 w-32 rounded-full bg-surface-container animate-pulse" />
                         </div>
                         {/* 리뷰 카드 스켈레톤 */}
                         {Array.from({ length: 5 }).map((_, i) => (
@@ -532,11 +544,35 @@ function MyPageContent() {
                 )
             }
 
-            // matching / account / default
+            // matching / default
             return (
-                <div className="grid grid-cols-1 gap-md md:grid-cols-3">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                        <div key={i} className="h-40 rounded-xl bg-surface-container animate-pulse" />
+                <div className="space-y-sm">
+                    <div className="overflow-x-auto border-b border-outline-variant">
+                        <div className="flex min-w-max gap-xs">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                                <div key={i} className="h-12 w-20 shrink-0 rounded-md bg-surface-container animate-pulse" />
+                            ))}
+                        </div>
+                    </div>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="flex flex-col gap-md rounded-lg border border-outline-variant bg-surface-container-lowest p-md md:flex-row md:items-center" style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}>
+                            <div className="flex min-w-0 flex-1 items-start gap-sm">
+                                <div className="h-16 w-16 shrink-0 rounded-full bg-surface-container animate-pulse" />
+                                <div className="flex-1 space-y-sm">
+                                    <div className="h-5 w-32 rounded-md bg-surface-container animate-pulse" />
+                                    <div className="h-3 w-24 rounded-md bg-surface-container animate-pulse" />
+                                    <div className="flex gap-xs">
+                                        <div className="h-5 w-14 rounded-full bg-surface-container animate-pulse" />
+                                        <div className="h-5 w-16 rounded-full bg-surface-container animate-pulse" />
+                                        <div className="h-5 w-12 rounded-full bg-surface-container animate-pulse" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex shrink-0 items-center justify-end gap-sm border-t border-outline-variant pt-sm md:border-t-0 md:pt-0">
+                                <div className="h-7 w-16 rounded-full bg-surface-container animate-pulse" />
+                                <div className="h-11 w-32 rounded-lg bg-surface-container animate-pulse" />
+                            </div>
+                        </div>
                     ))}
                 </div>
             )
@@ -565,7 +601,11 @@ function MyPageContent() {
                             ))}
                         </div>
                     </aside>
-                    <div className="flex-grow min-h-[calc(100vh-200px)]">
+                    <div className="flex-grow min-h-[calc(100vh-200px)] space-y-md">
+                        <div>
+                            <h2 className="font-headline-md text-headline-md text-on-surface">{skeletonTitle}</h2>
+                            <p className="mt-xs text-body-md text-on-surface-variant">{skeletonSubtitle}</p>
+                        </div>
                         {contentSkeleton}
                     </div>
                 </div>
@@ -601,7 +641,7 @@ function MyPageContent() {
                             onChange={handleProfileImageChange}
                         />
                         <button
-                            className="absolute bottom-0 right-0 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-primary text-white shadow-lg transition-transform hover:scale-110 disabled:opacity-50 sm:h-7 sm:w-7"
+                            className="absolute bottom-0 right-0 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-primary text-white shadow-lg transition-transform hover:scale-110 disabled:opacity-50 sm:h-7 sm:w-7 cursor-pointer"
                             onClick={() => fileInputRef.current?.click()}
                             disabled={uploadingImage}
                         >
@@ -614,7 +654,7 @@ function MyPageContent() {
                     </div>
                     <div className="min-w-0">
                         <h1 className="truncate text-title-lg font-bold text-on-surface sm:text-headline-md sm:font-headline-md">
-                            {user?.userName}
+                            {user?.nickname}
                         </h1>
                         <p className="flex items-center gap-xs text-body-sm text-on-surface-variant sm:text-body-md">
                             <span className="material-symbols-outlined text-[16px]">fitness_center</span>
@@ -623,7 +663,7 @@ function MyPageContent() {
                     </div>
                 </div>
                 <button
-                    className="flex w-full items-center justify-center gap-xs rounded-lg border border-outline-variant bg-surface-container-high px-md py-sm font-label-bold text-on-surface transition-all hover:bg-surface-container-highest sm:w-auto"
+                    className="flex w-full items-center justify-center gap-xs rounded-lg border border-outline-variant bg-surface-container-high px-md py-sm font-label-bold text-on-surface transition-all hover:bg-surface-container-highest sm:w-auto cursor-pointer"
                     onClick={() => router.push('/mypage/edit')}
                 >
                     <span className="material-symbols-outlined">settings</span>
@@ -644,7 +684,7 @@ function MyPageContent() {
                         ].map(({ id, icon, label }) => (
                             <button
                                 key={id}
-                                className={`flex w-full items-center gap-md rounded-lg px-md py-sm font-label-bold transition-all ${
+                                className={`flex w-full items-center gap-md rounded-lg px-md py-sm font-label-bold transition-all cursor-pointer ${
                                     activeTab === id
                                         ? 'bg-primary text-on-primary'
                                         : 'text-on-surface-variant hover:bg-surface-container-low'
@@ -665,9 +705,14 @@ function MyPageContent() {
                     {/* 리뷰 관리 — 실제 후기 목록/통계/수정·삭제 (역할별 분기) */}
                     {activeTab === 'reviews' && (
                         <section className="space-y-md">
-                            <h2 className="text-headline-sm font-headline-sm text-on-surface">
-                                리뷰 관리
-                            </h2>
+                            <div>
+                                <h2 className="font-headline-md text-headline-md text-on-surface">리뷰 관리</h2>
+                                <p className="mt-xs text-body-md text-on-surface-variant">
+                                    {user?.role === 'TRAINER'
+                                        ? '내가 받은 후기를 확인하고 평점을 관리하세요.'
+                                        : '내가 작성한 후기를 확인하고 수정하거나 삭제할 수 있어요.'}
+                                </p>
+                            </div>
                             <MyReviewList />
                         </section>
                     )}
@@ -676,9 +721,10 @@ function MyPageContent() {
 
                     {activeTab === 'account' && (
                         <section className="space-y-md">
-                            <h2 className="text-headline-sm font-headline-sm text-on-surface">
-                                계정 설정
-                            </h2>
+                            <div>
+                                <h2 className="font-headline-md text-headline-md text-on-surface">계정 설정</h2>
+                                <p className="mt-xs text-body-md text-on-surface-variant">비밀번호 변경 및 회원 탈퇴를 관리하세요.</p>
+                            </div>
                             <div
                                 className="overflow-hidden rounded-xl border border-outline-variant"
                                 style={{
@@ -688,7 +734,7 @@ function MyPageContent() {
                             >
                                 {/* 비밀번호 변경 버튼 */}
                                 <button
-                                    className="flex w-full items-center justify-between border-b border-outline-variant p-md transition-colors hover:bg-white/50"
+                                    className="flex w-full items-center justify-between border-b border-outline-variant p-md transition-colors hover:bg-white/50 cursor-pointer"
                                     onClick={() => {
                                         setPwCurrent('')
                                         setPwNew('')
@@ -808,7 +854,7 @@ function MyPageContent() {
                                                                 setTimeout(() => {
                                                                     setShowPasswordModal(false)
                                                                     logout()
-                                                                    router.push('/auth/login')
+                                                                    router.push('/auth/login?redirect=/mypage')
                                                                 }, 1500)
                                                             } catch {
                                                                 setPwError('서버 연결에 실패했습니다.')
@@ -885,7 +931,7 @@ function MyPageContent() {
 
                                 {/* 회원 탈퇴 */}
                                 <button
-                                    className="group flex w-full items-center justify-between p-md transition-colors hover:bg-error-container/20"
+                                    className="group flex w-full items-center justify-between p-md transition-colors hover:bg-error-container/20 cursor-pointer"
                                     onClick={() => {
                                         setWithdrawPassword('')
                                         setWithdrawError('')
@@ -982,7 +1028,7 @@ function MyPageContent() {
 
                                                         setShowWithdrawModal(false)
                                                         logout()
-                                                        router.push('/auth/login')
+                                                        router.push('/auth/login?redirect=/mypage')
                                                     } catch {
                                                         setWithdrawError('서버 연결에 실패했습니다.')
                                                     } finally {

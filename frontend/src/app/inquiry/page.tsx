@@ -25,7 +25,7 @@ export default function InquiryPage() {
     const [error, setError] = useState('')
 
     useEffect(() => {
-        if (!user) router.push('/auth/login')
+        if (!user) router.push('/auth/login?redirect=/inquiry')
     }, [user])
 
     const handleSubmit = async (e: React.FormEvent) => {
