@@ -17,7 +17,7 @@ public record LessonRequestCreateRequest(
 
         @NotNull LessonPassType lessonPassType,
 
-        Integer weeklyCount,
+        Integer packageCount,
 
         @NotBlank String selectedSports,
 

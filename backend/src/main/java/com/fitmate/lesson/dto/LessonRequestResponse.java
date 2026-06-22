@@ -28,7 +28,7 @@ public record LessonRequestResponse(
         Integer price,
 
         LessonPassType lessonPassType,
-        Integer weeklyCount,
+        Integer packageCount,
 
         LocalDate requestedDate,
         LocalTime requestedStartTime,

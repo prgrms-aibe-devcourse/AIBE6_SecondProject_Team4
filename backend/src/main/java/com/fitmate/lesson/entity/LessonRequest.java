@@ -34,8 +34,8 @@ public class LessonRequest extends BaseEntity {
     @Column(name = "lesson_pass_type", nullable = false, length = 30)
     private LessonPassType lessonPassType;
 
-    @Column(name = "weekly_count")
-    private Integer weeklyCount;
+    @Column(name = "package_count")
+    private Integer packageCount;
 
     @Column(name = "selected_sports", length = 255)
     private String selectedSports;
