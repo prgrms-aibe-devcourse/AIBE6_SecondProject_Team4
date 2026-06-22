@@ -15,7 +15,7 @@ public interface TrainerProfileRepository extends JpaRepository<TrainerProfile, 
     @Query("SELECT t FROM TrainerProfile t JOIN t.member m WHERE " +
             "t.isPublic = true AND " +
             "(:sport IS NULL OR t.sports LIKE %:sport%) AND " +
-            "(:lessonType IS NULL OR t.lessonType = :lessonType) AND " +
+            "(:lessonType IS NULL OR t.lessonType LIKE %:lessonType%) AND " +
             "(:lessonLevel IS NULL OR t.lessonLevel LIKE %:lessonLevel%) AND " +
             "(:minPrice IS NULL OR t.price >= :minPrice) AND " +
             "(:maxPrice IS NULL OR t.price <= :maxPrice) AND " +
@@ -34,7 +34,7 @@ public interface TrainerProfileRepository extends JpaRepository<TrainerProfile, 
     @Query("SELECT tp FROM TrainerProfile tp " +
             "LEFT JOIN Review r ON r.trainer = tp.member " +
             "WHERE (:sport IS NULL OR tp.sports LIKE %:sport%) " +
-            "AND (:lessonType IS NULL OR tp.lessonType = :lessonType) " +
+            "AND (:lessonType IS NULL OR tp.lessonType LIKE %:lessonType%) " +
             "AND (:lessonLevel IS NULL OR tp.lessonLevel LIKE %:lessonLevel%) " +
             "AND (:minPrice IS NULL OR tp.price >= :minPrice) " +
             "AND (:maxPrice IS NULL OR tp.price <= :maxPrice) " +
