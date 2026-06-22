@@ -1,5 +1,6 @@
 package com.fitmate.lesson.service;
 
+import com.fitmate.alert.entity.AlertType;
 import com.fitmate.global.exception.CustomException;
 import com.fitmate.global.exception.ErrorCode;
 import com.fitmate.lesson.dto.LessonRequestCreateRequest;
@@ -7,6 +8,7 @@ import com.fitmate.lesson.dto.LessonRequestResponse;
 import com.fitmate.lesson.entity.LessonPassType;
 import com.fitmate.lesson.entity.LessonRequest;
 import com.fitmate.lesson.entity.LessonRequestStatus;
+import com.fitmate.lesson.event.LessonAlertEvent;
 import com.fitmate.lesson.repository.LessonRequestRepository;
 import com.fitmate.matching.entity.MatchingRequest;
 import com.fitmate.matching.entity.MatchingResult;
@@ -15,6 +17,7 @@ import com.fitmate.member.entity.Member;
 import com.fitmate.member.repository.MemberRepository;
 import com.fitmate.trainer.entity.TrainerProfile;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,7 @@ public class LessonRequestService {
     private final LessonRequestRepository lessonRequestRepository;
     private final MatchingResultRepository matchingResultRepository;
     private final MemberRepository memberRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     // 사용자가 추천 결과를 선택해서 트레이너에게 레슨 요청서를 보냄
     @Transactional
@@ -69,6 +73,13 @@ public class LessonRequestService {
 
         // DB에 요청서 저장
         LessonRequest savedLessonRequest = lessonRequestRepository.save(lessonRequest);
+
+        eventPublisher.publishEvent(new LessonAlertEvent(
+                trainerProfile.getMember().getId(),
+                AlertType.LESSON_REQUEST,
+                savedLessonRequest.getId(),
+                member.getNickname() + "님이 레슨을 요청했습니다."
+        ));
 
         // 저장된 요청서를 화면에 보여줄 응답 DTO로 변환
         return toResponse(savedLessonRequest);
@@ -113,6 +124,14 @@ public class LessonRequestService {
 
         // 상태를 ACCEPTED로 변경
         lessonRequest.accept();
+
+        eventPublisher.publishEvent(new LessonAlertEvent(
+                lessonRequest.getMember().getId(),
+                AlertType.LESSON_REQUEST,
+                lessonRequest.getId(),
+                lessonRequest.getTrainerProfile().getMember().getNickname()
+                        + " 트레이너가 레슨 요청을 수락했습니다. 결제를 진행해 주세요."
+        ));
 
         return toResponse(lessonRequest);
     }
@@ -206,12 +225,12 @@ public class LessonRequestService {
                 matchingResult.getId(),
 
                 member.getId(),
-                member.getUserName(),
+                member.getNickname(),
                 member.getProfileImage(),
                 member.getIntroduction(),
 
                 trainerProfile.getId(),
-                trainerMember.getUserName(),
+                trainerMember.getNickname(),
                 trainerMember.getProfileImage(),
 
                 matchingRequest.getSports(),

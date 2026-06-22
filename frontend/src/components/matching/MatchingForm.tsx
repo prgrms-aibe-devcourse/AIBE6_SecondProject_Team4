@@ -44,8 +44,8 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
     const router = useRouter()
     const { user } = useAuth()
     const [sports, setSports] = useState('필라테스')
-    const [level, setLevel] = useState('중급')
-    const [lessonType, setLessonType] = useState('1:1 PT')
+    const [levels, setLevels] = useState<string[]>(['중급'])
+    const [lessonTypes, setLessonTypes] = useState<string[]>(['1:1 PT'])
     const [region, setRegion] = useState('서울')
     const [district, setDistrict] = useState('강남구')
     const [budgetMin, setBudgetMin] = useState(50000)
@@ -69,12 +69,24 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
             setSports(initialDraft.sports)
         }
 
-        if (initialDraft.level && LEVELS.includes(initialDraft.level)) {
-            setLevel(initialDraft.level)
+        const parsedLevels =
+            initialDraft.level
+                ?.split(',')
+                .map(normalizeLevelLabel)
+                .filter((value) => LEVELS.includes(value)) ?? []
+
+        if (parsedLevels.length > 0) {
+            setLevels([...new Set(parsedLevels)])
         }
 
-        if (initialDraft.lessonType && LESSON_TYPES.includes(initialDraft.lessonType)) {
-            setLessonType(initialDraft.lessonType)
+        const parsedLessonTypes =
+            initialDraft.lessonType
+                ?.split(',')
+                .map(normalizeLessonTypeLabel)
+                .filter((value) => LESSON_TYPES.includes(value)) ?? []
+
+        if (parsedLessonTypes.length > 0) {
+            setLessonTypes([...new Set(parsedLessonTypes)])
         }
 
         if (initialDraft.region && REGIONS.includes(initialDraft.region)) {
@@ -160,6 +172,25 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
         setBudgetMax(Math.max(value, budgetMin + 10000))
     }
 
+    const toggleSelection = (
+        option: string,
+        selectedValues: string[],
+        setSelectedValues: (values: string[]) => void
+    ) => {
+        if (selectedValues.includes(option)) {
+            if (selectedValues.length === 1) {
+                setFormError('레슨 수준과 레슨 유형은 한 개 이상 선택해야 합니다.')
+                return
+            }
+
+            setSelectedValues(selectedValues.filter((value) => value !== option))
+        } else {
+            setSelectedValues([...selectedValues, option])
+        }
+
+        setFormError('')
+    }
+
     const addPreferredTime = () => {
         if (startTime >= endTime) {
             setFormError('종료 시간은 시작 시간보다 늦어야 합니다.')
@@ -202,9 +233,9 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
             const client = getAuthClient()
             const { data, error } = await client.POST('/api/matching', {
                 body: {
-                    level,
+                    level: levels.map(toStoredLevel).join(','),
                     sports,
-                    lessonType,
+                    lessonType: lessonTypes.join(','),
                     region,
                     budgetMin,
                     budgetMax,
@@ -239,8 +270,8 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
                 `matching-request-${data.matchingId}`,
                 JSON.stringify({
                     sports,
-                    level,
-                    lessonType,
+                    level: levels.join(', '),
+                    lessonType: lessonTypes.join(', '),
                     region,
                     district,
                     budgetMin,
@@ -286,14 +317,18 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
                     <ChoiceButtons
                         legend="레슨 수준"
                         options={LEVELS}
-                        selected={level}
-                        onSelect={setLevel}
+                        selected={levels}
+                        onToggle={(option) =>
+                            toggleSelection(option, levels, setLevels)
+                        }
                     />
                     <ChoiceButtons
                         legend="레슨 유형"
                         options={LESSON_TYPES}
-                        selected={lessonType}
-                        onSelect={setLessonType}
+                        selected={lessonTypes}
+                        onToggle={(option) =>
+                            toggleSelection(option, lessonTypes, setLessonTypes)
+                        }
                     />
                 </section>
 
@@ -388,8 +423,8 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
 
             <MatchingSummary
                 sports={sports}
-                level={level}
-                lessonType={lessonType}
+                level={levels.join(', ')}
+                lessonType={lessonTypes.join(', ')}
                 region={region}
                 district={district}
                 preferredTimeCount={preferredTimes.length}
@@ -405,11 +440,11 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
 type ChoiceButtonsProps = {
     legend: string
     options: string[]
-    selected: string
-    onSelect: (option: string) => void
+    selected: string[]
+    onToggle: (option: string) => void
 }
 
-function ChoiceButtons({ legend, options, selected, onSelect }: ChoiceButtonsProps) {
+function ChoiceButtons({ legend, options, selected, onToggle }: ChoiceButtonsProps) {
     return (
         <fieldset className="mt-md">
             <legend className="text-label-md font-label-md text-on-surface-variant">
@@ -420,9 +455,10 @@ function ChoiceButtons({ legend, options, selected, onSelect }: ChoiceButtonsPro
                     <button
                         key={option}
                         type="button"
-                        onClick={() => onSelect(option)}
+                        aria-pressed={selected.includes(option)}
+                        onClick={() => onToggle(option)}
                         className={`h-10 px-md rounded-full border text-body-sm transition-colors ${
-                            selected === option
+                            selected.includes(option)
                                 ? 'border-primary bg-primary-fixed text-on-primary-fixed-variant font-semibold'
                                 : 'border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:border-primary'
                         }`}
@@ -433,6 +469,50 @@ function ChoiceButtons({ legend, options, selected, onSelect }: ChoiceButtonsPro
             </div>
         </fieldset>
     )
+}
+
+function normalizeLevelLabel(value: string) {
+    const trimmedValue = value.trim()
+
+    if (['입문', '초보', '초급', '입문/초보', '입문/초급'].includes(trimmedValue)) {
+        return '입문/초급'
+    }
+
+    if (['고급', '대회준비', '고급/대회준비'].includes(trimmedValue)) {
+        return '고급/대회준비'
+    }
+
+    return trimmedValue
+}
+
+function toStoredLevel(value: string) {
+    if (value === '입문/초급') {
+        return '초급'
+    }
+
+    if (value === '고급/대회준비') {
+        return '고급'
+    }
+
+    return value
+}
+
+function normalizeLessonTypeLabel(value: string) {
+    const normalizedValue = value.trim().replaceAll(' ', '').toUpperCase()
+
+    if (['ONE_TO_ONE', '1:1', '1:1PT', '개인'].includes(normalizedValue)) {
+        return '1:1 PT'
+    }
+
+    if (['GROUP', '그룹'].includes(normalizedValue)) {
+        return '그룹'
+    }
+
+    if (['ONLINE', '온라인'].includes(normalizedValue)) {
+        return '온라인'
+    }
+
+    return value.trim()
 }
 
 type SelectFieldProps = {
