@@ -237,13 +237,13 @@ function InquirySection() {
                                                             />
                                                             <div className="flex gap-2 justify-end">
                                                                 <button
-                                                                    className="px-4 py-2 text-body-sm border border-outline-variant rounded-lg hover:bg-surface-container transition-all"
+                                                                    className="px-4 py-2 text-body-sm border border-outline-variant rounded-lg hover:bg-surface-container transition-all cursor-pointer"
                                                                     onClick={() => setEditingId(null)}
                                                                 >
                                                                     취소
                                                                 </button>
                                                                 <button
-                                                                    className="px-4 py-2 text-body-sm bg-primary text-on-primary rounded-lg hover:bg-primary-container transition-all disabled:opacity-50"
+                                                                    className="px-4 py-2 text-body-sm bg-primary text-on-primary rounded-lg hover:bg-primary-container transition-all disabled:opacity-50 cursor-pointer"
                                                                     onClick={handleEditSave}
                                                                     disabled={saving}
                                                                 >
@@ -316,7 +316,7 @@ function InquirySection() {
                                                                     <div className="flex items-center justify-end gap-2 pt-2 border-t border-outline-variant/30">
                                                                         {item.status === 'PENDING' && (
                                                                             <button
-                                                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-body-sm text-on-surface-variant border border-outline-variant hover:bg-surface-container hover:text-primary transition-all"
+                                                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-body-sm text-on-surface-variant border border-outline-variant hover:bg-surface-container hover:text-primary transition-all cursor-pointer"
                                                                                 onClick={(e) => { e.stopPropagation(); handleEdit(item) }}
                                                                             >
                                                                                 <span className="material-symbols-outlined text-base">edit</span>
@@ -324,7 +324,7 @@ function InquirySection() {
                                                                             </button>
                                                                         )}
                                                                         <button
-                                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-body-sm text-on-surface-variant border border-outline-variant hover:bg-error-container/30 hover:text-error hover:border-error/30 transition-all disabled:opacity-40"
+                                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-body-sm text-on-surface-variant border border-outline-variant hover:bg-error-container/30 hover:text-error hover:border-error/30 transition-all disabled:opacity-40 cursor-pointer"
                                                                             disabled={deletingId === item.id}
                                                                             onClick={(e) => { e.stopPropagation(); handleDelete(item.id!) }}
                                                                         >
@@ -350,7 +350,7 @@ function InquirySection() {
                                 <button
                                     onClick={() => fetchInquiries(page - 1)}
                                     disabled={page === 0}
-                                    className="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container text-on-surface-variant transition-all disabled:opacity-40"
+                                    className="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container text-on-surface-variant transition-all disabled:opacity-40 cursor-pointer"
                                 >
                                     <span className="material-symbols-outlined text-sm">chevron_left</span>
                                 </button>
@@ -358,7 +358,7 @@ function InquirySection() {
                                     <button
                                         key={i}
                                         onClick={() => fetchInquiries(i)}
-                                        className={`w-8 h-8 flex items-center justify-center rounded font-label-bold text-sm transition-all ${
+                                        className={`w-8 h-8 flex items-center justify-center rounded font-label-bold text-sm transition-all cursor-pointer ${
                                             i === page ? 'bg-primary text-on-primary' : 'hover:bg-surface-container text-on-surface-variant'
                                         }`}
                                     >
@@ -368,7 +368,7 @@ function InquirySection() {
                                 <button
                                     onClick={() => fetchInquiries(page + 1)}
                                     disabled={page === totalPages - 1}
-                                    className="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container text-on-surface-variant transition-all disabled:opacity-40"
+                                    className="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container text-on-surface-variant transition-all disabled:opacity-40 cursor-pointer"
                                 >
                                     <span className="material-symbols-outlined text-sm">chevron_right</span>
                                 </button>
@@ -601,7 +601,7 @@ export default function MyPage() {
                             onChange={handleProfileImageChange}
                         />
                         <button
-                            className="absolute bottom-0 right-0 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-primary text-white shadow-lg transition-transform hover:scale-110 disabled:opacity-50 sm:h-7 sm:w-7"
+                            className="absolute bottom-0 right-0 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-primary text-white shadow-lg transition-transform hover:scale-110 disabled:opacity-50 sm:h-7 sm:w-7 cursor-pointer"
                             onClick={() => fileInputRef.current?.click()}
                             disabled={uploadingImage}
                         >
@@ -623,7 +623,7 @@ export default function MyPage() {
                     </div>
                 </div>
                 <button
-                    className="flex w-full items-center justify-center gap-xs rounded-lg border border-outline-variant bg-surface-container-high px-md py-sm font-label-bold text-on-surface transition-all hover:bg-surface-container-highest sm:w-auto"
+                    className="flex w-full items-center justify-center gap-xs rounded-lg border border-outline-variant bg-surface-container-high px-md py-sm font-label-bold text-on-surface transition-all hover:bg-surface-container-highest sm:w-auto cursor-pointer"
                     onClick={() => router.push('/mypage/edit')}
                 >
                     <span className="material-symbols-outlined">settings</span>
@@ -644,7 +644,7 @@ export default function MyPage() {
                         ].map(({ id, icon, label }) => (
                             <button
                                 key={id}
-                                className={`flex w-full items-center gap-md rounded-lg px-md py-sm font-label-bold transition-all ${
+                                className={`flex w-full items-center gap-md rounded-lg px-md py-sm font-label-bold transition-all cursor-pointer ${
                                     activeTab === id
                                         ? 'bg-primary text-on-primary'
                                         : 'text-on-surface-variant hover:bg-surface-container-low'
@@ -688,7 +688,7 @@ export default function MyPage() {
                             >
                                 {/* 비밀번호 변경 버튼 */}
                                 <button
-                                    className="flex w-full items-center justify-between border-b border-outline-variant p-md transition-colors hover:bg-white/50"
+                                    className="flex w-full items-center justify-between border-b border-outline-variant p-md transition-colors hover:bg-white/50 cursor-pointer"
                                     onClick={() => {
                                         setPwCurrent('')
                                         setPwNew('')
@@ -885,7 +885,7 @@ export default function MyPage() {
 
                                 {/* 회원 탈퇴 */}
                                 <button
-                                    className="group flex w-full items-center justify-between p-md transition-colors hover:bg-error-container/20"
+                                    className="group flex w-full items-center justify-between p-md transition-colors hover:bg-error-container/20 cursor-pointer"
                                     onClick={() => {
                                         setWithdrawPassword('')
                                         setWithdrawError('')

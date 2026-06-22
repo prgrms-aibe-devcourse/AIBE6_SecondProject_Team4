@@ -146,7 +146,7 @@ export default function MatchingManagementPreview() {
                                 key={value}
                                 type="button"
                                 onClick={() => setFilter(value)}
-                                className={`flex h-12 items-center gap-2 border-b-2 px-sm text-body-sm transition-colors ${
+                                className={`flex h-12 items-center gap-2 border-b-2 px-sm text-body-sm transition-colors cursor-pointer ${
                                     filter === value
                                         ? 'border-primary font-semibold text-primary'
                                         : 'border-transparent text-on-surface-variant hover:text-on-surface'

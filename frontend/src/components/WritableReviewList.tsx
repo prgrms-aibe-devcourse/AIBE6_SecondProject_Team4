@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { useAuth } from '@/context/AuthContext'
-import { apiClient } from '@/utils/apiClient'
+import { apiClient, getImageUrl } from '@/utils/apiClient'
 
 /**
  * 작성 가능한 후기 (매칭 성사 후 미작성 트레이너)
@@ -15,11 +15,12 @@ import { apiClient } from '@/utils/apiClient'
 // 작성 가능한 후기 대상 (WritableReviewResponse 와 일치)
 interface WritableTarget {
     lessonRequestId: number
-    matchingId: number   // 후기 작성 시 필요
-    trainerId: number    // 후기 작성 시 필요
+    matchingId: number
+    trainerId: number
     trainerNickname: string
+    trainerProfileImage?: string
     sports: string
-    lessonDate: string   // 수업 날짜 (YYYY-MM-DD)
+    lessonDate: string
 }
 
 // 날짜 포맷 (2026-06-15 → 2026.06.15)
@@ -77,7 +78,18 @@ function WritableCard({
             {/* 카드 상단: 트레이너 정보 + 작성하기 버튼 */}
             <div className="flex items-center justify-between p-md">
                 <div className="flex items-center gap-md">
-                    <div className="h-16 w-16 flex-shrink-0 rounded-xl bg-gradient-to-br from-primary-fixed to-primary-fixed-dim shadow-sm" />
+                    {target.trainerProfileImage ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                            src={getImageUrl(target.trainerProfileImage)}
+                            alt=""
+                            className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 rounded-full object-cover"
+                        />
+                    ) : (
+                        <div className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 rounded-full bg-surface-container flex items-center justify-center">
+                            <span className="material-symbols-outlined text-outline-variant">person</span>
+                        </div>
+                    )}
                     <div className="flex flex-col gap-xs">
                         <h3 className="text-headline-sm font-headline-sm text-on-surface">
                             {target.trainerNickname}
@@ -102,7 +114,7 @@ function WritableCard({
                 ) : (
                     <button
                         onClick={() => setOpen(true)}
-                        className="rounded-lg bg-primary px-md py-2 text-label-bold font-label-bold text-on-primary shadow-sm transition-all hover:scale-[0.98]"
+                        className="rounded-lg bg-primary px-md py-2 text-label-bold font-label-bold text-on-primary shadow-sm transition-all hover:scale-[0.98] cursor-pointer"
                     >
                         작성하기
                     </button>

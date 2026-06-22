@@ -242,6 +242,7 @@ public class ReviewService {
                     matchingId,
                     trainerMember.getId(),
                     trainerMember.getNickname(),
+                    trainerMember.getProfileImage(),
                     matching.getSports(),
                     lesson.getRequestedDate()
             ));

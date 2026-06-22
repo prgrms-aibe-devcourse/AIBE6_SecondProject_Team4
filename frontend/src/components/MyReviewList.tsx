@@ -89,14 +89,14 @@ function ReviewCard({
                     <div className="flex flex-shrink-0 items-center gap-3 text-label-md self-end sm:self-start">
                         <button
                             onClick={() => onEdit(review)}
-                            className="text-on-surface-variant hover:text-primary"
+                            className="text-on-surface-variant hover:text-primary cursor-pointer"
                         >
                             수정
                         </button>
                         <span className="text-outline-variant">|</span>
                         <button
                             onClick={() => onDelete(review.id)}
-                            className="text-error hover:opacity-80"
+                            className="text-error hover:opacity-80 cursor-pointer"
                         >
                             삭제
                         </button>
@@ -277,7 +277,7 @@ export default function MyReviewList() {
                 <div className="flex gap-md">
                     <button
                         onClick={() => setTab('all')}
-                        className={`px-2 pb-2.5 text-headline-sm font-headline-sm ${
+                        className={`px-2 pb-2.5 text-headline-sm font-headline-sm cursor-pointer ${
                             tab === 'all'
                                 ? 'border-b-2 border-primary text-primary'
                                 : 'text-on-surface-variant'
@@ -288,7 +288,7 @@ export default function MyReviewList() {
                     {!isTrainer && (
                         <button
                             onClick={() => setTab('writable')}
-                            className={`px-2 pb-2.5 text-headline-sm font-headline-sm ${
+                            className={`px-2 pb-2.5 text-headline-sm font-headline-sm cursor-pointer ${
                                 tab === 'writable'
                                     ? 'border-b-2 border-primary text-primary'
                                     : 'text-on-surface-variant'
@@ -302,22 +302,22 @@ export default function MyReviewList() {
                     <div className="mb-2 flex w-fit items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-4 py-1.5 text-label-md">
                         <button
                             onClick={() => setSort('latest')}
-                            className={
+                            className={`cursor-pointer ${
                                 sort === 'latest'
                                     ? 'font-semibold text-primary'
                                     : 'text-on-surface-variant'
-                            }
+                            }`}
                         >
                             최신순
                         </button>
                         <span className="text-outline-variant">|</span>
                         <button
                             onClick={() => setSort('rating')}
-                            className={
+                            className={`cursor-pointer ${
                                 sort === 'rating'
                                     ? 'font-semibold text-primary'
                                     : 'text-on-surface-variant'
-                            }
+                            }`}
                         >
                             별점 높은순
                         </button>
