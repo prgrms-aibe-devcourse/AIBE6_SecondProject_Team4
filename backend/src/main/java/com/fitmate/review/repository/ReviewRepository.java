@@ -57,8 +57,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT r.trainer.id, AVG(r.rating), COUNT(r) " +
             "FROM Review r " +
             "GROUP BY r.trainer.id " +
-            "ORDER BY AVG(r.rating) DESC, COUNT(r) DESC")
-    List<Object[]> findPopularTrainers(Pageable pageable);
+            "HAVING AVG(r.rating) >= 4 AND COUNT(r) >= 2")
+    List<Object[]> findPopularTrainers();
 
     // 여러 트레이너의 평균 평점/후기수를 한 번에 조회 (목록 페이지 N+1 방지)
 // 반환: [trainerId(Long), avgRating(Double), reviewCount(Long)]
