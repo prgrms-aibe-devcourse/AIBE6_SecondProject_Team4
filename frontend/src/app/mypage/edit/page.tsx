@@ -29,6 +29,7 @@ export default function ProfileEditPage() {
         careerYears: '',
         region: '',
         introduction: '',
+        lessonDurationMinutes: '60',
         availableTimes: [] as {
             id?: number
             dayOfWeek: string
@@ -80,6 +81,7 @@ export default function ProfileEditPage() {
                     careerYears: data.careerYears?.toString() ?? '',
                     region: data.region ?? '',
                     introduction: data.introduction ?? '',
+                    lessonDurationMinutes: data.lessonDurationMinutes?.toString() ?? '60',
                     availableTimes:
                         data.availableTimes?.map((t) => ({
                             id: t.id,
@@ -196,6 +198,7 @@ export default function ProfileEditPage() {
                 lessonLevel: trainerForm.lessonLevel.join(','),
                 price: Number(trainerForm.price),
                 careerYears: Number(trainerForm.careerYears),
+                lessonDurationMinutes: Number(trainerForm.lessonDurationMinutes),
                 availableTimes: trainerForm.availableTimes.map((t) => ({
                     id: t.id,
                     dayOfWeek: t.dayOfWeek,
@@ -586,7 +589,7 @@ export default function ProfileEditPage() {
                                         ))}
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-md">
                                     <div className="space-y-xs">
                                         <label className="block text-label-md font-label-md text-on-surface-variant">
                                             경력 (년차)
@@ -622,6 +625,32 @@ export default function ProfileEditPage() {
                                                     }))
                                                 }
                                             />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-xs">
+                                        <label className="block text-label-md font-label-md text-on-surface-variant">
+                                            레슨 1회 시간 (분)
+                                        </label>
+                                        <div className="flex items-center bg-surface-container-low border border-outline-variant rounded-lg px-sm py-sm">
+                                            <select
+                                                className="flex-grow bg-transparent text-body-md outline-none"
+                                                value={trainerForm.lessonDurationMinutes}
+                                                onChange={(e) =>
+                                                    setTrainerForm((f) => ({
+                                                        ...f,
+                                                        lessonDurationMinutes: e.target.value,
+                                                    }))
+                                                }
+                                            >
+                                                {[60, 90, 120].map((minutes) => (
+                                                    <option key={minutes} value={minutes}>
+                                                        {minutes}분
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <span className="text-on-surface-variant ml-xs">
+                                                분
+                                            </span>
                                         </div>
                                     </div>
                                 </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import LessonRequestForm, { type LessonRequestSummary } from '@/components/lesson/LessonRequestForm'
+import LessonRequestForm from '@/components/lesson/LessonRequestForm'
 import type { components } from '@/types/api'
 import { getAuthClient } from '@/utils/apiClient'
 import { useEffect, useState } from 'react'
@@ -8,61 +8,38 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
-type MatchingResult = components['schemas']['MatchingResultResponse']
+type Trainer = components['schemas']['TrainerProfileResponse']
 
-export default function LessonRequestCreatePage() {
-    const { matchingId, matchingResultId } = useParams<{
-        matchingId: string
-        matchingResultId: string
-    }>()
-    const [result, setResult] = useState<MatchingResult | null>(null)
-    const [summary, setSummary] = useState<LessonRequestSummary | null>(null)
+export default function LessonRequestDirectCreatePage() {
+    const { trainerId } = useParams<{ trainerId: string }>()
+    const [trainer, setTrainer] = useState<Trainer | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [errorMessage, setErrorMessage] = useState('')
 
     useEffect(() => {
-        if (!matchingId || !matchingResultId) {
+        if (!trainerId) {
             setErrorMessage('잘못된 레슨 요청 경로입니다.')
             setIsLoading(false)
             return
         }
 
-        const storedSummary = sessionStorage.getItem(`matching-request-${matchingId}`)
-
-        if (storedSummary) {
-            try {
-                setSummary(JSON.parse(storedSummary) as LessonRequestSummary)
-            } catch {
-                sessionStorage.removeItem(`matching-request-${matchingId}`)
-            }
-        }
-
-        const loadMatchingResult = async () => {
+        const loadTrainer = async () => {
             try {
                 const client = getAuthClient()
-                const { data, error } = await client.GET('/api/matching/{matchingId}/results', {
+                const { data, error } = await client.GET('/api/trainers/{id}', {
                     params: {
                         path: {
-                            matchingId: Number(matchingId),
+                            id: Number(trainerId),
                         },
                     },
                 })
 
                 if (error || !data) {
-                    setErrorMessage('선택한 매칭 결과를 불러오지 못했습니다.')
+                    setErrorMessage('트레이너 정보를 불러오지 못했습니다.')
                     return
                 }
 
-                const selectedResult = data.find(
-                    (item) => item.matchingResultId === Number(matchingResultId)
-                )
-
-                if (!selectedResult) {
-                    setErrorMessage('선택한 트레이너의 매칭 결과가 존재하지 않습니다.')
-                    return
-                }
-
-                setResult(selectedResult)
+                setTrainer(data)
             } catch {
                 setErrorMessage('서버에 연결할 수 없습니다.')
             } finally {
@@ -70,8 +47,8 @@ export default function LessonRequestCreatePage() {
             }
         }
 
-        void loadMatchingResult()
-    }, [matchingId, matchingResultId])
+        void loadTrainer()
+    }, [trainerId])
 
     return (
         <main className="flex-1 bg-background pt-16 md:pt-20">
@@ -82,16 +59,36 @@ export default function LessonRequestCreatePage() {
                         레슨 요청 작성
                     </h1>
                     <p className="mt-xs text-body-md text-on-surface-variant">
-                        선택한 트레이너와 레슨 상세 일정을 확정해 주세요.
+                        트레이너의 가능 시간 중에서 원하는 일정을 선택해 주세요.
                     </p>
                 </div>
 
                 {isLoading ? (
-                    <PageMessage icon="progress_activity" title="매칭 정보를 불러오는 중입니다." />
+                    <PageMessage
+                        icon="progress_activity"
+                        title="트레이너 정보를 불러오는 중입니다."
+                    />
                 ) : errorMessage ? (
                     <PageMessage icon="error" title={errorMessage} showAction />
-                ) : result ? (
-                    <LessonRequestForm matchingResult={result} summary={summary} />
+                ) : trainer ? (
+                    <LessonRequestForm
+                        directTrainer={{
+                            trainerProfileId: trainer.id!,
+                            trainerName: trainer.nickname ?? '트레이너',
+                            profileImage: trainer.profileImage,
+                            sports: trainer.sports,
+                            lessonType: trainer.lessonType,
+                            lessonLevel: trainer.lessonLevel,
+                            price: trainer.price,
+                            lessonDurationMinutes: trainer.lessonDurationMinutes ?? 60,
+                            availableTimes: (trainer.availableTimes ?? []).map((t) => ({
+                                dayOfWeek: t.dayOfWeek ?? '',
+                                startTime: t.startTime ?? '',
+                                endTime: t.endTime ?? '',
+                            })),
+                        }}
+                        summary={null}
+                    />
                 ) : null}
             </section>
         </main>
@@ -113,10 +110,10 @@ function PageMessage({
             <h2 className="mt-md font-headline-sm text-headline-sm text-on-surface">{title}</h2>
             {showAction && (
                 <Link
-                    href="/matching"
+                    href="/trainer"
                     className="mt-md inline-flex h-11 items-center justify-center rounded-lg border border-primary px-md font-label-bold text-primary hover:bg-primary-fixed"
                 >
-                    매칭 페이지로 돌아가기
+                    트레이너 목록으로 돌아가기
                 </Link>
             )}
         </div>

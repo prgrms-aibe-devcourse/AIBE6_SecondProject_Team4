@@ -9,6 +9,7 @@ public record TrainerProfileUpdateRequest(
         String lessonLevel,
         Integer price,
         Integer careerYears,
+        Integer lessonDurationMinutes,
         List<AvailableTimeRequest> availableTimes,
         List<String> lessonPhotoUrls,
         Boolean isPublic
