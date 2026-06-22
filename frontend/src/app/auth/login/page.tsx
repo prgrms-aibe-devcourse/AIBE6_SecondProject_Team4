@@ -28,11 +28,24 @@ export default function LoginPage() {
                 return
             }
 
+            const token = data.accessToken!
+            let profileImage: string | null = null
+            try {
+                const meRes = await fetch('http://localhost:8080/api/members/me', {
+                    headers: { Authorization: `Bearer ${token}` },
+                })
+                if (meRes.ok) {
+                    const me = await meRes.json()
+                    profileImage = me.profileImage ?? null
+                }
+            } catch {}
+
             login({
                 memberId: data.memberId!,
                 userName: data.userName!,
                 role: data.role!,
-                token: data.accessToken!,
+                token,
+                profileImage,
             })
             router.push('/')
         } catch {
