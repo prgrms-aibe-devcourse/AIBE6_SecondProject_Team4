@@ -57,6 +57,8 @@ public class PaymentService {
         if (paymentRepository.existsByLessonRequestIdAndStatus(lessonRequestId, PaymentStatus.PAID)) {
             throw new IllegalStateException("이미 결제가 완료된 레슨입니다.");
         }
+        // 기존 미완료(READY) 결제 삭제 → 재시도 시 중복 생성 방지
+        paymentRepository.deleteByLessonRequestIdAndStatus(lessonRequestId, PaymentStatus.READY);
 
         int amount = calculateAmount(lesson);
         String orderId = "ORDER_" + UUID.randomUUID().toString().replace("-", "");

@@ -37,21 +37,31 @@ export async function startPayment(lessonRequestId: number) {
     const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY)
     const payment = tossPayments.payment({ customerKey: ANONYMOUS })
 
-    await payment.requestPayment({
-        method: 'CARD',
-        amount: {
-            currency: 'KRW',
-            value: info.amount,
-        },
-        orderId: info.orderId,
-        orderName: info.orderName,
-        successUrl: `${window.location.origin}/payment/success`,
-        failUrl: `${window.location.origin}/payment/fail`,
-        card: {
-            useEscrow: false,
-            flowMode: 'DEFAULT',
-            useCardPoint: false,
-            useAppCardOnly: false,
-        },
-    })
+    try {
+        await payment.requestPayment({
+            method: 'CARD',
+            amount: {
+                currency: 'KRW',
+                value: info.amount,
+            },
+            orderId: info.orderId,
+            orderName: info.orderName,
+            successUrl: `${window.location.origin}/payment/success`,
+            failUrl: `${window.location.origin}/payment/fail`,
+            card: {
+                useEscrow: false,
+                flowMode: 'DEFAULT',
+                useCardPoint: false,
+                useAppCardOnly: false,
+            },
+        })
+    } catch (err) {
+        // 사용자가 결제창에서 취소/닫기 한 경우 → 정상 흐름, 조용히 종료
+        const code = (err as { code?: string })?.code
+        if (code === 'USER_CANCEL' || code === 'PAY_PROCESS_CANCELED') {
+            return
+        }
+        // 그 외 실제 에러는 다시 throw (호출한 쪽에서 처리)
+        throw err
+    }
 }
