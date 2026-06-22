@@ -3,35 +3,10 @@
 import { useAuth } from '@/context/AuthContext';
 import { useChat } from '@/hooks/useChat';
 import type { components } from '@/types/api';
-import { API_BASE_URL, apiClient } from '@/utils/apiClient';
+import { API_BASE_URL, apiClient, getImageUrl } from '@/utils/apiClient';
 import { Client } from '@stomp/stompjs';
 import { useEffect, useRef, useState } from 'react';
 import SockJS from 'sockjs-client';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 type View = 'closed' | 'list' | 'chat' | 'new'
 
 type ChatRoomDto = components['schemas']['ChatRoomResponseDto']
@@ -96,7 +71,7 @@ function toEntry(dto: ChatRoomDto, myId: number): ChatEntry {
     return {
         roomId: dto.chatRoomId ?? 0,
         name: dto.userId === myId ? (dto.trainerName ?? '') : (dto.userName ?? ''),
-        src: dto.trainerProfile ?? '',
+        src: dto.userId === myId ? getImageUrl(dto.trainerProfile) : '',
         lastMsg: dto.lastMessage ?? '',
         time: formatTime(dto.lastMessageAt),
         unread: dto.unreadCount ?? 0,
@@ -209,7 +184,7 @@ export default function ChatFAB() {
             await openChat({
                 roomId: room.chatRoomId ?? 0,
                 name,
-                src: profileImage ?? '',
+                src: getImageUrl(profileImage),
                 lastMsg: '',
                 time: '',
                 unread: 0,
@@ -375,7 +350,7 @@ export default function ChatFAB() {
         await openChat({
             roomId: room.chatRoomId ?? 0,
             name: trainer.userName ?? '',
-            src: trainer.profileImage ?? '',
+            src: getImageUrl(trainer.profileImage),
             lastMsg: '',
             time: '',
             unread: 0,
@@ -397,7 +372,7 @@ export default function ChatFAB() {
     }
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') handleSend()
+        if (e.key === 'Enter' && !e.nativeEvent.isComposing) handleSend()
     }
 
     const handleLeaveRoom = async () => {
@@ -528,7 +503,7 @@ export default function ChatFAB() {
                             >
                                 <Avatar
                                     className="w-12 h-12 rounded-full object-cover bg-surface-container-high"
-                                    src={trainer.profileImage ?? ''}
+                                    src={getImageUrl(trainer.profileImage)}
                                     alt={trainer.userName ?? ''}
                                 />
                                 <div className="flex-1 min-w-0">
@@ -617,6 +592,13 @@ export default function ChatFAB() {
                                         </div>
                                     )}
                                     <div className={`flex items-end gap-1 max-w-[85%] ${isMine ? 'ml-auto flex-row-reverse' : ''}`}>
+                                        {!isMine && (
+                                            <Avatar
+                                                src={selectedChat?.src}
+                                                alt={selectedChat?.name ?? ''}
+                                                className="w-7 h-7 rounded-full shrink-0 object-cover mb-5"
+                                            />
+                                        )}
                                         <div className={`flex flex-col gap-1 ${isMine ? 'items-end' : 'items-start'}`}>
                                             <div className={`p-3 text-body-sm ${
                                                 isMine
