@@ -10,17 +10,19 @@ type MatchingResultCardProps = {
     onLessonRequest: (matchingResultId: number) => void
 }
 
-const formatTime = (time?: string) => time?.slice(0, 5) ?? '-'
-
 export default function MatchingResultCard({ result, onLessonRequest }: MatchingResultCardProps) {
+    const recommendationReason =
+        result.aiReason ??
+        (result.aiRank
+            ? '요청한 종목, 레슨 수준, 유형, 지역, 예산과 선호 시간 조건을 모두 충족하는 트레이너입니다.'
+            : undefined)
+
     const tags = [
         result.sports,
         result.lessonType ? formatLessonType(result.lessonType) : undefined,
         result.lessonLevel,
         result.region,
-    ].filter(
-        (tag): tag is string => Boolean(tag)
-    )
+    ].filter((tag): tag is string => Boolean(tag))
 
     return (
         <article className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest">
@@ -59,7 +61,7 @@ export default function MatchingResultCard({ result, onLessonRequest }: Matching
                     </div>
 
                     <span className="shrink-0 rounded-full bg-secondary-container px-2.5 py-1 text-label-sm text-on-secondary-container">
-                        {result.aiReason ? `AI 추천 ${result.aiRank ?? ''}순위` : '조건 일치'}
+                        {result.aiRank ? `추천 ${result.aiRank}순위` : '조건 일치'}
                     </span>
                 </div>
 
@@ -67,7 +69,7 @@ export default function MatchingResultCard({ result, onLessonRequest }: Matching
                     {result.introduction || '트레이너 소개가 아직 등록되지 않았습니다.'}
                 </p>
 
-                {result.aiReason && (
+                {recommendationReason && (
                     <div className="mt-md border-l-2 border-primary bg-primary-fixed/35 px-sm py-xs">
                         <p className="flex items-center gap-1.5 font-label-bold text-label-sm text-primary">
                             <span
@@ -76,10 +78,10 @@ export default function MatchingResultCard({ result, onLessonRequest }: Matching
                             >
                                 auto_awesome
                             </span>
-                            AI 추천 이유
+                            추천 이유
                         </p>
                         <p className="mt-1 text-body-sm leading-6 text-on-surface-variant">
-                            {result.aiReason}
+                            {recommendationReason}
                         </p>
                     </div>
                 )}
@@ -87,18 +89,16 @@ export default function MatchingResultCard({ result, onLessonRequest }: Matching
                 <dl className="mt-md space-y-xs rounded-lg bg-surface-container-low p-sm text-body-sm">
                     <div className="flex items-center justify-between gap-sm">
                         <dt className="text-body-sm font-medium text-on-surface-variant">
-                            사용자 희망
+                            가능한 요일
                         </dt>
                         <dd className="text-body-sm font-medium text-on-surface">
-                            {result.dayOfWeek ?? '-'} {formatTime(result.preferredStartTime)}-
-                            {formatTime(result.preferredEndTime)}
+                            {result.dayOfWeek ?? '-'}
                         </dd>
                     </div>
                     <div className="flex items-center justify-between gap-sm">
-                        <dt className="text-body-sm font-medium text-primary">트레이너 가능</dt>
+                        <dt className="text-body-sm font-medium text-primary">상세 시간</dt>
                         <dd className="text-body-sm font-medium text-primary">
-                            {result.dayOfWeek ?? '-'} {formatTime(result.trainerStartTime)}-
-                            {formatTime(result.trainerEndTime)}
+                            레슨 요청에서 선택
                         </dd>
                     </div>
                 </dl>

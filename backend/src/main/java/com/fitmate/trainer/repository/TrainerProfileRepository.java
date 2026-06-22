@@ -29,4 +29,25 @@ public interface TrainerProfileRepository extends JpaRepository<TrainerProfile, 
             @Param("region") String region,
             Pageable pageable
     );
+
+
+    @Query("SELECT tp FROM TrainerProfile tp " +
+            "LEFT JOIN Review r ON r.trainer = tp.member " +
+            "WHERE (:sport IS NULL OR tp.sports LIKE %:sport%) " +
+            "AND (:lessonType IS NULL OR tp.lessonType = :lessonType) " +
+            "AND (:lessonLevel IS NULL OR tp.lessonLevel LIKE %:lessonLevel%) " +
+            "AND (:minPrice IS NULL OR tp.price >= :minPrice) " +
+            "AND (:maxPrice IS NULL OR tp.price <= :maxPrice) " +
+            "AND (:region IS NULL OR tp.member.region LIKE %:region%) " +
+            "GROUP BY tp.id " +
+            "ORDER BY COUNT(r.id) DESC")
+    Page<TrainerProfile> findByFiltersOrderByReviewCount(
+            @Param("sport") String sport,
+            @Param("lessonType") String lessonType,
+            @Param("lessonLevel") String lessonLevel,
+            @Param("minPrice") Integer minPrice,
+            @Param("maxPrice") Integer maxPrice,
+            @Param("region") String region,
+            Pageable pageable
+    );
 }
