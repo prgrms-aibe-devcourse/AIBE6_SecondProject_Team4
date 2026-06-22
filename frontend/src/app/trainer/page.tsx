@@ -1,9 +1,10 @@
 'use client'
 
-import type { components } from '@/types/api';
-import { getAuthClient, getImageUrl } from '@/utils/apiClient';
-import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import type { components } from '@/types/api'
+import { getAuthClient, getImageUrl } from '@/utils/apiClient'
+import { useEffect, useState } from 'react'
+
+import { useRouter, useSearchParams } from 'next/navigation'
 
 type Trainer = components['schemas']['TrainerProfileResponse']
 
@@ -104,12 +105,12 @@ export default function ExplorePage() {
         const params = new URLSearchParams(searchParams.toString())
 
         const merged = {
-            sport: draftFilters.sport,
-            region: draftFilters.region,
-            lessonLevel: draftFilters.lessonLevel,
-            lessonType: draftFilters.lessonType,
-            minPrice: draftFilters.minPrice,
-            maxPrice: draftFilters.maxPrice,
+            sport,
+            region,
+            lessonLevel,
+            lessonType,
+            minPrice,
+            maxPrice,
             page: currentPage,
             sort,
             ...next,
@@ -135,9 +136,16 @@ export default function ExplorePage() {
     }
 
     const handleSearch = () => {
-        pushQuery({ page: 0 })
+        pushQuery({
+            sport: draftFilters.sport,
+            region: draftFilters.region,
+            lessonLevel: draftFilters.lessonLevel,
+            lessonType: draftFilters.lessonType,
+            minPrice: draftFilters.minPrice,
+            maxPrice: draftFilters.maxPrice,
+            page: 0,
+        })
     }
-
     const handlePageChange = (page: number) => {
         pushQuery({ page })
     }
