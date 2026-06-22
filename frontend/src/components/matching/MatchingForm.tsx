@@ -193,7 +193,7 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
         event.preventDefault()
 
         if (!user) {
-            router.push('/auth/login')
+            router.push('/auth/login?redirect=/matching')
             return
         }
 

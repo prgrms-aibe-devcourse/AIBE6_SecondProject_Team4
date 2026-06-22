@@ -59,7 +59,7 @@ export default function ProfileEditPage() {
     useEffect(() => {
         if (!hydrated) return
         if (!user) {
-            router.push('/auth/login')
+            router.push('/auth/login?redirect=/mypage/edit')
             return
         }
         fetchMyProfile()

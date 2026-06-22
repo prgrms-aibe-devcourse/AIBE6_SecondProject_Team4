@@ -420,7 +420,7 @@ export default function MyPage() {
     useEffect(() => {
         if (!hydrated) return
         if (!user) {
-            router.push('/auth/login')
+            router.push('/auth/login?redirect=/mypage')
             return
         }
         fetchMyProfile()
@@ -854,7 +854,7 @@ export default function MyPage() {
                                                                 setTimeout(() => {
                                                                     setShowPasswordModal(false)
                                                                     logout()
-                                                                    router.push('/auth/login')
+                                                                    router.push('/auth/login?redirect=/mypage')
                                                                 }, 1500)
                                                             } catch {
                                                                 setPwError('서버 연결에 실패했습니다.')
@@ -1028,7 +1028,7 @@ export default function MyPage() {
 
                                                         setShowWithdrawModal(false)
                                                         logout()
-                                                        router.push('/auth/login')
+                                                        router.push('/auth/login?redirect=/mypage')
                                                     } catch {
                                                         setWithdrawError('서버 연결에 실패했습니다.')
                                                     } finally {

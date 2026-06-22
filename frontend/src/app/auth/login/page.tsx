@@ -1,12 +1,14 @@
 'use client'
 
 import { useAuth } from '@/context/AuthContext'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 
 export default function LoginPage() {
     const { login } = useAuth()
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const redirectTo = searchParams.get('redirect') ?? '/'
     const [userId, setUserId] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
@@ -58,7 +60,7 @@ export default function LoginPage() {
                 token,
                 profileImage,
             })
-            router.push('/')
+            router.push(redirectTo)
         } catch {
             setError('서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.')
         } finally {

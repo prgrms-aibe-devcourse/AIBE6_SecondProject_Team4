@@ -26,7 +26,7 @@ export default function MatchingPage() {
         }
 
         if (!user) {
-            router.push('/auth/login')
+            router.push('/auth/login?redirect=/matching')
             return
         }
 
