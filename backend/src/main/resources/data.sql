@@ -1491,7 +1491,7 @@ SELECT (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가
 
 -- 5) 레슨 요청 (lesson_requests → ACCEPTED = 성사!)
 INSERT
-IGNORE INTO lesson_requests (matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count, requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at)
+IGNORE INTO lesson_requests (matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count, requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at)
 SELECT (SELECT mr.id
         FROM matching_results mr
         WHERE mr.matching_id = (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능] 접영 배우고 싶어요' LIMIT 1)
@@ -1696,7 +1696,7 @@ SELECT (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가
 
 -- 5) 레슨 요청 (ACCEPTED = 성사)
 INSERT
-IGNORE INTO lesson_requests (matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count, requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at)
+IGNORE INTO lesson_requests (matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count, requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at)
 SELECT (SELECT mr.id
         FROM matching_results mr
         WHERE mr.matching_id = (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능2] 기초 근력 만들고 싶어요' LIMIT 1)
@@ -1769,7 +1769,7 @@ SELECT (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가
 
 -- 5) 레슨 요청 (ACCEPTED = 성사)
 INSERT
-IGNORE INTO lesson_requests (matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count, requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at)
+IGNORE INTO lesson_requests (matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count, requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at)
 SELECT (SELECT mr.id
         FROM matching_results mr
         WHERE mr.matching_id = (SELECT id FROM matching_request WHERE lesson_content = '[더미작성가능3] 크로스핏 입문하고 싶어요' LIMIT 1)
@@ -3130,14 +3130,14 @@ WHERE mr.lesson_content = '[복수추천09] 근지구력 중심의 헬스 코칭
 -- =============================================
 INSERT
 IGNORE INTO lesson_requests (
-    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count,
     requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
 )
 SELECT mr.id,
        requester.id,
        tp.id,
-       'REGULAR',
-       2,
+       'PACKAGE',
+       10,
        '2026-06-22',
        '10:00:00',
        '11:00:00',
@@ -3155,18 +3155,18 @@ WHERE req.lesson_content = '[복수추천01] 자세 교정 필라테스를 배�
 
 INSERT
 IGNORE INTO lesson_requests (
-    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count,
     requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
 )
 SELECT mr.id,
        requester.id,
        tp.id,
-       'REGULAR',
-       3,
+       'PACKAGE',
+       20,
        '2026-06-23',
        '14:00:00',
        '15:00:00',
-       '주 3회 꾸준히 체력 향상을 목표로 하고 있습니다.',
+       '20회 패키지로 꾸준히 체력 향상을 목표로 하고 있습니다.',
        'ACCEPTED',
        NOW(),
        NOW()
@@ -3180,7 +3180,7 @@ WHERE req.lesson_content = '[복수추천02] 그룹 크로스핏으로 체력을
 
 INSERT
 IGNORE INTO lesson_requests (
-    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count,
     requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
 )
 SELECT mr.id,
@@ -3205,7 +3205,7 @@ WHERE req.lesson_content = '[복수추천03] 허리 부담이 적은 요가를 �
 
 INSERT
 IGNORE INTO lesson_requests (
-    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count,
     requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
 )
 SELECT mr.id,
@@ -3230,14 +3230,14 @@ WHERE req.lesson_content = '[복수추천04] 기초 근력 운동을 시작하�
 
 INSERT
 IGNORE INTO lesson_requests (
-    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count,
     requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
 )
 SELECT mr.id,
        requester.id,
        tp.id,
-       'REGULAR',
-       2,
+       'PACKAGE',
+       10,
        '2026-06-26',
        '19:00:00',
        '20:00:00',
@@ -3255,7 +3255,7 @@ WHERE req.lesson_content = '[복수추천05] 수영 지구력과 영법을 개�
 
 INSERT
 IGNORE INTO lesson_requests (
-    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count,
     requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
 )
 SELECT mr.id,
@@ -3280,14 +3280,14 @@ WHERE req.lesson_content = '[복수추천06] 테니스 스트로크를 교정하
 
 INSERT
 IGNORE INTO lesson_requests (
-    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count,
     requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
 )
 SELECT mr.id,
        requester.id,
        tp.id,
-       'REGULAR',
-       1,
+       'PACKAGE',
+       5,
        '2026-06-28',
        '13:00:00',
        '14:00:00',
@@ -3305,14 +3305,14 @@ WHERE req.lesson_content = '[복수추천07] 골프 스윙을 안정적으로 �
 
 INSERT
 IGNORE INTO lesson_requests (
-    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count,
     requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
 )
 SELECT mr.id,
        requester.id,
        tp.id,
-       'REGULAR',
-       2,
+       'PACKAGE',
+       10,
        '2026-06-30',
        '16:00:00',
        '17:00:00',
@@ -3330,14 +3330,14 @@ WHERE req.lesson_content = '[복수추천08] 재미있게 댄스 기초를 배�
 
 INSERT
 IGNORE INTO lesson_requests (
-    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, weekly_count,
+    matching_result_id, member_id, trainer_profile_id, lesson_pass_type, package_count,
     requested_date, requested_start_time, requested_end_time, message, status, created_at, updated_at
 )
 SELECT mr.id,
        requester.id,
        tp.id,
-       'REGULAR',
-       2,
+       'PACKAGE',
+       10,
        '2026-07-01',
        '18:00:00',
        '19:00:00',

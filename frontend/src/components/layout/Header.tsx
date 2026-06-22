@@ -298,7 +298,7 @@ export default function Header() {
             {menuOpen && (
                 <div className="md:hidden bg-surface border-t border-outline-variant shadow-lg">
                     <nav className="flex flex-col">
-                        {NAV_LINKS.map(({ label, href }) => (
+                        {navLinks.map(({ label, href }) => (
                             <Link
                                 key={label}
                                 href={href}
