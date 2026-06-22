@@ -7,14 +7,17 @@ import com.fitmate.lesson.dto.LessonRequestCreateRequest;
 import com.fitmate.lesson.dto.LessonRequestResponse;
 import com.fitmate.lesson.entity.LessonPassType;
 import com.fitmate.lesson.entity.LessonRequest;
+import com.fitmate.lesson.entity.LessonRequestSchedule;
 import com.fitmate.lesson.entity.LessonRequestStatus;
 import com.fitmate.lesson.event.LessonAlertEvent;
 import com.fitmate.lesson.repository.LessonRequestRepository;
+import com.fitmate.lesson.repository.LessonRequestScheduleRepository;
 import com.fitmate.matching.entity.MatchingRequest;
 import com.fitmate.matching.entity.MatchingResult;
 import com.fitmate.matching.repository.MatchingResultRepository;
 import com.fitmate.member.entity.Member;
 import com.fitmate.member.repository.MemberRepository;
+import com.fitmate.trainer.entity.TrainerAvailableTime;
 import com.fitmate.trainer.entity.TrainerProfile;
 import com.fitmate.trainer.repository.TrainerAvailableTimeRepository;
 import com.fitmate.trainer.repository.TrainerProfileRepository;
@@ -23,7 +26,14 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +41,7 @@ import java.util.List;
 public class LessonRequestService {
 
     private final LessonRequestRepository lessonRequestRepository;
+    private final LessonRequestScheduleRepository lessonRequestScheduleRepository;
     private final MatchingResultRepository matchingResultRepository;
     private final MemberRepository memberRepository;
     private final TrainerProfileRepository trainerProfileRepository;
@@ -51,6 +62,8 @@ public class LessonRequestService {
 
         LessonRequest lessonRequest;
         TrainerProfile trainerProfile;
+        LessonRequestCreateRequest.ScheduleRequest firstSchedule =
+                request.schedules().getFirst();
 
         if (request.matchingResultId() != null) {
             // ===== AI 매칭 경로 (기존 로직) =====
@@ -63,6 +76,12 @@ public class LessonRequestService {
             validateDuplicateRequest(matchingResult.getId());
 
             trainerProfile = matchingResult.getTrainerProfile();
+            validateSelectedConditions(
+                    matchingResult.getMatchingRequest(),
+                    trainerProfile,
+                    request
+            );
+            validateAvailableTime(trainerProfile, request);
 
             lessonRequest = LessonRequest.builder()
                     .matchingResult(matchingResult)
@@ -70,9 +89,12 @@ public class LessonRequestService {
                     .trainerProfile(trainerProfile)
                     .lessonPassType(request.lessonPassType())
                     .weeklyCount(request.weeklyCount())
-                    .requestedDate(request.requestedDate())
-                    .requestedStartTime(request.requestedStartTime())
-                    .requestedEndTime(request.requestedEndTime())
+                    .selectedSports(request.selectedSports())
+                    .selectedLessonLevel(request.selectedLessonLevel())
+                    .selectedLessonType(request.selectedLessonType())
+                    .requestedDate(firstSchedule.requestedDate())
+                    .requestedStartTime(firstSchedule.startTime())
+                    .requestedEndTime(firstSchedule.endTime())
                     .message(request.message())
                     .status(LessonRequestStatus.PENDING)
                     .build();
@@ -85,6 +107,7 @@ public class LessonRequestService {
 
             validateDuplicateDirectRequest(member.getId(), trainerProfile.getId());
 
+            validateSelectedConditions(null, trainerProfile, request);
             validateAvailableTime(trainerProfile, request);
 
             lessonRequest = LessonRequest.builder()
@@ -93,9 +116,12 @@ public class LessonRequestService {
                     .trainerProfile(trainerProfile)
                     .lessonPassType(request.lessonPassType())
                     .weeklyCount(request.weeklyCount())
-                    .requestedDate(request.requestedDate())
-                    .requestedStartTime(request.requestedStartTime())
-                    .requestedEndTime(request.requestedEndTime())
+                    .selectedSports(request.selectedSports())
+                    .selectedLessonLevel(request.selectedLessonLevel())
+                    .selectedLessonType(request.selectedLessonType())
+                    .requestedDate(firstSchedule.requestedDate())
+                    .requestedStartTime(firstSchedule.startTime())
+                    .requestedEndTime(firstSchedule.endTime())
                     .message(request.message())
                     .status(LessonRequestStatus.PENDING)
                     .build();
@@ -104,8 +130,22 @@ public class LessonRequestService {
             throw new CustomException(ErrorCode.INVALID_INPUT);
         }
 
-    // DB에 요청서 저장
+        // DB에 요청서 저장
         LessonRequest savedLessonRequest = lessonRequestRepository.save(lessonRequest);
+
+        List<LessonRequestSchedule> schedules =
+                request.schedules().stream()
+                        .map(schedule ->
+                                LessonRequestSchedule.builder()
+                                        .lessonRequest(savedLessonRequest)
+                                        .requestedDate(schedule.requestedDate())
+                                        .startTime(schedule.startTime())
+                                        .endTime(schedule.endTime())
+                                        .build()
+                        )
+                        .toList();
+
+        lessonRequestScheduleRepository.saveAll(schedules);
 
         eventPublisher.publishEvent(new LessonAlertEvent(
                 trainerProfile.getMember().getId(),
@@ -114,7 +154,7 @@ public class LessonRequestService {
                 member.getNickname() + "님이 레슨을 요청했습니다."
         ));
 
-    // 저장된 요청서를 화면에 보여줄 응답 DTO로 변환
+        // 저장된 요청서를 화면에 보여줄 응답 DTO로 변환
         return toResponse(savedLessonRequest);
     }
 
@@ -236,13 +276,53 @@ public class LessonRequestService {
 
     // 요청 시간이 올바른지, 정기권이면 주당 횟수가 있는지 검사
     private void validateRequest(LessonRequestCreateRequest request) {
-        if (!request.requestedStartTime().isBefore(request.requestedEndTime())) {
+        if (request.lessonPassType() == LessonPassType.REGULAR
+                && (request.weeklyCount() == null
+                || request.weeklyCount() <= 0
+                || request.schedules().size() != request.weeklyCount())) {
             throw new CustomException(ErrorCode.INVALID_INPUT);
         }
 
-        if (request.lessonPassType() == LessonPassType.REGULAR
-                && (request.weeklyCount() == null || request.weeklyCount() <= 0)) {
+        if (request.lessonPassType() == LessonPassType.ONE_TIME
+                && request.schedules().size() != 1) {
             throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
+
+        Set<String> uniqueSchedules = new HashSet<>();
+        Set<DayOfWeek> uniqueDays = new HashSet<>();
+        LocalDate regularWeekStart = null;
+
+        for (LessonRequestCreateRequest.ScheduleRequest schedule :
+                request.schedules()) {
+            if (!schedule.startTime().isBefore(schedule.endTime())) {
+                throw new CustomException(ErrorCode.INVALID_INPUT);
+            }
+
+            String scheduleKey =
+                    schedule.requestedDate()
+                            + "|"
+                            + schedule.startTime()
+                            + "|"
+                            + schedule.endTime();
+
+            if (!uniqueSchedules.add(scheduleKey)) {
+                throw new CustomException(ErrorCode.INVALID_INPUT);
+            }
+
+            if (request.lessonPassType() == LessonPassType.REGULAR) {
+                if (!uniqueDays.add(schedule.requestedDate().getDayOfWeek())) {
+                    throw new CustomException(ErrorCode.INVALID_INPUT);
+                }
+
+                LocalDate scheduleWeekStart = schedule.requestedDate()
+                        .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+                if (regularWeekStart == null) {
+                    regularWeekStart = scheduleWeekStart;
+                } else if (!regularWeekStart.equals(scheduleWeekStart)) {
+                    throw new CustomException(ErrorCode.INVALID_INPUT);
+                }
+            }
         }
     }
 
@@ -255,22 +335,49 @@ public class LessonRequestService {
         Member trainerMember = trainerProfile.getMember();
 
         // 매칭 결과가 있으면 거기서, 없으면(트레이너 직접 선택) 트레이너 프로필에서 직접 가져옴
-        String sports;
-        String lessonType;
-        String level;
+        String sports = lessonRequest.getSelectedSports();
+        String lessonType = lessonRequest.getSelectedLessonType();
+        String level = lessonRequest.getSelectedLessonLevel();
         String region;
 
         if (matchingResult != null) {
             MatchingRequest matchingRequest = matchingResult.getMatchingRequest();
-            sports = matchingRequest.getSports();
-            lessonType = matchingRequest.getLessonType();
-            level = matchingRequest.getLevel();
+            sports = sports != null ? sports : matchingRequest.getSports();
+            lessonType = lessonType != null ? lessonType : matchingRequest.getLessonType();
+            level = level != null ? level : matchingRequest.getLevel();
             region = matchingRequest.getRegion();
         } else {
-            sports = trainerProfile.getSports();
-            lessonType = trainerProfile.getLessonType();
-            level = trainerProfile.getLessonLevel();
+            sports = sports != null ? sports : trainerProfile.getSports();
+            lessonType = lessonType != null ? lessonType : trainerProfile.getLessonType();
+            level = level != null ? level : trainerProfile.getLessonLevel();
             region = trainerMember.getRegion();
+        }
+
+        List<LessonRequestResponse.ScheduleResponse> schedules =
+                lessonRequestScheduleRepository
+                        .findByLessonRequestIdOrderByRequestedDateAscStartTimeAsc(
+                                lessonRequest.getId()
+                        )
+                        .stream()
+                        .map(schedule ->
+                                new LessonRequestResponse.ScheduleResponse(
+                                        schedule.getId(),
+                                        schedule.getRequestedDate(),
+                                        schedule.getStartTime(),
+                                        schedule.getEndTime()
+                                )
+                        )
+                        .toList();
+
+        if (schedules.isEmpty()) {
+            schedules = List.of(
+                    new LessonRequestResponse.ScheduleResponse(
+                            null,
+                            lessonRequest.getRequestedDate(),
+                            lessonRequest.getRequestedStartTime(),
+                            lessonRequest.getRequestedEndTime()
+                    )
+            );
         }
 
         return new LessonRequestResponse(
@@ -298,6 +405,7 @@ public class LessonRequestService {
                 lessonRequest.getRequestedDate(),
                 lessonRequest.getRequestedStartTime(),
                 lessonRequest.getRequestedEndTime(),
+                schedules,
 
                 lessonRequest.getMessage(),
                 lessonRequest.getStatus(),
@@ -319,18 +427,138 @@ public class LessonRequestService {
 
     // 요청한 날짜/시간이 트레이너의 실제 가능 시간대에 포함되는지 확인
     private void validateAvailableTime(TrainerProfile trainerProfile, LessonRequestCreateRequest request) {
-        String requestedDayOfWeek = request.requestedDate().getDayOfWeek().name(); // 예: "MONDAY"
-
-        boolean matches = trainerAvailableTimeRepository.findByTrainerProfileId(trainerProfile.getId())
-                .stream()
-                .anyMatch(time ->
-                        time.getDayOfWeek().equalsIgnoreCase(requestedDayOfWeek)
-                                && !request.requestedStartTime().isBefore(time.getStartTime())
-                                && !request.requestedEndTime().isAfter(time.getEndTime())
+        List<TrainerAvailableTime> availableTimes =
+                trainerAvailableTimeRepository.findByTrainerProfileId(
+                        trainerProfile.getId()
                 );
 
-        if (!matches) {
+        for (LessonRequestCreateRequest.ScheduleRequest schedule :
+                request.schedules()) {
+            String requestedDayOfWeek =
+                    schedule.requestedDate().getDayOfWeek().name();
+
+            boolean matches = availableTimes.stream()
+                    .anyMatch(time ->
+                            normalizeDay(time.getDayOfWeek())
+                                    .equals(requestedDayOfWeek)
+                                    && !schedule.startTime()
+                                    .isBefore(time.getStartTime())
+                                    && !schedule.endTime()
+                                    .isAfter(time.getEndTime())
+                    );
+
+            if (!matches) {
+                throw new CustomException(ErrorCode.INVALID_INPUT);
+            }
+        }
+    }
+
+    private void validateSelectedConditions(
+            MatchingRequest matchingRequest,
+            TrainerProfile trainerProfile,
+            LessonRequestCreateRequest request
+    ) {
+        if (!containsValue(
+                trainerProfile.getSports(),
+                request.selectedSports(),
+                this::normalizeSport
+        ) || !containsValue(
+                trainerProfile.getLessonLevel(),
+                request.selectedLessonLevel(),
+                this::normalizeLessonLevel
+        ) || !containsValue(
+                trainerProfile.getLessonType(),
+                request.selectedLessonType(),
+                this::normalizeLessonType
+        )) {
             throw new CustomException(ErrorCode.INVALID_INPUT);
         }
+
+        if (matchingRequest == null) {
+            return;
+        }
+
+        if (!containsValue(
+                matchingRequest.getSports(),
+                request.selectedSports(),
+                this::normalizeSport
+        ) || !containsValue(
+                matchingRequest.getLevel(),
+                request.selectedLessonLevel(),
+                this::normalizeLessonLevel
+        ) || !containsValue(
+                matchingRequest.getLessonType(),
+                request.selectedLessonType(),
+                this::normalizeLessonType
+        )) {
+            throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
+    }
+
+    private boolean containsValue(
+            String storedValues,
+            String selectedValue,
+            Function<String, String> normalizer
+    ) {
+        if (storedValues == null || selectedValue == null) {
+            return false;
+        }
+
+        String normalizedSelected = normalizer.apply(selectedValue);
+
+        return Arrays.stream(storedValues.split(","))
+                .map(String::trim)
+                .map(normalizer)
+                .anyMatch(normalizedSelected::equals);
+    }
+
+    private String normalizeSport(String value) {
+        String normalized = normalizeText(value);
+
+        return switch (normalized) {
+            case "PT", "헬스", "웨이트" -> "헬스";
+            default -> normalized;
+        };
+    }
+
+    private String normalizeLessonType(String value) {
+        return switch (normalizeText(value)) {
+            case "ONE_TO_ONE", "1:1", "1:1PT", "1대1", "개인" -> "ONE_TO_ONE";
+            case "GROUP", "그룹" -> "GROUP";
+            case "ONLINE", "온라인" -> "ONLINE";
+            default -> normalizeText(value);
+        };
+    }
+
+    private String normalizeLessonLevel(String value) {
+        return switch (normalizeText(value)) {
+            case "입문", "초보", "초급", "입문/초보", "입문/초급" -> "BEGINNER";
+            case "중급" -> "INTERMEDIATE";
+            case "고급", "대회준비", "고급/대회준비" -> "ADVANCED";
+            default -> normalizeText(value);
+        };
+    }
+
+    private String normalizeText(String value) {
+        return value == null
+                ? ""
+                : value.trim().replace(" ", "").toUpperCase();
+    }
+
+    private String normalizeDay(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return switch (value.trim().toUpperCase()) {
+            case "MON", "MONDAY", "월", "월요일" -> "MONDAY";
+            case "TUE", "TUESDAY", "화", "화요일" -> "TUESDAY";
+            case "WED", "WEDNESDAY", "수", "수요일" -> "WEDNESDAY";
+            case "THU", "THURSDAY", "목", "목요일" -> "THURSDAY";
+            case "FRI", "FRIDAY", "금", "금요일" -> "FRIDAY";
+            case "SAT", "SATURDAY", "토", "토요일" -> "SATURDAY";
+            case "SUN", "SUNDAY", "일", "일요일" -> "SUNDAY";
+            default -> value.trim().toUpperCase();
+        };
     }
 }

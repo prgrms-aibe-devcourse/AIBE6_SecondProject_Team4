@@ -1,6 +1,9 @@
 'use client'
 
-import LessonRequestForm, { type LessonRequestSummary } from '@/components/lesson/LessonRequestForm'
+import LessonRequestForm, {
+    type LessonRequestSummary,
+    type TrainerScheduleInfo,
+} from '@/components/lesson/LessonRequestForm'
 import type { components } from '@/types/api'
 import { getAuthClient } from '@/utils/apiClient'
 import { useEffect, useState } from 'react'
@@ -9,6 +12,7 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
 type MatchingResult = components['schemas']['MatchingResultResponse']
+type Trainer = components['schemas']['TrainerProfileResponse']
 
 export default function LessonRequestCreatePage() {
     const { matchingId, matchingResultId } = useParams<{
@@ -16,6 +20,7 @@ export default function LessonRequestCreatePage() {
         matchingResultId: string
     }>()
     const [result, setResult] = useState<MatchingResult | null>(null)
+    const [trainerSchedule, setTrainerSchedule] = useState<TrainerScheduleInfo | null>(null)
     const [summary, setSummary] = useState<LessonRequestSummary | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [errorMessage, setErrorMessage] = useState('')
@@ -63,6 +68,24 @@ export default function LessonRequestCreatePage() {
                 }
 
                 setResult(selectedResult)
+
+                const { data: trainer, error: trainerError } = await client.GET(
+                    '/api/trainers/{id}',
+                    {
+                        params: {
+                            path: {
+                                id: selectedResult.trainerProfileId!,
+                            },
+                        },
+                    }
+                )
+
+                if (trainerError || !trainer) {
+                    setErrorMessage('트레이너의 가능 시간을 불러오지 못했습니다.')
+                    return
+                }
+
+                setTrainerSchedule(toTrainerSchedule(trainer))
             } catch {
                 setErrorMessage('서버에 연결할 수 없습니다.')
             } finally {
@@ -90,12 +113,34 @@ export default function LessonRequestCreatePage() {
                     <PageMessage icon="progress_activity" title="매칭 정보를 불러오는 중입니다." />
                 ) : errorMessage ? (
                     <PageMessage icon="error" title={errorMessage} showAction />
-                ) : result ? (
-                    <LessonRequestForm matchingResult={result} summary={summary} />
+                ) : result && trainerSchedule ? (
+                    <LessonRequestForm
+                        matchingResult={result}
+                        matchedTrainer={trainerSchedule}
+                        summary={summary}
+                    />
                 ) : null}
             </section>
         </main>
     )
+}
+
+function toTrainerSchedule(trainer: Trainer): TrainerScheduleInfo {
+    return {
+        trainerProfileId: trainer.id!,
+        trainerName: trainer.nickname ?? '트레이너',
+        profileImage: trainer.profileImage,
+        sports: trainer.sports,
+        lessonType: trainer.lessonType,
+        lessonLevel: trainer.lessonLevel,
+        price: trainer.price,
+        lessonDurationMinutes: trainer.lessonDurationMinutes ?? 60,
+        availableTimes: (trainer.availableTimes ?? []).map((time) => ({
+            dayOfWeek: time.dayOfWeek ?? '',
+            startTime: time.startTime ?? '',
+            endTime: time.endTime ?? '',
+        })),
+    }
 }
 
 function PageMessage({
