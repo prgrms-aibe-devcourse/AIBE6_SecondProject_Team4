@@ -75,6 +75,39 @@ function LoginContent() {
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
 
+    const loginWith = async (id: string, pw: string) => {
+        setUserId(id)
+        setPassword(pw)
+        setError('')
+        setLoading(true)
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: id, password: pw }),
+            })
+            if (!res.ok) {
+                const body = await res.json().catch(() => ({}))
+                setError(body?.code === '401-3' ? '탈퇴된 계정입니다.' : '아이디 또는 비밀번호가 올바르지 않습니다.')
+                return
+            }
+            const data = await res.json()
+            const token = data.accessToken
+            let profileImage: string | null = null
+            try {
+                const meRes = await fetch(`${API_BASE_URL}/api/members/me`, { headers: { Authorization: `Bearer ${token}` } })
+                if (meRes.ok) profileImage = (await meRes.json()).profileImage ?? null
+            } catch {}
+            login({ memberId: data.memberId, userName: data.userName, nickname: data.nickname, role: data.role, token, profileImage })
+            router.push(redirectTo)
+        } catch {
+            setError('서버에 연결할 수 없습니다.')
+        } finally {
+            setLoading(false)
+        }
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setError('')
@@ -130,58 +163,16 @@ function LoginContent() {
     }
 
     return (
-        <main
-            style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '128px 16px 64px',
-            }}
-        >
-            <div
-                style={{
-                    width: '100%',
-                    maxWidth: '440px',
-                    background: 'white',
-                    borderRadius: '16px',
-                    boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
-                    padding: '48px 40px',
-                }}
-            >
-                <p
-                    style={{
-                        fontFamily: 'Montserrat, sans-serif',
-                        fontWeight: 800,
-                        fontSize: '32px',
-                        lineHeight: '40px',
-                        letterSpacing: '-0.32px',
-                        textAlign: 'center',
-                        color: '#00419D',
-                        margin: '0 0 4px',
-                    }}
-                >
+        <main className="flex-1 flex items-center justify-center px-4 pt-32 pb-16">
+            <div className="w-full max-w-[440px] bg-surface-container-lowest rounded-2xl shadow-md px-10 py-12">
+
+                <a href="/" className="font-display-lg font-extrabold text-[32px] leading-10 tracking-tight text-center text-primary mb-1 block hover:opacity-80 transition-opacity">
                     FitMate
-                </p>
+                </a>
 
-                <h1
-                    style={{
-                        fontSize: '24px',
-                        fontWeight: 700,
-                        textAlign: 'center',
-                        marginBottom: '32px',
-                        color: '#181c24',
-                    }}
-                >
-                    로그인
-                </h1>
-
-                <form
-                    onSubmit={handleSubmit}
-                    style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
-                >
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        <label style={{ fontSize: '14px', fontWeight: 500, color: '#424655' }}>
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-8">
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-body-sm font-medium text-on-surface-variant">
                             아이디
                         </label>
                         <input
@@ -190,22 +181,12 @@ function LoginContent() {
                             onChange={(e) => setUserId(e.target.value)}
                             placeholder="아이디를 입력하세요"
                             required
-                            style={{
-                                width: '100%',
-                                border: '1px solid #c2c6d8',
-                                borderRadius: '12px',
-                                padding: '12px 16px',
-                                fontSize: '14px',
-                                outline: 'none',
-                                boxSizing: 'border-box',
-                            }}
-                            onFocus={(e) => (e.target.style.borderColor = '#0057cd')}
-                            onBlur={(e) => (e.target.style.borderColor = '#c2c6d8')}
+                            className="w-full border border-outline-variant rounded-xl px-4 py-3 text-body-sm outline-none focus:border-primary transition-colors bg-surface-container-lowest text-on-surface placeholder:text-outline"
                         />
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        <label style={{ fontSize: '14px', fontWeight: 500, color: '#424655' }}>
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-body-sm font-medium text-on-surface-variant">
                             비밀번호
                         </label>
                         <input
@@ -214,117 +195,70 @@ function LoginContent() {
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="비밀번호를 입력하세요"
                             required
-                            style={{
-                                width: '100%',
-                                border: '1px solid #c2c6d8',
-                                borderRadius: '12px',
-                                padding: '12px 16px',
-                                fontSize: '14px',
-                                outline: 'none',
-                                boxSizing: 'border-box',
-                            }}
-                            onFocus={(e) => (e.target.style.borderColor = '#0057cd')}
-                            onBlur={(e) => (e.target.style.borderColor = '#c2c6d8')}
+                            className="w-full border border-outline-variant rounded-xl px-4 py-3 text-body-sm outline-none focus:border-primary transition-colors bg-surface-container-lowest text-on-surface placeholder:text-outline"
                         />
                     </div>
 
                     {error && (
-                        <p style={{ fontSize: '13px', color: '#ba1a1a', textAlign: 'center' }}>
-                            {error}
-                        </p>
+                        <p className="text-xs text-error text-center">{error}</p>
                     )}
 
                     <button
                         type="submit"
                         disabled={loading}
-                        style={{
-                            marginTop: '8px',
-                            width: '100%',
-                            background: loading ? '#93b4e8' : '#0057cd',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '12px',
-                            padding: '14px',
-                            fontSize: '15px',
-                            fontWeight: 600,
-                            cursor: loading ? 'not-allowed' : 'pointer',
-                            transition: 'background 0.2s',
-                        }}
+                        className="mt-2 w-full bg-primary text-on-primary rounded-xl py-3.5 text-[15px] font-semibold hover:brightness-110 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                     >
                         {loading ? '로그인 중...' : '로그인'}
                     </button>
 
                     <a
                         href="/auth/signup"
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: '100%',
-                            background: 'white',
-                            color: '#0057cd',
-                            border: '1px solid #0057cd',
-                            borderRadius: '12px',
-                            padding: '14px',
-                            fontSize: '15px',
-                            fontWeight: 600,
-                            textDecoration: 'none',
-                            boxSizing: 'border-box',
-                        }}
+                        className="flex items-center justify-center w-full bg-surface-container-lowest text-primary border border-primary rounded-xl py-3.5 text-[15px] font-semibold hover:bg-primary-fixed transition-colors"
                     >
                         회원가입
                     </a>
                 </form>
-                <div
-                    style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '24px 0' }}
-                >
-                    <div style={{ flex: 1, height: '1px', background: '#e2e5ee' }} />
-                    <span style={{ fontSize: '13px', color: '#9097a8' }}>또는</span>
-                    <div style={{ flex: 1, height: '1px', background: '#e2e5ee' }} />
+
+                <div className="flex items-center gap-3 my-6">
+                    <div className="flex-1 h-px bg-outline-variant" />
+                    <span className="text-xs text-outline">또는</span>
+                    <div className="flex-1 h-px bg-outline-variant" />
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div className="flex flex-col gap-2.5">
                     <a
                         href={`${API_BASE_URL}/oauth2/authorization/kakao`}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: '100%',
-                            background: '#FEE500',
-                            color: '#191919',
-                            border: 'none',
-                            borderRadius: '12px',
-                            padding: '14px',
-                            fontSize: '15px',
-                            fontWeight: 600,
-                            textDecoration: 'none',
-                            boxSizing: 'border-box',
-                        }}
+                        className="flex items-center justify-center w-full bg-[#FEE500] text-[#191919] rounded-xl py-3.5 text-[15px] font-semibold hover:brightness-95 transition-all"
                     >
                         카카오로 로그인
                     </a>
 
                     <a
                         href={`${API_BASE_URL}/oauth2/authorization/google`}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: '100%',
-                            background: 'white',
-                            color: '#191919',
-                            border: '1px solid #c2c6d8',
-                            borderRadius: '12px',
-                            padding: '14px',
-                            fontSize: '15px',
-                            fontWeight: 600,
-                            textDecoration: 'none',
-                            boxSizing: 'border-box',
-                        }}
+                        className="flex items-center justify-center w-full bg-surface-container-lowest text-on-surface border border-outline-variant rounded-xl py-3.5 text-[15px] font-semibold hover:bg-surface-container-low transition-colors"
                     >
                         구글로 로그인
                     </a>
+                </div>
+
+                <div className="mt-6 pt-5 border-t border-outline-variant">
+                    <p className="text-xs text-outline text-center mb-2">테스트 계정으로 빠른 로그인</p>
+                    <div className="flex gap-2">
+                        <button
+                            type="button"
+                            onClick={() => loginWith('user01', '1234')}
+                            className="flex-1 py-2 text-xs font-medium border border-outline-variant rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer"
+                        >
+                            일반 회원
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => loginWith('trainer01', '1234')}
+                            className="flex-1 py-2 text-xs font-medium border border-outline-variant rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer"
+                        >
+                            트레이너
+                        </button>
+                    </div>
                 </div>
             </div>
         </main>
