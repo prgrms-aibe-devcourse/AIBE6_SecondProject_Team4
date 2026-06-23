@@ -243,6 +243,7 @@ function RequestSummary({ request }: { request: LessonRequest }) {
         { icon: 'sports_gymnastics', label: '운동 종목', value: request.sports },
         { icon: 'groups', label: '레슨 유형', value: formatLessonType(request.lessonType) },
         { icon: 'trending_up', label: '레슨 수준', value: request.lessonLevel },
+        { icon: 'location_on', label: '장소', value: request.region },
         {
             icon: 'confirmation_number',
             label: '수강 유형',

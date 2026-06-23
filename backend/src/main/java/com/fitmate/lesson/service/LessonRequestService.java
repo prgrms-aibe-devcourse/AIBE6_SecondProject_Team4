@@ -119,6 +119,7 @@ public class LessonRequestService {
                     .selectedSports(request.selectedSports())
                     .selectedLessonLevel(request.selectedLessonLevel())
                     .selectedLessonType(request.selectedLessonType())
+                    .selectedRegion(request.selectedRegion())
                     .requestedDate(firstSchedule.requestedDate())
                     .requestedStartTime(firstSchedule.startTime())
                     .requestedEndTime(firstSchedule.endTime())
@@ -322,7 +323,9 @@ public class LessonRequestService {
             sports = sports != null ? sports : trainerProfile.getSports();
             lessonType = lessonType != null ? lessonType : trainerProfile.getLessonType();
             level = level != null ? level : trainerProfile.getLessonLevel();
-            region = trainerMember.getRegion();
+            region = lessonRequest.getSelectedRegion() != null
+                    ? lessonRequest.getSelectedRegion()
+                    : trainerMember.getRegion();
         }
 
         List<LessonRequestResponse.ScheduleResponse> schedules =

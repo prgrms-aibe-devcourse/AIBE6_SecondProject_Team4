@@ -46,6 +46,9 @@ public class LessonRequest extends BaseEntity {
     @Column(name = "selected_lesson_type", length = 50)
     private String selectedLessonType;
 
+    @Column(name = "selected_region", length = 100)
+    private String selectedRegion;
+
     // 기존 결제 및 상세 화면 호환을 위해 첫 번째 일정을 함께 저장합니다.
     @Column(name = "requested_date", nullable = false)
     private LocalDate requestedDate;
