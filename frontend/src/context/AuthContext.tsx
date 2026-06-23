@@ -1,29 +1,7 @@
 'use client'
 
-import { API_BASE_URL, setTokenRefreshHandler } from '@/utils/apiClient';
-import { createContext, useContext, useEffect, useState } from 'react';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+import { API_BASE_URL, setTokenRefreshHandler } from '@/utils/apiClient'
+import { createContext, useContext, useEffect, useState } from 'react'
 
 export interface AuthUser {
     memberId: number
@@ -81,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         // 토큰 재발급 시 새 토큰을 상태에 반영
         setTokenRefreshHandler((newToken: string) => {
-            setUser(prev => {
+            setUser((prev) => {
                 if (!prev) return prev
                 const updated = { ...prev, token: newToken }
                 localStorage.setItem('fitmate_user', JSON.stringify(updated))
@@ -96,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [])
 
     const updateProfileImage = (url: string | null) => {
-        setUser(prev => {
+        setUser((prev) => {
             if (!prev) return prev
             const updated = { ...prev, profileImage: url }
             localStorage.setItem('fitmate_user', JSON.stringify(updated))

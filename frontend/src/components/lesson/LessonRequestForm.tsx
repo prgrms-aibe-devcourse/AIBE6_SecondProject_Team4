@@ -650,7 +650,9 @@ export default function LessonRequestForm({
                                 패키지 횟수
                                 <select
                                     value={packageCount}
-                                    onChange={(event) => setPackageCount(Number(event.target.value))}
+                                    onChange={(event) =>
+                                        setPackageCount(Number(event.target.value))
+                                    }
                                     className="mt-xs h-12 w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-sm text-body-md outline-none focus:border-primary"
                                 >
                                     {[5, 10, 20].map((count) => (

@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -15,8 +15,8 @@ public record MatchingRequestDto(
         @NotBlank String lessonType,
         @NotBlank String region,
 
-        @NotNull @Positive Integer budgetMin,
-        @NotNull @Positive Integer budgetMax,
+        @NotNull @PositiveOrZero Integer budgetMin,
+        @NotNull @PositiveOrZero Integer budgetMax,
 
         String lessonContent,
 

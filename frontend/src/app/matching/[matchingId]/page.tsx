@@ -5,10 +5,10 @@ import type { components } from '@/types/api'
 import { getAuthClient } from '@/utils/apiClient'
 import { useEffect, useState } from 'react'
 
-import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 
 type MatchingResult = components['schemas']['MatchingResultResponse']
+const MATCHING_FORM_STORAGE_KEY = 'fitmate-matching-form'
 
 type MatchingRequestSummary = {
     sports: string
@@ -18,6 +18,10 @@ type MatchingRequestSummary = {
     district: string
     budgetMin: number
     budgetMax: number
+    lessonContent?: string
+    preferredDays?: string[]
+    suggestedPreferences?: string[]
+    selectedPreferences?: string[]
 }
 
 export default function MatchingResultPage() {
@@ -74,6 +78,40 @@ export default function MatchingResultPage() {
         router.push(`/lesson-requests/new/${matchingId}/${matchingResultId}`)
     }
 
+    const handleEditConditions = () => {
+        if (summary) {
+            localStorage.setItem(
+                MATCHING_FORM_STORAGE_KEY,
+                JSON.stringify({
+                    sports: summary.sports,
+                    levels: summary.level
+                        .split(',')
+                        .map((value) => value.trim())
+                        .filter(Boolean),
+                    lessonTypes: summary.lessonType
+                        .split(',')
+                        .map((value) => value.trim())
+                        .filter(Boolean),
+                    region: summary.region,
+                    district: summary.district,
+                    budgetMin: summary.budgetMin,
+                    budgetMax: summary.budgetMax,
+                    lessonContent: summary.lessonContent ?? '',
+                    suggestedPreferences: summary.suggestedPreferences ?? [],
+                    selectedPreferences: summary.selectedPreferences ?? [],
+                    preferredTimes: (summary.preferredDays ?? []).map((day, index) => ({
+                        id: Date.now() + index,
+                        dayOfWeek: day,
+                        startTime: '00:00',
+                        endTime: '23:59:59',
+                    })),
+                })
+            )
+        }
+
+        router.push('/matching')
+    }
+
     return (
         <main className="pt-16 md:pt-20">
             <section className="mx-auto max-w-screen-xl px-margin-mobile py-xl md:px-margin-desktop">
@@ -91,12 +129,13 @@ export default function MatchingResultPage() {
                                 : `매칭 요청 #${matchingId}`}
                         </p>
                     </div>
-                    <Link
-                        href="/matching"
+                    <button
+                        type="button"
+                        onClick={handleEditConditions}
                         className="inline-flex h-10 items-center justify-center rounded-lg border border-outline-variant bg-surface-container-lowest px-sm font-label-bold text-on-surface hover:border-primary hover:text-primary cursor-pointer"
                     >
                         조건 수정
-                    </Link>
+                    </button>
                 </div>
 
                 <div className="mt-xl">
@@ -116,12 +155,14 @@ export default function MatchingResultPage() {
                         icon="error"
                         title={errorMessage}
                         description="잠시 후 다시 시도하거나 조건 입력 페이지로 돌아가 주세요."
+                        onAction={handleEditConditions}
                     />
                 ) : results.length === 0 ? (
                     <ResultMessage
                         icon="person_search"
                         title="조건에 맞는 트레이너가 없습니다."
                         description="시간대나 지역, 예산 조건을 조금 넓히면 더 많은 트레이너를 만날 수 있습니다."
+                        onAction={handleEditConditions}
                     />
                 ) : (
                     <div className="mt-lg grid grid-cols-1 gap-md md:grid-cols-2 xl:grid-cols-3">
@@ -195,9 +236,16 @@ type ResultMessageProps = {
     title: string
     description?: string
     showAction?: boolean
+    onAction?: () => void
 }
 
-function ResultMessage({ icon, title, description, showAction = true }: ResultMessageProps) {
+function ResultMessage({
+    icon,
+    title,
+    description,
+    showAction = true,
+    onAction,
+}: ResultMessageProps) {
     return (
         <div className="mt-lg flex min-h-80 flex-col items-center justify-center rounded-lg border border-outline-variant bg-surface-container-lowest px-md text-center">
             <span className="material-symbols-outlined text-5xl text-outline">{icon}</span>
@@ -211,12 +259,13 @@ function ResultMessage({ icon, title, description, showAction = true }: ResultMe
                 </p>
             )}
             {showAction && (
-                <Link
-                    href="/matching"
+                <button
+                    type="button"
+                    onClick={onAction}
                     className="mt-md inline-flex h-11 items-center justify-center rounded-lg border border-primary px-md font-label-bold text-primary hover:bg-primary-fixed cursor-pointer"
                 >
                     조건 다시 입력하기
-                </Link>
+                </button>
             )}
         </div>
     )
