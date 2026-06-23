@@ -1,5 +1,6 @@
 package com.fitmate.global.file.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,10 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.UUID;
 
+@Tag(
+        name = "이미지",
+        description = "이미지 업로드 API"
+)
 @RestController
 @RequestMapping("/api/files")
 @RequiredArgsConstructor

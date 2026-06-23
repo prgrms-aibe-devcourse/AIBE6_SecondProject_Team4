@@ -6,6 +6,7 @@ import com.fitmate.member.dto.TrainerSummaryDto;
 import com.fitmate.member.dto.PasswordChangeRequest;
 import com.fitmate.member.dto.RoleChangeRequest;
 import com.fitmate.member.service.MemberService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(
+        name = "회원",
+        description = "회원 정보 관리 API"
+)
 @RestController
 @RequestMapping("/api/members")
 @RequiredArgsConstructor

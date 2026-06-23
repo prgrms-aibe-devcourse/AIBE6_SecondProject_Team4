@@ -12,7 +12,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "Chat", description = "채팅 API")
+@Tag(
+        name = "채팅",
+        description = "실시간 채팅 API"
+)
 @RestController
 @RequestMapping("/api/chat")
 @RequiredArgsConstructor
