@@ -46,10 +46,7 @@ export default function Header() {
         { label: '트레이너 찾기', href: '/trainer' },
         { label: 'AI매칭', href: '/matching' },
         { label: '고객센터', href: '/faq' },
-        {
-            label: user?.role === 'ADMIN' ? '관리자 페이지' : '마이페이지',
-            href: user?.role === 'ADMIN' ? '/admin/inquiries' : '/mypage',
-        },
+        ...(user?.role === 'ADMIN' ? [{ label: '관리자 페이지', href: '/admin/inquiries' }] : []),
     ]
     const router = useRouter()
     const { alerts, unreadCount, markOneRead, markAllRead, deleteOne, deleteAll } = useAlert()
