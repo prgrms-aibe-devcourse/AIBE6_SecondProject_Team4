@@ -4,8 +4,6 @@ const LESSON_TYPE_LABELS: Record<string, string> = {
     '1:1 PT': '1대1',
     GROUP: '그룹',
     그룹: '그룹',
-    ONLINE: '온라인',
-    온라인: '온라인',
 }
 
 export function formatLessonType(value?: string): string {

@@ -1,13 +1,13 @@
 'use client'
 
 import LessonRequestForm from '@/components/lesson/LessonRequestForm'
+import { useAuth } from '@/context/AuthContext'
 import type { components } from '@/types/api'
 import { getAuthClient } from '@/utils/apiClient'
 import { useEffect, useState } from 'react'
 
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import { useAuth } from '@/context/AuthContext'
 
 type Trainer = components['schemas']['TrainerProfileResponse']
 
@@ -88,6 +88,7 @@ export default function LessonRequestDirectCreatePage() {
                             lessonLevel: trainer.lessonLevel,
                             price: trainer.price,
                             lessonDurationMinutes: trainer.lessonDurationMinutes ?? 60,
+                            region: trainer.region,
                             availableTimes: (trainer.availableTimes ?? []).map((t) => ({
                                 dayOfWeek: t.dayOfWeek ?? '',
                                 startTime: t.startTime ?? '',

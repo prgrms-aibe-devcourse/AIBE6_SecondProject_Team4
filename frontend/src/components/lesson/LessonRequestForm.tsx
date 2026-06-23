@@ -1,5 +1,6 @@
 'use client'
 
+import { DISTRICTS, REGIONS } from '@/constants/matchingOptions'
 import type { components } from '@/types/api'
 import { getAuthClient, getImageUrl } from '@/utils/apiClient'
 import { formatLessonType } from '@/utils/lessonDisplay'
@@ -34,6 +35,7 @@ export type TrainerScheduleInfo = {
     lessonLevel?: string
     price?: number
     lessonDurationMinutes?: number
+    region?: string
     availableTimes: Array<{
         dayOfWeek: string
         startTime: string
@@ -87,6 +89,13 @@ const splitValues = (value?: string) =>
         .map((item) => item.trim())
         .filter(Boolean) ?? []
 
+const getPackageDiscountRate = (count: number): number => {
+    if (count === 5) return 0.05
+    if (count === 10) return 0.1
+    if (count === 20) return 0.2
+    return 0
+}
+
 const normalizeText = (value: string) => value.trim().replaceAll(' ', '').toUpperCase()
 
 const normalizeSport = (value: string) => {
@@ -112,7 +121,6 @@ const normalizeLessonType = (value: string) => {
         return 'ONE_TO_ONE'
     }
     if (['GROUP', '그룹'].includes(normalized)) return 'GROUP'
-    if (['ONLINE', '온라인'].includes(normalized)) return 'ONLINE'
     return normalized
 }
 
@@ -128,7 +136,6 @@ const formatLessonTypeOption = (value: string) => {
     const normalized = normalizeLessonType(value)
     if (normalized === 'ONE_TO_ONE') return '1:1'
     if (normalized === 'GROUP') return '그룹'
-    if (normalized === 'ONLINE') return '온라인'
     return formatLessonType(value)
 }
 
@@ -172,6 +179,13 @@ export default function LessonRequestForm({
 
     const isDirectMode = Boolean(directTrainer && !matchingResult)
     const scheduleTrainer = directTrainer ?? matchedTrainer
+    // 트레이너 직접 모드: 트레이너의 활동지역(시/도+구/군)을 기본값으로 분리
+    const [trainerRegionPart, trainerDistrictPart] = (scheduleTrainer?.region ?? '').split(' ')
+    const [selectedRegionValue, setSelectedRegionValue] = useState(
+        trainerRegionPart && REGIONS.includes(trainerRegionPart) ? trainerRegionPart : ''
+    )
+    const [selectedDistrictValue, setSelectedDistrictValue] = useState(trainerDistrictPart ?? '')
+    const districtOptions = selectedRegionValue ? (DISTRICTS[selectedRegionValue] ?? []) : []
     const sportsOptions = getCommonOptions(
         isDirectMode ? undefined : summary?.sports,
         scheduleTrainer?.sports ?? matchingResult?.sports,
@@ -196,9 +210,9 @@ export default function LessonRequestForm({
     const selectedLessonLevel = selectedLessonLevelValue || lessonLevelOptions[0] || ''
     const selectedLessonType = selectedLessonTypeValue || lessonTypeOptions[0] || ''
 
-    const location = [matchingResult?.region ?? summary?.region, summary?.district]
-        .filter(Boolean)
-        .join(' ')
+    const location = isDirectMode
+        ? [selectedRegionValue, selectedDistrictValue].filter(Boolean).join(' ')
+        : [matchingResult?.region ?? summary?.region, summary?.district].filter(Boolean).join(' ')
 
     const displayProfileImage = isDirectMode
         ? directTrainer!.profileImage
@@ -386,6 +400,7 @@ export default function LessonRequestForm({
                     selectedSports,
                     selectedLessonLevel,
                     selectedLessonType,
+                    selectedRegion: isDirectMode ? location || undefined : undefined,
                     requestedDate: firstSchedule.requestedDate,
                     requestedStartTime,
                     requestedEndTime,
@@ -468,7 +483,6 @@ export default function LessonRequestForm({
                         요청 조건과 트레이너의 제공 항목이 겹치는 값 중 하나씩 선택해 주세요.
                     </p>
                 </div>
-
                 <div className="mt-md grid grid-cols-1 gap-md md:grid-cols-3">
                     <SingleChoiceGroup
                         label="운동 종목"
@@ -489,6 +503,49 @@ export default function LessonRequestForm({
                         onSelect={setSelectedLessonTypeValue}
                     />
                 </div>
+
+                {isDirectMode && (
+                    <div className="mt-md">
+                        <p className="text-label-md font-label-md text-on-surface-variant">
+                            레슨 받을 지역
+                        </p>
+                        <div className="mt-xs grid grid-cols-2 gap-xs">
+                            <select
+                                className="h-11 rounded-lg border border-outline-variant bg-surface-container-lowest px-sm text-body-md outline-none focus:border-primary"
+                                value={selectedRegionValue}
+                                onChange={(e) => {
+                                    const nextRegion = e.target.value
+                                    setSelectedRegionValue(nextRegion)
+                                    setSelectedDistrictValue(DISTRICTS[nextRegion]?.[0] ?? '')
+                                }}
+                            >
+                                <option value="" disabled>
+                                    시/도 선택
+                                </option>
+                                {REGIONS.map((r) => (
+                                    <option key={r} value={r}>
+                                        {r}
+                                    </option>
+                                ))}
+                            </select>
+                            <select
+                                className="h-11 rounded-lg border border-outline-variant bg-surface-container-lowest px-sm text-body-md outline-none focus:border-primary"
+                                value={selectedDistrictValue}
+                                onChange={(e) => setSelectedDistrictValue(e.target.value)}
+                                disabled={!selectedRegionValue}
+                            >
+                                <option value="" disabled>
+                                    구/군 선택
+                                </option>
+                                {districtOptions.map((d) => (
+                                    <option key={d} value={d}>
+                                        {d}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                )}
             </section>
             <section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-md md:p-lg">
                 <div className="flex flex-wrap items-start justify-between gap-xs">
@@ -690,9 +747,13 @@ export default function LessonRequestForm({
                         label="예상 결제 금액"
                         value={
                             displayPrice
-                                ? `${(
+                                ? `${Math.round(
                                       displayPrice *
-                                      (lessonPassType === 'PACKAGE' ? packageCount : 1)
+                                          (lessonPassType === 'PACKAGE' ? packageCount : 1) *
+                                          (1 -
+                                              (lessonPassType === 'PACKAGE'
+                                                  ? getPackageDiscountRate(packageCount)
+                                                  : 0))
                                   ).toLocaleString('ko-KR')}원`
                                 : '-'
                         }
