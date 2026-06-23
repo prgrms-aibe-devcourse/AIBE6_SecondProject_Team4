@@ -2705,6 +2705,284 @@ FROM trainer_profiles tp
 WHERE m.user_id = 'trainer48';
 
 -- =============================================
+-- 트레이너 활동 요일 추가 (주 5~6일 완성)
+-- =============================================
+
+-- trainer01: 현재 0일 → MON~SAT 6일 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer01';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer01';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer01';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer01';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer01';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer01';
+
+-- trainer02: 현재 MON → TUE~SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer02';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer02';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer02';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer02';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer02';
+
+-- trainer03: 현재 MON,WED,FRI → TUE,THU,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer03';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer03';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer03';
+
+-- trainer04: 현재 TUE,THU,SAT → MON,WED,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '12:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer04';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '12:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer04';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '12:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer04';
+
+-- trainer05: 현재 WED,FRI,SUN → MON,TUE,THU 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '16:00:00', '22:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer05';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '16:00:00', '22:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer05';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '16:00:00', '22:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer05';
+
+-- trainer06: 현재 TUE(매칭),THU,SAT,MON → WED,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer06';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer06';
+
+-- trainer07: 현재 FRI,SUN,TUE → MON,WED,THU 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '11:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer07';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '11:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer07';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '11:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer07';
+
+-- trainer08: 현재 SAT,MON,WED → TUE,THU,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '07:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer08';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '07:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer08';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '07:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer08';
+
+-- trainer09: 현재 SUN,TUE,THU → MON,WED,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '09:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer09';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '09:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer09';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '09:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer09';
+
+-- trainer10: 현재 TUE,THU,SAT → MON,WED,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer10';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer10';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer10';
+
+-- trainer11: 현재 WED(매칭),WED17,FRI,MON → TUE,THU,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '10:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer11';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '10:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer11';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '10:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer11';
+
+-- trainer12: 현재 MON,WED,FRI → TUE,THU,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '08:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer12';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '08:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer12';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '08:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer12';
+
+-- trainer13: 현재 THU,SAT,SUN → MON,TUE,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '08:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer13';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '08:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer13';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '08:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer13';
+
+-- trainer14: 현재 FRI,SUN,TUE → MON,WED,THU 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '14:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer14';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '14:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer14';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '14:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer14';
+
+-- trainer15: 현재 SAT,MON,THU → TUE,WED,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '07:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer15';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '07:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer15';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '07:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer15';
+
+-- trainer16: 현재 SUN,TUE,FRI → MON,WED,THU 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '08:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer16';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '08:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer16';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '08:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer16';
+
+-- trainer17: 현재 TUE,THU,SAT → MON,WED,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '13:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer17';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '13:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer17';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '13:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer17';
+
+-- trainer18: 현재 WED,FRI,SUN → MON,TUE,THU 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '14:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer18';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '14:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer18';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '14:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer18';
+
+-- trainer19: 현재 MON,WED → TUE,THU,FRI,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer19';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer19';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer19';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer19';
+
+-- trainer20: 현재 TUE,THU → MON,WED,FRI,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer20';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer20';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer20';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer20';
+
+-- trainer21: 현재 MON,FRI → TUE,WED,THU,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '08:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer21';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '08:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer21';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '08:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer21';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer21';
+
+-- trainer22: 현재 WED,SAT → MON,TUE,THU,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '12:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer22';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '12:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer22';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '12:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer22';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '12:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer22';
+
+-- trainer23: 현재 TUE,THU → MON,WED,FRI,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer23';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer23';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer23';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer23';
+
+-- trainer24: 현재 SAT,SUN → MON,TUE,WED,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '08:00:00', '16:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer24';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '08:00:00', '16:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer24';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '08:00:00', '16:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer24';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '08:00:00', '16:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer24';
+
+-- trainer25: 현재 MON,WED → TUE,THU,FRI,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '13:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer25';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '13:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer25';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '13:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer25';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer25';
+
+-- trainer26: 현재 TUE,FRI → MON,WED,THU,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '08:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer26';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '08:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer26';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '08:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer26';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer26';
+
+-- trainer27: 현재 MON,THU → TUE,WED,FRI,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer27';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer27';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer27';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer27';
+
+-- trainer28: 현재 WED,SAT → MON,TUE,THU,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer28';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer28';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer28';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer28';
+
+-- trainer29: 현재 TUE,FRI → MON,WED,THU,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '11:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer29';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '11:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer29';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '11:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer29';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer29';
+
+-- trainer30: 현재 MON,SAT → TUE,WED,THU,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '09:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer30';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '09:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer30';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '09:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer30';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '09:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer30';
+
+-- trainer31: 현재 WED,FRI → MON,TUE,THU,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '08:00:00', '16:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer31';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '08:00:00', '16:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer31';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '08:00:00', '16:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer31';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer31';
+
+-- trainer32: 현재 TUE,SUN → MON,WED,THU,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '13:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer32';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '13:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer32';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '13:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer32';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '13:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer32';
+
+-- trainer33: 현재 MON,THU → TUE,WED,FRI,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '11:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer33';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '11:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer33';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '11:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer33';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer33';
+
+-- trainer34: 현재 WED,SAT → MON,TUE,THU,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer34';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer34';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer34';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer34';
+
+-- trainer35: 현재 MON,THU → TUE,WED,FRI,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer35';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer35';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer35';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer35';
+
+-- trainer36: 현재 TUE,FRI → MON,WED,THU,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '10:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer36';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '10:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer36';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '10:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer36';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer36';
+
+-- trainer37: 현재 WED,SAT → MON,TUE,THU,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '09:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer37';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '09:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer37';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '09:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer37';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '09:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer37';
+
+-- trainer38: 현재 MON,THU → TUE,WED,FRI,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '12:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer38';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '12:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer38';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '12:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer38';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer38';
+
+-- trainer39: 현재 TUE,SUN → MON,WED,THU,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '08:00:00', '16:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer39';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '08:00:00', '16:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer39';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '08:00:00', '16:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer39';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '08:00:00', '16:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer39';
+
+-- trainer40: 현재 WED,SAT → MON,TUE,THU,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '11:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer40';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '11:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer40';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '11:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer40';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '11:00:00', '20:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer40';
+
+-- trainer41: 현재 MON,FRI → TUE,WED,THU,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '08:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer41';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '08:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer41';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '08:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer41';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer41';
+
+-- trainer42: 현재 TUE,THU → MON,WED,FRI,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer42';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer42';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer42';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer42';
+
+-- trainer43: 현재 WED,SAT → MON,TUE,THU,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer43';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer43';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer43';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer43';
+
+-- trainer44: 현재 MON,THU → TUE,WED,FRI,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '13:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer44';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '13:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer44';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '13:00:00', '21:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer44';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer44';
+
+-- trainer45: 현재 TUE,FRI → MON,WED,THU,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '08:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer45';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '08:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer45';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '08:00:00', '17:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer45';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer45';
+
+-- trainer46: 현재 WED,SUN → MON,TUE,THU,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer46';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer46';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer46';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '09:00:00', '18:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer46';
+
+-- trainer47: 현재 MON,SAT → TUE,WED,THU,FRI 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'TUESDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer47';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer47';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'THURSDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer47';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '10:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer47';
+
+-- trainer48: 현재 TUE,THU → MON,WED,FRI,SAT 추가
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'MONDAY', '11:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer48';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'WEDNESDAY', '11:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer48';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'FRIDAY', '11:00:00', '19:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer48';
+INSERT IGNORE INTO trainer_available_times (trainer_profile_id, day_of_week, start_time, end_time, created_at, updated_at) SELECT tp.id, 'SATURDAY', '09:00:00', '15:00:00', NOW(), NOW() FROM trainer_profiles tp JOIN members m ON tp.user_id = m.id WHERE m.user_id = 'trainer48';
+
+-- =============================================
 -- 복수 추천용 매칭 요청 9개
 -- =============================================
 INSERT
