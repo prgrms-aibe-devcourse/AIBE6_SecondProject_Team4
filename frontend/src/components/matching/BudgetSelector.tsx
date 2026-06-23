@@ -49,6 +49,16 @@ const roundUpToStep = (value: number) => {
     return Math.ceil(value / BUDGET_STEP) * BUDGET_STEP
 }
 
+const parseBudgetInputValue = (value: string) => {
+    const normalizedValue = value.replace(/[^0-9]/g, '').replace(/^0+(?=\d)/, '')
+
+    if (normalizedValue === '') {
+        return 0
+    }
+
+    return Number(normalizedValue)
+}
+
 export default function BudgetSelector({
     minBudget,
     maxBudget,
@@ -115,11 +125,12 @@ export default function BudgetSelector({
                 <label>
                     <span className="sr-only">최소 예산</span>
                     <input
-                        type="number"
-                        min={0}
-                        step={1000}
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={minBudget}
-                        onChange={(event) => onMinChange(Number(event.target.value))}
+                        onFocus={(event) => event.currentTarget.select()}
+                        onChange={(event) => onMinChange(parseBudgetInputValue(event.target.value))}
                         className="h-12 w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-sm text-body-md outline-none focus:border-primary"
                     />
                 </label>
@@ -129,11 +140,12 @@ export default function BudgetSelector({
                 <label>
                     <span className="sr-only">최대 예산</span>
                     <input
-                        type="number"
-                        min={0}
-                        step={1000}
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={isBudgetOpenEnded ? '' : maxBudget}
                         placeholder={isBudgetOpenEnded ? '상한 없음' : undefined}
+                        onFocus={(event) => event.currentTarget.select()}
                         onChange={(event) => {
                             const value = event.target.value
 
@@ -143,7 +155,7 @@ export default function BudgetSelector({
                             }
 
                             onBudgetOpenEndedChange(false)
-                            onMaxChange(Number(value))
+                            onMaxChange(parseBudgetInputValue(value))
                         }}
                         className="h-12 w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-sm text-body-md outline-none focus:border-primary placeholder:text-outline"
                     />

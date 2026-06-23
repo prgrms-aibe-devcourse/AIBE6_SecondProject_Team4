@@ -343,10 +343,6 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
         const nextValue = Math.max(0, value)
 
         setBudgetMax(nextValue)
-
-        if (nextValue < budgetMin) {
-            setBudgetMin(nextValue)
-        }
     }
 
     const handleBudgetRangeChange = (minValue: number, maxValue: number) => {
