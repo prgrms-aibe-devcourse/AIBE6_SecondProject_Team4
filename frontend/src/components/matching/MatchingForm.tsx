@@ -13,7 +13,7 @@ import {
 } from '@/constants/matchingOptions'
 import { useAuth } from '@/context/AuthContext'
 import { getAuthClient } from '@/utils/apiClient'
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -63,6 +63,7 @@ const PREFERENCE_OPTIONS = [
 
 const PREFERENCE_PREFIX = '중요하게 생각하는 조건:'
 const MATCHING_FORM_STORAGE_KEY = 'fitmate-matching-form'
+const OPEN_ENDED_BUDGET_MAX = 999999999
 
 const applyPreferencesToContent = (content: string, preferences: string[]) => {
     const baseContent = content
@@ -88,6 +89,7 @@ type StoredMatchingForm = {
     district: string
     budgetMin: number
     budgetMax: number
+    isBudgetOpenEnded: boolean
     lessonContent: string
     suggestedPreferences: string[]
     selectedPreferences: string[]
@@ -104,6 +106,7 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
     const [district, setDistrict] = useState('강남구')
     const [budgetMin, setBudgetMin] = useState(50000)
     const [budgetMax, setBudgetMax] = useState(80000)
+    const [isBudgetOpenEnded, setIsBudgetOpenEnded] = useState(false)
     const [lessonContent, setLessonContent] = useState('')
     const [suggestedPreferences, setSuggestedPreferences] = useState<string[]>([])
     const [selectedPreferences, setSelectedPreferences] = useState<string[]>([])
@@ -111,6 +114,21 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
     const [formError, setFormError] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isStorageReady, setIsStorageReady] = useState(false)
+    const previousMemberIdRef = useRef<number | null | undefined>(undefined)
+
+    useEffect(() => {
+        const nextMemberId = user?.memberId ?? null
+
+        if (previousMemberIdRef.current === undefined) {
+            previousMemberIdRef.current = nextMemberId
+            return
+        }
+
+        if (previousMemberIdRef.current !== nextMemberId) {
+            localStorage.removeItem(MATCHING_FORM_STORAGE_KEY)
+            previousMemberIdRef.current = nextMemberId
+        }
+    }, [user?.memberId])
 
     useEffect(() => {
         if (!initialDraft) {
@@ -240,6 +258,9 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
             if (typeof storedForm.budgetMax === 'number') {
                 setBudgetMax(storedForm.budgetMax)
             }
+            if (typeof storedForm.isBudgetOpenEnded === 'boolean') {
+                setIsBudgetOpenEnded(storedForm.isBudgetOpenEnded)
+            }
             if (typeof storedForm.lessonContent === 'string') {
                 setLessonContent(storedForm.lessonContent)
             }
@@ -275,17 +296,18 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
             district,
             budgetMin,
             budgetMax,
+            isBudgetOpenEnded,
             lessonContent,
             suggestedPreferences,
             selectedPreferences,
             preferredTimes,
         }
-
         localStorage.setItem(MATCHING_FORM_STORAGE_KEY, JSON.stringify(storedForm))
     }, [
         budgetMax,
         budgetMin,
         district,
+        isBudgetOpenEnded,
         isStorageReady,
         lessonContent,
         lessonTypes,
@@ -309,12 +331,15 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
 
         setBudgetMin(nextValue)
 
-        if (nextValue > budgetMax) {
+        if (isBudgetOpenEnded || nextValue >= budgetMax) {
+            setIsBudgetOpenEnded(true)
             setBudgetMax(nextValue)
         }
     }
 
     const handleBudgetMaxChange = (value: number) => {
+        setIsBudgetOpenEnded(false)
+
         const nextValue = Math.max(0, value)
 
         setBudgetMax(nextValue)
@@ -403,6 +428,7 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
                       }))
 
             const finalLessonContent = lessonContent.trim().slice(0, 500)
+            const submittedBudgetMax = isBudgetOpenEnded ? OPEN_ENDED_BUDGET_MAX : budgetMax
 
             const { data, error } = await client.POST('/api/matching', {
                 body: {
@@ -411,7 +437,7 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
                     lessonType: lessonTypes.join(','),
                     region,
                     budgetMin,
-                    budgetMax,
+                    budgetMax: submittedBudgetMax,
                     lessonContent: finalLessonContent,
                     preferredTimes: submittedTimes.map((time) => ({
                         dayOfWeek: time.dayOfWeek,
@@ -449,6 +475,8 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
                     district,
                     budgetMin,
                     budgetMax,
+                    submittedBudgetMax,
+                    isBudgetOpenEnded,
                     lessonContent: finalLessonContent,
                     preferredDays: preferredTimes.map((time) => time.dayOfWeek),
                     suggestedPreferences,
@@ -598,9 +626,11 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
                     <BudgetSelector
                         minBudget={budgetMin}
                         maxBudget={budgetMax}
+                        isBudgetOpenEnded={isBudgetOpenEnded}
                         onMinChange={handleBudgetMinChange}
                         onMaxChange={handleBudgetMaxChange}
                         onRangeChange={handleBudgetRangeChange}
+                        onBudgetOpenEndedChange={setIsBudgetOpenEnded}
                     />
                 </section>
 
@@ -661,6 +691,7 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
                 preferredTimeCount={preferredTimes.length}
                 budgetMin={budgetMin}
                 budgetMax={budgetMax}
+                isBudgetOpenEnded={isBudgetOpenEnded}
                 errorMessage={formError}
                 isSubmitting={isSubmitting}
             />

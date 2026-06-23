@@ -4,21 +4,28 @@ const MIN_BUDGET = 0
 const DEFAULT_MAX_BUDGET = 150000
 const BUDGET_STEP = 10000
 
-const BUDGET_PRESETS = [
-    { label: '전체', min: 0, max: DEFAULT_MAX_BUDGET },
+type BudgetPreset = {
+    label: string
+    min: number
+    max: number | null
+}
+
+const BUDGET_PRESETS: BudgetPreset[] = [
     { label: '3만원 이하', min: 0, max: 30000 },
     { label: '3만원 ~ 5만원', min: 30000, max: 50000 },
     { label: '5만원 ~ 7만원', min: 50000, max: 70000 },
     { label: '7만원 ~ 10만원', min: 70000, max: 100000 },
-    { label: '10만원 이상', min: 100000, max: DEFAULT_MAX_BUDGET },
+    { label: '10만원 이상', min: 100000, max: null },
 ]
 
 type BudgetSelectorProps = {
     minBudget: number
     maxBudget: number
+    isBudgetOpenEnded: boolean
     onMinChange: (value: number) => void
     onMaxChange: (value: number) => void
     onRangeChange: (minValue: number, maxValue: number) => void
+    onBudgetOpenEndedChange: (value: boolean) => void
 }
 
 const formatPrice = (price: number) => price.toLocaleString('ko-KR')
@@ -44,34 +51,49 @@ const roundUpToStep = (value: number) => {
 export default function BudgetSelector({
     minBudget,
     maxBudget,
+    isBudgetOpenEnded,
     onMinChange,
     onMaxChange,
     onRangeChange,
+    onBudgetOpenEndedChange,
 }: BudgetSelectorProps) {
     const dynamicMaxBudget = Math.max(
         DEFAULT_MAX_BUDGET,
-        roundUpToStep(Math.max(minBudget, maxBudget))
+        roundUpToStep(isBudgetOpenEnded ? minBudget : Math.max(minBudget, maxBudget))
     )
 
-    const sliderMin = Math.min(dynamicMaxBudget - BUDGET_STEP, Math.max(MIN_BUDGET, minBudget))
+    const minSliderMax = isBudgetOpenEnded
+        ? dynamicMaxBudget
+        : Math.max(MIN_BUDGET, dynamicMaxBudget - BUDGET_STEP)
 
-    const sliderMax = Math.max(
-        sliderMin + BUDGET_STEP,
-        Math.min(dynamicMaxBudget, Math.max(MIN_BUDGET, maxBudget))
-    )
+    const sliderMin = Math.min(minSliderMax, Math.max(MIN_BUDGET, minBudget))
+
+    const sliderMax = isBudgetOpenEnded
+        ? dynamicMaxBudget
+        : Math.max(
+              sliderMin + BUDGET_STEP,
+              Math.min(dynamicMaxBudget, Math.max(MIN_BUDGET + BUDGET_STEP, maxBudget))
+          )
 
     const minPosition = ((sliderMin - MIN_BUDGET) / (dynamicMaxBudget - MIN_BUDGET)) * 100
 
-    const maxPosition = ((sliderMax - MIN_BUDGET) / (dynamicMaxBudget - MIN_BUDGET)) * 100
+    const maxPosition = isBudgetOpenEnded
+        ? 100
+        : ((sliderMax - MIN_BUDGET) / (dynamicMaxBudget - MIN_BUDGET)) * 100
 
-    const selectedPreset = BUDGET_PRESETS.find(
-        (preset) => preset.min === minBudget && preset.max === maxBudget
-    )?.label
+    const selectedTrackStyle = isBudgetOpenEnded
+        ? {
+              left: `calc(${minPosition}% + 12px)`,
+              right: '12px',
+          }
+        : {
+              left: `calc(${minPosition}% + 12px)`,
+              right: `calc(${100 - maxPosition}% + 12px)`,
+          }
 
-    const rangeMaxLabel =
-        selectedPreset === '10만원 이상'
-            ? '10만원 이상'
-            : `${formatBudgetLabel(dynamicMaxBudget)} 이상`
+    const rangeMaxLabel = isBudgetOpenEnded
+        ? `${formatBudgetLabel(minBudget)} 이상`
+        : `${formatBudgetLabel(dynamicMaxBudget)} 이상`
 
     const rangeMiddleLabel = formatBudgetLabel(dynamicMaxBudget / 2)
 
@@ -82,7 +104,9 @@ export default function BudgetSelector({
                     1회당 희망 예산
                 </span>
                 <strong className="text-primary text-body-lg">
-                    {formatPrice(minBudget)}원 ~ {formatPrice(maxBudget)}원
+                    {isBudgetOpenEnded
+                        ? `${formatPrice(minBudget)}원 이상`
+                        : `${formatPrice(minBudget)}원 ~ ${formatPrice(maxBudget)}원`}
                 </strong>
             </div>
 
@@ -107,9 +131,20 @@ export default function BudgetSelector({
                         type="number"
                         min={0}
                         step={1000}
-                        value={maxBudget}
-                        onChange={(event) => onMaxChange(Number(event.target.value))}
-                        className="h-12 w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-sm text-body-md outline-none focus:border-primary"
+                        value={isBudgetOpenEnded ? '' : maxBudget}
+                        placeholder={isBudgetOpenEnded ? '상한 없음' : undefined}
+                        onChange={(event) => {
+                            const value = event.target.value
+
+                            if (value === '') {
+                                onBudgetOpenEndedChange(true)
+                                return
+                            }
+
+                            onBudgetOpenEndedChange(false)
+                            onMaxChange(Number(value))
+                        }}
+                        className="h-12 w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-sm text-body-md outline-none focus:border-primary placeholder:text-outline"
                     />
                 </label>
             </div>
@@ -119,41 +154,45 @@ export default function BudgetSelector({
 
                 <div
                     className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-primary"
-                    style={{
-                        left: `calc(${minPosition}% + 12px)`,
-                        right: `calc(${100 - maxPosition}% + 12px)`,
-                    }}
+                    style={selectedTrackStyle}
                 />
 
                 <input
                     aria-label="최소 예산"
                     type="range"
                     min={MIN_BUDGET}
-                    max={dynamicMaxBudget - BUDGET_STEP}
+                    max={minSliderMax}
                     step={BUDGET_STEP}
                     value={sliderMin}
                     onChange={(event) => {
                         const nextMin = Number(event.target.value)
+
+                        if (isBudgetOpenEnded) {
+                            onRangeChange(nextMin, nextMin)
+                            return
+                        }
 
                         onRangeChange(nextMin, Math.max(nextMin + BUDGET_STEP, sliderMax))
                     }}
                     className="budget-range absolute inset-x-0 top-1 z-10 h-10 w-full"
                 />
 
-                <input
-                    aria-label="최대 예산"
-                    type="range"
-                    min={MIN_BUDGET + BUDGET_STEP}
-                    max={dynamicMaxBudget}
-                    step={BUDGET_STEP}
-                    value={sliderMax}
-                    onChange={(event) => {
-                        const nextMax = Number(event.target.value)
+                {!isBudgetOpenEnded && (
+                    <input
+                        aria-label="최대 예산"
+                        type="range"
+                        min={MIN_BUDGET + BUDGET_STEP}
+                        max={dynamicMaxBudget}
+                        step={BUDGET_STEP}
+                        value={sliderMax}
+                        onChange={(event) => {
+                            const nextMax = Number(event.target.value)
 
-                        onRangeChange(Math.min(sliderMin, nextMax - BUDGET_STEP), nextMax)
-                    }}
-                    className="budget-range absolute inset-x-0 top-1 z-20 h-10 w-full"
-                />
+                            onRangeChange(Math.min(sliderMin, nextMax - BUDGET_STEP), nextMax)
+                        }}
+                        className="budget-range absolute inset-x-0 top-1 z-20 h-10 w-full"
+                    />
+                )}
             </div>
 
             <div className="mt-xs flex justify-between text-label-md text-outline">
@@ -164,14 +203,28 @@ export default function BudgetSelector({
 
             <div className="mt-md grid grid-cols-1 gap-xs sm:grid-cols-2">
                 {BUDGET_PRESETS.map((preset) => {
-                    const selected = selectedPreset === preset.label
+                    const selected =
+                        preset.max === null
+                            ? isBudgetOpenEnded && minBudget === preset.min
+                            : !isBudgetOpenEnded &&
+                              minBudget === preset.min &&
+                              maxBudget === preset.max
 
                     return (
                         <button
                             key={preset.label}
                             type="button"
                             aria-pressed={selected}
-                            onClick={() => onRangeChange(preset.min, preset.max)}
+                            onClick={() => {
+                                if (preset.max === null) {
+                                    onBudgetOpenEndedChange(true)
+                                    onRangeChange(preset.min, preset.min)
+                                    return
+                                }
+
+                                onBudgetOpenEndedChange(false)
+                                onRangeChange(preset.min, preset.max)
+                            }}
                             className={`flex h-10 items-center gap-xs rounded-lg px-sm text-left text-body-sm transition-colors ${
                                 selected
                                     ? 'bg-primary-fixed text-on-primary-fixed-variant font-semibold'

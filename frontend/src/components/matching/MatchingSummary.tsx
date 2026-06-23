@@ -7,6 +7,7 @@ type MatchingSummaryProps = {
     preferredTimeCount: number
     budgetMin: number
     budgetMax: number
+    isBudgetOpenEnded: boolean
     errorMessage: string
     isSubmitting: boolean
 }
@@ -22,6 +23,7 @@ export default function MatchingSummary({
     preferredTimeCount,
     budgetMin,
     budgetMax,
+    isBudgetOpenEnded,
     errorMessage,
     isSubmitting,
 }: MatchingSummaryProps) {
@@ -44,7 +46,9 @@ export default function MatchingSummary({
                 <div className="flex justify-between gap-md pt-sm border-t border-outline-variant">
                     <dt className="text-on-surface-variant">예산(1회)</dt>
                     <dd className="font-bold text-primary text-right">
-                        {formatPrice(budgetMin)} ~ {formatPrice(budgetMax)}
+                        {isBudgetOpenEnded
+                            ? `${formatPrice(budgetMin)} 이상`
+                            : `${formatPrice(budgetMin)} ~ ${formatPrice(budgetMax)}`}
                     </dd>
                 </div>
             </dl>
