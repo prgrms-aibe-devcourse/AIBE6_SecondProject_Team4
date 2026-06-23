@@ -641,6 +641,7 @@ export default function TrainerDetailPage({ params }: Props) {
                                         new CustomEvent('open-chat-with-trainer', {
                                             detail: {
                                                 trainerId: trainer.memberId,
+                                                trainerProfileId: trainer.id,
                                                 name: trainer.nickname ?? '',
                                                 profileImage: trainer.profileImage ?? '',
                                             },

@@ -10,10 +10,6 @@ spring:
     ansi:
       enabled: always
 
-  datasource:
-    hikari:
-      auto-commit: false
-
   h2:
     console:
       enabled: true

@@ -167,19 +167,46 @@ public class ReviewService {
                 .map(review -> ReviewResponse.from(review, profileId));
     }
 
-    // 리얼 후기 (메인 페이지) — 별점 4↑ + 내용 15자↑ 최신 N개
+    // 리얼 후기 (메인 페이지) — 평점 4↑ + 내용 10자↑ 랜덤 3개
     public List<RealReviewResponse> getRealReviews(int size) {
-        Pageable pageable = PageRequest.of(0, size);
-        return reviewRepository.findRealReviews(pageable).stream()
-                .map(r -> new RealReviewResponse(
-                        r.getId(),
-                        r.getReviewer().getNickname(),
-                        r.getReviewer().getProfileImage(),
-                        r.getTrainer().getNickname(),
-                        r.getRating(),
-                        r.getContent(),
-                        r.getCreatedAt() == null ? null : r.getCreatedAt().toString()
-                ))
+
+        Pageable pageable = PageRequest.of(0, 100);
+
+        List<Review> reviews = new ArrayList<>(
+                reviewRepository.findRealReviews(pageable)
+        );
+
+        // 10자 미만 제거
+        reviews.removeIf(review ->
+                review.getContent() == null ||
+                        review.getContent().length() < 10
+        );
+
+        Collections.shuffle(reviews);
+
+        return reviews.stream()
+                .limit(3)
+                .map(review -> {
+                    TrainerProfile profile = trainerProfileRepository
+                            .findByMemberId(review.getTrainer().getId())
+                            .orElse(null);
+
+                    return new RealReviewResponse(
+                            review.getId(),
+                            review.getReviewer().getNickname(),
+                            review.getReviewer().getProfileImage(),
+
+                            profile != null ? profile.getId() : null,
+                            review.getTrainer().getNickname(),
+                            profile != null ? profile.getSports() : null,
+
+                            review.getRating(),
+                            review.getContent(),
+                            review.getCreatedAt() == null
+                                    ? null
+                                    : review.getCreatedAt().toString()
+                    );
+                })
                 .toList();
     }
 

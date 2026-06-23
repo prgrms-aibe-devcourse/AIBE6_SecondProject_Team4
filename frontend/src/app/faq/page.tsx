@@ -1,7 +1,47 @@
 'use client'
 
-import Link from 'next/link'
-import { useState } from 'react'
+import { useState } from 'react';
+
+
+
+import Link from 'next/link';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 type Category = '전체' | '매칭' | '트레이너' | '기타'
 
@@ -130,7 +170,7 @@ const categories: Category[] = ['전체', '매칭', '트레이너', '기타']
 
 export default function FaqPage() {
     const [activeCategory, setActiveCategory] = useState<Category>('전체')
-    const [openIndex, setOpenIndex] = useState<number | null>(null)
+    const [openIndexes, setOpenIndexes] = useState<number[]>([])
     const [searchQuery, setSearchQuery] = useState('')
 
     const filtered = faqItems.filter((item) => {
@@ -143,12 +183,16 @@ export default function FaqPage() {
     })
 
     const handleToggle = (index: number) => {
-        setOpenIndex((prev) => (prev === index ? null : index))
+        setOpenIndexes(prev =>
+            prev.includes(index)
+                ? prev.filter(i => i !== index)
+                : [...prev, index]
+        )
     }
 
     const handleCategoryChange = (cat: Category) => {
         setActiveCategory(cat)
-        setOpenIndex(null)
+        setOpenIndexes([])
     }
 
     return (
@@ -173,7 +217,7 @@ export default function FaqPage() {
                             value={searchQuery}
                             onChange={(e) => {
                                 setSearchQuery(e.target.value)
-                                setOpenIndex(null)
+                                setOpenIndexes([])
                             }}
                             className="w-full h-14 md:h-16 pl-14 pr-6 rounded-xl border-none bg-white/90 shadow-xl focus:ring-2 focus:ring-[#0057cd] text-base md:text-lg placeholder:text-gray-400 outline-none transition-all"
                             placeholder="궁금한 내용을 검색해보세요 (예: 매칭, 환불)"
@@ -217,7 +261,7 @@ export default function FaqPage() {
                             </div>
                         )}
                         {filtered.map((item, index) => {
-                            const isOpen = openIndex === index
+                            const isOpen = openIndexes.includes(index)
                             return (
                                 <div
                                     key={index}
