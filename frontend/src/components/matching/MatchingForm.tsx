@@ -1,8 +1,16 @@
 'use client'
 
+import BudgetSelector from '@/components/matching/BudgetSelector'
 import MatchingSummary from '@/components/matching/MatchingSummary'
 import PreferredTimeInput, { type PreferredTime } from '@/components/matching/PreferredTimeInput'
-import { DISTRICTS, LESSON_TYPES, LEVELS, REGIONS, SPORTS } from '@/constants/matchingOptions'
+import {
+    DAYS_OF_WEEK,
+    DISTRICTS,
+    LESSON_TYPES,
+    LEVELS,
+    REGIONS,
+    SPORTS,
+} from '@/constants/matchingOptions'
 import { useAuth } from '@/context/AuthContext'
 import { getAuthClient } from '@/utils/apiClient'
 import { FormEvent, useEffect, useMemo, useState } from 'react'
@@ -17,6 +25,8 @@ export type MatchingDraft = {
     budgetMin?: number
     budgetMax?: number
     lessonContent?: string
+    enhancedQuery?: string
+    suggestedPreferences?: string[]
     preferredTimes?: Array<{
         dayOfWeek?: string
         startTime?: string
@@ -38,7 +48,51 @@ const DAY_LABELS: Record<string, string> = {
     SUNDAY: '일요일',
 }
 
-const formatPrice = (price: number) => `${price.toLocaleString('ko-KR')}원`
+const PREFERENCE_OPTIONS = [
+    '초보자 친화',
+    '동기부여',
+    '자세 교정',
+    '체형 개선',
+    '근력 향상',
+    '재활 경험',
+    '대회 준비',
+    '체계적인 관리',
+    '운동 습관 형성',
+    '경력 우선',
+]
+
+const PREFERENCE_PREFIX = '중요하게 생각하는 조건:'
+const MATCHING_FORM_STORAGE_KEY = 'fitmate-matching-form'
+
+const applyPreferencesToContent = (content: string, preferences: string[]) => {
+    const baseContent = content
+        .split('\n')
+        .filter((line) => !line.trim().startsWith(PREFERENCE_PREFIX))
+        .join('\n')
+        .trim()
+
+    return [
+        baseContent,
+        preferences.length > 0 ? `${PREFERENCE_PREFIX} ${preferences.join(', ')}` : '',
+    ]
+        .filter(Boolean)
+        .join('\n')
+        .slice(0, 500)
+}
+
+type StoredMatchingForm = {
+    sports: string
+    levels: string[]
+    lessonTypes: string[]
+    region: string
+    district: string
+    budgetMin: number
+    budgetMax: number
+    lessonContent: string
+    suggestedPreferences: string[]
+    selectedPreferences: string[]
+    preferredTimes: PreferredTime[]
+}
 
 export default function MatchingForm({ initialDraft }: MatchingFormProps) {
     const router = useRouter()
@@ -51,9 +105,12 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
     const [budgetMin, setBudgetMin] = useState(50000)
     const [budgetMax, setBudgetMax] = useState(80000)
     const [lessonContent, setLessonContent] = useState('')
+    const [suggestedPreferences, setSuggestedPreferences] = useState<string[]>([])
+    const [selectedPreferences, setSelectedPreferences] = useState<string[]>([])
     const [preferredTimes, setPreferredTimes] = useState<PreferredTime[]>([])
     const [formError, setFormError] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isStorageReady, setIsStorageReady] = useState(false)
 
     useEffect(() => {
         if (!initialDraft) {
@@ -121,9 +178,14 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
             setBudgetMax(parsedBudgetMax)
         }
 
-        if (initialDraft.lessonContent) {
-            setLessonContent(initialDraft.lessonContent)
+        const nextLessonContent = initialDraft.enhancedQuery ?? initialDraft.lessonContent
+
+        if (nextLessonContent) {
+            setLessonContent(nextLessonContent)
         }
+
+        setSuggestedPreferences(initialDraft.suggestedPreferences ?? [])
+        setSelectedPreferences([])
 
         const parsedTimes =
             initialDraft.preferredTimes
@@ -140,6 +202,101 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
         setFormError('')
     }, [initialDraft])
 
+    useEffect(() => {
+        if (initialDraft) {
+            setIsStorageReady(true)
+            return
+        }
+
+        try {
+            const storedValue = localStorage.getItem(MATCHING_FORM_STORAGE_KEY)
+
+            if (!storedValue) {
+                return
+            }
+
+            const storedForm = JSON.parse(storedValue) as Partial<StoredMatchingForm>
+
+            if (storedForm.sports && SPORTS.includes(storedForm.sports)) {
+                setSports(storedForm.sports)
+            }
+            if (storedForm.levels?.length) {
+                setLevels(storedForm.levels.filter((level) => LEVELS.includes(level)))
+            }
+            if (storedForm.lessonTypes?.length) {
+                setLessonTypes(
+                    storedForm.lessonTypes.filter((lessonType) => LESSON_TYPES.includes(lessonType))
+                )
+            }
+            if (storedForm.region && REGIONS.includes(storedForm.region)) {
+                setRegion(storedForm.region)
+            }
+            if (typeof storedForm.district === 'string') {
+                setDistrict(storedForm.district)
+            }
+            if (typeof storedForm.budgetMin === 'number') {
+                setBudgetMin(storedForm.budgetMin)
+            }
+            if (typeof storedForm.budgetMax === 'number') {
+                setBudgetMax(storedForm.budgetMax)
+            }
+            if (typeof storedForm.lessonContent === 'string') {
+                setLessonContent(storedForm.lessonContent)
+            }
+
+            setSuggestedPreferences(
+                storedForm.suggestedPreferences?.filter((preference) =>
+                    PREFERENCE_OPTIONS.includes(preference)
+                ) ?? []
+            )
+            setSelectedPreferences(
+                storedForm.selectedPreferences?.filter((preference) =>
+                    PREFERENCE_OPTIONS.includes(preference)
+                ) ?? []
+            )
+            setPreferredTimes(storedForm.preferredTimes ?? [])
+        } catch {
+            localStorage.removeItem(MATCHING_FORM_STORAGE_KEY)
+        } finally {
+            setIsStorageReady(true)
+        }
+    }, [initialDraft])
+
+    useEffect(() => {
+        if (!isStorageReady) {
+            return
+        }
+
+        const storedForm: StoredMatchingForm = {
+            sports,
+            levels,
+            lessonTypes,
+            region,
+            district,
+            budgetMin,
+            budgetMax,
+            lessonContent,
+            suggestedPreferences,
+            selectedPreferences,
+            preferredTimes,
+        }
+
+        localStorage.setItem(MATCHING_FORM_STORAGE_KEY, JSON.stringify(storedForm))
+    }, [
+        budgetMax,
+        budgetMin,
+        district,
+        isStorageReady,
+        lessonContent,
+        lessonTypes,
+        levels,
+        preferredTimes,
+        region,
+        selectedPreferences,
+        sports,
+        suggestedPreferences,
+    ])
+
     const districtOptions = useMemo(() => DISTRICTS[region] ?? [], [region])
 
     const handleRegionChange = (nextRegion: string) => {
@@ -148,11 +305,28 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
     }
 
     const handleBudgetMinChange = (value: number) => {
-        setBudgetMin(Math.min(value, budgetMax - 10000))
+        const nextValue = Math.max(0, value)
+
+        setBudgetMin(nextValue)
+
+        if (nextValue > budgetMax) {
+            setBudgetMax(nextValue)
+        }
     }
 
     const handleBudgetMaxChange = (value: number) => {
-        setBudgetMax(Math.max(value, budgetMin + 10000))
+        const nextValue = Math.max(0, value)
+
+        setBudgetMax(nextValue)
+
+        if (nextValue < budgetMin) {
+            setBudgetMin(nextValue)
+        }
+    }
+
+    const handleBudgetRangeChange = (minValue: number, maxValue: number) => {
+        setBudgetMin(minValue)
+        setBudgetMax(maxValue)
     }
 
     const toggleSelection = (
@@ -193,6 +367,18 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
         setFormError('')
     }
 
+    const togglePreference = (preference: string) => {
+        setSelectedPreferences((preferences) => {
+            const nextPreferences = preferences.includes(preference)
+                ? preferences.filter((value) => value !== preference)
+                : [...preferences, preference]
+
+            setLessonContent((content) => applyPreferencesToContent(content, nextPreferences))
+
+            return nextPreferences
+        })
+    }
+
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
 
@@ -201,16 +387,23 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
             return
         }
 
-        if (preferredTimes.length === 0) {
-            setFormError('선호 요일을 한 개 이상 선택해 주세요.')
-            return
-        }
-
         setIsSubmitting(true)
         setFormError('')
 
         try {
             const client = getAuthClient()
+            const submittedTimes =
+                preferredTimes.length > 0
+                    ? preferredTimes
+                    : DAYS_OF_WEEK.map((day, index) => ({
+                          id: index,
+                          dayOfWeek: day,
+                          startTime: '00:00',
+                          endTime: '23:59:59',
+                      }))
+
+            const finalLessonContent = lessonContent.trim().slice(0, 500)
+
             const { data, error } = await client.POST('/api/matching', {
                 body: {
                     level: levels.map(toStoredLevel).join(','),
@@ -219,8 +412,8 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
                     region,
                     budgetMin,
                     budgetMax,
-                    lessonContent,
-                    preferredTimes: preferredTimes.map((time) => ({
+                    lessonContent: finalLessonContent,
+                    preferredTimes: submittedTimes.map((time) => ({
                         dayOfWeek: time.dayOfWeek,
                         startTime: '00:00:00',
                         endTime: '23:59:59',
@@ -256,11 +449,14 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
                     district,
                     budgetMin,
                     budgetMax,
-                    lessonContent,
+                    lessonContent: finalLessonContent,
                     preferredDays: preferredTimes.map((time) => time.dayOfWeek),
+                    suggestedPreferences,
+                    selectedPreferences,
                 })
             )
 
+            localStorage.removeItem(MATCHING_FORM_STORAGE_KEY)
             router.push(`/matching/${data.matchingId}`)
         } catch {
             setFormError('서버에 연결할 수 없습니다.')
@@ -275,6 +471,75 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
             className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-gutter items-start"
         >
             <div className="space-y-md">
+                {(initialDraft?.enhancedQuery || suggestedPreferences.length > 0) && (
+                    <section className="bg-primary-fixed/25 border border-primary/25 rounded-lg p-md md:p-lg">
+                        <div className="flex items-center gap-xs">
+                            <span className="material-symbols-outlined text-primary">
+                                auto_awesome
+                            </span>
+                            <h3 className="font-headline-sm text-headline-sm text-on-surface">
+                                AI 분석 결과
+                            </h3>
+                        </div>
+
+                        <dl className="mt-md grid grid-cols-1 gap-sm text-body-sm sm:grid-cols-2">
+                            <AnalysisItem label="종목" value={sports} />
+                            <AnalysisItem label="지역" value={region} />
+                            <AnalysisItem label="레슨 유형" value={lessonTypes.join(', ')} />
+                            <AnalysisItem label="레슨 수준" value={levels.join(', ')} />
+                            <AnalysisItem
+                                label="요일"
+                                value={
+                                    preferredTimes.length > 0
+                                        ? preferredTimes.map((time) => time.dayOfWeek).join(', ')
+                                        : '전체'
+                                }
+                            />
+                        </dl>
+
+                        <fieldset className="mt-md border-t border-primary/15 pt-md">
+                            <legend className="text-label-md font-label-bold text-on-surface">
+                                어떤 점을 중요하게 생각하시나요?
+                            </legend>
+                            <p className="mt-xs text-body-sm text-on-surface-variant">
+                                AI 추천은 주황색, 직접 선택한 항목은 파란색으로 표시됩니다.
+                            </p>
+                            <div className="mt-sm flex flex-wrap gap-xs">
+                                {PREFERENCE_OPTIONS.map((preference) => {
+                                    const selected = selectedPreferences.includes(preference)
+                                    const recommended = suggestedPreferences.includes(preference)
+
+                                    return (
+                                        <button
+                                            key={preference}
+                                            type="button"
+                                            aria-pressed={selected}
+                                            onClick={() => togglePreference(preference)}
+                                            className={`relative h-9 rounded-full border px-sm text-body-sm transition-colors cursor-pointer ${
+                                                selected
+                                                    ? 'border-primary bg-primary text-on-primary'
+                                                    : recommended
+                                                      ? 'border-[#F59E0B] bg-[#FFF7E6] text-[#92400E] font-semibold'
+                                                      : 'border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:border-primary'
+                                            }`}
+                                        >
+                                            {preference}
+                                            {selected && (
+                                                <span className="material-symbols-outlined ml-1 align-middle text-[16px]">
+                                                    check
+                                                </span>
+                                            )}
+                                            {recommended && !selected && (
+                                                <span className="ml-1 text-label-sm">AI 추천</span>
+                                            )}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                        </fieldset>
+                    </section>
+                )}
+
                 <section className="bg-surface-container-lowest border border-outline-variant rounded-lg p-md md:p-lg">
                     <h3 className="font-headline-sm text-headline-sm text-on-surface">
                         어떤 운동을 원하시나요?
@@ -330,61 +595,59 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
                         />
                     </div>
 
-                    <div className="mt-md">
-                        <div className="flex flex-wrap items-end justify-between gap-xs">
-                            <span className="text-label-md font-label-md text-on-surface-variant">
-                                1회당 희망 예산
-                            </span>
-                            <strong className="text-primary text-body-lg">
-                                {formatPrice(budgetMin)} ~ {formatPrice(budgetMax)}
-                            </strong>
-                        </div>
-
-                        <div className="mt-md space-y-sm">
-                            <BudgetRange
-                                label="최소 예산"
-                                value={budgetMin}
-                                onChange={handleBudgetMinChange}
-                            />
-                            <BudgetRange
-                                label="최대 예산"
-                                value={budgetMax}
-                                onChange={handleBudgetMaxChange}
-                            />
-                        </div>
-                        <div className="mt-xs flex justify-between text-label-md text-outline">
-                            <span>3만원</span>
-                            <span>15만원+</span>
-                        </div>
-                    </div>
+                    <BudgetSelector
+                        minBudget={budgetMin}
+                        maxBudget={budgetMax}
+                        onMinChange={handleBudgetMinChange}
+                        onMaxChange={handleBudgetMaxChange}
+                        onRangeChange={handleBudgetRangeChange}
+                    />
                 </section>
 
-                <section className="bg-surface-container-lowest border border-outline-variant rounded-lg p-md md:p-lg">
-                    <h3 className="font-headline-sm text-headline-sm text-on-surface">
-                        일정 및 목표
-                    </h3>
-                    <p className="mt-xs text-body-sm text-on-surface-variant">
-                        가능한 요일을 여러 개 선택하면 더 다양한 트레이너를 추천합니다.
-                    </p>
+                <section className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest shadow-sm">
+                    <div className="p-lg md:p-xl">
+                        <div className="flex items-start gap-sm">
+                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-fixed text-primary">
+                                <span className="material-symbols-outlined">calendar_month</span>
+                            </span>
+                            <div>
+                                <h3 className="font-headline-sm text-headline-sm text-on-surface">
+                                    일정 및 목표
+                                </h3>
+                                <p className="mt-xs text-body-md text-on-surface-variant">
+                                    가능한 요일을 선택하지 않으면 모든 요일을 기준으로 추천합니다.
+                                </p>
+                            </div>
+                        </div>
 
-                    <PreferredTimeInput
-                        preferredTimes={preferredTimes}
-                        onToggle={togglePreferredDay}
-                    />
-
-                    <label className="block mt-md text-label-md font-label-md text-on-surface-variant">
-                        구체적인 목표나 요청사항
-                        <textarea
-                            value={lessonContent}
-                            onChange={(event) => setLessonContent(event.target.value)}
-                            maxLength={500}
-                            rows={6}
-                            placeholder="예: 코어 근육 강화를 원합니다. 과거 허리 디스크 이력이 있습니다."
-                            className="mt-xs w-full resize-none rounded-lg border border-outline-variant bg-surface-container-lowest p-sm text-body-md outline-none focus:border-primary"
+                        <PreferredTimeInput
+                            preferredTimes={preferredTimes}
+                            onToggle={togglePreferredDay}
                         />
-                    </label>
-                    <div className="mt-xs text-right text-label-md text-outline">
-                        {lessonContent.length}/500
+
+                        <div className="my-lg h-px bg-outline-variant" />
+
+                        <label className="block text-label-lg font-label-bold text-on-surface">
+                            AI가 보완한 목표와 요청사항
+                            <div className="mt-sm overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
+                                <textarea
+                                    value={lessonContent}
+                                    onChange={(event) => setLessonContent(event.target.value)}
+                                    maxLength={500}
+                                    rows={7}
+                                    placeholder="구체적인 목표나 트레이너에게 바라는 점을 입력해 주세요."
+                                    className="block w-full resize-none border-0 bg-transparent p-md text-body-md text-on-surface outline-none placeholder:text-outline"
+                                />
+                                <div className="flex items-center justify-between border-t border-outline-variant bg-surface-container-low px-md py-xs">
+                                    <span className="text-label-md font-label-normal text-on-surface-variant">
+                                        선택한 선호 조건도 요청사항에 함께 반영됩니다.
+                                    </span>
+                                    <span className="text-label-md font-label-bold text-outline">
+                                        {lessonContent.length}/500
+                                    </span>
+                                </div>
+                            </div>
+                        </label>
                     </div>
                 </section>
             </div>
@@ -402,6 +665,15 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
                 isSubmitting={isSubmitting}
             />
         </form>
+    )
+}
+
+function AnalysisItem({ label, value }: { label: string; value: string }) {
+    return (
+        <div className="flex items-center justify-between gap-md rounded-lg bg-surface-container-lowest px-sm py-xs">
+            <dt className="text-on-surface-variant">{label}</dt>
+            <dd className="font-semibold text-right text-on-surface">{value}</dd>
+        </div>
     )
 }
 
@@ -511,31 +783,6 @@ function SelectField({ label, value, options, onChange, placeholder }: SelectFie
                     </option>
                 ))}
             </select>
-        </label>
-    )
-}
-
-function BudgetRange({
-    label,
-    value,
-    onChange,
-}: {
-    label: string
-    value: number
-    onChange: (value: number) => void
-}) {
-    return (
-        <label className="block">
-            <span className="sr-only">{label}</span>
-            <input
-                type="range"
-                min="30000"
-                max="150000"
-                step="10000"
-                value={value}
-                onChange={(event) => onChange(Number(event.target.value))}
-                className="w-full accent-primary cursor-grab"
-            />
         </label>
     )
 }

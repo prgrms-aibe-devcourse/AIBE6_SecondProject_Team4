@@ -47,9 +47,9 @@ export default function MatchingPage() {
                 return
             }
 
-            if (!data.preferredTimes?.some((time) => time.dayOfWeek)) {
-                setQuickError('선호 요일을 입력해 주세요. 예: 월요일, 수요일')
-                return
+            const parsedData = data as typeof data & {
+                enhancedQuery?: string
+                suggestedPreferences?: string[]
             }
 
             /*
@@ -57,13 +57,13 @@ export default function MatchingPage() {
              * 실제 조건 필드가 하나라도 해석됐는지 별도로 확인합니다.
              */
             const hasParsedCondition =
-                Boolean(data.sports) ||
-                Boolean(data.level) ||
-                Boolean(data.lessonType) ||
-                Boolean(data.region) ||
-                typeof data.budgetMin === 'number' ||
-                typeof data.budgetMax === 'number' ||
-                Boolean(data.preferredTimes?.length)
+                Boolean(parsedData.sports) ||
+                Boolean(parsedData.level) ||
+                Boolean(parsedData.lessonType) ||
+                Boolean(parsedData.region) ||
+                typeof parsedData.budgetMin === 'number' ||
+                typeof parsedData.budgetMax === 'number' ||
+                Boolean(parsedData.preferredTimes?.length)
 
             if (!hasParsedCondition) {
                 setQuickError('운동 종목, 지역 또는 레슨 유형을 입력해 주세요.')
@@ -71,14 +71,16 @@ export default function MatchingPage() {
             }
 
             setParsedDraft({
-                sports: data.sports,
-                level: data.level,
-                lessonType: data.lessonType,
-                region: data.region,
-                budgetMin: data.budgetMin,
-                budgetMax: data.budgetMax,
-                preferredTimes: data.preferredTimes,
-                lessonContent: data.lessonContent,
+                sports: parsedData.sports,
+                level: parsedData.level,
+                lessonType: parsedData.lessonType,
+                region: parsedData.region,
+                budgetMin: parsedData.budgetMin,
+                budgetMax: parsedData.budgetMax,
+                preferredTimes: parsedData.preferredTimes,
+                enhancedQuery: parsedData.enhancedQuery,
+                suggestedPreferences: parsedData.suggestedPreferences,
+                lessonContent: parsedData.enhancedQuery ?? parsedData.lessonContent,
             })
 
             window.setTimeout(() => {
