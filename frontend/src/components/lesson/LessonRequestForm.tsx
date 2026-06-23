@@ -112,7 +112,6 @@ const normalizeLessonType = (value: string) => {
         return 'ONE_TO_ONE'
     }
     if (['GROUP', '그룹'].includes(normalized)) return 'GROUP'
-    if (['ONLINE', '온라인'].includes(normalized)) return 'ONLINE'
     return normalized
 }
 
@@ -128,7 +127,6 @@ const formatLessonTypeOption = (value: string) => {
     const normalized = normalizeLessonType(value)
     if (normalized === 'ONE_TO_ONE') return '1:1'
     if (normalized === 'GROUP') return '그룹'
-    if (normalized === 'ONLINE') return '온라인'
     return formatLessonType(value)
 }
 
@@ -650,7 +648,9 @@ export default function LessonRequestForm({
                                 패키지 횟수
                                 <select
                                     value={packageCount}
-                                    onChange={(event) => setPackageCount(Number(event.target.value))}
+                                    onChange={(event) =>
+                                        setPackageCount(Number(event.target.value))
+                                    }
                                     className="mt-xs h-12 w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-sm text-body-md outline-none focus:border-primary"
                                 >
                                     {[5, 10, 20].map((count) => (

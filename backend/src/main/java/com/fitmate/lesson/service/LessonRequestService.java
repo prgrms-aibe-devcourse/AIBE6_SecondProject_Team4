@@ -508,7 +508,6 @@ public class LessonRequestService {
         return switch (normalizeText(value)) {
             case "ONE_TO_ONE", "1:1", "1:1PT", "1대1", "개인" -> "ONE_TO_ONE";
             case "GROUP", "그룹" -> "GROUP";
-            case "ONLINE", "온라인" -> "ONLINE";
             default -> normalizeText(value);
         };
     }

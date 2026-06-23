@@ -669,7 +669,21 @@ export default function TrainerDetailPage({ params }: Props) {
                                                       SATURDAY: '토',
                                                       SUNDAY: '일',
                                                   }
-                                                  const days = trainer.availableTimes
+                                                  const DAY_ORDER = [
+                                                      'MONDAY',
+                                                      'TUESDAY',
+                                                      'WEDNESDAY',
+                                                      'THURSDAY',
+                                                      'FRIDAY',
+                                                      'SATURDAY',
+                                                      'SUNDAY',
+                                                  ]
+                                                  const days = [...trainer.availableTimes]
+                                                      .sort(
+                                                          (a, b) =>
+                                                              DAY_ORDER.indexOf(a.dayOfWeek ?? '') -
+                                                              DAY_ORDER.indexOf(b.dayOfWeek ?? '')
+                                                      )
                                                       .map(
                                                           (t) =>
                                                               dayMap[t.dayOfWeek ?? ''] ??

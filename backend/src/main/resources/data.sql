@@ -850,7 +850,7 @@ WHERE m.user_id = 'trainer14';
 UPDATE trainer_profiles tp
     JOIN members m
 ON tp.user_id = m.id
-    SET tp.sports = '헬스,테니스', tp.lesson_type = 'ONLINE,ONE_TO_ONE'
+    SET tp.sports = '헬스,테니스', tp.lesson_type = 'ONE_TO_ONE'
 WHERE m.user_id = 'trainer15';
 
 UPDATE trainer_profiles tp
