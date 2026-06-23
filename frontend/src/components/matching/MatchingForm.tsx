@@ -480,7 +480,6 @@ export default function MatchingForm({ initialDraft }: MatchingFormProps) {
                 })
             )
 
-            localStorage.removeItem(MATCHING_FORM_STORAGE_KEY)
             router.push(`/matching/${data.matchingId}`)
         } catch {
             setFormError('서버에 연결할 수 없습니다.')
