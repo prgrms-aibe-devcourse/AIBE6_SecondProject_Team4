@@ -1,9 +1,28 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { API_BASE_URL } from '@/utils/apiClient';
+import { Client } from '@stomp/stompjs';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import SockJS from 'sockjs-client';
 
-import { Client } from '@stomp/stompjs'
-import SockJS from 'sockjs-client'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // 서버에서 받는 메시지 형태 (ChatResponseDto 와 일치)
 export interface ChatMessage {
@@ -45,32 +64,32 @@ export function useChat({ roomId, myId }: { roomId: number; myId: number }) {
 
     // ── STEP 1. STOMP 클라이언트 생성 ───────────────────────
     const client = new Client({
-      // SockJS 를 transport 로 사용 (브라우저 호환성 보장)
-      webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+        // SockJS 를 transport 로 사용 (브라우저 호환성 보장)
+        webSocketFactory: () => new SockJS(`${API_BASE_URL}/ws`),
 
-      // 연결 성공 시 실행
-      onConnect: () => {
-        setConnected(true)
-        console.log('[WebSocket] 연결됨')
+        // 연결 성공 시 실행
+        onConnect: () => {
+            setConnected(true)
+            console.log('[WebSocket] 연결됨')
 
-        // ── STEP 2. 채팅방 구독 ─────────────────────────────
-        // /sub/chat/{roomId} 를 구독하면 이 채팅방으로 오는 모든 메시지를 받는다
-        client.subscribe(`/sub/chat/${roomId}`, (frame) => {
-          // frame.body 는 JSON 문자열 → 파싱해서 메시지 목록에 추가
-          const received: ChatMessage = JSON.parse(frame.body)
-          setMessages((prev) => [...prev, received])
-        })
-      },
+            // ── STEP 2. 채팅방 구독 ─────────────────────────────
+            // /sub/chat/{roomId} 를 구독하면 이 채팅방으로 오는 모든 메시지를 받는다
+            client.subscribe(`/sub/chat/${roomId}`, (frame) => {
+                // frame.body 는 JSON 문자열 → 파싱해서 메시지 목록에 추가
+                const received: ChatMessage = JSON.parse(frame.body)
+                setMessages((prev) => [...prev, received])
+            })
+        },
 
-      onDisconnect: () => {
-        setConnected(false)
-        console.log('[WebSocket] 연결 해제됨')
-      },
+        onDisconnect: () => {
+            setConnected(false)
+            console.log('[WebSocket] 연결 해제됨')
+        },
 
-      // 연결 오류 시
-      onStompError: (frame) => {
-        console.error('[WebSocket] 오류:', frame.headers['message'])
-      },
+        // 연결 오류 시
+        onStompError: (frame) => {
+            console.error('[WebSocket] 오류:', frame.headers['message'])
+        },
     })
 
     // 연결 시작

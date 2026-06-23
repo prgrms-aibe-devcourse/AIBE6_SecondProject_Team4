@@ -6,8 +6,40 @@ import { useAuth } from '@/context/AuthContext';
 import { Review, useMyReviews } from '@/hooks/useMyReviews';
 import { getImageUrl } from '@/utils/apiClient';
 import { useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+
+
+
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -252,7 +284,9 @@ export default function MyReviewList() {
         setSort,
         updateReview,
         deleteReview,
+        refetch,
     } = useMyReviews()
+    const [successMsg, setSuccessMsg] = useState('')
     const listTopRef = useRef<HTMLDivElement>(null)
     const searchParams = useSearchParams()
     const [tab, setTab] = useState<Tab>(() =>
@@ -275,6 +309,11 @@ export default function MyReviewList() {
 
     return (
         <div ref={listTopRef} className="flex flex-col gap-sm">
+            {successMsg && (
+                <div className="rounded-lg bg-primary-fixed px-4 py-3 text-body-sm font-medium text-primary">
+                    ✓ {successMsg}
+                </div>
+            )}
             {/* 헤더: 탭 */}
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div className="overflow-x-auto border-b border-outline-variant">
@@ -338,7 +377,10 @@ export default function MyReviewList() {
                 (loading ? (
                     <div className="flex flex-col gap-md">
                         {Array.from({ length: 5 }).map((_, i) => (
-                            <div key={i} className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
+                            <div
+                                key={i}
+                                className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm"
+                            >
                                 <div className="mb-4 flex items-start justify-between">
                                     <div className="flex items-center gap-4">
                                         <div className="h-12 w-12 flex-shrink-0 rounded-full bg-surface-container animate-pulse" />
@@ -349,8 +391,14 @@ export default function MyReviewList() {
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <div className="h-3 rounded bg-surface-container animate-pulse" style={{ width: `${70 + (i * 11) % 25}%` }} />
-                                    <div className="h-3 rounded bg-surface-container animate-pulse" style={{ width: `${50 + (i * 17) % 30}%` }} />
+                                    <div
+                                        className="h-3 rounded bg-surface-container animate-pulse"
+                                        style={{ width: `${70 + ((i * 11) % 25)}%` }}
+                                    />
+                                    <div
+                                        className="h-3 rounded bg-surface-container animate-pulse"
+                                        style={{ width: `${50 + ((i * 17) % 30)}%` }}
+                                    />
                                 </div>
                             </div>
                         ))}
@@ -382,14 +430,26 @@ export default function MyReviewList() {
                             totalPages={totalPages}
                             onChange={(p) => {
                                 setPage(p)
-                                listTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                                listTopRef.current?.scrollIntoView({
+                                    behavior: 'smooth',
+                                    block: 'start',
+                                })
                             }}
                         />
                     </>
                 ))}
 
             {/* 작성 가능한 후기 탭 (사용자만) */}
-            {tab === 'writable' && !isTrainer && <WritableReviewList />}
+            {tab === 'writable' && !isTrainer && (
+                <WritableReviewList
+                    onReviewCreated={() => {
+                        refetch() // 전체 후기 다시 불러오기
+                        setTab('all') // 전체 후기 탭으로 자동 이동
+                        setSuccessMsg('후기가 등록되었습니다.')
+                        setTimeout(() => setSuccessMsg(''), 3000)
+                    }}
+                />
+            )}
 
             {/* 수정 모달 */}
             {editing && (

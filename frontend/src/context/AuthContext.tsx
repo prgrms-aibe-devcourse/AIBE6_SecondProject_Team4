@@ -1,7 +1,29 @@
 'use client'
 
-import { setTokenRefreshHandler } from '@/utils/apiClient'
-import { createContext, useContext, useEffect, useState } from 'react'
+import { API_BASE_URL, setTokenRefreshHandler } from '@/utils/apiClient';
+import { createContext, useContext, useEffect, useState } from 'react';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export interface AuthUser {
     memberId: number
@@ -45,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const logout = async () => {
         try {
-            await fetch('http://localhost:8080/api/auth/logout', {
+            await fetch(`${API_BASE_URL}/api/auth/logout`, {
                 method: 'POST',
                 credentials: 'include',
             })

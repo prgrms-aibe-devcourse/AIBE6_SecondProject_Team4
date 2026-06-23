@@ -1,11 +1,55 @@
 'use client'
 
-import { getAuthClient } from '@/utils/apiClient';
+import { API_BASE_URL, getAuthClient } from '@/utils/apiClient';
 import { useEffect, useState } from 'react';
 
 
 
 import { useRouter } from 'next/navigation';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -55,7 +99,7 @@ export default function AdminMembersPage() {
     const fetchStats = async () => {
         const stored = localStorage.getItem('fitmate_user')
         const token = stored ? JSON.parse(stored).token : null
-        const res = await fetch('http://localhost:8080/api/admin/members/stats', {
+        const res = await fetch(`${API_BASE_URL}/api/admin/members/stats`, {
             headers: { Authorization: `Bearer ${token}` },
         })
         if (res.ok) {
@@ -77,7 +121,7 @@ export default function AdminMembersPage() {
         if (keyword.trim()) params.append('keyword', keyword.trim())
         if (role) params.append('role', role)
 
-        const res = await fetch(`http://localhost:8080/api/admin/members?${params}`, {
+        const res = await fetch(`${API_BASE_URL}/api/admin/members?${params}`, {
             headers: { Authorization: `Bearer ${token}` },
         })
 
@@ -106,7 +150,7 @@ export default function AdminMembersPage() {
         const stored = localStorage.getItem('fitmate_user')
         const token = stored ? JSON.parse(stored).token : null
 
-        const res = await fetch(`http://localhost:8080/api/admin/members/${memberId}`, {
+        const res = await fetch(`${API_BASE_URL}/api/admin/members/${memberId}`, {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${token}` },
         })
