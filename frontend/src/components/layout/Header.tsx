@@ -1,12 +1,12 @@
 'use client'
 
-import { useAuth } from '@/context/AuthContext';
-import { type AlertItem, useAlert } from '@/hooks/useAlert';
-import { getImageUrl } from '@/utils/apiClient';
-import { useEffect, useRef, useState } from 'react';
+import { useAuth } from '@/context/AuthContext'
+import { type AlertItem, useAlert } from '@/hooks/useAlert'
+import { getImageUrl } from '@/utils/apiClient'
+import { useEffect, useRef, useState } from 'react'
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 function getAlertHref(alert: AlertItem): string {
     if (!alert.targetId) return '#'
@@ -258,7 +258,11 @@ export default function Header() {
                                 <div className="absolute right-0 top-full pt-2 w-40 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity">
                                     <div className="bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant overflow-hidden">
                                         <Link
-                                            href={user.role === 'ADMIN' ? '/admin/inquiries' : '/mypage'}
+                                            href={
+                                                user.role === 'ADMIN'
+                                                    ? '/admin/inquiries'
+                                                    : '/mypage'
+                                            }
                                             className="block px-4 py-3 text-body-sm text-on-surface hover:bg-surface-container transition-colors"
                                         >
                                             {user.role === 'ADMIN' ? '관리자 페이지' : '마이페이지'}
