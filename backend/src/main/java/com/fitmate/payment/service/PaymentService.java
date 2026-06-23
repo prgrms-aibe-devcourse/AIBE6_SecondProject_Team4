@@ -163,7 +163,14 @@ public class PaymentService {
         int price = lesson.getTrainerProfile().getPrice();
         if (lesson.getLessonPassType() == LessonPassType.PACKAGE
                 && lesson.getPackageCount() != null) {
-            return price * lesson.getPackageCount();
+            int total = price * lesson.getPackageCount();
+            double discountRate = switch (lesson.getPackageCount()) {
+                case 5 -> 0.05;
+                case 10 -> 0.10;
+                case 20 -> 0.20;
+                default -> 0.0;
+            };
+            return (int) Math.round(total * (1 - discountRate));
         }
         return price; // ONE_TIME
     }

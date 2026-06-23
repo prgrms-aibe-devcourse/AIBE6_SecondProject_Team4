@@ -89,6 +89,13 @@ const splitValues = (value?: string) =>
         .map((item) => item.trim())
         .filter(Boolean) ?? []
 
+const getPackageDiscountRate = (count: number): number => {
+    if (count === 5) return 0.05
+    if (count === 10) return 0.1
+    if (count === 20) return 0.2
+    return 0
+}
+
 const normalizeText = (value: string) => value.trim().replaceAll(' ', '').toUpperCase()
 
 const normalizeSport = (value: string) => {
@@ -740,9 +747,13 @@ export default function LessonRequestForm({
                         label="예상 결제 금액"
                         value={
                             displayPrice
-                                ? `${(
+                                ? `${Math.round(
                                       displayPrice *
-                                      (lessonPassType === 'PACKAGE' ? packageCount : 1)
+                                          (lessonPassType === 'PACKAGE' ? packageCount : 1) *
+                                          (1 -
+                                              (lessonPassType === 'PACKAGE'
+                                                  ? getPackageDiscountRate(packageCount)
+                                                  : 0))
                                   ).toLocaleString('ko-KR')}원`
                                 : '-'
                         }
