@@ -153,7 +153,7 @@ function ExplorePageContent() {
         return pages
     }
     return (
-        <main className="pt-16 md:pt-20">
+        <main className="pt-16 md:pt-20 min-h-screen">
             <div className="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-md md:py-lg">
                 {/* 필터 */}
                 <div className="flex flex-wrap items-start gap-2 md:gap-sm mb-md md:mb-lg relative">
@@ -333,6 +333,7 @@ function ExplorePageContent() {
                             className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter transition-opacity duration-200 ${
                                 loading ? 'opacity-40' : 'opacity-100'
                             }`}
+                            style={{ minHeight: trainers.length === 0 ? '600px' : undefined }}
                         >
                             {trainers.map((trainer) => (
                                 <div
