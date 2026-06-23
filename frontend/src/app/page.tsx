@@ -5,7 +5,31 @@ import { useEffect, useState } from 'react';
 
 
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -44,7 +68,11 @@ interface RealReview {
     id: number
     reviewerNickname: string
     reviewerProfileImage: string | null
+
+    trainerProfileId: number | null
     trainerNickname: string
+    sports: string | null
+
     rating: number
     content: string
     createdAt: string
@@ -252,14 +280,19 @@ export default function Home() {
                             </p>
                             <button
                                 onClick={() => router.push('/matching')}
-                                className="mt-4 bg-inverse-surface text-surface px-10 py-3 rounded-xl font-label-bold text-label-bold hover:shadow-xl active:scale-95 transition-all cursor-pointer">
+                                className="mt-4 bg-inverse-surface text-surface px-10 py-3 rounded-xl font-label-bold text-label-bold hover:shadow-xl active:scale-95 transition-all cursor-pointer"
+                            >
                                 지금 바로 시작하기
                             </button>
                         </div>
                         <div className="opacity-10 absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none select-none leading-none">
                             <span
                                 className="material-symbols-outlined text-primary"
-                                style={{ fontVariationSettings: '"FILL" 1', fontSize: '280px', lineHeight: 1 }}
+                                style={{
+                                    fontVariationSettings: '"FILL" 1',
+                                    fontSize: '280px',
+                                    lineHeight: 1,
+                                }}
                             >
                                 psychology
                             </span>
@@ -372,6 +405,22 @@ export default function Home() {
                                             <p className="font-label-bold text-label-bold">
                                                 {review.reviewerNickname} 님
                                             </p>
+
+                                            <p className="text-body-sm text-on-surface-variant">
+                                                {review.trainerProfileId ? (
+                                                    <Link
+                                                        href={`/trainer/${review.trainerProfileId}`}
+                                                        className="hover:text-primary"
+                                                    >
+                                                        {review.trainerNickname}
+                                                    </Link>
+                                                ) : (
+                                                    review.trainerNickname
+                                                )}
+
+                                                {review.sports && ` · ${review.sports}`}
+                                            </p>
+
                                             <StarRating rating={review.rating} />
                                         </div>
                                     </div>

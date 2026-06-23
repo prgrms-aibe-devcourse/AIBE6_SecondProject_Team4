@@ -6,9 +6,13 @@ package com.fitmate.review.dto;
  */
 public record RealReviewResponse(
         Long id,
-        String reviewerNickname, // 작성자 닉네임
+        String reviewerNickname,
         String reviewerProfileImage,
-        String trainerNickname,  // 트레이너 닉네임
+
+        Long trainerProfileId,
+        String trainerNickname,
+        String sports,
+
         int rating,
         String content,
         String createdAt
