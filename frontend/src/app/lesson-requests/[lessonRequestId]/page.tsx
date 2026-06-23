@@ -1,14 +1,30 @@
 'use client'
 
-import { useAuth } from '@/context/AuthContext'
-import type { components } from '@/types/api'
-import { getAuthClient, getImageUrl } from '@/utils/apiClient'
-import { formatLessonType } from '@/utils/lessonDisplay'
-import { startPayment } from '@/utils/payment'
-import { useEffect, useMemo, useState } from 'react'
+import { useAuth } from '@/context/AuthContext';
+import type { components } from '@/types/api';
+import { getAuthClient, getImageUrl } from '@/utils/apiClient';
+import { formatLessonType } from '@/utils/lessonDisplay';
+import { startPayment } from '@/utils/payment';
+import { useEffect, useMemo, useState } from 'react';
 
-import Link from 'next/link'
-import { useParams, useRouter } from 'next/navigation'
+
+
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 type LessonRequest = components['schemas']['LessonRequestResponse']
 type LessonRequestStatus = NonNullable<LessonRequest['status']>
@@ -180,6 +196,9 @@ export default function LessonRequestDetailPage() {
                             errorMessage={errorMessage}
                             onAccept={() => void handleRequestAction('accept')}
                             onReject={() => void handleRequestAction('reject')}
+                            onWorkout={() =>
+                                router.push(`/mypage/workout/${request.matchingResultId}`)
+                            }
                         />
                     </div>
                 ) : null}
@@ -306,6 +325,7 @@ function SchedulePanel({
     errorMessage,
     onAccept,
     onReject,
+    onWorkout,
 }: {
     request: LessonRequest
     canManage: boolean
@@ -313,6 +333,7 @@ function SchedulePanel({
     errorMessage: string
     onAccept: () => void
     onReject: () => void
+    onWorkout: () => void
 }) {
     const pending = request.status === 'PENDING'
     const schedules =
@@ -417,6 +438,10 @@ function SchedulePanel({
                     <span className="material-symbols-outlined">payments</span>
                     결제하기
                 </button>
+            ) : request.status === 'COMPLETED' ? (
+                <p className="mt-md rounded-lg bg-surface-container-low p-sm text-center font-label-bold text-on-surface-variant">
+                    결제가 완료된 레슨입니다.
+                </p>
             ) : (
                 <p className="mt-md rounded-lg bg-surface-container-low p-sm text-center font-label-bold text-on-surface-variant">
                     {getProcessedRequestMessage(request.status)}

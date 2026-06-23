@@ -35,7 +35,7 @@ FitMate는 회원이 자신의 운동 목표·성향·예산을 입력하면 AI�
 |------|------|
 | 개발 기간 | 2025년 (AIBE6 2nd Project) |
 | 서비스 URL | https://fitmate-ten.vercel.app |
-| API 문서 | `https://fitmate-team4.duckdns.org/swagger-ui/index.html` |
+| API 문서 | https://fitmate-team4.duckdns.org/swagger-ui/index.html |
 
 ---
 
