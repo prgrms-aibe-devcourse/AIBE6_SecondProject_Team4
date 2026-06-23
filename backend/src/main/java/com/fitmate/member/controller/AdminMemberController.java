@@ -2,6 +2,7 @@ package com.fitmate.member.controller;
 
 import com.fitmate.member.dto.AdminMemberResponse;
 import com.fitmate.member.service.MemberService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+@Tag(
+        name = "어드민 - 회원",
+        description = "관리자 회원 관리 API"
+)
 @RestController
 @RequestMapping("/api/admin/members")
 @RequiredArgsConstructor
