@@ -20,6 +20,15 @@ interface AuthContextType {
     updateProfileImage: (url: string | null) => void
 }
 
+function isTokenExpired(token: string): boolean {
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]))
+        return Date.now() >= payload.exp * 1000
+    } catch {
+        return true
+    }
+}
+
 const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -27,15 +36,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [initialized, setInitialized] = useState(false)
 
     useEffect(() => {
-        const stored = localStorage.getItem('fitmate_user')
-        if (stored) {
-            try {
-                setUser(JSON.parse(stored))
-            } catch {
-                localStorage.removeItem('fitmate_user')
+        const initialize = async () => {
+            const stored = localStorage.getItem('fitmate_user')
+            if (stored) {
+                try {
+                    const parsed: AuthUser = JSON.parse(stored)
+                    if (isTokenExpired(parsed.token)) {
+                        const res = await fetch(`${API_BASE_URL}/api/auth/reissue`, {
+                            method: 'POST',
+                            credentials: 'include',
+                        })
+                        if (res.ok) {
+                            const { accessToken } = await res.json()
+                            parsed.token = accessToken
+                            localStorage.setItem('fitmate_user', JSON.stringify(parsed))
+                        } else {
+                            localStorage.removeItem('fitmate_user')
+                            setInitialized(true)
+                            return
+                        }
+                    }
+                    setUser(parsed)
+                } catch {
+                    localStorage.removeItem('fitmate_user')
+                }
             }
+            setInitialized(true)
         }
-        setInitialized(true)
+        initialize()
     }, [])
 
     const login = (user: AuthUser) => {

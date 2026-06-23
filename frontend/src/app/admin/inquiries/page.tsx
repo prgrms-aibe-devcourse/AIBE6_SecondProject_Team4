@@ -1,6 +1,7 @@
 'use client'
 
-import { getAuthClient } from '@/utils/apiClient'
+import { useAuth } from '@/context/AuthContext'
+import { ensureFreshToken, getAuthClient } from '@/utils/apiClient'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
 import type { components } from '@/types/api'
@@ -22,6 +23,7 @@ const formatDate = (str?: string) => {
 function AdminInquiriesContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
+    const { initialized } = useAuth()
     const [allInquiries, setAllInquiries] = useState<InquiryResponse[]>([])
     const [loading, setLoading] = useState(true)
     const [page, setPage] = useState(Number(searchParams.get('page') ?? '0'))
@@ -31,10 +33,11 @@ function AdminInquiriesContent() {
 
     const PAGE_SIZE = 10
 
-    useEffect(() => { fetchAll() }, [])
+    useEffect(() => { if (initialized) fetchAll() }, [initialized])
 
     const fetchAll = async () => {
         setLoading(true)
+        await ensureFreshToken()
         const client = getAuthClient()
         const { data } = await client.GET('/api/admin/inquiries', {
             params: { query: { page: 0, size: 9999, sort: 'createdAt,asc' } as any },
