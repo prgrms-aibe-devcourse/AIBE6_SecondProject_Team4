@@ -24,6 +24,7 @@ export default function TrainerDetailPage({ params }: Props) {
     const [id, setId] = useState<string>('')
     const [showAllPhotos, setShowAllPhotos] = useState(false)
     const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null)
+    const [showAllCertifications, setShowAllCertifications] = useState(false)
     const [reviews, setReviews] = useState<ReviewResponse[]>([])
     const [rating, setRating] = useState<TrainerRating | null>(null)
     const [showAllReviews, setShowAllReviews] = useState(false)
@@ -321,7 +322,6 @@ export default function TrainerDetailPage({ params }: Props) {
                                     {trainer.careerYears ?? '-'}년 이상
                                 </p>
                             </div>
-
                             <div>
                                 <p className="text-label-md font-label-md text-on-surface-variant">
                                     활동 지역
@@ -331,6 +331,52 @@ export default function TrainerDetailPage({ params }: Props) {
                                 </p>
                             </div>
                         </div>
+                        {/* 자격증 & 수상경력 */}
+                        {trainer.certifications && trainer.certifications.length > 0 && (
+                            <div>
+                                <div className="flex flex-wrap gap-xs">
+                                    {(showAllCertifications
+                                        ? trainer.certifications
+                                        : trainer.certifications.slice(0, 3)
+                                    ).map((cert) => {
+                                        const isAward = cert.type === 'AWARD'
+                                        return (
+                                            <span
+                                                key={cert.id}
+                                                className="inline-flex items-center gap-1 rounded-full bg-surface-container px-sm py-1 text-label-sm text-on-surface-variant"
+                                            >
+                                                <span
+                                                    className={`material-symbols-outlined text-sm ${
+                                                        isAward ? 'text-amber-500' : 'text-primary'
+                                                    }`}
+                                                    style={
+                                                        isAward
+                                                            ? { fontVariationSettings: '"FILL" 1' }
+                                                            : undefined
+                                                    }
+                                                >
+                                                    {isAward
+                                                        ? 'military_tech'
+                                                        : 'workspace_premium'}
+                                                </span>
+                                                {cert.name}
+                                                {cert.acquiredYear && ` (${cert.acquiredYear})`}
+                                            </span>
+                                        )
+                                    })}
+                                </div>
+                                {trainer.certifications.length > 3 && (
+                                    <button
+                                        className="mt-xs text-label-sm font-label-bold text-primary hover:underline cursor-pointer"
+                                        onClick={() => setShowAllCertifications((prev) => !prev)}
+                                    >
+                                        {showAllCertifications
+                                            ? '접기 ↑'
+                                            : `+${trainer.certifications.length - 3}개 더보기`}
+                                    </button>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
 

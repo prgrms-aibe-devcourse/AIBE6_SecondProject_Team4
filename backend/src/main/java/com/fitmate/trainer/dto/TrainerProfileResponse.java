@@ -1,6 +1,7 @@
 package com.fitmate.trainer.dto;
 
 import com.fitmate.trainer.entity.TrainerAvailableTime;
+import com.fitmate.trainer.entity.TrainerCertification;
 import com.fitmate.trainer.entity.TrainerLessonPhoto;
 import com.fitmate.trainer.entity.TrainerProfile;
 
@@ -22,6 +23,7 @@ public record TrainerProfileResponse(
         Integer lessonDurationMinutes,
         List<AvailableTimeResponse> availableTimes,
         List<String> lessonPhotos,
+        List<CertificationResponse> certifications,
         Boolean isPublic,
         Double averageRating,
         Long reviewCount
@@ -42,6 +44,7 @@ public record TrainerProfileResponse(
                 profile.getLessonDurationMinutes(),
                 List.of(),
                 List.of(),
+                List.of(),
                 profile.getIsPublic(),
                 null,
                 null
@@ -53,13 +56,14 @@ public record TrainerProfileResponse(
             List<TrainerAvailableTime> availableTimes,
             List<TrainerLessonPhoto> lessonPhotos
     ) {
-        return from(profile, availableTimes, lessonPhotos, null, null);
+        return from(profile, availableTimes, lessonPhotos, List.of(), null, null);
     }
 
     public static TrainerProfileResponse from(
             TrainerProfile profile,
             List<TrainerAvailableTime> availableTimes,
             List<TrainerLessonPhoto> lessonPhotos,
+            List<TrainerCertification> certifications,
             Double averageRating,
             Long reviewCount
     ) {
@@ -82,6 +86,9 @@ public record TrainerProfileResponse(
                 lessonPhotos.stream()
                         .map(TrainerLessonPhoto::getImageUrl)
                         .toList(),
+                certifications.stream()
+                        .map(CertificationResponse::from)
+                        .toList(),
                 profile.getIsPublic(),
                 averageRating,
                 reviewCount
@@ -100,6 +107,22 @@ public record TrainerProfileResponse(
                     time.getDayOfWeek(),
                     time.getStartTime(),
                     time.getEndTime()
+            );
+        }
+    }
+
+    public record CertificationResponse(
+            Long id,
+            String name,
+            Integer acquiredYear,
+            String type
+    ) {
+        public static CertificationResponse from(TrainerCertification certification) {
+            return new CertificationResponse(
+                    certification.getId(),
+                    certification.getName(),
+                    certification.getAcquiredYear(),
+                    certification.getType()
             );
         }
     }
