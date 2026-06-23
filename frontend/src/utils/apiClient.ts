@@ -118,6 +118,23 @@ export function getAuthClient() {
     return client
 }
 
+export async function ensureFreshToken(): Promise<void> {
+    if (typeof window === 'undefined') return
+    const stored = localStorage.getItem('fitmate_user')
+    if (!stored) return
+    try {
+        const parsed = JSON.parse(stored)
+        const payload = JSON.parse(atob(parsed.token.split('.')[1]))
+        if (Date.now() < payload.exp * 1000) return
+        const newToken = await reissueToken()
+        if (newToken) {
+            onTokenRefreshed?.(newToken)
+            parsed.token = newToken
+            localStorage.setItem('fitmate_user', JSON.stringify(parsed))
+        }
+    } catch {}
+}
+
 export function getImageUrl(path?: string | null): string {
     if (!path) return ''
     if (path.startsWith('http')) return path
