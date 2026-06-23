@@ -15,7 +15,8 @@ const BUDGET_PRESETS: BudgetPreset[] = [
     { label: '3만원 ~ 5만원', min: 30000, max: 50000 },
     { label: '5만원 ~ 7만원', min: 50000, max: 70000 },
     { label: '7만원 ~ 10만원', min: 70000, max: 100000 },
-    { label: '10만원 이상', min: 100000, max: null },
+    { label: '10만원 ~ 15만원', min: 100000, max: 150000 },
+    { label: '15만원 이상', min: 150000, max: null },
 ]
 
 type BudgetSelectorProps = {
