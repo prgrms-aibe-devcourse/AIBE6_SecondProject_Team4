@@ -175,7 +175,7 @@ export default function Header() {
                                                                 <div
                                                                     className={`w-2 h-2 rounded-full mt-2 shrink-0 ${alert.isRead ? '' : 'bg-primary'}`}
                                                                 />
-                                                                <div className="flex-1 min-w-0">
+                                                                <div className="flex-1 min-w-0 pr-6">
                                                                     <p
                                                                         className={`text-body-sm ${alert.isRead ? 'text-on-surface-variant' : 'text-on-surface'}`}
                                                                     >
@@ -201,7 +201,7 @@ export default function Header() {
                                                                 <div
                                                                     className={`w-2 h-2 rounded-full mt-2 shrink-0 ${alert.isRead ? '' : 'bg-primary'}`}
                                                                 />
-                                                                <div className="flex-1 min-w-0">
+                                                                <div className="flex-1 min-w-0 pr-6">
                                                                     <p
                                                                         className={`text-body-sm ${alert.isRead ? 'text-on-surface-variant' : 'text-on-surface'}`}
                                                                     >
@@ -220,7 +220,7 @@ export default function Header() {
                                                                 e.stopPropagation()
                                                                 alert.id && deleteOne(alert.id)
                                                             }}
-                                                            className="absolute right-3 top-3 material-symbols-outlined text-sm text-secondary opacity-0 group-hover:opacity-100 hover:text-error transition-all"
+                                                            className="absolute right-3 top-3 material-symbols-outlined text-sm text-secondary opacity-0 group-hover:opacity-100 hover:text-error transition-all cursor-pointer"
                                                         >
                                                             close
                                                         </button>
