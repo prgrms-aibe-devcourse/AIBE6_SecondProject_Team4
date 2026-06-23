@@ -8,8 +8,10 @@ import ChatFAB from '@/components/ChatFAB'
 export default function MainLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
     const isAdmin = pathname.startsWith('/admin')
+    const isAuth = pathname.startsWith('/auth')
 
     if (isAdmin) return <><Header />{children}</>
+    if (isAuth) return <>{children}</>
 
     return (
         <>
