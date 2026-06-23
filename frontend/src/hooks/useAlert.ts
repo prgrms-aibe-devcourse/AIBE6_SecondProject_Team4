@@ -1,10 +1,20 @@
 'use client'
 
-import { useAuth } from '@/context/AuthContext'
-import { apiClient } from '@/utils/apiClient'
-import { Client } from '@stomp/stompjs'
-import { useEffect, useState } from 'react'
-import SockJS from 'sockjs-client'
+import { useAuth } from '@/context/AuthContext';
+import { API_BASE_URL, apiClient } from '@/utils/apiClient';
+import { Client } from '@stomp/stompjs';
+import { useEffect, useState } from 'react';
+import SockJS from 'sockjs-client';
+
+
+
+
+
+
+
+
+
+
 
 export type AlertItem = {
     id?: number
@@ -35,11 +45,11 @@ export function useAlert() {
         })
 
         const client = new Client({
-            webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+            webSocketFactory: () => new SockJS(`${API_BASE_URL}/ws`),
             onConnect: () => {
                 client.subscribe(`/sub/alert/${user.memberId}`, (message) => {
                     const newAlert: AlertItem = JSON.parse(message.body)
-                    setAlerts(prev => [newAlert, ...prev])
+                    setAlerts((prev) => [newAlert, ...prev])
                 })
             },
         })

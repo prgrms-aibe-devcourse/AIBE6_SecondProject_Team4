@@ -4,13 +4,77 @@ import MyReviewList from '@/components/MyReviewList';
 import MatchingManagementPreview from '@/components/lesson/MatchingManagementPreview';
 import { useAuth } from '@/context/AuthContext';
 import type { components } from '@/types/api';
-import { getAuthClient, getImageUrl } from '@/utils/apiClient';
+import { API_BASE_URL, getAuthClient, getImageUrl } from '@/utils/apiClient';
 import { Fragment, Suspense, useEffect, useRef, useState } from 'react';
 
 
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -452,14 +516,17 @@ function MyPageContent() {
         const formData = new FormData()
         formData.append('file', file)
         try {
-            const uploadRes = await fetch('http://localhost:8080/api/files/upload', {
+            const uploadRes = await fetch(`${API_BASE_URL}/api/files/upload`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${JSON.parse(localStorage.getItem('fitmate_user') ?? '{}').token}`,
                 },
                 body: formData,
             })
-            if (!uploadRes.ok) { alert('이미지 업로드에 실패했습니다.'); return }
+            if (!uploadRes.ok) {
+                alert('이미지 업로드에 실패했습니다.')
+                return
+            }
             const { url } = await uploadRes.json()
             await client.PATCH('/api/members/me', { body: { profileImage: url } })
             updateProfileImage(url)
@@ -833,18 +900,23 @@ function MyPageContent() {
                                                                 const stored = localStorage.getItem('fitmate_user')
                                                                 const token = stored ? JSON.parse(stored).token : null
 
-                                                                const res = await fetch('http://localhost:8080/api/members/me/password', {
-                                                                    method: 'PATCH',
-                                                                    credentials: 'include',
-                                                                    headers: {
-                                                                        'Content-Type': 'application/json',
-                                                                        'Authorization': `Bearer ${token}`,
-                                                                    },
-                                                                    body: JSON.stringify({
-                                                                        currentPassword: pwCurrent,
-                                                                        newPassword: pwNew,
-                                                                    }),
-                                                                })
+                                                                const res = await fetch(
+                                                                    `${API_BASE_URL}/api/members/me/password`,
+                                                                    {
+                                                                        method: 'PATCH',
+                                                                        credentials: 'include',
+                                                                        headers: {
+                                                                            'Content-Type':
+                                                                                'application/json',
+                                                                            Authorization: `Bearer ${token}`,
+                                                                        },
+                                                                        body: JSON.stringify({
+                                                                            currentPassword:
+                                                                                pwCurrent,
+                                                                            newPassword: pwNew,
+                                                                        }),
+                                                                    }
+                                                                )
 
                                                                 if (!res.ok) {
                                                                     setPwError('현재 비밀번호가 올바르지 않습니다.')
@@ -995,17 +1067,22 @@ function MyPageContent() {
                                                         const stored = localStorage.getItem('fitmate_user')
                                                         const token = stored ? JSON.parse(stored).token : null
 
-                                                        const verifyRes = await fetch('http://localhost:8080/api/members/me/verify-password', {
-                                                            method: 'POST',
-                                                            credentials: 'include',
-                                                            headers: {
-                                                                'Content-Type': 'application/json',
-                                                                'Authorization': `Bearer ${token}`,
-                                                            },
-                                                            body: JSON.stringify({
-                                                                currentPassword: withdrawPassword,
-                                                            }),
-                                                        })
+                                                        const verifyRes = await fetch(
+                                                            `${API_BASE_URL}/api/members/me/verify-password`,
+                                                            {
+                                                                method: 'POST',
+                                                                credentials: 'include',
+                                                                headers: {
+                                                                    'Content-Type':
+                                                                        'application/json',
+                                                                    Authorization: `Bearer ${token}`,
+                                                                },
+                                                                body: JSON.stringify({
+                                                                    currentPassword:
+                                                                        withdrawPassword,
+                                                                }),
+                                                            }
+                                                        )
 
                                                         if (!verifyRes.ok) {
                                                             setWithdrawError('비밀번호가 올바르지 않습니다.')
@@ -1013,13 +1090,16 @@ function MyPageContent() {
                                                         }
 
                                                         // 회원 탈퇴
-                                                        const deleteRes = await fetch('http://localhost:8080/api/members/me', {
-                                                            method: 'DELETE',
-                                                            credentials: 'include',
-                                                            headers: {
-                                                                'Authorization': `Bearer ${token}`,
-                                                            },
-                                                        })
+                                                        const deleteRes = await fetch(
+                                                            `${API_BASE_URL}/api/members/me`,
+                                                            {
+                                                                method: 'DELETE',
+                                                                credentials: 'include',
+                                                                headers: {
+                                                                    Authorization: `Bearer ${token}`,
+                                                                },
+                                                            }
+                                                        )
 
                                                         if (!deleteRes.ok) {
                                                             setWithdrawError('회원 탈퇴에 실패했습니다.')

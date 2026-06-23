@@ -1,9 +1,41 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useAuth } from '@/context/AuthContext';
+import { apiClient, getImageUrl } from '@/utils/apiClient';
+import { useCallback, useEffect, useState } from 'react';
 
-import { useAuth } from '@/context/AuthContext'
-import { apiClient, getImageUrl } from '@/utils/apiClient'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * 작성 가능한 후기 (매칭 성사 후 미작성 트레이너)
@@ -55,9 +87,9 @@ function StarInput({
 
 // 트레이너 카드 한 장 (작성 폼이 카드 안에서 펼쳐짐)
 function WritableCard({
-                          target,
-                          onSubmit,
-                      }: {
+    target,
+    onSubmit,
+}: {
     target: WritableTarget
     onSubmit: (target: WritableTarget, rating: number, content: string) => void
 }) {
@@ -87,7 +119,9 @@ function WritableCard({
                         />
                     ) : (
                         <div className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 rounded-full bg-surface-container flex items-center justify-center">
-                            <span className="material-symbols-outlined text-outline-variant">person</span>
+                            <span className="material-symbols-outlined text-outline-variant">
+                                person
+                            </span>
                         </div>
                     )}
                     <div className="flex flex-col gap-xs">
@@ -173,7 +207,7 @@ function WritableCard({
     )
 }
 
-export default function WritableReviewList() {
+export default function WritableReviewList({ onReviewCreated }: { onReviewCreated?: () => void }) {
     const { user } = useAuth()
     const [targets, setTargets] = useState<WritableTarget[]>([])
     const [loading, setLoading] = useState(false)
@@ -200,11 +234,7 @@ export default function WritableReviewList() {
     }, [fetchWritable])
 
     // 후기 등록 핸들러
-    const handleSubmit = async (
-        target: WritableTarget,
-        rating: number,
-        content: string,
-    ) => {
+    const handleSubmit = async (target: WritableTarget, rating: number, content: string) => {
         if (!user) return
 
         const { error } = await apiClient.POST('/api/reviews', {
@@ -222,8 +252,9 @@ export default function WritableReviewList() {
         }
 
         // 등록 성공 → 목록에서 제거 (후기 작성됨 = 더 이상 작성 가능 아님)
+        // 등록 성공 → 목록에서 제거
         setTargets((prev) => prev.filter((t) => t.lessonRequestId !== target.lessonRequestId))
-        alert('후기가 등록되었습니다.')
+        onReviewCreated?.() // ← alert 대신 (부모가 배너 + 탭전환 + refetch)
     }
 
     if (loading) {
@@ -235,9 +266,7 @@ export default function WritableReviewList() {
         return (
             <div className="mt-lg flex flex-col items-center gap-md rounded-xl border-2 border-dashed border-outline-variant p-xl opacity-40">
                 <span className="material-symbols-outlined text-[48px]">history_edu</span>
-                <p className="text-body-md font-label-bold">
-                    작성 가능한 후기가 없습니다.
-                </p>
+                <p className="text-body-md font-label-bold">작성 가능한 후기가 없습니다.</p>
             </div>
         )
     }

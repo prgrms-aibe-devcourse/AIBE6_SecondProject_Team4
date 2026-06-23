@@ -1,9 +1,55 @@
 'use client'
 
-import { apiClient } from '@/utils/apiClient'
-import { useState } from 'react'
+import { API_BASE_URL, apiClient } from '@/utils/apiClient';
+import { useState } from 'react';
 
-import { useRouter } from 'next/navigation'
+
+
+import { useRouter } from 'next/navigation';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 type Role = 'USER' | 'TRAINER'
 
@@ -76,7 +122,7 @@ export default function SignupPage() {
         if (!phone.trim()) { setSmsError('전화번호를 입력해 주세요.'); return }
         setSmsLoading(true); setSmsError(''); setSmsSuccess('')
         try {
-            const res = await fetch('http://localhost:8080/api/auth/sms/send', {
+            const res = await fetch(`${API_BASE_URL}/api/auth/sms/send`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ phone }),
@@ -92,7 +138,7 @@ export default function SignupPage() {
         if (!smsCode.trim()) { setSmsError('인증번호를 입력해 주세요.'); return }
         setSmsLoading(true); setSmsError('')
         try {
-            const res = await fetch('http://localhost:8080/api/auth/sms/verify', {
+            const res = await fetch(`${API_BASE_URL}/api/auth/sms/verify`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ phone, code: smsCode }),
