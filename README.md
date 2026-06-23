@@ -35,7 +35,7 @@ FitMate는 회원이 자신의 운동 목표·성향·예산을 입력하면 AI�
 |------|------|
 | 개발 기간 | 2026년 6월 11일 ~ 6월 24일 (AIBE6 2nd Project) |
 | 서비스 URL | https://fitmate-ten.vercel.app |
-| API 문서 | `https://fitmate-team4.duckdns.org/swagger-ui/index.html` |
+| API 문서 | https://fitmate-team4.duckdns.org/swagger-ui/index.html |
 
 ---
 
@@ -44,6 +44,16 @@ FitMate는 회원이 자신의 운동 목표·성향·예산을 입력하면 AI�
 **팀명: 스프링글스 (Team 4, AIBE6)**
 
 ---
+
+## 팀원 소개
+| 이름 | 담당 |
+|------|------|
+| 배근휘 | 채팅, 알림, 문의, 관리자 |
+| 김태규 | 인증(JWT·OAuth2), 멤버, 관리자 |
+| 송민혁 | 트레이너 탐색, 사용자 프로필, 트레이너 프로필 |
+| 정민준 | AI 매칭, 매칭 관리, 레슨 신청|
+| 정한결 | 리뷰, 결제, 배포 |
+
 
 ## 🛠 기술 스택
 
