@@ -1,5 +1,6 @@
 package com.fitmate.matching.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.core.Authentication;
 import com.fitmate.matching.dto.MatchingCreateResponse;
 import com.fitmate.matching.dto.MatchingRequestDto;
@@ -12,6 +13,10 @@ import com.fitmate.matching.dto.MatchingResultResponse;
 import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
 
+@Tag(
+        name = "매칭",
+        description = "AI 기반 트레이너 매칭 API"
+)
 @RestController
 @RequestMapping("/api/matching")
 @RequiredArgsConstructor

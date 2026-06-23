@@ -9,6 +9,7 @@ import com.fitmate.trainer.dto.TrainerProfileResponse;
 import com.fitmate.trainer.dto.TrainerProfileUpdateRequest;
 import com.fitmate.trainer.service.TrainerService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(
+        name = "트레이너",
+        description = "트레이너 프로필 관리 API"
+)
 @RestController
 @RequestMapping("/api/trainers")
 @RequiredArgsConstructor
