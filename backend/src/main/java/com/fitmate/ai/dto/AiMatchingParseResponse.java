@@ -11,6 +11,8 @@ public record AiMatchingParseResponse(
         Integer budgetMin,
         Integer budgetMax,
         List<PreferredTime> preferredTimes,
+        String enhancedQuery,
+        List<String> suggestedPreferences,
         String lessonContent
 ) {
     public record PreferredTime(

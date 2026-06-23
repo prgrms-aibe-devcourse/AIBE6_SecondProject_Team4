@@ -1,5 +1,6 @@
 'use client'
 
+import { REGIONS as REGION_OPTIONS } from '@/constants/matchingOptions'
 import type { components } from '@/types/api'
 import { getAuthClient, getImageUrl } from '@/utils/apiClient'
 import { formatLessonType } from '@/utils/lessonDisplay'
@@ -21,8 +22,6 @@ const SPORTS = [
     '댄스',
 ]
 
-const REGIONS = ['모든 지역', '서울', '경기', '부산', '대구', '인천', '광주', '대전']
-
 const LESSON_LEVELS = ['전체', '입문/초보', '중급', '고급/대회준비']
 
 function ExplorePageContent() {
@@ -37,7 +36,7 @@ function ExplorePageContent() {
     const minPrice = searchParams.get('minPrice') ?? ''
     const maxPrice = searchParams.get('maxPrice') ?? ''
     const currentPage = Number(searchParams.get('page') ?? '0')
-    const sort = searchParams.get('sort') ?? 'latest'
+    const sort = searchParams.get('sort') ?? 'reviewDesc'
 
     const [trainers, setTrainers] = useState<Trainer[]>([])
     const [loading, setLoading] = useState(true)
@@ -45,14 +44,8 @@ function ExplorePageContent() {
     const [totalElements, setTotalElements] = useState(0)
 
     // 검색창에서 "입력 중인" 임시 필터 값 (검색 버튼 눌러야 URL/적용 값으로 반영)
-    const [draftFilters, setDraftFilters] = useState({
-        sport,
-        lessonType,
-        lessonLevel,
-        minPrice,
-        maxPrice,
-        region,
-    })
+    const [showPriceFilter, setShowPriceFilter] = useState(false)
+    const [draftPrice, setDraftPrice] = useState({ minPrice, maxPrice })
 
     const fetchTrainers = async (retried = false) => {
         setLoading(true)
@@ -106,12 +99,12 @@ function ExplorePageContent() {
         const params = new URLSearchParams(searchParams.toString())
 
         const merged = {
-            sport: draftFilters.sport,
-            region: draftFilters.region,
-            lessonLevel: draftFilters.lessonLevel,
-            lessonType: draftFilters.lessonType,
-            minPrice: draftFilters.minPrice,
-            maxPrice: draftFilters.maxPrice,
+            sport,
+            region,
+            lessonLevel,
+            lessonType,
+            minPrice,
+            maxPrice,
             page: currentPage,
             sort,
             ...next,
@@ -128,7 +121,7 @@ function ExplorePageContent() {
         setOrDelete('lessonType', merged.lessonType)
         setOrDelete('minPrice', merged.minPrice)
         setOrDelete('maxPrice', merged.maxPrice)
-        setOrDelete('sort', merged.sort === 'latest' ? '' : merged.sort)
+        setOrDelete('sort', merged.sort === 'reviewDesc' ? '' : merged.sort)
 
         if (merged.page > 0) params.set('page', String(merged.page))
         else params.delete('page')
@@ -136,8 +129,9 @@ function ExplorePageContent() {
         router.push(`/trainer?${params.toString()}`, { scroll: false })
     }
 
-    const handleSearch = () => {
-        pushQuery({ page: 0 })
+    const handlePriceApply = () => {
+        pushQuery({ minPrice: draftPrice.minPrice, maxPrice: draftPrice.maxPrice, page: 0 })
+        setShowPriceFilter(false)
     }
 
     const handlePageChange = (page: number) => {
@@ -159,22 +153,22 @@ function ExplorePageContent() {
         return pages
     }
     return (
-        <main className="pt-16 md:pt-20">
+        <main className="pt-16 md:pt-20 min-h-screen">
             <div className="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-md md:py-lg">
                 {/* 필터 */}
-                <div className="flex flex-wrap items-center gap-2 md:gap-sm mb-md md:mb-lg">
+                <div className="flex flex-wrap items-start gap-2 md:gap-sm mb-md md:mb-lg relative">
                     <div className="flex flex-col gap-xs">
                         <label className="text-label-md font-label-md text-on-surface-variant">
                             종목
                         </label>
                         <select
                             className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-36"
-                            value={draftFilters.sport}
+                            value={sport}
                             onChange={(e) =>
-                                setDraftFilters((f) => ({
-                                    ...f,
+                                pushQuery({
                                     sport: e.target.value === '모든 종목' ? '' : e.target.value,
-                                }))
+                                    page: 0,
+                                })
                             }
                         >
                             {SPORTS.map((s) => (
@@ -188,15 +182,16 @@ function ExplorePageContent() {
                         </label>
                         <select
                             className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-36"
-                            value={draftFilters.region}
+                            value={region}
                             onChange={(e) =>
-                                setDraftFilters((f) => ({
-                                    ...f,
+                                pushQuery({
                                     region: e.target.value === '모든 지역' ? '' : e.target.value,
-                                }))
+                                    page: 0,
+                                })
                             }
                         >
-                            {REGIONS.map((r) => (
+                            <option value="모든 지역">모든 지역</option>
+                            {REGION_OPTIONS.map((r) => (
                                 <option key={r}>{r}</option>
                             ))}
                         </select>
@@ -210,18 +205,15 @@ function ExplorePageContent() {
                                 { label: '전체', value: '' },
                                 { label: '1:1', value: 'ONE_TO_ONE' },
                                 { label: '그룹', value: 'GROUP' },
-                                { label: '온라인', value: 'ONLINE' },
                             ].map(({ label, value }) => (
                                 <button
                                     key={label}
                                     className={`px-sm md:px-md h-11 rounded-lg text-label-bold font-label-bold transition-all border cursor-pointer ${
-                                        draftFilters.lessonType === value
+                                        lessonType === value
                                             ? 'bg-primary text-on-primary border-primary'
                                             : 'bg-surface-container-low border-outline-variant text-on-surface-variant hover:bg-surface-container'
                                     }`}
-                                    onClick={() =>
-                                        setDraftFilters((f) => ({ ...f, lessonType: value }))
-                                    }
+                                    onClick={() => pushQuery({ lessonType: value, page: 0 })}
                                 >
                                     {label}
                                 </button>
@@ -234,12 +226,12 @@ function ExplorePageContent() {
                         </label>
                         <select
                             className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-36"
-                            value={draftFilters.lessonLevel}
+                            value={lessonLevel}
                             onChange={(e) =>
-                                setDraftFilters((f) => ({
-                                    ...f,
+                                pushQuery({
                                     lessonLevel: e.target.value === '전체' ? '' : e.target.value,
-                                }))
+                                    page: 0,
+                                })
                             }
                         >
                             {LESSON_LEVELS.map((l) => (
@@ -247,42 +239,67 @@ function ExplorePageContent() {
                             ))}
                         </select>
                     </div>
-                    <div className="flex flex-col gap-xs">
+                    <div className="flex flex-col gap-xs relative">
                         <label className="text-label-md font-label-md text-on-surface-variant">
-                            가격 범위
-                        </label>
-                        <div className="flex items-center gap-xs">
-                            <input
-                                className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-20 md:w-24"
-                                placeholder="최소"
-                                type="number"
-                                value={draftFilters.minPrice}
-                                onChange={(e) =>
-                                    setDraftFilters((f) => ({ ...f, minPrice: e.target.value }))
-                                }
-                            />
-                            <span className="text-on-surface-variant">-</span>
-                            <input
-                                className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-20 md:w-24"
-                                placeholder="최대"
-                                type="number"
-                                value={draftFilters.maxPrice}
-                                onChange={(e) =>
-                                    setDraftFilters((f) => ({ ...f, maxPrice: e.target.value }))
-                                }
-                            />
-                        </div>
-                    </div>
-                    <div className="flex flex-col gap-xs">
-                        <label className="text-label-md font-label-md text-transparent select-none">
-                            검색
+                            가격
                         </label>
                         <button
-                            className="bg-primary text-on-primary px-md h-11 rounded-lg font-label-bold hover:shadow-lg active:scale-95 transition-all cursor-pointer"
-                            onClick={handleSearch}
+                            className={`h-11 px-sm rounded-lg border text-body-sm text-left whitespace-nowrap transition-all cursor-pointer ${
+                                minPrice || maxPrice
+                                    ? 'border-primary text-primary bg-primary-fixed'
+                                    : 'bg-primary-fixed/40 border-primary/30 text-primary'
+                            }`}
+                            onClick={() => {
+                                setDraftPrice({ minPrice, maxPrice })
+                                setShowPriceFilter((prev) => !prev)
+                            }}
                         >
-                            검색
+                            {minPrice || maxPrice
+                                ? `${minPrice || '0'}~${maxPrice || '∞'}`
+                                : '범위설정'}
                         </button>
+
+                        {showPriceFilter && (
+                            <div className="absolute top-full left-0 mt-1 z-10 flex items-center gap-xs bg-surface-container-lowest border border-outline-variant rounded-lg p-sm shadow-lg">
+                                <input
+                                    className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-20 md:w-24"
+                                    placeholder="최소"
+                                    type="number"
+                                    step="10000"
+                                    min="0"
+                                    value={draftPrice.minPrice}
+                                    onChange={(e) => {
+                                        const nextMin = e.target.value
+                                        setDraftPrice((f) => {
+                                            const minNum = nextMin ? Number(nextMin) : 0
+                                            const maxNum = f.maxPrice ? Number(f.maxPrice) : 0
+                                            if (f.maxPrice && minNum > maxNum) {
+                                                return { minPrice: nextMin, maxPrice: nextMin }
+                                            }
+                                            return { ...f, minPrice: nextMin }
+                                        })
+                                    }}
+                                />
+                                <span className="text-on-surface-variant">-</span>
+                                <input
+                                    className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-20 md:w-24"
+                                    placeholder="최대"
+                                    type="number"
+                                    step="10000"
+                                    min={draftPrice.minPrice || '0'}
+                                    value={draftPrice.maxPrice}
+                                    onChange={(e) =>
+                                        setDraftPrice((f) => ({ ...f, maxPrice: e.target.value }))
+                                    }
+                                />
+                                <button
+                                    className="bg-primary text-on-primary px-sm h-11 rounded-lg font-label-bold hover:shadow-lg active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+                                    onClick={handlePriceApply}
+                                >
+                                    적용
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -305,11 +322,10 @@ function ExplorePageContent() {
                                 value={sort}
                                 onChange={(e) => handleSortChange(e.target.value)}
                             >
-                                <option value="latest">최신순</option>
+                                <option value="reviewDesc">후기 많은순</option>
                                 <option value="priceAsc">가격 낮은순</option>
                                 <option value="priceDesc">가격 높은순</option>
                                 <option value="careerDesc">경력순</option>
-                                <option value="reviewDesc">후기 많은순</option>
                             </select>
                         </div>
                     </div>
@@ -329,6 +345,7 @@ function ExplorePageContent() {
                             className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter transition-opacity duration-200 ${
                                 loading ? 'opacity-40' : 'opacity-100'
                             }`}
+                            style={{ minHeight: trainers.length === 0 ? '600px' : undefined }}
                         >
                             {trainers.map((trainer) => (
                                 <div

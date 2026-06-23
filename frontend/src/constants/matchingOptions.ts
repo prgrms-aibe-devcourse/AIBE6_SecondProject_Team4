@@ -1,8 +1,8 @@
-export const SPORTS = ['헬스', '필라테스', '수영', '요가', '크로스핏', '테니스', '골프','댄스']
+export const SPORTS = ['헬스', '필라테스', '수영', '요가', '크로스핏', '테니스', '골프', '댄스']
 
 export const LEVELS = ['입문/초급', '중급', '고급/대회준비']
 
-export const LESSON_TYPES = ['1:1 PT', '그룹', '온라인']
+export const LESSON_TYPES = ['1:1 PT', '그룹']
 
 export const REGIONS = ['서울', '경기', '인천', '부산', '대구', '광주', '대전']
 

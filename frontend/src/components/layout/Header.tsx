@@ -1,12 +1,12 @@
 'use client'
 
-import { useAuth } from '@/context/AuthContext';
-import { type AlertItem, useAlert } from '@/hooks/useAlert';
-import { getImageUrl } from '@/utils/apiClient';
-import { useEffect, useRef, useState } from 'react';
+import { useAuth } from '@/context/AuthContext'
+import { type AlertItem, useAlert } from '@/hooks/useAlert'
+import { getImageUrl } from '@/utils/apiClient'
+import { useEffect, useRef, useState } from 'react'
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 function getAlertHref(alert: AlertItem): string {
     if (!alert.targetId) return '#'
@@ -46,10 +46,7 @@ export default function Header() {
         { label: '트레이너 찾기', href: '/trainer' },
         { label: 'AI매칭', href: '/matching' },
         { label: '고객센터', href: '/faq' },
-        {
-            label: user?.role === 'ADMIN' ? '관리자 페이지' : '마이페이지',
-            href: user?.role === 'ADMIN' ? '/admin/inquiries' : '/mypage',
-        },
+        ...(user?.role === 'ADMIN' ? [{ label: '관리자 페이지', href: '/admin/inquiries' }] : []),
     ]
     const router = useRouter()
     const { alerts, unreadCount, markOneRead, markAllRead, deleteOne, deleteAll } = useAlert()
@@ -175,7 +172,7 @@ export default function Header() {
                                                                 <div
                                                                     className={`w-2 h-2 rounded-full mt-2 shrink-0 ${alert.isRead ? '' : 'bg-primary'}`}
                                                                 />
-                                                                <div className="flex-1 min-w-0">
+                                                                <div className="flex-1 min-w-0 pr-6">
                                                                     <p
                                                                         className={`text-body-sm ${alert.isRead ? 'text-on-surface-variant' : 'text-on-surface'}`}
                                                                     >
@@ -201,7 +198,7 @@ export default function Header() {
                                                                 <div
                                                                     className={`w-2 h-2 rounded-full mt-2 shrink-0 ${alert.isRead ? '' : 'bg-primary'}`}
                                                                 />
-                                                                <div className="flex-1 min-w-0">
+                                                                <div className="flex-1 min-w-0 pr-6">
                                                                     <p
                                                                         className={`text-body-sm ${alert.isRead ? 'text-on-surface-variant' : 'text-on-surface'}`}
                                                                     >
@@ -220,7 +217,7 @@ export default function Header() {
                                                                 e.stopPropagation()
                                                                 alert.id && deleteOne(alert.id)
                                                             }}
-                                                            className="absolute right-3 top-3 material-symbols-outlined text-sm text-secondary opacity-0 group-hover:opacity-100 hover:text-error transition-all"
+                                                            className="absolute right-3 top-3 material-symbols-outlined text-sm text-secondary opacity-0 group-hover:opacity-100 hover:text-error transition-all cursor-pointer"
                                                         >
                                                             close
                                                         </button>
@@ -258,7 +255,11 @@ export default function Header() {
                                 <div className="absolute right-0 top-full pt-2 w-40 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity">
                                     <div className="bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant overflow-hidden">
                                         <Link
-                                            href={user.role === 'ADMIN' ? '/admin/inquiries' : '/mypage'}
+                                            href={
+                                                user.role === 'ADMIN'
+                                                    ? '/admin/inquiries'
+                                                    : '/mypage'
+                                            }
                                             className="block px-4 py-3 text-body-sm text-on-surface hover:bg-surface-container transition-colors"
                                         >
                                             {user.role === 'ADMIN' ? '관리자 페이지' : '마이페이지'}

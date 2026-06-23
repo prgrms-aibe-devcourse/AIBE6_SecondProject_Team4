@@ -8,6 +8,7 @@ import com.fitmate.auth.dto.SignupRequest;
 import com.fitmate.auth.service.AuthService;
 import com.fitmate.auth.service.SmsService;
 import com.fitmate.global.config.JwtProvider;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -18,6 +19,10 @@ import org.springframework.security.core.Authentication;
 
 import java.util.Map;
 
+@Tag(
+        name = "인증",
+        description = "회원가입 및 로그인 API"
+)
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor

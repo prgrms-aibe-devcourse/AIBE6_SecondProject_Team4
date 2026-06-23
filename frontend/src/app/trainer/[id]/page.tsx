@@ -614,13 +614,26 @@ export default function TrainerDetailPage({ params }: Props) {
                                 </p>
                             </div>
                             <div className="space-y-xs">
-                                <div className="flex justify-between text-body-sm">
-                                    <span className="text-on-surface-variant">10회 패키지</span>
-                                    <span className="font-bold">
-                                        ₩{((trainer.price ?? 0) * 10 * 0.9).toLocaleString()}{' '}
-                                        <span className="text-primary text-label-md">10%</span>
-                                    </span>
-                                </div>
+                                {[
+                                    { count: 5, discount: 0.05 },
+                                    { count: 10, discount: 0.1 },
+                                    { count: 20, discount: 0.2 },
+                                ].map(({ count, discount }) => (
+                                    <div key={count} className="flex justify-between text-body-sm">
+                                        <span className="text-on-surface-variant">
+                                            {count}회 패키지
+                                        </span>
+                                        <span className="font-bold">
+                                            ₩
+                                            {Math.round(
+                                                (trainer.price ?? 0) * count * (1 - discount)
+                                            ).toLocaleString()}{' '}
+                                            <span className="text-primary text-label-md">
+                                                {discount * 100}%
+                                            </span>
+                                        </span>
+                                    </div>
+                                ))}
                             </div>
                             <button
                                 className="w-full bg-primary text-on-primary py-sm rounded-xl font-label-bold hover:shadow-lg active:scale-95 transition-all cursor-pointer"
@@ -641,6 +654,7 @@ export default function TrainerDetailPage({ params }: Props) {
                                         new CustomEvent('open-chat-with-trainer', {
                                             detail: {
                                                 trainerId: trainer.memberId,
+                                                trainerProfileId: trainer.id,
                                                 name: trainer.nickname ?? '',
                                                 profileImage: trainer.profileImage ?? '',
                                             },
@@ -669,7 +683,21 @@ export default function TrainerDetailPage({ params }: Props) {
                                                       SATURDAY: '토',
                                                       SUNDAY: '일',
                                                   }
-                                                  const days = trainer.availableTimes
+                                                  const DAY_ORDER = [
+                                                      'MONDAY',
+                                                      'TUESDAY',
+                                                      'WEDNESDAY',
+                                                      'THURSDAY',
+                                                      'FRIDAY',
+                                                      'SATURDAY',
+                                                      'SUNDAY',
+                                                  ]
+                                                  const days = [...trainer.availableTimes]
+                                                      .sort(
+                                                          (a, b) =>
+                                                              DAY_ORDER.indexOf(a.dayOfWeek ?? '') -
+                                                              DAY_ORDER.indexOf(b.dayOfWeek ?? '')
+                                                      )
                                                       .map(
                                                           (t) =>
                                                               dayMap[t.dayOfWeek ?? ''] ??

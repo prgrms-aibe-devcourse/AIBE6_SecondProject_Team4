@@ -1,5 +1,6 @@
 'use client'
 
+import { DISTRICTS, REGIONS } from '@/constants/matchingOptions'
 import { useAuth } from '@/context/AuthContext'
 import { API_BASE_URL, getAuthClient, getImageUrl } from '@/utils/apiClient'
 import { useEffect, useState } from 'react'
@@ -28,6 +29,7 @@ export default function ProfileEditPage() {
         price: '',
         careerYears: '',
         region: '',
+        district: '',
         introduction: '',
         lessonDurationMinutes: '60',
         availableTimes: [] as {
@@ -48,6 +50,7 @@ export default function ProfileEditPage() {
         level: '',
         goal: [] as string[],
         region: '',
+        district: '',
         introduction: '',
     })
 
@@ -82,7 +85,8 @@ export default function ProfileEditPage() {
                         : [],
                     price: data.price?.toString() ?? '',
                     careerYears: data.careerYears?.toString() ?? '',
-                    region: data.region ?? '',
+                    region: data.region?.split(' ')[0] ?? '',
+                    district: data.region?.split(' ')[1] ?? '',
                     introduction: data.introduction ?? '',
                     lessonDurationMinutes: data.lessonDurationMinutes?.toString() ?? '60',
                     availableTimes:
@@ -110,7 +114,8 @@ export default function ProfileEditPage() {
                     sports: data.sports ? data.sports.split(',').map((s) => s.trim()) : [],
                     level: data.level ?? '',
                     goal: data.goal ? data.goal.split(',').map((g) => g.trim()) : [],
-                    region: data.region ?? '',
+                    region: data.region?.split(' ')[0] ?? '',
+                    district: data.region?.split(' ')[1] ?? '',
                     introduction: data.introduction ?? '',
                 })
             }
@@ -224,7 +229,10 @@ export default function ProfileEditPage() {
 
         await client.PATCH('/api/members/me', {
             body: {
-                region: user?.role === 'TRAINER' ? trainerForm.region : userForm.region,
+                region:
+                    user?.role === 'TRAINER'
+                        ? [trainerForm.region, trainerForm.district].filter(Boolean).join(' ')
+                        : [userForm.region, userForm.district].filter(Boolean).join(' '),
                 introduction:
                     user?.role === 'TRAINER' ? trainerForm.introduction : userForm.introduction,
             },
@@ -471,26 +479,82 @@ export default function ProfileEditPage() {
                                         <label className="block text-label-md font-label-md text-on-surface-variant">
                                             활동 지역
                                         </label>
-                                        <input
-                                            className="w-full bg-surface-container-low border border-outline-variant rounded-lg px-sm py-sm text-body-md outline-none focus:ring-2 focus:ring-primary"
-                                            placeholder="도시 또는 지역 검색"
-                                            value={
-                                                user?.role === 'TRAINER'
-                                                    ? trainerForm.region
-                                                    : userForm.region
-                                            }
-                                            onChange={(e) =>
-                                                user?.role === 'TRAINER'
-                                                    ? setTrainerForm((f) => ({
-                                                          ...f,
-                                                          region: e.target.value,
-                                                      }))
-                                                    : setUserForm((f) => ({
-                                                          ...f,
-                                                          region: e.target.value,
-                                                      }))
-                                            }
-                                        />
+                                        <div className="grid grid-cols-2 gap-xs">
+                                            <select
+                                                className="w-full bg-surface-container-low border border-outline-variant rounded-lg px-sm py-sm text-body-md outline-none focus:ring-2 focus:ring-primary"
+                                                value={
+                                                    user?.role === 'TRAINER'
+                                                        ? trainerForm.region
+                                                        : userForm.region
+                                                }
+                                                onChange={(e) => {
+                                                    const nextRegion = e.target.value
+                                                    const nextDistrict =
+                                                        DISTRICTS[nextRegion]?.[0] ?? ''
+                                                    if (user?.role === 'TRAINER') {
+                                                        setTrainerForm((f) => ({
+                                                            ...f,
+                                                            region: nextRegion,
+                                                            district: nextDistrict,
+                                                        }))
+                                                    } else {
+                                                        setUserForm((f) => ({
+                                                            ...f,
+                                                            region: nextRegion,
+                                                            district: nextDistrict,
+                                                        }))
+                                                    }
+                                                }}
+                                            >
+                                                <option value="" disabled>
+                                                    시/도 선택
+                                                </option>
+                                                {REGIONS.map((r) => (
+                                                    <option key={r} value={r}>
+                                                        {r}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <select
+                                                className="w-full bg-surface-container-low border border-outline-variant rounded-lg px-sm py-sm text-body-md outline-none focus:ring-2 focus:ring-primary"
+                                                value={
+                                                    user?.role === 'TRAINER'
+                                                        ? trainerForm.district
+                                                        : userForm.district
+                                                }
+                                                onChange={(e) =>
+                                                    user?.role === 'TRAINER'
+                                                        ? setTrainerForm((f) => ({
+                                                              ...f,
+                                                              district: e.target.value,
+                                                          }))
+                                                        : setUserForm((f) => ({
+                                                              ...f,
+                                                              district: e.target.value,
+                                                          }))
+                                                }
+                                                disabled={
+                                                    !(user?.role === 'TRAINER'
+                                                        ? trainerForm.region
+                                                        : userForm.region)
+                                                }
+                                            >
+                                                <option value="" disabled>
+                                                    구/군 선택
+                                                </option>
+                                                {(
+                                                    DISTRICTS[
+                                                        user?.role === 'TRAINER'
+                                                            ? trainerForm.region
+                                                            : userForm.region
+                                                    ] ?? []
+                                                ).map((d) => (
+                                                    <option key={d} value={d}>
+                                                        {d}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="space-y-xs">
@@ -737,11 +801,10 @@ export default function ProfileEditPage() {
                                     <label className="block text-label-md font-label-md text-on-surface-variant">
                                         레슨 유형
                                     </label>
-                                    <div className="grid grid-cols-3 gap-sm">
+                                    <div className="grid grid-cols-2 gap-sm">
                                         {[
                                             { label: '1:1', value: 'ONE_TO_ONE' },
                                             { label: '그룹', value: 'GROUP' },
-                                            { label: '온라인', value: 'ONLINE' },
                                         ].map(({ label, value }) => (
                                             <button
                                                 key={value}
