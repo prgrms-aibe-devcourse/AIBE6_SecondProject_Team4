@@ -244,7 +244,7 @@ function ExplorePageContent() {
                             가격
                         </label>
                         <button
-                            className={`h-11 px-sm rounded-lg border text-body-sm text-left w-24 truncate transition-all cursor-pointer ${
+                            className={`h-11 px-sm rounded-lg border text-body-sm text-left whitespace-nowrap transition-all cursor-pointer ${
                                 minPrice || maxPrice
                                     ? 'border-primary text-primary bg-primary-fixed'
                                     : 'bg-primary-fixed/40 border-primary/30 text-primary'
@@ -255,7 +255,7 @@ function ExplorePageContent() {
                             }}
                         >
                             {minPrice || maxPrice
-                                ? `${minPrice ? Math.round(Number(minPrice) / 1000) + '천' : '0'}~${maxPrice ? Math.round(Number(maxPrice) / 1000) + '천' : '∞'}`
+                                ? `${minPrice || '0'}~${maxPrice || '∞'}`
                                 : '범위설정'}
                         </button>
 
@@ -265,16 +265,28 @@ function ExplorePageContent() {
                                     className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-20 md:w-24"
                                     placeholder="최소"
                                     type="number"
+                                    step="10000"
+                                    min="0"
                                     value={draftPrice.minPrice}
-                                    onChange={(e) =>
-                                        setDraftPrice((f) => ({ ...f, minPrice: e.target.value }))
-                                    }
+                                    onChange={(e) => {
+                                        const nextMin = e.target.value
+                                        setDraftPrice((f) => {
+                                            const minNum = nextMin ? Number(nextMin) : 0
+                                            const maxNum = f.maxPrice ? Number(f.maxPrice) : 0
+                                            if (f.maxPrice && minNum > maxNum) {
+                                                return { minPrice: nextMin, maxPrice: nextMin }
+                                            }
+                                            return { ...f, minPrice: nextMin }
+                                        })
+                                    }}
                                 />
                                 <span className="text-on-surface-variant">-</span>
                                 <input
                                     className="bg-surface-container-low border border-outline-variant rounded-lg px-sm text-body-md h-11 w-20 md:w-24"
                                     placeholder="최대"
                                     type="number"
+                                    step="10000"
+                                    min={draftPrice.minPrice || '0'}
                                     value={draftPrice.maxPrice}
                                     onChange={(e) =>
                                         setDraftPrice((f) => ({ ...f, maxPrice: e.target.value }))
