@@ -7,8 +7,24 @@ import { formatLessonType } from '@/utils/lessonDisplay';
 import { startPayment } from '@/utils/payment';
 import { useEffect, useMemo, useState } from 'react';
 
+
+
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 type LessonRequest = components['schemas']['LessonRequestResponse']
 type LessonRequestStatus = NonNullable<LessonRequest['status']>
@@ -423,19 +439,9 @@ function SchedulePanel({
                     결제하기
                 </button>
             ) : request.status === 'COMPLETED' ? (
-                <div className="mt-md space-y-xs">
-                    <p className="rounded-lg bg-surface-container-low p-sm text-center font-label-bold text-on-surface-variant">
-                        결제가 완료된 레슨입니다.
-                    </p>
-                    <button
-                        type="button"
-                        onClick={onWorkout}
-                        className="flex h-12 w-full items-center justify-center gap-xs rounded-lg bg-primary font-label-bold text-on-primary transition-colors hover:bg-primary/90"
-                    >
-                        <span className="material-symbols-outlined">fitness_center</span>
-                        운동 관리 보기
-                    </button>
-                </div>
+                <p className="mt-md rounded-lg bg-surface-container-low p-sm text-center font-label-bold text-on-surface-variant">
+                    결제가 완료된 레슨입니다.
+                </p>
             ) : (
                 <p className="mt-md rounded-lg bg-surface-container-low p-sm text-center font-label-bold text-on-surface-variant">
                     {getProcessedRequestMessage(request.status)}

@@ -45,6 +45,13 @@ import { useEffect, useRef, useState } from 'react';
 
 
 
+
+
+
+
+
+
+
 interface CompletedEntry {
     date: string
     matchingId: number
@@ -61,6 +68,7 @@ interface WorkoutLog {
     memberPhotos: string[]
     completed: boolean
     trainerNickname: string
+    trainerComment: string | null
 }
 
 interface Props {
@@ -941,6 +949,50 @@ export default function WorkoutCalendarMini({ matchingIds }: Props) {
                                                         </p>
                                                     )}
                                                 </div>
+
+                                                {/* 트레이너 코멘트 */}
+                                                {log.trainerComment && (
+                                                    <div
+                                                        style={{
+                                                            borderTop: '1px solid #ebedf9',
+                                                            paddingTop: '14px',
+                                                        }}
+                                                    >
+                                                        <p
+                                                            style={{
+                                                                fontSize: '12px',
+                                                                fontWeight: 600,
+                                                                color: '#0057CD',
+                                                                margin: '0 0 6px',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: '4px',
+                                                            }}
+                                                        >
+                                                            <span
+                                                                className="material-symbols-outlined"
+                                                                style={{ fontSize: '14px' }}
+                                                            >
+                                                                rate_review
+                                                            </span>
+                                                            트레이너 코멘트
+                                                        </p>
+                                                        <p
+                                                            style={{
+                                                                fontSize: '13px',
+                                                                color: '#181c24',
+                                                                lineHeight: '1.6',
+                                                                background: '#eff6ff',
+                                                                borderRadius: '8px',
+                                                                padding: '10px 12px',
+                                                                margin: 0,
+                                                                border: '1px solid #dbeafe',
+                                                            }}
+                                                        >
+                                                            {log.trainerComment}
+                                                        </p>
+                                                    </div>
+                                                )}
 
                                                 {/* 운동 완료 버튼 */}
                                                 {!log.completed && (

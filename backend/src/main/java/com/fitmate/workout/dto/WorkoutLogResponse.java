@@ -16,6 +16,7 @@ public record WorkoutLogResponse(
         List<String> memberPhotos,
         boolean completed,
         String trainerNickname,
+        String trainerComment,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
@@ -30,6 +31,7 @@ public record WorkoutLogResponse(
                 memberPhotos,
                 log.isCompleted(),
                 log.getTrainer().getNickname(),
+                log.getTrainerComment(),
                 log.getCreatedAt(),
                 log.getUpdatedAt()
         );

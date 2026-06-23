@@ -143,4 +143,14 @@ public class WorkoutLogService {
                 .toList();
     }
 
+    @Transactional
+    public WorkoutLogResponse updateTrainerComment(Long matchingId, Long logId, String userId, String comment) {
+        WorkoutLog log = workoutLogRepository.findByMatchingResult_IdAndId(matchingId, logId)
+                .orElseThrow(() -> new CustomException(ErrorCode.WORKOUT_LOG_NOT_FOUND));
+        if (!log.getTrainer().getUserId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+        log.updateTrainerComment(comment);
+        return toResponse(log);
+    }
 }

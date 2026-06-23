@@ -1,12 +1,26 @@
 'use client'
 
-import { useAuth } from '@/context/AuthContext'
-import type { components } from '@/types/api'
-import { getAuthClient, getImageUrl } from '@/utils/apiClient'
-import { formatLessonType } from '@/utils/lessonDisplay'
-import { useEffect, useMemo, useState } from 'react'
+import { useAuth } from '@/context/AuthContext';
+import type { components } from '@/types/api';
+import { getAuthClient, getImageUrl } from '@/utils/apiClient';
+import { formatLessonType } from '@/utils/lessonDisplay';
+import { useEffect, useMemo, useState } from 'react';
 
-import Link from 'next/link'
+
+
+import Link from 'next/link';
+
+
+
+
+
+
+
+
+
+
+
+
 
 async function openChatWithTrainer(trainerProfileId: number, name: string, profileImage: string) {
     const client = getAuthClient()
@@ -263,11 +277,12 @@ function LessonRequestCard({ request, isTrainer }: { request: LessonRequest; isT
                         isTrainer && request.lessonRequestId
                             ? `/lesson-requests/${request.lessonRequestId}`
                             : !isTrainer && request.trainerProfileId
-                            ? `/trainer/${request.trainerProfileId}`
-                            : '#'
+                              ? `/trainer/${request.trainerProfileId}`
+                              : '#'
                     }
                     className={
-                        (isTrainer && request.lessonRequestId) || (!isTrainer && request.trainerProfileId)
+                        (isTrainer && request.lessonRequestId) ||
+                        (!isTrainer && request.trainerProfileId)
                             ? 'shrink-0 cursor-pointer'
                             : 'shrink-0 pointer-events-none'
                     }
@@ -295,11 +310,12 @@ function LessonRequestCard({ request, isTrainer }: { request: LessonRequest; isT
                             isTrainer && request.lessonRequestId
                                 ? `/lesson-requests/${request.lessonRequestId}`
                                 : !isTrainer && request.trainerProfileId
-                                ? `/trainer/${request.trainerProfileId}`
-                                : '#'
+                                  ? `/trainer/${request.trainerProfileId}`
+                                  : '#'
                         }
                         className={
-                            (isTrainer && request.lessonRequestId) || (!isTrainer && request.trainerProfileId)
+                            (isTrainer && request.lessonRequestId) ||
+                            (!isTrainer && request.trainerProfileId)
                                 ? 'cursor-pointer hover:underline'
                                 : 'pointer-events-none'
                         }
@@ -345,6 +361,15 @@ function LessonRequestCard({ request, isTrainer }: { request: LessonRequest; isT
                         <span className="material-symbols-outlined text-base">chat</span>
                         {chatLoading ? '연결 중...' : '1:1 상담'}
                     </button>
+                )}
+                {isTrainer && status === 'COMPLETED' && request.matchingResultId && (
+                    <Link
+                        href={`/mypage/workout/${request.matchingResultId}`}
+                        className="flex h-11 items-center justify-center gap-xs rounded-lg border border-outline-variant px-md font-label-bold text-on-surface transition-colors hover:bg-surface-container"
+                    >
+                        <span className="material-symbols-outlined text-base">fitness_center</span>
+                        운동 관리
+                    </Link>
                 )}
                 {request.lessonRequestId && (
                     <Link

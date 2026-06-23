@@ -40,6 +40,13 @@ public class WorkoutLog extends BaseEntity {
     @Builder.Default
     private boolean completed = false;
 
+    @Column(columnDefinition = "TEXT")
+    private String trainerComment;
+
+    public void updateTrainerComment(String comment) {
+        this.trainerComment = comment;
+    }
+
     public void complete() {
         this.completed = true;
     }

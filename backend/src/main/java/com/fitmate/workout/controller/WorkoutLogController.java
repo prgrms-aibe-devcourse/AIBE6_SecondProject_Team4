@@ -89,4 +89,14 @@ public class WorkoutLogController {
         return ResponseEntity.ok(
                 workoutLogService.cancelComplete(matchingId, logId, authentication.getName()));
     }
+
+    @PatchMapping("/{logId}/comment")
+    public ResponseEntity<WorkoutLogResponse> updateComment(
+            @PathVariable Long matchingId,
+            @PathVariable Long logId,
+            @RequestBody Map<String, String> body,
+            Authentication authentication) {
+        return ResponseEntity.ok(
+                workoutLogService.updateTrainerComment(matchingId, logId, authentication.getName(), body.get("comment")));
+    }
 }

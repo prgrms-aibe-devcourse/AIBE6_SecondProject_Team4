@@ -1,10 +1,82 @@
 'use client'
 
-import { useAuth } from '@/context/AuthContext'
-import { API_BASE_URL } from '@/utils/apiClient'
-import { useEffect, useState } from 'react'
+import { useAuth } from '@/context/AuthContext';
+import { API_BASE_URL, getImageUrl } from '@/utils/apiClient';
+import { useEffect, useState } from 'react';
 
-import { useParams, useRouter } from 'next/navigation'
+
+
+import { useParams, useRouter } from 'next/navigation';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 interface WorkoutLog {
     id: number
@@ -16,6 +88,7 @@ interface WorkoutLog {
     memberPhotos: string[]
     completed: boolean
     trainerNickname: string
+    trainerComment: string | null
     createdAt: string
     updatedAt: string
 }
@@ -35,6 +108,9 @@ export default function WorkoutTrainerPage() {
     const [editingLog, setEditingLog] = useState<WorkoutLog | null>(null)
     const [form, setForm] = useState({ date: '', routine: '', diet: '', memo: '' })
     const [saving, setSaving] = useState(false)
+
+    const [comment, setComment] = useState('')
+    const [savingComment, setSavingComment] = useState(false)
 
     const isTrainer = user?.role === 'TRAINER'
 
@@ -85,6 +161,7 @@ export default function WorkoutTrainerPage() {
         const log = getLogByDate(date)
         if (log) {
             setSelectedLog(log)
+            setComment(log.trainerComment ?? '')
         } else {
             setEditingLog(null)
             setForm({ date: toDateStr(date), routine: '', diet: '', memo: '' })
@@ -137,6 +214,24 @@ export default function WorkoutTrainerPage() {
         )
         if (res.ok) {
             setSelectedLog(null)
+            fetchLogs()
+        }
+    }
+
+    const handleSaveComment = async (logId: number) => {
+        setSavingComment(true)
+        const token = getToken()
+        const res = await fetch(
+            `${API_BASE_URL}/api/matching/${matchingId}/workout-logs/${logId}/comment`,
+            {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ comment }),
+            }
+        )
+        setSavingComment(false)
+        if (res.ok) {
+            setComment('')
             fetchLogs()
         }
     }
@@ -435,7 +530,7 @@ export default function WorkoutTrainerPage() {
                                                     className="aspect-square rounded-xl overflow-hidden border border-outline-variant"
                                                 >
                                                     <img
-                                                        src={url}
+                                                        src={getImageUrl(url)}
                                                         alt={`인증 ${idx + 1}`}
                                                         className="w-full h-full object-cover"
                                                     />
@@ -448,6 +543,92 @@ export default function WorkoutTrainerPage() {
                                         </p>
                                     )}
                                 </div>
+                                {selectedLog.completed && (
+                                    <div className="border-t border-outline-variant/30 pt-md">
+                                        <p className="flex items-center gap-xs font-label-bold text-on-surface-variant mb-sm">
+                                            <span className="material-symbols-outlined text-base">
+                                                rate_review
+                                            </span>
+                                            트레이너 코멘트
+                                        </p>
+                                        {selectedLog.trainerComment && !comment ? (
+                                            <div>
+                                                <p className="text-body-md text-on-surface leading-relaxed whitespace-pre-wrap bg-primary/5 rounded-lg p-md border border-primary/10 mb-sm">
+                                                    {selectedLog.trainerComment}
+                                                </p>
+                                                <div className="flex gap-xs">
+                                                    <button
+                                                        onClick={() =>
+                                                            setComment(
+                                                                selectedLog.trainerComment ?? ''
+                                                            )
+                                                        }
+                                                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-body-sm text-on-surface-variant border border-outline-variant hover:bg-surface-container hover:text-primary transition-all cursor-pointer"
+                                                    >
+                                                        <span className="material-symbols-outlined text-base">
+                                                            edit
+                                                        </span>
+                                                        수정
+                                                    </button>
+                                                    <button
+                                                        onClick={async () => {
+                                                            const token = getToken()
+                                                            await fetch(
+                                                                `${API_BASE_URL}/api/matching/${matchingId}/workout-logs/${selectedLog.id}/comment`,
+                                                                {
+                                                                    method: 'PATCH',
+                                                                    headers: {
+                                                                        'Content-Type':
+                                                                            'application/json',
+                                                                        Authorization: `Bearer ${token}`,
+                                                                    },
+                                                                    body: JSON.stringify({
+                                                                        comment: '',
+                                                                    }),
+                                                                }
+                                                            )
+                                                            setComment('')
+                                                            fetchLogs()
+                                                        }}
+                                                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-body-sm text-on-surface-variant border border-outline-variant hover:bg-error-container/30 hover:text-error transition-all cursor-pointer"
+                                                    >
+                                                        <span className="material-symbols-outlined text-base">
+                                                            delete
+                                                        </span>
+                                                        삭제
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="flex gap-xs">
+                                                <input
+                                                    type="text"
+                                                    value={comment}
+                                                    onChange={(e) => setComment(e.target.value)}
+                                                    placeholder="회원에게 한 줄 코멘트를 남겨주세요"
+                                                    className="flex-1 border border-outline-variant rounded-lg px-md py-sm text-body-sm focus:outline-none focus:border-primary"
+                                                />
+                                                <button
+                                                    onClick={() =>
+                                                        handleSaveComment(selectedLog.id)
+                                                    }
+                                                    disabled={savingComment || !comment.trim()}
+                                                    className="px-md py-sm rounded-lg bg-primary text-on-primary font-label-bold hover:bg-primary/90 transition-all disabled:opacity-50 cursor-pointer"
+                                                >
+                                                    {savingComment ? '저장 중...' : '저장'}
+                                                </button>
+                                                {selectedLog.trainerComment && (
+                                                    <button
+                                                        onClick={() => setComment('')}
+                                                        className="px-md py-sm rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container transition-all cursor-pointer"
+                                                    >
+                                                        취소
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ) : (
