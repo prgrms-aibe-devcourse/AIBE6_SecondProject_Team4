@@ -133,7 +133,7 @@ function ExplorePageContent() {
         if (merged.page > 0) params.set('page', String(merged.page))
         else params.delete('page')
 
-        router.push(`/trainer?${params.toString()}`)
+        router.push(`/trainer?${params.toString()}`, { scroll: false })
     }
 
     const handleSearch = () => {
@@ -148,14 +148,16 @@ function ExplorePageContent() {
         pushQuery({ sort: value, page: 0 })
     }
 
+    const PAGE_GROUP_SIZE = 5
+
     const getPageNumbers = () => {
+        const groupIndex = Math.floor(currentPage / PAGE_GROUP_SIZE)
+        const start = groupIndex * PAGE_GROUP_SIZE
+        const end = Math.min(totalPages - 1, start + PAGE_GROUP_SIZE - 1)
         const pages = []
-        const start = Math.max(0, currentPage - 1)
-        const end = Math.min(totalPages - 1, start + 2)
         for (let i = start; i <= end; i++) pages.push(i)
         return pages
     }
-
     return (
         <main className="pt-16 md:pt-20">
             <div className="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-md md:py-lg">
@@ -314,51 +316,7 @@ function ExplorePageContent() {
                 )}
 
                 {/* 트레이너 목록 */}
-                {loading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
-                        {Array.from({ length: 8 }).map((_, i) => (
-                            <div
-                                key={i}
-                                className="rounded-xl border border-outline-variant bg-surface-container-lowest overflow-hidden flex flex-col"
-                                style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
-                            >
-                                {/* 이미지 */}
-                                <div
-                                    className="w-full bg-surface-container animate-pulse"
-                                    style={{ height: '200px' }}
-                                />
-                                {/* 텍스트 */}
-                                <div className="p-3 md:p-md flex flex-col gap-sm flex-grow">
-                                    <div className="flex items-center justify-between">
-                                        <div className="h-5 w-24 rounded bg-surface-container animate-pulse" />
-                                        <div className="h-4 w-8 rounded bg-surface-container animate-pulse" />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <div
-                                            className="h-3 rounded bg-surface-container animate-pulse"
-                                            style={{ width: `${65 + ((i * 11) % 25)}%` }}
-                                        />
-                                        <div
-                                            className="h-3 rounded bg-surface-container animate-pulse"
-                                            style={{ width: `${45 + ((i * 17) % 30)}%` }}
-                                        />
-                                    </div>
-                                    <div className="flex gap-xs">
-                                        <div className="h-6 w-14 rounded bg-surface-container animate-pulse" />
-                                        <div className="h-6 w-12 rounded bg-surface-container animate-pulse" />
-                                    </div>
-                                    <div className="flex items-center justify-between mt-auto pt-sm border-t border-outline-variant">
-                                        <div className="space-y-1">
-                                            <div className="h-3 w-14 rounded bg-surface-container animate-pulse" />
-                                            <div className="h-4 w-20 rounded bg-surface-container animate-pulse" />
-                                        </div>
-                                        <div className="h-9 w-20 rounded-lg bg-surface-container animate-pulse" />
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : trainers.length === 0 ? (
+                {trainers.length === 0 && !loading ? (
                     <div className="text-center py-20 text-on-surface-variant">
                         <span className="material-symbols-outlined text-6xl mb-4 block">
                             search_off
@@ -367,7 +325,11 @@ function ExplorePageContent() {
                     </div>
                 ) : (
                     <>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
+                        <div
+                            className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter transition-opacity duration-200 ${
+                                loading ? 'opacity-40' : 'opacity-100'
+                            }`}
+                        >
                             {trainers.map((trainer) => (
                                 <div
                                     key={trainer.id}
@@ -398,7 +360,10 @@ function ExplorePageContent() {
                                             <img
                                                 src={getImageUrl(trainer.profileImage)}
                                                 alt={trainer.nickname ?? ''}
-                                                className="w-full h-full object-cover"
+                                                className="w-full h-full object-cover opacity-0 transition-opacity duration-300"
+                                                onLoad={(e) => {
+                                                    e.currentTarget.classList.remove('opacity-0')
+                                                }}
                                             />
                                         ) : (
                                             <span className="material-symbols-outlined text-6xl text-outline-variant">
@@ -478,7 +443,7 @@ function ExplorePageContent() {
                                         <div className="flex items-center justify-between mt-auto pt-sm border-t border-outline-variant">
                                             <div className="min-w-0">
                                                 <p className="text-label-md font-label-md text-on-surface-variant">
-                                                    최당 가격
+                                                    회당 가격
                                                 </p>
                                                 <p className="text-body-md font-bold text-on-surface truncate">
                                                     {trainer.price?.toLocaleString()}원
@@ -506,30 +471,13 @@ function ExplorePageContent() {
                             <div className="flex justify-center gap-xs mt-lg">
                                 <button
                                     className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center hover:bg-surface-container text-on-surface-variant transition disabled:opacity-50 cursor-pointer"
-                                    onClick={() => handlePageChange(currentPage - 1)}
-                                    disabled={currentPage === 0}
+                                    onClick={() => handlePageChange(getPageNumbers()[0] - 1)}
+                                    disabled={getPageNumbers()[0] === 0}
                                 >
                                     <span className="material-symbols-outlined text-sm">
                                         chevron_left
                                     </span>
                                 </button>
-
-                                {/* 첫 페이지 고정 표시 */}
-                                {getPageNumbers()[0] > 0 && (
-                                    <>
-                                        <button
-                                            className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center text-label-bold font-label-bold hover:bg-surface-container text-on-surface transition cursor-pointer"
-                                            onClick={() => handlePageChange(0)}
-                                        >
-                                            1
-                                        </button>
-                                        {getPageNumbers()[0] > 1 && (
-                                            <span className="w-9 h-9 flex items-center justify-center text-on-surface-variant">
-                                                ...
-                                            </span>
-                                        )}
-                                    </>
-                                )}
 
                                 {getPageNumbers().map((page) => (
                                     <button
@@ -545,23 +493,17 @@ function ExplorePageContent() {
                                     </button>
                                 ))}
 
-                                {totalPages > 3 && currentPage < totalPages - 2 && (
-                                    <>
-                                        <span className="w-9 h-9 flex items-center justify-center text-on-surface-variant">
-                                            ...
-                                        </span>
-                                        <button
-                                            className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center text-label-bold font-label-bold hover:bg-surface-container text-on-surface transition cursor-pointer"
-                                            onClick={() => handlePageChange(totalPages - 1)}
-                                        >
-                                            {totalPages}
-                                        </button>
-                                    </>
-                                )}
                                 <button
                                     className="w-9 h-9 rounded-lg border border-outline-variant flex items-center justify-center hover:bg-surface-container text-on-surface-variant transition disabled:opacity-50 cursor-pointer"
-                                    onClick={() => handlePageChange(currentPage + 1)}
-                                    disabled={currentPage === totalPages - 1}
+                                    onClick={() =>
+                                        handlePageChange(
+                                            getPageNumbers()[getPageNumbers().length - 1] + 1
+                                        )
+                                    }
+                                    disabled={
+                                        getPageNumbers()[getPageNumbers().length - 1] ===
+                                        totalPages - 1
+                                    }
                                 >
                                     <span className="material-symbols-outlined text-sm">
                                         chevron_right
