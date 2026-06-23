@@ -380,9 +380,10 @@ export default function Home() {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
                             {reviews.map((review, idx) => (
-                                <div
+                                <Link
                                     key={review.id}
-                                    className={`bg-surface-container-low p-6 rounded-2xl border border-outline-variant hover:shadow-md transition-shadow ${
+                                    href={`/trainer/${review.trainerProfileId}`}
+                                    className={`block bg-surface-container-low p-6 rounded-2xl border border-outline-variant hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer ${
                                         idx === 2 ? 'hidden lg:block' : ''
                                     }`}
                                 >
@@ -407,17 +408,7 @@ export default function Home() {
                                             </p>
 
                                             <p className="text-body-sm text-on-surface-variant">
-                                                {review.trainerProfileId ? (
-                                                    <Link
-                                                        href={`/trainer/${review.trainerProfileId}`}
-                                                        className="hover:text-primary"
-                                                    >
-                                                        {review.trainerNickname}
-                                                    </Link>
-                                                ) : (
-                                                    review.trainerNickname
-                                                )}
-
+                                                {review.trainerNickname}
                                                 {review.sports && ` · ${review.sports}`}
                                             </p>
 
@@ -427,7 +418,7 @@ export default function Home() {
                                     <p className="font-body-md text-body-md text-on-surface italic leading-relaxed">
                                         &ldquo;{review.content}&rdquo;
                                     </p>
-                                </div>
+                                </Link>
                             ))}
                         </div>
                     )}
