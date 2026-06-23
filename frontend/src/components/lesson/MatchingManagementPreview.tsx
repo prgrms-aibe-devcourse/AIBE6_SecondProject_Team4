@@ -8,6 +8,35 @@ import { useEffect, useMemo, useState } from 'react'
 
 import Link from 'next/link'
 
+async function openChatWithTrainer(trainerProfileId: number, name: string, profileImage: string) {
+    const client = getAuthClient()
+    const { data } = await client.GET('/api/trainers/{id}', {
+        params: { path: { id: trainerProfileId } },
+    })
+    if (!data?.memberId) return
+    window.dispatchEvent(
+        new CustomEvent('open-chat-with-trainer', {
+            detail: {
+                trainerId: data.memberId,
+                trainerProfileId,
+                name,
+                profileImage,
+            },
+        })
+    )
+}
+
+async function openChatWithMember(trainerMemberId: number, userId: number) {
+    const client = getAuthClient()
+    const { data } = await client.POST('/api/chat', {
+        body: { trainerId: trainerMemberId, userId },
+    })
+    if (!data?.chatRoomId) return
+    window.dispatchEvent(
+        new CustomEvent('open-chat-room', { detail: { roomId: data.chatRoomId } })
+    )
+}
+
 type ApiLessonRequest = components['schemas']['LessonRequestResponse']
 type LessonRequestStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CANCELED' | 'COMPLETED'
 type LessonRequest = Omit<ApiLessonRequest, 'status'> & {
@@ -201,9 +230,27 @@ export default function MatchingManagementPreview() {
 }
 
 function LessonRequestCard({ request, isTrainer }: { request: LessonRequest; isTrainer: boolean }) {
+    const { user } = useAuth()
     const status = request.status ?? 'PENDING'
     const name = isTrainer ? request.memberName : request.trainerName
     const profileImage = isTrainer ? request.memberProfileImage : request.trainerProfileImage
+    const [chatLoading, setChatLoading] = useState(false)
+
+    const handleOpenChat = async () => {
+        setChatLoading(true)
+        if (isTrainer) {
+            if (!user?.memberId || !request.memberId) return
+            await openChatWithMember(user.memberId, request.memberId)
+        } else {
+            if (!request.trainerProfileId) return
+            await openChatWithTrainer(
+                request.trainerProfileId,
+                request.trainerName ?? '트레이너',
+                request.trainerProfileImage ?? '',
+            )
+        }
+        setChatLoading(false)
+    }
 
     return (
         <article
@@ -211,26 +258,56 @@ function LessonRequestCard({ request, isTrainer }: { request: LessonRequest; isT
             style={{ boxShadow: '0 4px 20px rgba(116,119,129,0.08)' }}
         >
             <div className="flex min-w-0 flex-1 items-start gap-sm">
-                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-surface-container">
-                    {profileImage ? (
-                        <img
-                            src={getImageUrl(profileImage)}
-                            alt={`${name ?? '회원'} 프로필`}
-                            className="h-full w-full object-cover"
-                        />
-                    ) : (
-                        <div className="flex h-full items-center justify-center">
-                            <span className="material-symbols-outlined text-3xl text-outline">
-                                person
-                            </span>
-                        </div>
-                    )}
-                </div>
+                <Link
+                    href={
+                        isTrainer && request.lessonRequestId
+                            ? `/lesson-requests/${request.lessonRequestId}`
+                            : !isTrainer && request.trainerProfileId
+                            ? `/trainer/${request.trainerProfileId}`
+                            : '#'
+                    }
+                    className={
+                        (isTrainer && request.lessonRequestId) || (!isTrainer && request.trainerProfileId)
+                            ? 'shrink-0 cursor-pointer'
+                            : 'shrink-0 pointer-events-none'
+                    }
+                >
+                    <div className="h-16 w-16 overflow-hidden rounded-full bg-surface-container ring-0 transition-all hover:ring-2 hover:ring-primary">
+                        {profileImage ? (
+                            <img
+                                src={getImageUrl(profileImage)}
+                                alt={`${name ?? '회원'} 프로필`}
+                                className="h-full w-full object-cover"
+                            />
+                        ) : (
+                            <div className="flex h-full items-center justify-center">
+                                <span className="material-symbols-outlined text-3xl text-outline">
+                                    person
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                </Link>
 
                 <div className="min-w-0 flex-1">
-                    <h3 className="truncate font-headline-sm text-headline-sm text-on-surface">
-                        {name ?? (isTrainer ? '회원' : '트레이너')}
-                    </h3>
+                    <Link
+                        href={
+                            isTrainer && request.lessonRequestId
+                                ? `/lesson-requests/${request.lessonRequestId}`
+                                : !isTrainer && request.trainerProfileId
+                                ? `/trainer/${request.trainerProfileId}`
+                                : '#'
+                        }
+                        className={
+                            (isTrainer && request.lessonRequestId) || (!isTrainer && request.trainerProfileId)
+                                ? 'cursor-pointer hover:underline'
+                                : 'pointer-events-none'
+                        }
+                    >
+                        <h3 className="truncate font-headline-sm text-headline-sm text-on-surface">
+                            {name ?? (isTrainer ? '회원' : '트레이너')}
+                        </h3>
+                    </Link>
 
                     <p className="mt-1 text-label-sm text-on-surface-variant">
                         요청일 {formatDateTime(request.createdAt)}
@@ -258,6 +335,17 @@ function LessonRequestCard({ request, isTrainer }: { request: LessonRequest; isT
 
             <div className="flex shrink-0 items-center justify-end gap-sm border-t border-outline-variant pt-sm md:border-t-0 md:pt-0">
                 <StatusBadge status={status} />
+                {((!isTrainer && request.trainerProfileId) || (isTrainer && request.memberId)) && (
+                    <button
+                        type="button"
+                        onClick={handleOpenChat}
+                        disabled={chatLoading}
+                        className="flex h-11 items-center justify-center gap-1 rounded-lg border border-primary px-md font-label-bold text-primary transition-colors hover:bg-primary/10 disabled:opacity-50 cursor-pointer"
+                    >
+                        <span className="material-symbols-outlined text-base">chat</span>
+                        {chatLoading ? '연결 중...' : '1:1 상담'}
+                    </button>
+                )}
                 {request.lessonRequestId && (
                     <Link
                         href={`/lesson-requests/${request.lessonRequestId}`}
