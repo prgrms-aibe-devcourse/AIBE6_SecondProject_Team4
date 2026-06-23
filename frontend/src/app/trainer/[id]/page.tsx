@@ -321,14 +321,7 @@ export default function TrainerDetailPage({ params }: Props) {
                                     {trainer.careerYears ?? '-'}년 이상
                                 </p>
                             </div>
-                            <div>
-                                <p className="text-label-md font-label-md text-on-surface-variant">
-                                    누적 세션
-                                </p>
-                                <p className="font-bold text-on-surface text-body-sm md:text-body-md">
-                                    5,000+ 회
-                                </p>
-                            </div>
+
                             <div>
                                 <p className="text-label-md font-label-md text-on-surface-variant">
                                     활동 지역
@@ -582,10 +575,6 @@ export default function TrainerDetailPage({ params }: Props) {
                                         <span className="text-primary text-label-md">10%</span>
                                     </span>
                                 </div>
-                                <div className="flex justify-between text-body-sm">
-                                    <span className="text-on-surface-variant">상담 비용</span>
-                                    <span className="font-bold text-primary">무료</span>
-                                </div>
                             </div>
                             <button
                                 className="w-full bg-primary text-on-primary py-sm rounded-xl font-label-bold hover:shadow-lg active:scale-95 transition-all cursor-pointer"
@@ -598,6 +587,10 @@ export default function TrainerDetailPage({ params }: Props) {
                             <button
                                 className="w-full border border-outline-variant text-on-surface py-sm rounded-xl font-label-bold hover:bg-surface-container transition flex items-center justify-center gap-xs cursor-pointer"
                                 onClick={() => {
+                                    if (!user) {
+                                        router.push(`/auth/login?redirect=/trainer/${trainer.id}`)
+                                        return
+                                    }
                                     window.dispatchEvent(
                                         new CustomEvent('open-chat-with-trainer', {
                                             detail: {
@@ -613,12 +606,6 @@ export default function TrainerDetailPage({ params }: Props) {
                                 {trainer.nickname}와 상담하기
                             </button>
                             <div className="space-y-xs pt-sm border-t border-outline-variant">
-                                <div className="flex items-center gap-xs text-body-sm text-on-surface-variant">
-                                    <span className="material-symbols-outlined text-sm">
-                                        schedule
-                                    </span>
-                                    평균 응답: 2시간 이내
-                                </div>
                                 <div className="flex items-start gap-xs text-body-sm text-on-surface-variant">
                                     <span className="material-symbols-outlined text-sm flex-shrink-0 mt-0.5">
                                         calendar_month
