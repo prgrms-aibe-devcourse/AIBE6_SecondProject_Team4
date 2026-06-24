@@ -102,7 +102,7 @@ export default function AdminMembersPage() {
     const fetchStats = async () => {
         await ensureFreshToken()
         const { data } = await getAuthClient().GET('/api/admin/members/stats', {})
-        if (data) setStats(data as Stats)
+        if (data) setStats(data as unknown as Stats)
     }
 
     const fetchMembers = async (p = 0) => {
