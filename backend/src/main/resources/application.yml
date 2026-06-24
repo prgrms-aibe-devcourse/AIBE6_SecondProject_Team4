@@ -17,6 +17,11 @@ spring:
       settings:
         web-allow-others: true
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
   sql:
     init:
       mode: always
@@ -58,3 +63,4 @@ gemini:
 
 custom:
   frontend-redirect-uri: ${FRONTEND_REDIRECT_URI:http://localhost:3000/oauth2/redirect}
+
