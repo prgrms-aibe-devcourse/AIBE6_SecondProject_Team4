@@ -204,10 +204,16 @@ export default function Header() {
                                                         ) : (
                                                             <Link
                                                                 href={getAlertHref(alert, user?.role)}
-                                                                onClick={() => {
+                                                                onClick={(e) => {
+                                                                    const href = getAlertHref(alert, user?.role)
+                                                                    const isSamePage = window.location.pathname === href.split('?')[0]
                                                                     setAlertOpen(false)
                                                                     if (!alert.isRead && alert.id)
                                                                         markOneRead(alert.id)
+                                                                    if (isSamePage) {
+                                                                        e.preventDefault()
+                                                                        window.location.href = href
+                                                                    }
                                                                 }}
                                                                 className="flex gap-3"
                                                             >

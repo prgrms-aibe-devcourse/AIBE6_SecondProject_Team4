@@ -230,7 +230,7 @@ export default function WorkoutCalendarMini({ matchingIds }: Props) {
     const monthlyCompleted = new Set(
         entries.filter(e => {
             const [y, m] = e.date.split('-').map(Number)
-            return y === currentYear && m === currentMonth + 1
+            return y === currentYear && m === currentMonth + 1 && e.completed
         }).map(e => e.date)
     ).size
 
