@@ -68,6 +68,15 @@ async function reissueToken(): Promise<string | null> {
 }
 
 const reissueMiddleware: Middleware = {
+    async onRequest({ request }) {
+        // body는 onResponse 시점에 이미 소비되므로 미리 저장
+        if (!['GET', 'HEAD'].includes(request.method)) {
+            const bodyText = await request.text()
+            ;(request as Request & { _bodyText?: string })._bodyText = bodyText
+            return new Request(request, { body: bodyText })
+        }
+        return request
+    },
     async onResponse({ response, request }) {
         if (response.status !== 401) return response
         if (request.url.includes('/api/auth/reissue')) return response
@@ -81,17 +90,17 @@ const reissueMiddleware: Middleware = {
 
         onTokenRefreshed?.(newToken)
 
-        const cloned = request.clone()
-        const retryRequest = new Request(cloned.url, {
-            method: cloned.method,
+        const savedBody = (request as Request & { _bodyText?: string })._bodyText
+        const retryRequest = new Request(request.url, {
+            method: request.method,
             headers: {
-                ...Object.fromEntries(cloned.headers.entries()),
+                ...Object.fromEntries(request.headers.entries()),
                 Authorization: `Bearer ${newToken}`,
             },
-            body: ['GET', 'HEAD'].includes(cloned.method) ? undefined : await cloned.text(),
-            credentials: cloned.credentials,
-            mode: cloned.mode,
-            cache: cloned.cache,
+            body: ['GET', 'HEAD'].includes(request.method) ? undefined : savedBody,
+            credentials: request.credentials,
+            mode: request.mode,
+            cache: request.cache,
         })
         return fetch(retryRequest)
     },

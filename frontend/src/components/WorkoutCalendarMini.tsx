@@ -90,10 +90,14 @@ interface Props {
 }
 
 export default function WorkoutCalendarMini({ matchingIds }: Props) {
+    const savedCalendar = (() => {
+        try { return JSON.parse(sessionStorage.getItem('workout_calendar') ?? '{}') } catch { return {} }
+    })()
+
     const [entries, setEntries] = useState<CompletedEntry[]>([])
     const [loading, setLoading] = useState(true)
-    const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
-    const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())
+    const [currentYear, setCurrentYear] = useState<number>(savedCalendar.year ?? new Date().getFullYear())
+    const [currentMonth, setCurrentMonth] = useState<number>(savedCalendar.month ?? new Date().getMonth())
     const [selectedEntry, setSelectedEntry] = useState<CompletedEntry | null>(null)
     const [selectedLogs, setSelectedLogs] = useState<WorkoutLog[]>([])
     const [logLoading, setLogLoading] = useState(false)
@@ -121,8 +125,20 @@ export default function WorkoutCalendarMini({ matchingIds }: Props) {
 
     useEffect(() => { fetchEntries() }, [matchingIds.join(',')])
 
+    // 로드 완료 후 저장된 날짜 복원
+    useEffect(() => {
+        if (loading || !savedCalendar.date) return
+        const dayEntries = entries.filter(e => e.date === savedCalendar.date)
+        if (dayEntries.length > 0) handleDayClick(dayEntries)
+    }, [loading])
+
+    const saveCalendar = (year: number, month: number, date?: string) => {
+        sessionStorage.setItem('workout_calendar', JSON.stringify({ year, month, date }))
+    }
+
     const handleDayClick = async (dayEntries: CompletedEntry[]) => {
         setSelectedEntry(dayEntries[0])
+        saveCalendar(currentYear, currentMonth, dayEntries[0]?.date)
         setSelectedLogs([])
         setLogLoading(true)
         const token = getToken()
@@ -219,14 +235,18 @@ export default function WorkoutCalendarMini({ matchingIds }: Props) {
     ).size
 
     const prevMonth = () => {
-        if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1) }
-        else setCurrentMonth(m => m - 1)
+        const newMonth = currentMonth === 0 ? 11 : currentMonth - 1
+        const newYear = currentMonth === 0 ? currentYear - 1 : currentYear
+        setCurrentMonth(newMonth); setCurrentYear(newYear)
         setSelectedEntry(null); setSelectedLogs([])
+        saveCalendar(newYear, newMonth)
     }
     const nextMonth = () => {
-        if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(y => y + 1) }
-        else setCurrentMonth(m => m + 1)
+        const newMonth = currentMonth === 11 ? 0 : currentMonth + 1
+        const newYear = currentMonth === 11 ? currentYear + 1 : currentYear
+        setCurrentMonth(newMonth); setCurrentYear(newYear)
         setSelectedEntry(null); setSelectedLogs([])
+        saveCalendar(newYear, newMonth)
     }
 
     const formatDisplayDate = (dateStr: string) => {
@@ -238,15 +258,6 @@ export default function WorkoutCalendarMini({ matchingIds }: Props) {
 
     return (
         <section>
-            <div style={{ marginBottom: '16px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#181c24', margin: 0 }}>
-                    운동 현황
-                </h2>
-                <p style={{ fontSize: '14px', color: '#424654', marginTop: '4px' }}>
-                    완료한 날짜를 클릭하면 상세 기록을 확인하고 인증 사진을 올릴 수 있어요.
-                </p>
-            </div>
-
             <div
                 style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', flexWrap: 'wrap' }}
             >

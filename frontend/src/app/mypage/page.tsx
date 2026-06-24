@@ -505,6 +505,7 @@ function MyPageContent() {
             matching: { title: '매칭 관리', subtitle: '트레이너에게 보낸 레슨 요청과 결제 진행 상태를 확인하세요.' },
             reviews:  { title: '리뷰 관리', subtitle: '내가 작성한 후기를 확인하고 수정하거나 삭제할 수 있어요.' },
             inquiries:{ title: '문의 내역', subtitle: '문의 내역을 확인하고 답변 상태를 관리하세요.' },
+            workout:  { title: '운동 현황', subtitle: '완료한 날짜를 클릭하면 상세 기록을 확인하고 인증 사진을 올릴 수 있어요.' },
         }
         const { title: skeletonTitle, subtitle: skeletonSubtitle } = tabTitles[skeletonTab] ?? tabTitles.matching
 
@@ -559,6 +560,43 @@ function MyPageContent() {
                                         <div className="h-6 w-16 rounded-full bg-surface-container animate-pulse" />
                                         <div className="h-4 flex-1 rounded bg-surface-container animate-pulse" style={{ maxWidth: `${50 + (i * 13) % 35}%` }} />
                                         <div className="hidden md:block h-4 w-20 rounded bg-surface-container animate-pulse" />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            if (skeletonTab === 'workout') {
+                return (
+                    <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                        {/* 캘린더 스켈레톤 */}
+                        <div className="rounded-xl border border-outline-variant bg-surface-container-lowest animate-pulse" style={{ width: '320px', flexShrink: 0, padding: '20px' }}>
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="h-8 w-8 rounded-lg bg-surface-container" />
+                                <div className="h-5 w-24 rounded bg-surface-container" />
+                                <div className="h-8 w-8 rounded-lg bg-surface-container" />
+                            </div>
+                            <div className="grid grid-cols-7 gap-1 mb-1">
+                                {Array.from({ length: 7 }).map((_, i) => (
+                                    <div key={i} className="h-6 rounded bg-surface-container" />
+                                ))}
+                            </div>
+                            <div className="grid grid-cols-7 gap-1">
+                                {Array.from({ length: 35 }).map((_, i) => (
+                                    <div key={i} className="aspect-square rounded-lg bg-surface-container" />
+                                ))}
+                            </div>
+                        </div>
+                        {/* 상세 패널 스켈레톤 */}
+                        <div className="flex-1 min-w-[260px] rounded-xl border border-outline-variant bg-surface-container-lowest animate-pulse overflow-hidden">
+                            <div className="h-16 bg-surface-container-low border-b border-outline-variant" />
+                            <div className="p-5 space-y-4">
+                                {Array.from({ length: 3 }).map((_, i) => (
+                                    <div key={i}>
+                                        <div className="h-3 w-16 rounded bg-surface-container mb-2" />
+                                        <div className="h-20 rounded-lg bg-surface-container" />
                                     </div>
                                 ))}
                             </div>
@@ -754,7 +792,13 @@ function MyPageContent() {
                     )}
 
                     {activeTab === 'workout' && !isTrainer && (
-                        <WorkoutCalendarMini matchingIds={completedMatchingIds} />
+                        <section className="space-y-md">
+                            <div>
+                                <h2 className="font-headline-md text-headline-md text-on-surface">운동 현황</h2>
+                                <p className="mt-xs text-body-md text-on-surface-variant">완료한 날짜를 클릭하면 상세 기록을 확인하고 인증 사진을 올릴 수 있어요.</p>
+                            </div>
+                            <WorkoutCalendarMini matchingIds={completedMatchingIds} />
+                        </section>
                     )}
 
                     {activeTab === 'inquiries' && <InquirySection />}

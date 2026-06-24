@@ -6,5 +6,6 @@ public enum AlertType {
     MATCHING,
     INQUIRY,
     LESSON_REQUEST,
-    MATCHING_COMPLETED
+    MATCHING_COMPLETED,
+    WORKOUT_LOG
 }
