@@ -637,9 +637,13 @@ export default function TrainerDetailPage({ params }: Props) {
                             </div>
                             <button
                                 className="w-full bg-primary text-on-primary py-sm rounded-xl font-label-bold hover:shadow-lg active:scale-95 transition-all cursor-pointer"
-                                onClick={() =>
+                                onClick={() => {
+                                    if (user?.role === 'TRAINER') {
+                                        alert('트레이너 계정은 레슨을 요청할 수 없습니다.')
+                                        return
+                                    }
                                     router.push(`/lesson-requests/new/trainer/${trainer.id}`)
-                                }
+                                }}
                             >
                                 매칭 요청하기
                             </button>
