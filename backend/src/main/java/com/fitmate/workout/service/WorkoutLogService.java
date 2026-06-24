@@ -8,6 +8,7 @@ import com.fitmate.member.entity.Member;
 import com.fitmate.member.repository.MemberRepository;
 import com.fitmate.workout.dto.WorkoutLogRequest;
 import com.fitmate.workout.dto.WorkoutLogResponse;
+import com.fitmate.workout.dto.WorkoutPhotoResponse;
 import com.fitmate.workout.entity.WorkoutLog;
 import com.fitmate.workout.entity.WorkoutPhoto;
 import com.fitmate.workout.repository.WorkoutLogRepository;
@@ -31,8 +32,8 @@ public class WorkoutLogService {
     private final WorkoutPhotoRepository workoutPhotoRepository;
 
     private WorkoutLogResponse toResponse(WorkoutLog log) {
-        List<String> photos = workoutPhotoRepository.findByWorkoutLog_Id(log.getId())
-                .stream().map(WorkoutPhoto::getPhotoUrl).toList();
+        List<WorkoutPhotoResponse> photos = workoutPhotoRepository.findByWorkoutLog_Id(log.getId())
+                .stream().map(WorkoutPhotoResponse::from).toList();
         return WorkoutLogResponse.from(log, photos);
     }
 

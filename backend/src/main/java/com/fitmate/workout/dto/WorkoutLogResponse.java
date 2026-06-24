@@ -13,14 +13,14 @@ public record WorkoutLogResponse(
         String routine,
         String diet,
         String memo,
-        List<String> memberPhotos,
+        List<WorkoutPhotoResponse> memberPhotos,
         boolean completed,
         String trainerNickname,
         String trainerComment,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public static WorkoutLogResponse from(WorkoutLog log, List<String> memberPhotos) {
+    public static WorkoutLogResponse from(WorkoutLog log, List<WorkoutPhotoResponse> memberPhotos) {
         return new WorkoutLogResponse(
                 log.getId(),
                 log.getMatchingResult().getId(),

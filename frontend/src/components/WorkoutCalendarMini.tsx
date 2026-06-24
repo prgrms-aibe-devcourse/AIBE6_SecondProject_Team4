@@ -52,6 +52,20 @@ import { useEffect, useRef, useState } from 'react';
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 interface CompletedEntry {
     date: string
     matchingId: number
@@ -65,7 +79,7 @@ interface WorkoutLog {
     routine: string | null
     diet: string | null
     memo: string | null
-    memberPhotos: string[]
+    memberPhotos: { id: number; photoUrl: string }[]
     completed: boolean
     trainerNickname: string
     trainerComment: string | null
@@ -162,11 +176,26 @@ export default function WorkoutCalendarMini({ matchingIds }: Props) {
     const handleComplete = async (log: WorkoutLog) => {
         setCompleting(log.id)
         const token = getToken()
-        await fetch(`${API_BASE_URL}/api/matching/${log.matchingId}/workout-logs/${log.id}/complete`, {
-            method: 'PATCH',
-            headers: { Authorization: `Bearer ${token}` },
-        })
+        await fetch(
+            `${API_BASE_URL}/api/matching/${log.matchingId}/workout-logs/${log.id}/complete`,
+            {
+                method: 'PATCH',
+                headers: { Authorization: `Bearer ${token}` },
+            }
+        )
         setCompleting(null)
+        await refreshSelectedLogs()
+    }
+
+    const handlePhotoDelete = async (log: WorkoutLog, photoId: number) => {
+        const token = getToken()
+        await fetch(
+            `${API_BASE_URL}/api/matching/${log.matchingId}/workout-logs/${log.id}/photos/${photoId}`,
+            {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            }
+        )
         await refreshSelectedLogs()
     }
 
@@ -848,18 +877,21 @@ export default function WorkoutCalendarMini({ matchingIds }: Props) {
                                                                 gap: '6px',
                                                             }}
                                                         >
-                                                            {log.memberPhotos.map((url, idx) => (
+                                                            {log.memberPhotos.map((photo, idx) => (
                                                                 <div
-                                                                    key={idx}
+                                                                    key={photo.id}
                                                                     style={{
                                                                         aspectRatio: '1',
                                                                         borderRadius: '8px',
                                                                         overflow: 'hidden',
                                                                         border: '1px solid #dfe2ed',
+                                                                        position: 'relative',
                                                                     }}
                                                                 >
                                                                     <img
-                                                                        src={getImageUrl(url)}
+                                                                        src={getImageUrl(
+                                                                            photo.photoUrl
+                                                                        )}
                                                                         alt={`인증 ${idx + 1}`}
                                                                         style={{
                                                                             width: '100%',
@@ -867,6 +899,45 @@ export default function WorkoutCalendarMini({ matchingIds }: Props) {
                                                                             objectFit: 'cover',
                                                                         }}
                                                                     />
+                                                                    {!log.completed && (
+                                                                        <button
+                                                                            onClick={() =>
+                                                                                handlePhotoDelete(
+                                                                                    log,
+                                                                                    photo.id
+                                                                                )
+                                                                            }
+                                                                            style={{
+                                                                                position:
+                                                                                    'absolute',
+                                                                                top: '4px',
+                                                                                right: '4px',
+                                                                                width: '20px',
+                                                                                height: '20px',
+                                                                                background:
+                                                                                    'rgba(0,0,0,0.5)',
+                                                                                border: 'none',
+                                                                                borderRadius: '50%',
+                                                                                cursor: 'pointer',
+                                                                                display: 'flex',
+                                                                                alignItems:
+                                                                                    'center',
+                                                                                justifyContent:
+                                                                                    'center',
+                                                                            }}
+                                                                        >
+                                                                            <span
+                                                                                className="material-symbols-outlined"
+                                                                                style={{
+                                                                                    fontSize:
+                                                                                        '12px',
+                                                                                    color: 'white',
+                                                                                }}
+                                                                            >
+                                                                                close
+                                                                            </span>
+                                                                        </button>
+                                                                    )}
                                                                 </div>
                                                             ))}
                                                             {!log.completed && (
