@@ -1,3 +1,4 @@
+import { useAuth } from '@/context/AuthContext'
 import type { components } from '@/types/api'
 import { getImageUrl } from '@/utils/apiClient'
 import { formatLessonType } from '@/utils/lessonDisplay'
@@ -12,6 +13,7 @@ type MatchingResultCardProps = {
 }
 
 export default function MatchingResultCard({ result, onLessonRequest }: MatchingResultCardProps) {
+    const { user } = useAuth()
     const recommendationReason =
         result.aiReason ??
         (result.aiRank
@@ -128,11 +130,14 @@ export default function MatchingResultCard({ result, onLessonRequest }: Matching
                             프로필 보기
                         </button>
                     )}
-
                     <button
                         type="button"
                         disabled={!result.matchingResultId}
                         onClick={() => {
+                            if (user?.role === 'TRAINER') {
+                                alert('트레이너 계정은 레슨을 요청할 수 없습니다.')
+                                return
+                            }
                             if (result.matchingResultId) {
                                 onLessonRequest(result.matchingResultId)
                             }

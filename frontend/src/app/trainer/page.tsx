@@ -1,6 +1,7 @@
 'use client'
 
 import { REGIONS as REGION_OPTIONS } from '@/constants/matchingOptions'
+import { useAuth } from '@/context/AuthContext'
 import type { components } from '@/types/api'
 import { getAuthClient, getImageUrl } from '@/utils/apiClient'
 import { formatLessonType } from '@/utils/lessonDisplay'
@@ -27,6 +28,7 @@ const LESSON_LEVELS = ['전체', '입문/초보', '중급', '고급/대회준비
 function ExplorePageContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
+    const { user } = useAuth()
 
     // URL에서 직접 읽어오는 "적용된" 필터/페이지/정렬 값
     const sport = searchParams.get('sport') ?? ''
@@ -470,6 +472,12 @@ function ExplorePageContent() {
                                                 className="bg-primary text-on-primary px-2 md:px-md py-sm rounded-lg text-label-bold font-label-bold hover:shadow active:scale-95 transition-all flex-shrink-0 ml-2 md:ml-sm text-xs md:text-sm cursor-pointer"
                                                 onClick={(e) => {
                                                     e.stopPropagation()
+                                                    if (user?.role === 'TRAINER') {
+                                                        alert(
+                                                            '트레이너 계정은 레슨을 요청할 수 없습니다.'
+                                                        )
+                                                        return
+                                                    }
                                                     router.push(
                                                         `/lesson-requests/new/trainer/${trainer.id}`
                                                     )
