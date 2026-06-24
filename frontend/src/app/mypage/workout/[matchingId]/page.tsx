@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 
 
 
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 
 
 
@@ -97,12 +97,17 @@ export default function WorkoutTrainerPage() {
     const { matchingId } = useParams<{ matchingId: string }>()
     const { user } = useAuth()
     const router = useRouter()
+    const searchParams = useSearchParams()
+
+    const initYear = Number(searchParams.get('year')) || new Date().getFullYear()
+    const initMonth = Number(searchParams.get('month')) || new Date().getMonth() + 1
+    const initDate = searchParams.get('date') ?? null
 
     const [logs, setLogs] = useState<WorkoutLog[]>([])
     const [loading, setLoading] = useState(true)
     const [selectedLog, setSelectedLog] = useState<WorkoutLog | null>(null)
-    const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
-    const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())
+    const [currentYear, setCurrentYear] = useState(initYear)
+    const [currentMonth, setCurrentMonth] = useState(initMonth - 1)
 
     const [showForm, setShowForm] = useState(false)
     const [editingLog, setEditingLog] = useState<WorkoutLog | null>(null)
@@ -131,6 +136,9 @@ export default function WorkoutTrainerPage() {
             if (selectedLog) {
                 const updated = data.find((l) => l.id === selectedLog.id)
                 if (updated) setSelectedLog(updated)
+            } else if (initDate) {
+                const restored = data.find((l) => l.date === initDate)
+                if (restored) setSelectedLog(restored)
             }
         }
         setLoading(false)
@@ -157,8 +165,15 @@ export default function WorkoutTrainerPage() {
 
     const getLogByDate = (date: Date) => logs.find((l) => l.date === toDateStr(date)) ?? null
 
+    const updateUrl = (year: number, month: number, date?: string) => {
+        const params = new URLSearchParams({ year: String(year), month: String(month + 1) })
+        if (date) params.set('date', date)
+        router.replace(`?${params.toString()}`, { scroll: false })
+    }
+
     const handleDayClick = (date: Date) => {
         const log = getLogByDate(date)
+        updateUrl(currentYear, currentMonth, toDateStr(date))
         if (log) {
             setSelectedLog(log)
             setComment(log.trainerComment ?? '')
@@ -247,18 +262,20 @@ export default function WorkoutTrainerPage() {
     }
 
     const prevMonth = () => {
-        if (currentMonth === 0) {
-            setCurrentMonth(11)
-            setCurrentYear((y) => y - 1)
-        } else setCurrentMonth((m) => m - 1)
+        const newMonth = currentMonth === 0 ? 11 : currentMonth - 1
+        const newYear = currentMonth === 0 ? currentYear - 1 : currentYear
+        setCurrentMonth(newMonth)
+        setCurrentYear(newYear)
         setSelectedLog(null)
+        updateUrl(newYear, newMonth)
     }
     const nextMonth = () => {
-        if (currentMonth === 11) {
-            setCurrentMonth(0)
-            setCurrentYear((y) => y + 1)
-        } else setCurrentMonth((m) => m + 1)
+        const newMonth = currentMonth === 11 ? 0 : currentMonth + 1
+        const newYear = currentMonth === 11 ? currentYear + 1 : currentYear
+        setCurrentMonth(newMonth)
+        setCurrentYear(newYear)
         setSelectedLog(null)
+        updateUrl(newYear, newMonth)
     }
 
     return (
