@@ -339,27 +339,6 @@ export default function LessonRequestForm({
         }
     }
 
-    const addSelectedSchedule = () => {
-        if (!selectedDate || !selectedStartTime || !selectedEndTime) {
-            setErrorMessage('날짜와 시작 시간을 먼저 선택해 주세요.')
-            return
-        }
-
-        const nextSchedule: SelectedSchedule = {
-            id: `${selectedDate}-${selectedStartTime}`,
-            requestedDate: selectedDate,
-            startTime: selectedStartTime,
-            endTime: selectedEndTime,
-        }
-
-        // 1회권과 패키지권 모두 요청 단계에서는 첫 레슨 일정 하나만 선택합니다.
-        setSelectedSchedules([nextSchedule])
-
-        setSelectedDate('')
-        setSelectedStartTime('')
-        setErrorMessage('')
-    }
-
     const removeSelectedSchedule = (scheduleId: string) => {
         setSelectedSchedules((current) => current.filter((schedule) => schedule.id !== scheduleId))
     }
@@ -551,18 +530,14 @@ export default function LessonRequestForm({
                 <div className="flex flex-wrap items-start justify-between gap-xs">
                     <div>
                         <h2 className="font-headline-sm text-headline-sm text-on-surface">
-                            일정 확정
+                            일정 선택
                         </h2>
                         <p className="mt-xs text-body-sm text-on-surface-variant">
                             추천 조건과 겹치는 요일 중 트레이너가 가능한 날짜와 시간을 선택해
                             주세요.
                         </p>
                     </div>
-                    <span className="rounded-md bg-primary-fixed px-xs py-1 text-label-sm text-primary">
-                        일정 선택
-                    </span>
                 </div>
-
                 <div className="mt-md grid grid-cols-1 gap-md md:grid-cols-2">
                     <LessonCalendar
                         selectedDate={selectedDate}
@@ -596,7 +571,26 @@ export default function LessonRequestForm({
                                                 <button
                                                     key={time}
                                                     type="button"
-                                                    onClick={() => setSelectedStartTime(time)}
+                                                    onClick={() => {
+                                                        setSelectedStartTime(time)
+                                                        // 종료시간 계산 후 즉시 확정
+                                                        const [h, m] = time.split(':').map(Number)
+                                                        const totalMinutes =
+                                                            h * 60 + m + lessonDuration
+                                                        const endH = Math.floor(totalMinutes / 60)
+                                                        const endM = totalMinutes % 60
+                                                        const endTime = `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`
+
+                                                        setSelectedSchedules([
+                                                            {
+                                                                id: `${selectedDate}-${time}`,
+                                                                requestedDate: selectedDate,
+                                                                startTime: time,
+                                                                endTime,
+                                                            },
+                                                        ])
+                                                        setErrorMessage('')
+                                                    }}
                                                     className={`h-10 rounded-lg border text-body-sm font-label-bold transition-colors cursor-pointer ${
                                                         selectedStartTime === time
                                                             ? 'border-primary bg-primary text-on-primary'
@@ -607,24 +601,6 @@ export default function LessonRequestForm({
                                                 </button>
                                             ))}
                                         </div>
-                                        {selectedStartTime && (
-                                            <div className="flex flex-wrap items-center justify-between gap-xs">
-                                                <p className="text-body-sm font-label-bold text-primary">
-                                                    선택된 시간: {selectedStartTime} -{' '}
-                                                    {selectedEndTime}
-                                                </p>
-                                                <button
-                                                    type="button"
-                                                    onClick={addSelectedSchedule}
-                                                    className="inline-flex h-10 items-center gap-1 rounded-lg bg-primary px-sm font-label-bold text-on-primary hover:bg-primary/90 cursor-pointer"
-                                                >
-                                                    <span className="material-symbols-outlined text-xl">
-                                                        add
-                                                    </span>
-                                                    일정 추가
-                                                </button>
-                                            </div>
-                                        )}
                                     </div>
                                 ) : (
                                     <div className="mt-xs rounded-lg border border-outline-variant p-sm">
@@ -646,7 +622,7 @@ export default function LessonRequestForm({
                             <div>
                                 <div className="flex items-center justify-between gap-xs">
                                     <p className="text-label-md font-label-md text-on-surface-variant">
-                                        확정할 일정
+                                        선택한 일정
                                     </p>
                                     <span className="text-label-sm text-primary">
                                         {selectedSchedules.length}/1
@@ -926,7 +902,7 @@ function SingleChoiceGroup({
                             key={option}
                             type="button"
                             onClick={() => onSelect(option)}
-                            className={`min-h-10 rounded-lg border px-sm text-body-sm font-label-bold transition-colors cursor-pointer ${
+                            className={`min-h-10 whitespace-nowrap rounded-lg border px-sm text-body-sm font-label-bold transition-colors cursor-pointer ${
                                 selectedValue === option
                                     ? 'border-primary bg-primary text-on-primary'
                                     : 'border-outline-variant bg-surface-container-low text-on-surface-variant hover:border-primary hover:text-primary'
