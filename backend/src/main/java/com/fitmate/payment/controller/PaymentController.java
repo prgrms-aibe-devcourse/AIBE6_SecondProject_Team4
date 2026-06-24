@@ -4,11 +4,16 @@ import com.fitmate.payment.dto.PaymentConfirmRequest;
 import com.fitmate.payment.dto.PaymentInfoResponse;
 import com.fitmate.payment.dto.PaymentResponse;
 import com.fitmate.payment.service.PaymentService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(
+        name = "결제",
+        description = "결제 및 정산 API"
+)
 @RestController
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor

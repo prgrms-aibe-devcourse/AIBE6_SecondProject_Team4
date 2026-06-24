@@ -6,6 +6,7 @@ import com.fitmate.review.dto.ReviewUpdateRequest;
 import com.fitmate.review.dto.TrainerRatingResponse;
 import com.fitmate.review.dto.WritableReviewResponse;
 import com.fitmate.review.service.ReviewService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
+@Tag(
+        name = "후기",
+        description = "후기 및 평점 관리 API"
+)
 @RestController
 @RequestMapping("/api/reviews")
 @RequiredArgsConstructor

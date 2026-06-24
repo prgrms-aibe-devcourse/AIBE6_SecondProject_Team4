@@ -5,6 +5,7 @@ import com.fitmate.lesson.dto.LessonRequestCreateRequest;
 import com.fitmate.lesson.dto.LessonRequestResponse;
 import com.fitmate.lesson.service.LessonRequestService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,10 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+@Tag(
+        name = "레슨 요청",
+        description = "레슨 요청 및 매칭 관리 API"
+)
 @RestController
 @RequiredArgsConstructor
 public class LessonRequestController {

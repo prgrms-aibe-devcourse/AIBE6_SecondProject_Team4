@@ -1,6 +1,7 @@
 'use client'
 
 import MyReviewList from '@/components/MyReviewList';
+import WorkoutCalendarMini from '@/components/WorkoutCalendarMini';
 import MatchingManagementPreview from '@/components/lesson/MatchingManagementPreview';
 import { useAuth } from '@/context/AuthContext';
 import type { components } from '@/types/api';
@@ -11,68 +12,6 @@ import { Fragment, Suspense, useEffect, useRef, useState } from 'react';
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -471,6 +410,8 @@ function MyPageContent() {
     const [withdrawPassword, setWithdrawPassword] = useState('')
     const [withdrawError, setWithdrawError] = useState('')
     const [withdrawLoading, setWithdrawLoading] = useState(false)
+    const [completedMatchingIds, setCompletedMatchingIds] = useState<number[]>([])
+    const isTrainer = user?.role === 'TRAINER'
 
     useEffect(() => {
         setHydrated(true)
@@ -489,6 +430,21 @@ function MyPageContent() {
         }
         fetchMyProfile()
     }, [hydrated, user])
+
+    useEffect(() => {
+        if (activeTab !== 'workout' || isTrainer) return
+        const fetchMatchingIds = async () => {
+            const client = getAuthClient()
+            const { data } = await client.GET('/api/members/me/lesson-requests')
+            if (data) {
+                const ids = (data as any[])
+                    .filter((r) => r.status === 'COMPLETED' && r.matchingResultId)
+                    .map((r) => r.matchingResultId as number)
+                setCompletedMatchingIds([...new Set(ids)])
+            }
+        }
+        void fetchMatchingIds()
+    }, [activeTab, isTrainer])
 
     const fetchMyProfile = async () => {
         const client = getAuthClient()
@@ -549,6 +505,7 @@ function MyPageContent() {
             matching: { title: '매칭 관리', subtitle: '트레이너에게 보낸 레슨 요청과 결제 진행 상태를 확인하세요.' },
             reviews:  { title: '리뷰 관리', subtitle: '내가 작성한 후기를 확인하고 수정하거나 삭제할 수 있어요.' },
             inquiries:{ title: '문의 내역', subtitle: '문의 내역을 확인하고 답변 상태를 관리하세요.' },
+            workout:  { title: '운동 현황', subtitle: '완료한 날짜를 클릭하면 상세 기록을 확인하고 인증 사진을 올릴 수 있어요.' },
         }
         const { title: skeletonTitle, subtitle: skeletonSubtitle } = tabTitles[skeletonTab] ?? tabTitles.matching
 
@@ -603,6 +560,43 @@ function MyPageContent() {
                                         <div className="h-6 w-16 rounded-full bg-surface-container animate-pulse" />
                                         <div className="h-4 flex-1 rounded bg-surface-container animate-pulse" style={{ maxWidth: `${50 + (i * 13) % 35}%` }} />
                                         <div className="hidden md:block h-4 w-20 rounded bg-surface-container animate-pulse" />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            if (skeletonTab === 'workout') {
+                return (
+                    <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                        {/* 캘린더 스켈레톤 */}
+                        <div className="rounded-xl border border-outline-variant bg-surface-container-lowest animate-pulse" style={{ width: '320px', flexShrink: 0, padding: '20px' }}>
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="h-8 w-8 rounded-lg bg-surface-container" />
+                                <div className="h-5 w-24 rounded bg-surface-container" />
+                                <div className="h-8 w-8 rounded-lg bg-surface-container" />
+                            </div>
+                            <div className="grid grid-cols-7 gap-1 mb-1">
+                                {Array.from({ length: 7 }).map((_, i) => (
+                                    <div key={i} className="h-6 rounded bg-surface-container" />
+                                ))}
+                            </div>
+                            <div className="grid grid-cols-7 gap-1">
+                                {Array.from({ length: 35 }).map((_, i) => (
+                                    <div key={i} className="aspect-square rounded-lg bg-surface-container" />
+                                ))}
+                            </div>
+                        </div>
+                        {/* 상세 패널 스켈레톤 */}
+                        <div className="flex-1 min-w-[260px] rounded-xl border border-outline-variant bg-surface-container-lowest animate-pulse overflow-hidden">
+                            <div className="h-16 bg-surface-container-low border-b border-outline-variant" />
+                            <div className="p-5 space-y-4">
+                                {Array.from({ length: 3 }).map((_, i) => (
+                                    <div key={i}>
+                                        <div className="h-3 w-16 rounded bg-surface-container mb-2" />
+                                        <div className="h-20 rounded-lg bg-surface-container" />
                                     </div>
                                 ))}
                             </div>
@@ -690,14 +684,16 @@ function MyPageContent() {
                 <div className="flex items-center gap-md">
                     <div className="relative flex-shrink-0">
                         <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-surface-container shadow-sm sm:h-24 sm:w-24">
-                            {(user?.profileImage || profile?.profileImage) ? (
+                            {user?.profileImage || profile?.profileImage ? (
                                 <img
                                     src={getImageUrl(user?.profileImage || profile?.profileImage)}
                                     alt=""
                                     className="h-full w-full object-cover"
                                 />
                             ) : (
-                                <span className="material-symbols-outlined text-3xl text-outline sm:text-4xl">person</span>
+                                <span className="material-symbols-outlined text-3xl text-outline sm:text-4xl">
+                                    person
+                                </span>
                             )}
                         </div>
                         <input
@@ -713,9 +709,13 @@ function MyPageContent() {
                             disabled={uploadingImage}
                         >
                             {uploadingImage ? (
-                                <span className="material-symbols-outlined animate-spin text-[12px] sm:text-[14px]">progress_activity</span>
+                                <span className="material-symbols-outlined animate-spin text-[12px] sm:text-[14px]">
+                                    progress_activity
+                                </span>
                             ) : (
-                                <span className="material-symbols-outlined text-[12px] sm:text-[14px]">edit</span>
+                                <span className="material-symbols-outlined text-[12px] sm:text-[14px]">
+                                    edit
+                                </span>
                             )}
                         </button>
                     </div>
@@ -724,7 +724,9 @@ function MyPageContent() {
                             {user?.nickname}
                         </h1>
                         <p className="flex items-center gap-xs text-body-sm text-on-surface-variant sm:text-body-md">
-                            <span className="material-symbols-outlined text-[16px]">fitness_center</span>
+                            <span className="material-symbols-outlined text-[16px]">
+                                fitness_center
+                            </span>
                             {user?.role === 'TRAINER' ? '트레이너' : '일반 회원'}
                         </p>
                     </div>
@@ -746,6 +748,9 @@ function MyPageContent() {
                         {[
                             { id: 'matching', icon: 'handshake', label: '매칭 관리' },
                             { id: 'reviews', icon: 'rate_review', label: '리뷰 관리' },
+                            ...(!isTrainer
+                                ? [{ id: 'workout', icon: 'fitness_center', label: '운동 현황' }]
+                                : []),
                             { id: 'inquiries', icon: 'help_center', label: '문의 내역' },
                             { id: 'account', icon: 'manage_accounts', label: '계정 설정' },
                         ].map(({ id, icon, label }) => (
@@ -773,7 +778,9 @@ function MyPageContent() {
                     {activeTab === 'reviews' && (
                         <section className="space-y-md">
                             <div>
-                                <h2 className="font-headline-md text-headline-md text-on-surface">리뷰 관리</h2>
+                                <h2 className="font-headline-md text-headline-md text-on-surface">
+                                    리뷰 관리
+                                </h2>
                                 <p className="mt-xs text-body-md text-on-surface-variant">
                                     {user?.role === 'TRAINER'
                                         ? '내가 받은 후기를 확인하고 평점을 관리하세요.'
@@ -784,13 +791,27 @@ function MyPageContent() {
                         </section>
                     )}
 
+                    {activeTab === 'workout' && !isTrainer && (
+                        <section className="space-y-md">
+                            <div>
+                                <h2 className="font-headline-md text-headline-md text-on-surface">운동 현황</h2>
+                                <p className="mt-xs text-body-md text-on-surface-variant">완료한 날짜를 클릭하면 상세 기록을 확인하고 인증 사진을 올릴 수 있어요.</p>
+                            </div>
+                            <WorkoutCalendarMini matchingIds={completedMatchingIds} />
+                        </section>
+                    )}
+
                     {activeTab === 'inquiries' && <InquirySection />}
 
                     {activeTab === 'account' && (
                         <section className="space-y-md">
                             <div>
-                                <h2 className="font-headline-md text-headline-md text-on-surface">계정 설정</h2>
-                                <p className="mt-xs text-body-md text-on-surface-variant">비밀번호 변경 및 회원 탈퇴를 관리하세요.</p>
+                                <h2 className="font-headline-md text-headline-md text-on-surface">
+                                    계정 설정
+                                </h2>
+                                <p className="mt-xs text-body-md text-on-surface-variant">
+                                    비밀번호 변경 및 회원 탈퇴를 관리하세요.
+                                </p>
                             </div>
                             <div
                                 className="overflow-hidden rounded-xl border border-outline-variant"
@@ -812,55 +833,98 @@ function MyPageContent() {
                                     }}
                                 >
                                     <div className="flex items-center gap-md">
-                                        <span className="material-symbols-outlined text-on-surface-variant">lock</span>
+                                        <span className="material-symbols-outlined text-on-surface-variant">
+                                            lock
+                                        </span>
                                         <div className="text-left">
-                                            <p className="text-label-bold text-on-surface">비밀번호 변경</p>
-                                            <p className="text-body-sm text-on-surface-variant">현재 비밀번호 확인 후 새 비밀번호로 변경</p>
+                                            <p className="text-label-bold text-on-surface">
+                                                비밀번호 변경
+                                            </p>
+                                            <p className="text-body-sm text-on-surface-variant">
+                                                현재 비밀번호 확인 후 새 비밀번호로 변경
+                                            </p>
                                         </div>
                                     </div>
-                                    <span className="material-symbols-outlined text-outline">chevron_right</span>
+                                    <span className="material-symbols-outlined text-outline">
+                                        chevron_right
+                                    </span>
                                 </button>
 
                                 {/* 비밀번호 변경 모달 */}
                                 {showPasswordModal && (
                                     <div
                                         style={{
-                                            position: 'fixed', inset: 0,
+                                            position: 'fixed',
+                                            inset: 0,
                                             background: 'rgba(0,0,0,0.4)',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            zIndex: 1000, padding: '16px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            zIndex: 1000,
+                                            padding: '16px',
                                         }}
                                         onClick={() => setShowPasswordModal(false)}
                                     >
                                         <div
                                             style={{
-                                                background: 'white', borderRadius: '16px', padding: '32px',
-                                                width: '100%', maxWidth: '400px',
+                                                background: 'white',
+                                                borderRadius: '16px',
+                                                padding: '32px',
+                                                width: '100%',
+                                                maxWidth: '400px',
                                                 boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
                                             }}
                                             onClick={(e) => e.stopPropagation()}
                                         >
                                             {pwSuccess ? (
-                                                <div style={{ textAlign: 'center', padding: '16px 0' }}>
-                                <span
-                                    className="material-symbols-outlined"
-                                    style={{ fontSize: '48px', color: '#0057CD', display: 'block', marginBottom: '16px' }}
-                                >
-                                    check_circle
-                                </span>
-                                                    <p style={{ fontSize: '18px', fontWeight: 700, color: '#0B1C30', marginBottom: '8px' }}>
+                                                <div
+                                                    style={{
+                                                        textAlign: 'center',
+                                                        padding: '16px 0',
+                                                    }}
+                                                >
+                                                    <span
+                                                        className="material-symbols-outlined"
+                                                        style={{
+                                                            fontSize: '48px',
+                                                            color: '#0057CD',
+                                                            display: 'block',
+                                                            marginBottom: '16px',
+                                                        }}
+                                                    >
+                                                        check_circle
+                                                    </span>
+                                                    <p
+                                                        style={{
+                                                            fontSize: '18px',
+                                                            fontWeight: 700,
+                                                            color: '#0B1C30',
+                                                            marginBottom: '8px',
+                                                        }}
+                                                    >
                                                         비밀번호가 변경되었습니다
                                                     </p>
-                                                    <p style={{ fontSize: '14px', color: '#424654', marginBottom: '24px' }}>
+                                                    <p
+                                                        style={{
+                                                            fontSize: '14px',
+                                                            color: '#424654',
+                                                            marginBottom: '24px',
+                                                        }}
+                                                    >
                                                         다음 로그인부터 새 비밀번호를 사용해 주세요.
                                                     </p>
                                                     <button
                                                         onClick={() => setShowPasswordModal(false)}
                                                         style={{
-                                                            width: '100%', padding: '12px',
-                                                            background: '#0057CD', color: 'white',
-                                                            border: 'none', borderRadius: '10px',
-                                                            fontSize: '15px', fontWeight: 600, cursor: 'pointer',
+                                                            width: '100%',
+                                                            padding: '12px',
+                                                            background: '#0057CD',
+                                                            color: 'white',
+                                                            border: 'none',
+                                                            borderRadius: '10px',
+                                                            fontSize: '15px',
+                                                            fontWeight: 600,
+                                                            cursor: 'pointer',
                                                         }}
                                                     >
                                                         확인
@@ -868,15 +932,41 @@ function MyPageContent() {
                                                 </div>
                                             ) : (
                                                 <>
-                                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-                                                        <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0B1C30', margin: 0 }}>
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'space-between',
+                                                            marginBottom: '24px',
+                                                        }}
+                                                    >
+                                                        <h2
+                                                            style={{
+                                                                fontSize: '18px',
+                                                                fontWeight: 700,
+                                                                color: '#0B1C30',
+                                                                margin: 0,
+                                                            }}
+                                                        >
                                                             비밀번호 변경
                                                         </h2>
                                                         <button
-                                                            onClick={() => setShowPasswordModal(false)}
-                                                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+                                                            onClick={() =>
+                                                                setShowPasswordModal(false)
+                                                            }
+                                                            style={{
+                                                                background: 'none',
+                                                                border: 'none',
+                                                                cursor: 'pointer',
+                                                                padding: '4px',
+                                                            }}
                                                         >
-                                                            <span className="material-symbols-outlined" style={{ color: '#9097a8' }}>close</span>
+                                                            <span
+                                                                className="material-symbols-outlined"
+                                                                style={{ color: '#9097a8' }}
+                                                            >
+                                                                close
+                                                            </span>
                                                         </button>
                                                     </div>
 
@@ -887,18 +977,27 @@ function MyPageContent() {
                                                             setPwError('')
 
                                                             if (pwNew !== pwConfirm) {
-                                                                setPwError('새 비밀번호가 일치하지 않습니다.')
+                                                                setPwError(
+                                                                    '새 비밀번호가 일치하지 않습니다.'
+                                                                )
                                                                 return
                                                             }
                                                             if (pwNew.length < 8) {
-                                                                setPwError('새 비밀번호는 8자 이상이어야 합니다.')
+                                                                setPwError(
+                                                                    '새 비밀번호는 8자 이상이어야 합니다.'
+                                                                )
                                                                 return
                                                             }
 
                                                             setPwLoading(true)
                                                             try {
-                                                                const stored = localStorage.getItem('fitmate_user')
-                                                                const token = stored ? JSON.parse(stored).token : null
+                                                                const stored =
+                                                                    localStorage.getItem(
+                                                                        'fitmate_user'
+                                                                    )
+                                                                const token = stored
+                                                                    ? JSON.parse(stored).token
+                                                                    : null
 
                                                                 const res = await fetch(
                                                                     `${API_BASE_URL}/api/members/me/password`,
@@ -919,62 +1018,144 @@ function MyPageContent() {
                                                                 )
 
                                                                 if (!res.ok) {
-                                                                    setPwError('현재 비밀번호가 올바르지 않습니다.')
+                                                                    setPwError(
+                                                                        '현재 비밀번호가 올바르지 않습니다.'
+                                                                    )
                                                                     return
                                                                 }
                                                                 setPwSuccess(true)
                                                                 setTimeout(() => {
                                                                     setShowPasswordModal(false)
                                                                     logout()
-                                                                    router.push('/auth/login?redirect=/mypage')
+                                                                    router.push(
+                                                                        '/auth/login?redirect=/mypage'
+                                                                    )
                                                                 }, 1500)
                                                             } catch {
-                                                                setPwError('서버 연결에 실패했습니다.')
+                                                                setPwError(
+                                                                    '서버 연결에 실패했습니다.'
+                                                                )
                                                             } finally {
                                                                 setPwLoading(false)
                                                             }
                                                         }}
-                                                        style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            gap: '16px',
+                                                        }}
                                                     >
                                                         {[
-                                                            { label: '현재 비밀번호', value: pwCurrent, onChange: setPwCurrent, placeholder: '현재 비밀번호를 입력하세요' },
-                                                            { label: '새 비밀번호', value: pwNew, onChange: setPwNew, placeholder: '새 비밀번호를 입력하세요 (8자 이상)' },
-                                                            { label: '새 비밀번호 확인', value: pwConfirm, onChange: setPwConfirm, placeholder: '새 비밀번호를 다시 입력하세요' },
-                                                        ].map(({ label, value, onChange, placeholder }) => (
-                                                            <div key={label} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                                                <label style={{ fontSize: '13px', fontWeight: 500, color: '#424655' }}>{label}</label>
-                                                                <input
-                                                                    type="password"
-                                                                    value={value}
-                                                                    onChange={(e) => onChange(e.target.value)}
-                                                                    placeholder={placeholder}
-                                                                    required
+                                                            {
+                                                                label: '현재 비밀번호',
+                                                                value: pwCurrent,
+                                                                onChange: setPwCurrent,
+                                                                placeholder:
+                                                                    '현재 비밀번호를 입력하세요',
+                                                            },
+                                                            {
+                                                                label: '새 비밀번호',
+                                                                value: pwNew,
+                                                                onChange: setPwNew,
+                                                                placeholder:
+                                                                    '새 비밀번호를 입력하세요 (8자 이상)',
+                                                            },
+                                                            {
+                                                                label: '새 비밀번호 확인',
+                                                                value: pwConfirm,
+                                                                onChange: setPwConfirm,
+                                                                placeholder:
+                                                                    '새 비밀번호를 다시 입력하세요',
+                                                            },
+                                                        ].map(
+                                                            ({
+                                                                label,
+                                                                value,
+                                                                onChange,
+                                                                placeholder,
+                                                            }) => (
+                                                                <div
+                                                                    key={label}
                                                                     style={{
-                                                                        width: '100%', border: '1px solid #c2c6d8',
-                                                                        borderRadius: '10px', padding: '10px 14px',
-                                                                        fontSize: '14px', outline: 'none', boxSizing: 'border-box',
+                                                                        display: 'flex',
+                                                                        flexDirection: 'column',
+                                                                        gap: '6px',
                                                                     }}
-                                                                    onFocus={(e) => (e.target.style.borderColor = '#0057cd')}
-                                                                    onBlur={(e) => (e.target.style.borderColor = '#c2c6d8')}
-                                                                />
-                                                            </div>
-                                                        ))}
+                                                                >
+                                                                    <label
+                                                                        style={{
+                                                                            fontSize: '13px',
+                                                                            fontWeight: 500,
+                                                                            color: '#424655',
+                                                                        }}
+                                                                    >
+                                                                        {label}
+                                                                    </label>
+                                                                    <input
+                                                                        type="password"
+                                                                        value={value}
+                                                                        onChange={(e) =>
+                                                                            onChange(e.target.value)
+                                                                        }
+                                                                        placeholder={placeholder}
+                                                                        required
+                                                                        style={{
+                                                                            width: '100%',
+                                                                            border: '1px solid #c2c6d8',
+                                                                            borderRadius: '10px',
+                                                                            padding: '10px 14px',
+                                                                            fontSize: '14px',
+                                                                            outline: 'none',
+                                                                            boxSizing: 'border-box',
+                                                                        }}
+                                                                        onFocus={(e) =>
+                                                                            (e.target.style.borderColor =
+                                                                                '#0057cd')
+                                                                        }
+                                                                        onBlur={(e) =>
+                                                                            (e.target.style.borderColor =
+                                                                                '#c2c6d8')
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                            )
+                                                        )}
 
                                                         {pwError && (
-                                                            <p style={{ fontSize: '13px', color: '#ba1a1a', textAlign: 'center', margin: 0 }}>
+                                                            <p
+                                                                style={{
+                                                                    fontSize: '13px',
+                                                                    color: '#ba1a1a',
+                                                                    textAlign: 'center',
+                                                                    margin: 0,
+                                                                }}
+                                                            >
                                                                 {pwError}
                                                             </p>
                                                         )}
 
-                                                        <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                                                        <div
+                                                            style={{
+                                                                display: 'flex',
+                                                                gap: '8px',
+                                                                marginTop: '8px',
+                                                            }}
+                                                        >
                                                             <button
                                                                 type="button"
-                                                                onClick={() => setShowPasswordModal(false)}
+                                                                onClick={() =>
+                                                                    setShowPasswordModal(false)
+                                                                }
                                                                 style={{
-                                                                    flex: 1, padding: '12px', background: 'white',
-                                                                    color: '#424654', border: '1px solid #c2c6d8',
-                                                                    borderRadius: '10px', fontSize: '15px',
-                                                                    fontWeight: 600, cursor: 'pointer',
+                                                                    flex: 1,
+                                                                    padding: '12px',
+                                                                    background: 'white',
+                                                                    color: '#424654',
+                                                                    border: '1px solid #c2c6d8',
+                                                                    borderRadius: '10px',
+                                                                    fontSize: '15px',
+                                                                    fontWeight: 600,
+                                                                    cursor: 'pointer',
                                                                 }}
                                                             >
                                                                 취소
@@ -983,15 +1164,24 @@ function MyPageContent() {
                                                                 type="submit"
                                                                 disabled={pwLoading}
                                                                 style={{
-                                                                    flex: 1, padding: '12px',
-                                                                    background: pwLoading ? '#93b4e8' : '#0057CD',
-                                                                    color: 'white', border: 'none',
-                                                                    borderRadius: '10px', fontSize: '15px',
+                                                                    flex: 1,
+                                                                    padding: '12px',
+                                                                    background: pwLoading
+                                                                        ? '#93b4e8'
+                                                                        : '#0057CD',
+                                                                    color: 'white',
+                                                                    border: 'none',
+                                                                    borderRadius: '10px',
+                                                                    fontSize: '15px',
                                                                     fontWeight: 600,
-                                                                    cursor: pwLoading ? 'not-allowed' : 'pointer',
+                                                                    cursor: pwLoading
+                                                                        ? 'not-allowed'
+                                                                        : 'pointer',
                                                                 }}
                                                             >
-                                                                {pwLoading ? '변경 중...' : '변경하기'}
+                                                                {pwLoading
+                                                                    ? '변경 중...'
+                                                                    : '변경하기'}
                                                             </button>
                                                         </div>
                                                     </form>
@@ -1011,10 +1201,14 @@ function MyPageContent() {
                                     }}
                                 >
                                     <div className="flex items-center gap-md text-error">
-                                        <span className="material-symbols-outlined">person_remove</span>
+                                        <span className="material-symbols-outlined">
+                                            person_remove
+                                        </span>
                                         <div className="text-left">
                                             <p className="text-label-bold">회원 탈퇴</p>
-                                            <p className="text-body-sm opacity-80">계정을 영구적으로 삭제합니다</p>
+                                            <p className="text-body-sm opacity-80">
+                                                계정을 영구적으로 삭제합니다
+                                            </p>
                                         </div>
                                     </div>
                                     <span className="material-symbols-outlined text-error opacity-0 transition-opacity group-hover:opacity-100">
@@ -1026,35 +1220,74 @@ function MyPageContent() {
                                 {showWithdrawModal && (
                                     <div
                                         style={{
-                                            position: 'fixed', inset: 0,
+                                            position: 'fixed',
+                                            inset: 0,
                                             background: 'rgba(0,0,0,0.4)',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            zIndex: 1000, padding: '16px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            zIndex: 1000,
+                                            padding: '16px',
                                         }}
                                         onClick={() => setShowWithdrawModal(false)}
                                     >
                                         <div
                                             style={{
-                                                background: 'white', borderRadius: '16px', padding: '32px',
-                                                width: '100%', maxWidth: '400px',
+                                                background: 'white',
+                                                borderRadius: '16px',
+                                                padding: '32px',
+                                                width: '100%',
+                                                maxWidth: '400px',
                                                 boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
                                             }}
                                             onClick={(e) => e.stopPropagation()}
                                         >
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                                                <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#ba1a1a', margin: 0 }}>
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between',
+                                                    marginBottom: '16px',
+                                                }}
+                                            >
+                                                <h2
+                                                    style={{
+                                                        fontSize: '18px',
+                                                        fontWeight: 700,
+                                                        color: '#ba1a1a',
+                                                        margin: 0,
+                                                    }}
+                                                >
                                                     회원 탈퇴
                                                 </h2>
                                                 <button
                                                     onClick={() => setShowWithdrawModal(false)}
-                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+                                                    style={{
+                                                        background: 'none',
+                                                        border: 'none',
+                                                        cursor: 'pointer',
+                                                        padding: '4px',
+                                                    }}
                                                 >
-                                                    <span className="material-symbols-outlined" style={{ color: '#9097a8' }}>close</span>
+                                                    <span
+                                                        className="material-symbols-outlined"
+                                                        style={{ color: '#9097a8' }}
+                                                    >
+                                                        close
+                                                    </span>
                                                 </button>
                                             </div>
 
-                                            <p style={{ fontSize: '14px', color: '#424654', marginBottom: '24px', lineHeight: '1.6' }}>
-                                                탈퇴 시 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다. 계속하려면 현재 비밀번호를 입력해 주세요.
+                                            <p
+                                                style={{
+                                                    fontSize: '14px',
+                                                    color: '#424654',
+                                                    marginBottom: '24px',
+                                                    lineHeight: '1.6',
+                                                }}
+                                            >
+                                                탈퇴 시 모든 데이터가 영구적으로 삭제되며 복구할 수
+                                                없습니다. 계속하려면 현재 비밀번호를 입력해 주세요.
                                             </p>
 
                                             <form
@@ -1064,8 +1297,11 @@ function MyPageContent() {
                                                     setWithdrawError('')
                                                     setWithdrawLoading(true)
                                                     try {
-                                                        const stored = localStorage.getItem('fitmate_user')
-                                                        const token = stored ? JSON.parse(stored).token : null
+                                                        const stored =
+                                                            localStorage.getItem('fitmate_user')
+                                                        const token = stored
+                                                            ? JSON.parse(stored).token
+                                                            : null
 
                                                         const verifyRes = await fetch(
                                                             `${API_BASE_URL}/api/members/me/verify-password`,
@@ -1085,7 +1321,9 @@ function MyPageContent() {
                                                         )
 
                                                         if (!verifyRes.ok) {
-                                                            setWithdrawError('비밀번호가 올바르지 않습니다.')
+                                                            setWithdrawError(
+                                                                '비밀번호가 올바르지 않습니다.'
+                                                            )
                                                             return
                                                         }
 
@@ -1102,7 +1340,9 @@ function MyPageContent() {
                                                         )
 
                                                         if (!deleteRes.ok) {
-                                                            setWithdrawError('회원 탈퇴에 실패했습니다.')
+                                                            setWithdrawError(
+                                                                '회원 탈퇴에 실패했습니다.'
+                                                            )
                                                             return
                                                         }
 
@@ -1110,46 +1350,94 @@ function MyPageContent() {
                                                         logout()
                                                         router.push('/auth/login?redirect=/mypage')
                                                     } catch {
-                                                        setWithdrawError('서버 연결에 실패했습니다.')
+                                                        setWithdrawError(
+                                                            '서버 연결에 실패했습니다.'
+                                                        )
                                                     } finally {
                                                         setWithdrawLoading(false)
                                                     }
                                                 }}
-                                                style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    gap: '16px',
+                                                }}
                                             >
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                                    <label style={{ fontSize: '13px', fontWeight: 500, color: '#424655' }}>현재 비밀번호</label>
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        gap: '6px',
+                                                    }}
+                                                >
+                                                    <label
+                                                        style={{
+                                                            fontSize: '13px',
+                                                            fontWeight: 500,
+                                                            color: '#424655',
+                                                        }}
+                                                    >
+                                                        현재 비밀번호
+                                                    </label>
                                                     <input
                                                         type="password"
                                                         value={withdrawPassword}
-                                                        onChange={(e) => setWithdrawPassword(e.target.value)}
+                                                        onChange={(e) =>
+                                                            setWithdrawPassword(e.target.value)
+                                                        }
                                                         placeholder="현재 비밀번호를 입력하세요"
                                                         required
                                                         style={{
-                                                            width: '100%', border: '1px solid #c2c6d8',
-                                                            borderRadius: '10px', padding: '10px 14px',
-                                                            fontSize: '14px', outline: 'none', boxSizing: 'border-box',
+                                                            width: '100%',
+                                                            border: '1px solid #c2c6d8',
+                                                            borderRadius: '10px',
+                                                            padding: '10px 14px',
+                                                            fontSize: '14px',
+                                                            outline: 'none',
+                                                            boxSizing: 'border-box',
                                                         }}
-                                                        onFocus={(e) => (e.target.style.borderColor = '#ba1a1a')}
-                                                        onBlur={(e) => (e.target.style.borderColor = '#c2c6d8')}
+                                                        onFocus={(e) =>
+                                                            (e.target.style.borderColor = '#ba1a1a')
+                                                        }
+                                                        onBlur={(e) =>
+                                                            (e.target.style.borderColor = '#c2c6d8')
+                                                        }
                                                     />
                                                 </div>
 
                                                 {withdrawError && (
-                                                    <p style={{ fontSize: '13px', color: '#ba1a1a', textAlign: 'center', margin: 0 }}>
+                                                    <p
+                                                        style={{
+                                                            fontSize: '13px',
+                                                            color: '#ba1a1a',
+                                                            textAlign: 'center',
+                                                            margin: 0,
+                                                        }}
+                                                    >
                                                         {withdrawError}
                                                     </p>
                                                 )}
 
-                                                <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        gap: '8px',
+                                                        marginTop: '8px',
+                                                    }}
+                                                >
                                                     <button
                                                         type="button"
                                                         onClick={() => setShowWithdrawModal(false)}
                                                         style={{
-                                                            flex: 1, padding: '12px', background: 'white',
-                                                            color: '#424654', border: '1px solid #c2c6d8',
-                                                            borderRadius: '10px', fontSize: '15px',
-                                                            fontWeight: 600, cursor: 'pointer',
+                                                            flex: 1,
+                                                            padding: '12px',
+                                                            background: 'white',
+                                                            color: '#424654',
+                                                            border: '1px solid #c2c6d8',
+                                                            borderRadius: '10px',
+                                                            fontSize: '15px',
+                                                            fontWeight: 600,
+                                                            cursor: 'pointer',
                                                         }}
                                                     >
                                                         취소
@@ -1158,15 +1446,24 @@ function MyPageContent() {
                                                         type="submit"
                                                         disabled={withdrawLoading}
                                                         style={{
-                                                            flex: 1, padding: '12px',
-                                                            background: withdrawLoading ? '#f5a0a0' : '#ba1a1a',
-                                                            color: 'white', border: 'none',
-                                                            borderRadius: '10px', fontSize: '15px',
+                                                            flex: 1,
+                                                            padding: '12px',
+                                                            background: withdrawLoading
+                                                                ? '#f5a0a0'
+                                                                : '#ba1a1a',
+                                                            color: 'white',
+                                                            border: 'none',
+                                                            borderRadius: '10px',
+                                                            fontSize: '15px',
                                                             fontWeight: 600,
-                                                            cursor: withdrawLoading ? 'not-allowed' : 'pointer',
+                                                            cursor: withdrawLoading
+                                                                ? 'not-allowed'
+                                                                : 'pointer',
                                                         }}
                                                     >
-                                                        {withdrawLoading ? '처리 중...' : '탈퇴하기'}
+                                                        {withdrawLoading
+                                                            ? '처리 중...'
+                                                            : '탈퇴하기'}
                                                     </button>
                                                 </div>
                                             </form>

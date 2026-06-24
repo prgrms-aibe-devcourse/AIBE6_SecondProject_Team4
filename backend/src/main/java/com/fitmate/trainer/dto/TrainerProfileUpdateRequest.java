@@ -12,6 +12,7 @@ public record TrainerProfileUpdateRequest(
         Integer lessonDurationMinutes,
         List<AvailableTimeRequest> availableTimes,
         List<String> lessonPhotoUrls,
+        List<CertificationRequest> certifications,
         Boolean isPublic
 ) {
     public record AvailableTimeRequest(
@@ -19,6 +20,13 @@ public record TrainerProfileUpdateRequest(
             String dayOfWeek,
             LocalTime startTime,
             LocalTime endTime
+    ) {
+    }
+
+    public record CertificationRequest(
+            String name,
+            Integer acquiredYear,
+            String type
     ) {
     }
 }

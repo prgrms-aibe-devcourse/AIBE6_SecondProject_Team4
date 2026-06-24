@@ -1,22 +1,11 @@
 'use client'
 
-import { useAuth } from '@/context/AuthContext';
-import { API_BASE_URL, getAuthClient, getImageUrl } from '@/utils/apiClient';
-import { useEffect, useState } from 'react';
+import { DISTRICTS, REGIONS } from '@/constants/matchingOptions'
+import { useAuth } from '@/context/AuthContext'
+import { API_BASE_URL, getAuthClient, getImageUrl } from '@/utils/apiClient'
+import { useEffect, useState } from 'react'
 
-
-
-import { useRouter } from 'next/navigation';
-
-
-
-
-
-
-
-
-
-
+import { useRouter } from 'next/navigation'
 
 const SPORTS_LIST = ['헬스', '필라테스', '요가', '크로스핏', '테니스', '골프', '수영', '댄스']
 const LESSON_LEVELS = ['입문/초보', '중급', '고급/대회준비']
@@ -40,6 +29,7 @@ export default function ProfileEditPage() {
         price: '',
         careerYears: '',
         region: '',
+        district: '',
         introduction: '',
         lessonDurationMinutes: '60',
         availableTimes: [] as {
@@ -49,6 +39,7 @@ export default function ProfileEditPage() {
             endTime: string
         }[],
         lessonPhotos: [] as string[],
+        certifications: [] as { name: string; acquiredYear: string; type: string }[],
         isPublic: true,
     })
 
@@ -59,6 +50,7 @@ export default function ProfileEditPage() {
         level: '',
         goal: [] as string[],
         region: '',
+        district: '',
         introduction: '',
     })
 
@@ -93,7 +85,8 @@ export default function ProfileEditPage() {
                         : [],
                     price: data.price?.toString() ?? '',
                     careerYears: data.careerYears?.toString() ?? '',
-                    region: data.region ?? '',
+                    region: data.region?.split(' ')[0] ?? '',
+                    district: data.region?.split(' ')[1] ?? '',
                     introduction: data.introduction ?? '',
                     lessonDurationMinutes: data.lessonDurationMinutes?.toString() ?? '60',
                     availableTimes:
@@ -104,6 +97,12 @@ export default function ProfileEditPage() {
                             endTime: t.endTime ?? '22:00',
                         })) ?? [],
                     lessonPhotos: data.lessonPhotos ?? [],
+                    certifications:
+                        data.certifications?.map((c) => ({
+                            name: c.name ?? '',
+                            acquiredYear: c.acquiredYear?.toString() ?? '',
+                            type: c.type ?? 'CERTIFICATE',
+                        })) ?? [],
                     isPublic: data.isPublic ?? true,
                 })
             }
@@ -115,7 +114,8 @@ export default function ProfileEditPage() {
                     sports: data.sports ? data.sports.split(',').map((s) => s.trim()) : [],
                     level: data.level ?? '',
                     goal: data.goal ? data.goal.split(',').map((g) => g.trim()) : [],
-                    region: data.region ?? '',
+                    region: data.region?.split(' ')[0] ?? '',
+                    district: data.region?.split(' ')[1] ?? '',
                     introduction: data.introduction ?? '',
                 })
             }
@@ -192,6 +192,36 @@ export default function ProfileEditPage() {
         }))
     }
 
+    const addCertification = () => {
+        setTrainerForm((f) => ({
+            ...f,
+            certifications: [
+                ...f.certifications,
+                { name: '', acquiredYear: '', type: 'CERTIFICATE' },
+            ],
+        }))
+    }
+
+    const updateCertification = (
+        index: number,
+        field: 'name' | 'acquiredYear' | 'type',
+        value: string
+    ) => {
+        setTrainerForm((f) => ({
+            ...f,
+            certifications: f.certifications.map((c, i) =>
+                i === index ? { ...c, [field]: value } : c
+            ),
+        }))
+    }
+
+    const removeCertification = (index: number) => {
+        setTrainerForm((f) => ({
+            ...f,
+            certifications: f.certifications.filter((_, i) => i !== index),
+        }))
+    }
+
     const handleSave = async () => {
         setSaving(true)
         console.log('availableTimes:', trainerForm.availableTimes) // 추가
@@ -199,7 +229,10 @@ export default function ProfileEditPage() {
 
         await client.PATCH('/api/members/me', {
             body: {
-                region: user?.role === 'TRAINER' ? trainerForm.region : userForm.region,
+                region:
+                    user?.role === 'TRAINER'
+                        ? [trainerForm.region, trainerForm.district].filter(Boolean).join(' ')
+                        : [userForm.region, userForm.district].filter(Boolean).join(' '),
                 introduction:
                     user?.role === 'TRAINER' ? trainerForm.introduction : userForm.introduction,
             },
@@ -220,6 +253,13 @@ export default function ProfileEditPage() {
                     endTime: t.endTime,
                 })),
                 lessonPhotoUrls: trainerForm.lessonPhotos,
+                certifications: trainerForm.certifications
+                    .filter((c) => c.name.trim() !== '')
+                    .map((c) => ({
+                        name: c.name.trim(),
+                        acquiredYear: c.acquiredYear ? Number(c.acquiredYear) : undefined,
+                        type: c.type,
+                    })),
                 isPublic: trainerForm.isPublic,
             }
             if (trainerId) {
@@ -321,7 +361,7 @@ export default function ProfileEditPage() {
         user?.role === 'TRAINER'
             ? [
                   { id: 'basic', icon: 'person', label: '기본 정보' },
-                  { id: 'specialty', icon: 'fitness_center', label: '전문 분야' },
+                  { id: 'specialty', icon: 'fitness_center', label: '전문 분야 & 경력' },
                   { id: 'lesson', icon: 'assignment', label: '레슨 상세 정보' },
               ]
             : [
@@ -439,26 +479,82 @@ export default function ProfileEditPage() {
                                         <label className="block text-label-md font-label-md text-on-surface-variant">
                                             활동 지역
                                         </label>
-                                        <input
-                                            className="w-full bg-surface-container-low border border-outline-variant rounded-lg px-sm py-sm text-body-md outline-none focus:ring-2 focus:ring-primary"
-                                            placeholder="도시 또는 지역 검색"
-                                            value={
-                                                user?.role === 'TRAINER'
-                                                    ? trainerForm.region
-                                                    : userForm.region
-                                            }
-                                            onChange={(e) =>
-                                                user?.role === 'TRAINER'
-                                                    ? setTrainerForm((f) => ({
-                                                          ...f,
-                                                          region: e.target.value,
-                                                      }))
-                                                    : setUserForm((f) => ({
-                                                          ...f,
-                                                          region: e.target.value,
-                                                      }))
-                                            }
-                                        />
+                                        <div className="grid grid-cols-2 gap-xs">
+                                            <select
+                                                className="w-full bg-surface-container-low border border-outline-variant rounded-lg px-sm py-sm text-body-md outline-none focus:ring-2 focus:ring-primary"
+                                                value={
+                                                    user?.role === 'TRAINER'
+                                                        ? trainerForm.region
+                                                        : userForm.region
+                                                }
+                                                onChange={(e) => {
+                                                    const nextRegion = e.target.value
+                                                    const nextDistrict =
+                                                        DISTRICTS[nextRegion]?.[0] ?? ''
+                                                    if (user?.role === 'TRAINER') {
+                                                        setTrainerForm((f) => ({
+                                                            ...f,
+                                                            region: nextRegion,
+                                                            district: nextDistrict,
+                                                        }))
+                                                    } else {
+                                                        setUserForm((f) => ({
+                                                            ...f,
+                                                            region: nextRegion,
+                                                            district: nextDistrict,
+                                                        }))
+                                                    }
+                                                }}
+                                            >
+                                                <option value="" disabled>
+                                                    시/도 선택
+                                                </option>
+                                                {REGIONS.map((r) => (
+                                                    <option key={r} value={r}>
+                                                        {r}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <select
+                                                className="w-full bg-surface-container-low border border-outline-variant rounded-lg px-sm py-sm text-body-md outline-none focus:ring-2 focus:ring-primary"
+                                                value={
+                                                    user?.role === 'TRAINER'
+                                                        ? trainerForm.district
+                                                        : userForm.district
+                                                }
+                                                onChange={(e) =>
+                                                    user?.role === 'TRAINER'
+                                                        ? setTrainerForm((f) => ({
+                                                              ...f,
+                                                              district: e.target.value,
+                                                          }))
+                                                        : setUserForm((f) => ({
+                                                              ...f,
+                                                              district: e.target.value,
+                                                          }))
+                                                }
+                                                disabled={
+                                                    !(user?.role === 'TRAINER'
+                                                        ? trainerForm.region
+                                                        : userForm.region)
+                                                }
+                                            >
+                                                <option value="" disabled>
+                                                    구/군 선택
+                                                </option>
+                                                {(
+                                                    DISTRICTS[
+                                                        user?.role === 'TRAINER'
+                                                            ? trainerForm.region
+                                                            : userForm.region
+                                                    ] ?? []
+                                                ).map((d) => (
+                                                    <option key={d} value={d}>
+                                                        {d}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="space-y-xs">
@@ -499,7 +595,9 @@ export default function ProfileEditPage() {
                                         fitness_center
                                     </span>
                                     <h2 className="font-headline-sm text-headline-sm">
-                                        {user?.role === 'TRAINER' ? '전문 분야' : '관심 종목'}
+                                        {user?.role === 'TRAINER'
+                                            ? '전문 분야 & 경력'
+                                            : '관심 종목'}
                                     </h2>
                                 </div>
                                 <p className="text-body-sm text-on-surface-variant">
@@ -526,6 +624,131 @@ export default function ProfileEditPage() {
                                         )
                                     })}
                                 </div>
+
+                                {user?.role === 'TRAINER' && (
+                                    <>
+                                        <div className="space-y-xs">
+                                            <label className="block text-label-md font-label-md text-on-surface-variant">
+                                                경력 (년차)
+                                            </label>
+                                            <input
+                                                className="w-full sm:w-48 bg-surface-container-low border border-outline-variant rounded-lg px-sm py-sm text-body-md outline-none focus:ring-2 focus:ring-primary"
+                                                placeholder="활동 기간 입력"
+                                                type="number"
+                                                value={trainerForm.careerYears}
+                                                onChange={(e) =>
+                                                    setTrainerForm((f) => ({
+                                                        ...f,
+                                                        careerYears: e.target.value,
+                                                    }))
+                                                }
+                                            />
+                                        </div>
+
+                                        {/* 자격증 & 수상경력 */}
+                                        <div className="space-y-sm">
+                                            <label className="block text-label-md font-label-md text-on-surface-variant">
+                                                자격증 &amp; 수상경력
+                                            </label>
+                                            <div className="space-y-xs">
+                                                {trainerForm.certifications.map((cert, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="space-y-xs rounded-lg border border-outline-variant p-sm"
+                                                    >
+                                                        <div className="flex gap-xs">
+                                                            <button
+                                                                type="button"
+                                                                className={`px-sm py-1 rounded-md text-label-sm font-label-bold transition-all cursor-pointer ${
+                                                                    cert.type === 'CERTIFICATE'
+                                                                        ? 'bg-primary text-on-primary'
+                                                                        : 'bg-surface-container-low text-on-surface-variant'
+                                                                }`}
+                                                                onClick={() =>
+                                                                    updateCertification(
+                                                                        index,
+                                                                        'type',
+                                                                        'CERTIFICATE'
+                                                                    )
+                                                                }
+                                                            >
+                                                                자격증
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                className={`px-sm py-1 rounded-md text-label-sm font-label-bold transition-all cursor-pointer ${
+                                                                    cert.type === 'AWARD'
+                                                                        ? 'bg-primary text-on-primary'
+                                                                        : 'bg-surface-container-low text-on-surface-variant'
+                                                                }`}
+                                                                onClick={() =>
+                                                                    updateCertification(
+                                                                        index,
+                                                                        'type',
+                                                                        'AWARD'
+                                                                    )
+                                                                }
+                                                            >
+                                                                대회수상
+                                                            </button>
+                                                        </div>
+                                                        <div className="flex items-center gap-xs">
+                                                            <input
+                                                                className="flex-grow bg-surface-container-low border border-outline-variant rounded-lg px-sm py-sm text-body-md outline-none focus:ring-2 focus:ring-primary"
+                                                                placeholder={
+                                                                    cert.type === 'AWARD'
+                                                                        ? '대회명 (예: 2023 전국 보디빌딩대회 금상)'
+                                                                        : '자격증명 (예: 생활스포츠지도사 2급)'
+                                                                }
+                                                                value={cert.name}
+                                                                onChange={(e) =>
+                                                                    updateCertification(
+                                                                        index,
+                                                                        'name',
+                                                                        e.target.value
+                                                                    )
+                                                                }
+                                                            />
+                                                            <input
+                                                                className="w-24 bg-surface-container-low border border-outline-variant rounded-lg px-sm py-sm text-body-md outline-none focus:ring-2 focus:ring-primary"
+                                                                placeholder="연도"
+                                                                type="number"
+                                                                value={cert.acquiredYear}
+                                                                onChange={(e) =>
+                                                                    updateCertification(
+                                                                        index,
+                                                                        'acquiredYear',
+                                                                        e.target.value
+                                                                    )
+                                                                }
+                                                            />
+                                                            <button
+                                                                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-on-surface-variant hover:bg-error-container hover:text-error cursor-pointer"
+                                                                onClick={() =>
+                                                                    removeCertification(index)
+                                                                }
+                                                                aria-label="자격증 삭제"
+                                                            >
+                                                                <span className="material-symbols-outlined">
+                                                                    close
+                                                                </span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <button
+                                                className="flex items-center gap-1 text-label-bold font-label-bold text-primary hover:underline cursor-pointer"
+                                                onClick={addCertification}
+                                            >
+                                                <span className="material-symbols-outlined text-xl">
+                                                    add
+                                                </span>
+                                                자격증 추가
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         )}
 
@@ -578,11 +801,10 @@ export default function ProfileEditPage() {
                                     <label className="block text-label-md font-label-md text-on-surface-variant">
                                         레슨 유형
                                     </label>
-                                    <div className="grid grid-cols-3 gap-sm">
+                                    <div className="grid grid-cols-2 gap-sm">
                                         {[
                                             { label: '1:1', value: 'ONE_TO_ONE' },
                                             { label: '그룹', value: 'GROUP' },
-                                            { label: '온라인', value: 'ONLINE' },
                                         ].map(({ label, value }) => (
                                             <button
                                                 key={value}
@@ -607,27 +829,10 @@ export default function ProfileEditPage() {
                                         ))}
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-md">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-md">
                                     <div className="space-y-xs">
                                         <label className="block text-label-md font-label-md text-on-surface-variant">
-                                            경력 (년차)
-                                        </label>
-                                        <input
-                                            className="w-full bg-surface-container-low border border-outline-variant rounded-lg px-sm py-sm text-body-md outline-none focus:ring-2 focus:ring-primary"
-                                            placeholder="활동 기간 입력"
-                                            type="number"
-                                            value={trainerForm.careerYears}
-                                            onChange={(e) =>
-                                                setTrainerForm((f) => ({
-                                                    ...f,
-                                                    careerYears: e.target.value,
-                                                }))
-                                            }
-                                        />
-                                    </div>
-                                    <div className="space-y-xs">
-                                        <label className="block text-label-md font-label-md text-on-surface-variant">
-                                            최당 가격 (원)
+                                            회당 가격 (원)
                                         </label>
                                         <div className="flex items-center bg-surface-container-low border border-outline-variant rounded-lg px-sm py-sm">
                                             <span className="text-on-surface-variant mr-xs">₩</span>

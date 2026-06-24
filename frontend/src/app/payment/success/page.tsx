@@ -1,6 +1,7 @@
 'use client'
 
-import { getAuthClient } from '@/utils/apiClient'
+import { useAuth } from '@/context/AuthContext'
+import { ensureFreshToken, getAuthClient } from '@/utils/apiClient'
 import { Suspense, useEffect, useRef, useState } from 'react'
 
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -8,11 +9,13 @@ import { useRouter, useSearchParams } from 'next/navigation'
 function PaymentSuccessContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
+    const { initialized } = useAuth()
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
     const [message, setMessage] = useState('')
     const called = useRef(false)
 
     useEffect(() => {
+        if (!initialized) return
         if (called.current) return
         called.current = true
 
@@ -27,6 +30,7 @@ function PaymentSuccessContent() {
         }
 
         const confirm = async () => {
+            await ensureFreshToken()
             const client = getAuthClient()
             const { error } = await client.POST('/api/payments/confirm', {
                 body: {
@@ -45,7 +49,7 @@ function PaymentSuccessContent() {
             }
         }
         confirm()
-    }, [searchParams])
+    }, [initialized, searchParams])
 
     return (
         <main

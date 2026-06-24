@@ -25,6 +25,8 @@ public record LessonRequestCreateRequest(
 
         @NotBlank String selectedLessonType,
 
+        String selectedRegion,
+
         @NotNull LocalDate requestedDate,
 
         @NotNull LocalTime requestedStartTime,

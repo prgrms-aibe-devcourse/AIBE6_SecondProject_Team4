@@ -11,12 +11,12 @@ spring:
 
   sql:
     init:
-      mode: never          # ← 첫 배포는 always (더미 주입). 더미 들어간 후 never로 변경 예정
+      mode: always          # ← 첫 배포는 always (더미 주입). 더미 들어간 후 never로 변경 예정
 
   jpa:
     show-sql: false         # ← 추가: 운영 로그 정리
     hibernate:
-      ddl-auto: update      # ← 첫 배포는 create. 더미 들어간 후 update로 변경 예정
+      ddl-auto: create      # ← 첫 배포는 create. 더미 들어간 후 update로 변경 예정
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect

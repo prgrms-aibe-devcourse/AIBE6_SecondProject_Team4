@@ -1,6 +1,7 @@
 'use client'
 
-import { API_BASE_URL, getAuthClient } from '@/utils/apiClient';
+import { useAuth } from '@/context/AuthContext';
+import { ensureFreshToken, getAuthClient } from '@/utils/apiClient';
 import { useEffect, useState } from 'react';
 
 
@@ -86,9 +87,11 @@ interface Stats {
 
 export default function AdminMembersPage() {
     const router = useRouter()
+    const { initialized } = useAuth()
     const [members, setMembers] = useState<MemberRow[]>([])
     const [stats, setStats] = useState<Stats>({ total: 0, trainer: 0, user: 0 })
     const [loading, setLoading] = useState(true)
+    const [fetching, setFetching] = useState(false)
     const [page, setPage] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
     const [totalElements, setTotalElements] = useState(0)
@@ -97,48 +100,42 @@ export default function AdminMembersPage() {
     const [deletingId, setDeletingId] = useState<number | null>(null)
 
     const fetchStats = async () => {
-        const stored = localStorage.getItem('fitmate_user')
-        const token = stored ? JSON.parse(stored).token : null
-        const res = await fetch(`${API_BASE_URL}/api/admin/members/stats`, {
-            headers: { Authorization: `Bearer ${token}` },
-        })
-        if (res.ok) {
-            const data = await res.json()
-            setStats(data)
-        }
+        await ensureFreshToken()
+        const { data } = await getAuthClient().GET('/api/admin/members/stats', {})
+        if (data) setStats(data as Stats)
     }
 
     const fetchMembers = async (p = 0) => {
-        setLoading(true)
-        const stored = localStorage.getItem('fitmate_user')
-        const token = stored ? JSON.parse(stored).token : null
-
-        const params = new URLSearchParams({
-            page: String(p),
-            size: '10',
-            sort: 'createdAt,desc',
+        if (members.length === 0) setLoading(true)
+        else setFetching(true)
+        await ensureFreshToken()
+        const { data } = await getAuthClient().GET('/api/admin/members', {
+            params: {
+                query: {
+                    page: p,
+                    size: 10,
+                    sort: 'createdAt,desc',
+                    ...(keyword.trim() ? { keyword: keyword.trim() } : {}),
+                    ...(role ? { role } : {}),
+                },
+            },
         })
-        if (keyword.trim()) params.append('keyword', keyword.trim())
-        if (role) params.append('role', role)
-
-        const res = await fetch(`${API_BASE_URL}/api/admin/members?${params}`, {
-            headers: { Authorization: `Bearer ${token}` },
-        })
-
-        if (res.ok) {
-            const data: PageResponse = await res.json()
-            setMembers(data.content)
-            setTotalPages(data.totalPages)
-            setTotalElements(data.totalElements)
-            setPage(data.number)
+        if (data) {
+            const page = data as unknown as PageResponse
+            setMembers(page.content)
+            setTotalPages(page.totalPages)
+            setTotalElements(page.totalElements)
+            setPage(page.number)
         }
         setLoading(false)
+        setFetching(false)
     }
 
     useEffect(() => {
+        if (!initialized) return
         fetchStats()
         fetchMembers(0)
-    }, [])
+    }, [initialized])
 
     const handleSearch = () => {
         fetchMembers(0)
@@ -147,15 +144,10 @@ export default function AdminMembersPage() {
     const handleDelete = async (memberId: number, userName: string) => {
         if (!confirm(`${userName} 회원을 강제 탈퇴 처리하시겠습니까?`)) return
         setDeletingId(memberId)
-        const stored = localStorage.getItem('fitmate_user')
-        const token = stored ? JSON.parse(stored).token : null
-
-        const res = await fetch(`${API_BASE_URL}/api/admin/members/${memberId}`, {
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${token}` },
+        const { error } = await getAuthClient().DELETE('/api/admin/members/{memberId}', {
+            params: { path: { memberId } },
         })
-
-        if (res.ok) {
+        if (!error) {
             fetchMembers(page)
             fetchStats()
         }
@@ -323,7 +315,7 @@ export default function AdminMembersPage() {
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-surface-container-high">
+                    <tbody className={`divide-y divide-surface-container-high transition-opacity duration-150 ${fetching ? 'opacity-50' : 'opacity-100'}`}>
                         {loading ? (
                             Array.from({ length: 10 }).map((_, i) => (
                                 <tr key={i}>

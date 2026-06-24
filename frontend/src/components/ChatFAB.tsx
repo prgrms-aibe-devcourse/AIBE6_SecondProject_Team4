@@ -5,6 +5,7 @@ import { useChat } from '@/hooks/useChat';
 import type { components } from '@/types/api';
 import { API_BASE_URL, apiClient, getImageUrl } from '@/utils/apiClient';
 import { Client } from '@stomp/stompjs';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import SockJS from 'sockjs-client';
 type View = 'closed' | 'list' | 'chat' | 'new'
@@ -13,12 +14,13 @@ type ChatRoomDto = components['schemas']['ChatRoomResponseDto']
 type TrainerDto = components['schemas']['TrainerSummaryDto']
 type ChatMessageDto = components['schemas']['ChatResponseDto']
 
-function Avatar({ src, alt, className }: { src?: string; alt: string; className?: string }) {
+function Avatar({ src, alt, className, onClick, clickable }: { src?: string; alt: string; className?: string; onClick?: (e: React.MouseEvent) => void; clickable?: boolean }) {
     const [failed, setFailed] = useState(false)
+    const cursorClass = clickable ? 'cursor-pointer hover:ring-2 hover:ring-primary' : ''
 
     if (!src || failed) {
         return (
-            <div className={`bg-primary-fixed text-primary flex items-center justify-center ${className}`}>
+            <div className={`bg-primary-fixed text-primary flex items-center justify-center ${className} ${cursorClass}`} onClick={onClick}>
                 <span className="material-symbols-outlined text-2xl">person</span>
             </div>
         )
@@ -29,14 +31,17 @@ function Avatar({ src, alt, className }: { src?: string; alt: string; className?
         <img
             src={src}
             alt={alt}
-            className={className}
+            className={`${className} ${cursorClass}`}
             onError={() => setFailed(true)}
+            onClick={onClick}
         />
     )
 }
 
 interface ChatEntry {
     roomId: number
+    trainerId?: number
+    trainerProfileId?: number
     name: string
     src: string
     lastMsg: string
@@ -70,6 +75,7 @@ function formatTime(dateStr?: string | null): string {
 function toEntry(dto: ChatRoomDto, myId: number): ChatEntry {
     return {
         roomId: dto.chatRoomId ?? 0,
+        trainerId: dto.trainerId,
         name: dto.userId === myId ? (dto.trainerName ?? '') : (dto.userName ?? ''),
         src: dto.userId === myId ? getImageUrl(dto.trainerProfile) : '',
         lastMsg: dto.lastMessage ?? '',
@@ -100,6 +106,7 @@ function sortByRecent(entries: ChatEntry[]): ChatEntry[] {
 
 export default function ChatFAB() {
     const { user } = useAuth()
+    const router = useRouter()
 
     const [view, setView] = useState<View>('closed')
     const [selectedChat, setSelectedChat] = useState<ChatEntry | null>(null)
@@ -158,13 +165,25 @@ export default function ChatFAB() {
         const handler = async (e: Event) => {
             const { roomId } = (e as CustomEvent).detail
             if (!user || !roomId) return
-            const { data: rooms } = await apiClient.GET('/api/chat', {
-                params: { query: { memberId: user.memberId } },
-                headers: { Authorization: `Bearer ${user.token}` },
-            })
+            const [{ data: rooms }, { data: trainerPage }] = await Promise.all([
+                apiClient.GET('/api/chat', {
+                    params: { query: { memberId: user.memberId } },
+                    headers: { Authorization: `Bearer ${user.token}` },
+                }),
+                apiClient.GET('/api/trainers', {
+                    params: { query: { size: 1000 } },
+                    headers: { Authorization: `Bearer ${user.token}` },
+                }),
+            ])
+            const memberIdToProfileId = new Map<number, number>()
+            for (const t of trainerPage?.content ?? []) {
+                if (t.memberId != null && t.id != null) memberIdToProfileId.set(t.memberId, t.id)
+            }
             const room = rooms?.find(r => r.chatRoomId === roomId)
             if (room) {
-                await openChat(toEntry(room, user.memberId))
+                const entry = toEntry(room, user.memberId)
+                if (room.trainerId != null) entry.trainerProfileId = memberIdToProfileId.get(room.trainerId)
+                await openChat(entry)
             }
         }
         window.addEventListener('open-chat-room', handler)
@@ -174,7 +193,7 @@ export default function ChatFAB() {
     // 트레이너 상세 페이지 상담하기 버튼에서 채팅 열기
     useEffect(() => {
         const handler = async (e: Event) => {
-            const { trainerId, name, profileImage } = (e as CustomEvent<{ trainerId: number; name: string; profileImage: string }>).detail
+            const { trainerId, trainerProfileId, name, profileImage } = (e as CustomEvent<{ trainerId: number; trainerProfileId?: number; name: string; profileImage: string }>).detail
             if (!user || !trainerId) return
             const { data: room } = await apiClient.POST('/api/chat', {
                 body: { trainerId, userId: user.memberId },
@@ -183,6 +202,8 @@ export default function ChatFAB() {
             if (!room) return
             await openChat({
                 roomId: room.chatRoomId ?? 0,
+                trainerId: trainerId,
+                trainerProfileId: trainerProfileId,
                 name,
                 src: getImageUrl(profileImage),
                 lastMsg: '',
@@ -257,13 +278,31 @@ export default function ChatFAB() {
     // 채팅 목록 조회
     useEffect(() => {
         if (view !== 'list' || !user) return
-        apiClient
-            .GET('/api/chat', {
+        Promise.all([
+            apiClient.GET('/api/chat', {
                 params: { query: { memberId: user.memberId } },
                 headers: authHeaders(),
-            })
-            .then(({ data }) => {
-                if (data) setChatList(sortByRecent(data.map((dto) => toEntry(dto, user.memberId))))
+            }),
+            apiClient.GET('/api/trainers', {
+                params: { query: { size: 1000 } },
+                headers: authHeaders(),
+            }),
+        ])
+            .then(([{ data: rooms }, { data: trainerPage }]) => {
+                // memberId → trainer profile id 맵
+                const memberIdToProfileId = new Map<number, number>()
+                for (const t of trainerPage?.content ?? []) {
+                    if (t.memberId != null && t.id != null) memberIdToProfileId.set(t.memberId, t.id)
+                }
+                if (rooms) {
+                    setChatList(sortByRecent(rooms.map((dto) => {
+                        const entry = toEntry(dto, user.memberId)
+                        if (dto.trainerId != null) {
+                            entry.trainerProfileId = memberIdToProfileId.get(dto.trainerId)
+                        }
+                        return entry
+                    })))
+                }
             })
             .catch(() => setChatList([]))
     }, [view, user])
@@ -424,11 +463,17 @@ export default function ChatFAB() {
                                 }`}
                                 onClick={() => openChat(entry)}
                             >
-                                <div className="relative">
+                                <div className="relative shrink-0">
                                     <Avatar
                                         className="w-12 h-12 rounded-full object-cover bg-surface-container-high"
                                         src={entry.src}
                                         alt={entry.name}
+                                        onClick={entry.trainerProfileId ? (e) => {
+                                            e.stopPropagation()
+                                            setView('closed')
+                                            router.push(`/trainer/${entry.trainerProfileId}`)
+                                        } : undefined}
+                                        clickable={!!entry.trainerProfileId}
                                     />
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -532,8 +577,19 @@ export default function ChatFAB() {
                                 alt={selectedChat.name}
                                 className="w-10 h-10 rounded-full object-cover border-2 border-white/20 bg-white/10"
                                 src={selectedChat.src}
+                                onClick={selectedChat.trainerProfileId ? () => {
+                                    setView('closed')
+                                    router.push(`/trainer/${selectedChat.trainerProfileId}`)
+                                } : undefined}
+                                clickable={!!selectedChat.trainerProfileId}
                             />
-                            <div>
+                            <div
+                                className={selectedChat.trainerProfileId ? 'cursor-pointer hover:underline' : ''}
+                                onClick={selectedChat.trainerProfileId ? () => {
+                                    setView('closed')
+                                    router.push(`/trainer/${selectedChat.trainerProfileId}`)
+                                } : undefined}
+                            >
                                 <p className="font-label-bold text-label-bold">{selectedChat.name}</p>
                                 <p className="text-xs opacity-80">{connected ? '온라인' : '연결 중...'}</p>
                             </div>

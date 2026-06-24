@@ -25,6 +25,7 @@ export type AlertItem = {
         | 'INQUIRY'
         | 'LESSON_REQUEST'
         | 'MATCHING_COMPLETED'
+        | 'WORKOUT_LOG'
     targetId?: number
     content?: string
     isRead?: boolean

@@ -13,9 +13,11 @@ import com.fitmate.trainer.dto.TrainerProfileRequest;
 import com.fitmate.trainer.dto.TrainerProfileResponse;
 import com.fitmate.trainer.dto.TrainerProfileUpdateRequest;
 import com.fitmate.trainer.entity.TrainerAvailableTime;
+import com.fitmate.trainer.entity.TrainerCertification;
 import com.fitmate.trainer.entity.TrainerLessonPhoto;
 import com.fitmate.trainer.entity.TrainerProfile;
 import com.fitmate.trainer.repository.TrainerAvailableTimeRepository;
+import com.fitmate.trainer.repository.TrainerCertificationRepository;
 import com.fitmate.trainer.repository.TrainerLessonPhotoRepository;
 import com.fitmate.trainer.repository.TrainerProfileRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,7 @@ public class TrainerService {
     private final MemberRepository memberRepository;
     private final TrainerAvailableTimeRepository trainerAvailableTimeRepository;
     private final TrainerLessonPhotoRepository trainerLessonPhotoRepository;
+    private final TrainerCertificationRepository trainerCertificationRepository;
     private final MatchingResultRepository matchingResultRepository;
     private final LessonRequestRepository lessonRequestRepository;
     private final ReviewRepository reviewRepository;
@@ -48,9 +51,12 @@ public class TrainerService {
                 trainerAvailableTimeRepository.findByTrainerProfileId(profile.getId());
         List<TrainerLessonPhoto> lessonPhotos =
                 trainerLessonPhotoRepository.findByTrainerProfileId(profile.getId());
+        List<TrainerCertification> certifications =
+                trainerCertificationRepository.findByTrainerProfileIdOrderByAcquiredYearDesc(profile.getId());
         Double avgRating = reviewRepository.findAverageRatingByTrainerId(profile.getMember().getId());
         long reviewCount = reviewRepository.countByTrainerId(profile.getMember().getId());
-        return TrainerProfileResponse.from(profile, availableTimes, lessonPhotos, avgRating, reviewCount);
+
+        return TrainerProfileResponse.from(profile, availableTimes, lessonPhotos, certifications, avgRating, reviewCount);
     }
 
     public Page<TrainerProfileResponse> getTrainerProfilesByFilter(
@@ -87,7 +93,7 @@ public class TrainerService {
                         trainerAvailableTimeRepository.findByTrainerProfileId(p.getId());
                 List<TrainerLessonPhoto> lessonPhotos =
                         trainerLessonPhotoRepository.findByTrainerProfileId(p.getId());
-                return TrainerProfileResponse.from(p, availableTimes, lessonPhotos,
+                return TrainerProfileResponse.from(p, availableTimes, lessonPhotos, List.of(),
                         ratingMap.get(p.getMember().getId()),
                         countMap.getOrDefault(p.getMember().getId(), 0L));
             });
@@ -130,7 +136,7 @@ public class TrainerService {
                     trainerLessonPhotoRepository.findByTrainerProfileId(profile.getId());
             Double avgRating = ratingMap.get(profile.getMember().getId());
             Long reviewCount = countMap.getOrDefault(profile.getMember().getId(), 0L);
-            return TrainerProfileResponse.from(profile, availableTimes, lessonPhotos, avgRating, reviewCount);
+            return TrainerProfileResponse.from(profile, availableTimes, lessonPhotos, List.of(), avgRating, reviewCount);
         });
     }
 
@@ -278,11 +284,27 @@ public class TrainerService {
             trainerLessonPhotoRepository.saveAll(photos);
         }
 
+        // 자격증/수상경력 수정 - 기존 삭제 후 새로 저장
+        if (request.certifications() != null) {
+            trainerCertificationRepository.deleteByTrainerProfileId(profile.getId());
+            List<TrainerCertification> certifications = request.certifications().stream()
+                    .map(cert -> TrainerCertification.builder()
+                            .trainerProfile(profile)
+                            .name(cert.name())
+                            .acquiredYear(cert.acquiredYear())
+                            .type(cert.type())
+                            .build())
+                    .toList();
+            trainerCertificationRepository.saveAll(certifications);
+        }
+
         List<TrainerAvailableTime> availableTimes =
                 trainerAvailableTimeRepository.findByTrainerProfileId(profile.getId());
         List<TrainerLessonPhoto> lessonPhotos =
                 trainerLessonPhotoRepository.findByTrainerProfileId(profile.getId());
-        return TrainerProfileResponse.from(profile, availableTimes, lessonPhotos);
+        List<TrainerCertification> certifications =
+                trainerCertificationRepository.findByTrainerProfileIdOrderByAcquiredYearDesc(profile.getId());
+        return TrainerProfileResponse.from(profile, availableTimes, lessonPhotos, certifications, null, null);
     }
 
     public void deleteTrainerProfile(Long id, Long memberId) {
@@ -305,6 +327,9 @@ public class TrainerService {
                 trainerAvailableTimeRepository.findByTrainerProfileId(profile.getId());
         List<TrainerLessonPhoto> lessonPhotos =
                 trainerLessonPhotoRepository.findByTrainerProfileId(profile.getId());
-        return TrainerProfileResponse.from(profile, availableTimes, lessonPhotos);
+        List<TrainerCertification> certifications =
+                trainerCertificationRepository.findByTrainerProfileIdOrderByAcquiredYearDesc(profile.getId());
+
+        return TrainerProfileResponse.from(profile, availableTimes, lessonPhotos, certifications, null, null);
     }
 }

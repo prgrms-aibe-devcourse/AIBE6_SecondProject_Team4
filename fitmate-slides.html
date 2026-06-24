@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitMate - 스프링글스 Team 4</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue: #0057CD;
+  --blue-dark: #00419D;
+  --blue-light: #E8F0FD;
+  --white: #FFFFFF;
+  --gray-light: #F4F6FA;
+  --gray: #6B7280;
+  --text: #1A1A2E;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: #111827;
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+  user-select: none;
+}
+
+.deck {
+  width: 100vw; height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.slide-wrapper {
+  position: relative;
+  width: min(100vw, 177.78vh);
+  height: min(100vh, 56.25vw);
+}
+
+.slide {
+  display: none;
+  position: absolute; inset: 0;
+  background: var(--white);
+  overflow: hidden;
+}
+.slide.active { display: flex; flex-direction: column; }
+
+/* ── Slide Number ── */
+.slide-num {
+  position: absolute;
+  bottom: 18px; right: 26px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(9px, 1vw, 12px);
+  color: var(--gray);
+  font-weight: 600;
+  letter-spacing: 1px;
+  z-index: 100;
+}
+
+/* ── Navigation dots ── */
+.nav {
+  position: fixed;
+  bottom: 20px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 6px; z-index: 200;
+}
+.nav-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.nav-dot.active { background: #0057CD; transform: scale(1.4); }
+
+/* ── Progress ── */
+.progress {
+  position: fixed; top: 0; left: 0;
+  height: 3px; background: var(--blue);
+  transition: width 0.35s ease;
+  z-index: 200;
+}
+
+/* ── Arrows ── */
+.arrow {
+  position: fixed; top: 50%; transform: translateY(-50%);
+  background: rgba(0,87,205,0.15); border: none;
+  width: 40px; height: 40px; border-radius: 50%;
+  cursor: pointer; z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.arrow:hover { background: rgba(0,87,205,0.35); }
+.arrow.left { left: 10px; }
+.arrow.right { right: 10px; }
+.arrow span { color: white; font-size: 20px; }
+
+/* ══════════════════════════════════════
+   SHARED: slide header bar
+══════════════════════════════════════ */
+.slide-header {
+  background: linear-gradient(90deg, #0057CD, #00419D);
+  padding: clamp(14px, 2vw, 24px) clamp(28px, 4vw, 56px);
+  display: flex; align-items: center; gap: 14px;
+  flex-shrink: 0;
+}
+.slide-header .icon-circle {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.slide-header .icon-circle span { color: white; font-size: 20px; }
+.slide-header h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(18px, 2.2vw, 28px);
+  font-weight: 800; color: white;
+}
+.slide-header .header-right {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 10px;
+}
+.header-badge {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(9px, 0.9vw, 11px);
+  color: rgba(255,255,255,0.85); font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* ══════════════════════════════════════
+   SLIDE 1 – COVER
+══════════════════════════════════════ */
+#s1 {
+  background: linear-gradient(135deg, #0057CD 0%, #00419D 55%, #002D6E 100%);
+  align-items: center; justify-content: center; text-align: center;
+}
+#s1 .bg-c { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.05); }
+#s1 .bc1 { width: 560px; height: 560px; top: -200px; right: -140px; }
+#s1 .bc2 { width: 380px; height: 380px; bottom: -160px; left: -90px; }
+#s1 .bc3 { width: 180px; height: 180px; top: 58%; left: 58%; }
+#s1 .content { position: relative; z-index: 2; }
+#s1 .logo-badge {
+  display: inline-flex; align-items: center; gap: 9px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 40px; padding: 7px 20px; margin-bottom: 28px;
+}
+#s1 .logo-badge .mat { color: #FFD700; font-size: 20px; }
+#s1 .logo-badge span.txt {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(10px, 1.1vw, 13px);
+  color: rgba(255,255,255,0.85); font-weight: 600;
+  letter-spacing: 2px; text-transform: uppercase;
+}
+#s1 h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(48px, 7vw, 88px);
+  font-weight: 900; color: white;
+  letter-spacing: -2px; line-height: 1; margin-bottom: 14px;
+}
+#s1 h1 span { color: #FFD700; }
+#s1 .subtitle {
+  font-size: clamp(15px, 1.8vw, 22px);
+  color: rgba(255,255,255,0.78); margin-bottom: 44px;
+  font-weight: 300; letter-spacing: 0.5px;
+}
+#s1 .divider { width: 56px; height: 3px; background: rgba(255,255,255,0.35); margin: 0 auto 44px; }
+#s1 .meta { display: flex; gap: 36px; justify-content: center; flex-wrap: wrap; }
+#s1 .meta-label {
+  font-size: clamp(9px, 0.9vw, 11px);
+  color: rgba(255,255,255,0.48);
+  letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 3px;
+}
+#s1 .meta-value {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(13px, 1.4vw, 17px); color: white; font-weight: 700;
+}
+#s1 .slide-num { color: rgba(255,255,255,0.35); }
+
+/* ══════════════════════════════════════
+   SLIDE 2 – 프로젝트 개요
+══════════════════════════════════════ */
+#s2 { display: none; }
+#s2.active { display: flex; flex-direction: row; }
+#s2 .left-panel {
+  width: 42%;
+  background: linear-gradient(160deg, #0057CD 0%, #00419D 100%);
+  display: flex; flex-direction: column; justify-content: center;
+  padding: clamp(28px, 4vw, 56px); position: relative; overflow: hidden;
+}
+#s2 .left-panel .deco {
+  position: absolute; width: 280px; height: 280px; border-radius: 50%;
+  background: rgba(255,255,255,0.06); bottom: -90px; right: -70px;
+}
+#s2 .left-panel .tag {
+  font-size: clamp(9px, 0.9vw, 11px); color: rgba(255,255,255,0.55);
+  letter-spacing: 2px; text-transform: uppercase; font-weight: 600; margin-bottom: 14px;
+}
+#s2 .left-panel h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(24px, 3.2vw, 40px);
+  font-weight: 800; color: white; line-height: 1.15; margin-bottom: 18px;
+}
+#s2 .left-panel p { font-size: clamp(12px, 1.3vw, 15px); color: rgba(255,255,255,0.72); line-height: 1.7; }
+#s2 .right-panel {
+  flex: 1; padding: clamp(28px, 4vw, 56px);
+  display: flex; flex-direction: column; justify-content: center;
+}
+#s2 .section-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(11px, 1.1vw, 13px); font-weight: 700; color: var(--blue);
+  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 22px;
+}
+.value-card {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 16px 18px; border-radius: 11px;
+  background: var(--gray-light); margin-bottom: 12px;
+  border-left: 4px solid var(--blue);
+}
+.value-card .icon-wrap {
+  width: 40px; height: 40px; border-radius: 9px;
+  background: var(--blue); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.value-card .icon-wrap span { color: white; font-size: 20px; }
+.value-card h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(12px, 1.2vw, 14px); font-weight: 700; color: var(--text); margin-bottom: 3px;
+}
+.value-card p { font-size: clamp(10px, 1vw, 12px); color: var(--gray); line-height: 1.55; }
+
+/* ══════════════════════════════════════
+   SLIDE 3 – 기술 스택
+══════════════════════════════════════ */
+#s3 { flex-direction: column; }
+.tech-body { flex: 1; display: flex; background: var(--gray-light); }
+.tech-col {
+  flex: 1; padding: clamp(18px, 2.2vw, 32px);
+  display: flex; flex-direction: column;
+  border-right: 1px solid #DDE2EC;
+}
+.tech-col:last-child { border-right: none; }
+.tech-col-title { display: flex; align-items: center; gap: 9px; margin-bottom: 16px; }
+.tech-col-title .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--blue); }
+.tech-col-title h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(13px, 1.3vw, 15px); font-weight: 800; color: var(--text);
+}
+.tech-item {
+  display: flex; align-items: center; gap: 11px;
+  padding: 11px 13px; border-radius: 9px;
+  background: white; margin-bottom: 9px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.tech-item .t-icon {
+  width: 34px; height: 34px; border-radius: 7px;
+  background: var(--blue-light);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.tech-item .t-icon span { color: var(--blue); font-size: 17px; }
+.tech-item .t-name {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(11px, 1.1vw, 13px); font-weight: 700; color: var(--text);
+}
+.tech-item .t-desc { font-size: clamp(9px, 0.85vw, 10px); color: var(--gray); margin-top: 1px; }
+
+/* ══════════════════════════════════════
+   SLIDE 4 – 시스템 아키텍처
+══════════════════════════════════════ */
+#s4 { flex-direction: column; }
+.arch-body {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: clamp(16px, 2vw, 30px) clamp(28px, 5vw, 80px);
+  background: var(--gray-light); gap: 10px;
+}
+.arch-row { display: flex; align-items: center; justify-content: center; width: 100%; }
+.arch-box {
+  background: white; border-radius: 13px;
+  box-shadow: 0 2px 10px rgba(0,87,205,0.11);
+  padding: 14px 20px; text-align: center; min-width: 120px;
+  border-top: 3px solid var(--blue);
+}
+.arch-box.primary {
+  background: linear-gradient(135deg, #0057CD, #00419D);
+  border-top-color: #FFD700;
+}
+.arch-box .box-icon { color: var(--blue); font-size: 26px; display: block; }
+.arch-box.primary .box-icon { color: white; }
+.arch-box .box-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(10px, 1vw, 12px); font-weight: 800; color: var(--text); margin-top: 5px;
+}
+.arch-box.primary .box-title { color: white; }
+.arch-box .box-sub { font-size: clamp(8px, 0.8vw, 10px); color: var(--gray); margin-top: 2px; }
+.arch-box.primary .box-sub { color: rgba(255,255,255,0.65); }
+.arch-arrow { display: flex; flex-direction: column; align-items: center; padding: 0 10px; }
+.arch-arrow .arr-line { width: 46px; height: 2px; background: var(--blue); position: relative; }
+.arch-arrow .arr-line::after {
+  content: ''; position: absolute; right: 0; top: -4px;
+  border: 5px solid transparent; border-left: 7px solid var(--blue);
+}
+.arch-arrow .arr-label { font-size: clamp(7px, 0.75vw, 9px); color: var(--blue); font-weight: 600; margin-top: 3px; white-space: nowrap; }
+.arch-arrow.down { flex-direction: column; align-items: center; padding: 4px 0; }
+.arch-arrow.down .arr-line { width: 2px; height: 32px; background: var(--blue); }
+.arch-arrow.down .arr-line::after { right: -4px; top: auto; bottom: 0; border: 5px solid transparent; border-top: 7px solid var(--blue); border-left: none; }
+.oauth-row { display: flex; gap: 12px; margin-top: 4px; flex-wrap: wrap; justify-content: center; }
+.oauth-chip {
+  display: flex; align-items: center; gap: 5px;
+  background: white; border-radius: 20px; padding: 5px 12px;
+  font-size: clamp(9px, 0.9vw, 11px); font-weight: 600; color: var(--text);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.09); border: 1px solid #E0E5EF;
+}
+.oauth-chip .dot { width: 7px; height: 7px; border-radius: 50%; }
+.oauth-chip .dot.kakao { background: #FEE500; }
+.oauth-chip .dot.google { background: #EA4335; }
+.oauth-chip .dot.sms { background: #00C853; }
+
+/* ══════════════════════════════════════
+   SLIDE 5 – 주요 기능 INDEX
+══════════════════════════════════════ */
+#s5 { display: none; }
+#s5.active { display: flex; flex-direction: row; }
+#s5 .left-panel {
+  width: 36%;
+  background: linear-gradient(160deg, #0057CD 0%, #00419D 100%);
+  display: flex; flex-direction: column; justify-content: center;
+  padding: clamp(28px, 4vw, 56px); position: relative; overflow: hidden;
+}
+#s5 .left-panel .deco { position: absolute; width: 260px; height: 260px; border-radius: 50%; background: rgba(255,255,255,0.06); bottom: -80px; right: -60px; }
+#s5 .left-panel .tag { font-size: clamp(9px, 0.9vw, 11px); color: rgba(255,255,255,0.55); letter-spacing: 2px; text-transform: uppercase; font-weight: 600; margin-bottom: 12px; }
+#s5 .left-panel h2 { font-family: 'Montserrat', sans-serif; font-size: clamp(26px, 3.5vw, 44px); font-weight: 800; color: white; line-height: 1.1; margin-bottom: 16px; }
+#s5 .left-panel p { font-size: clamp(11px, 1.2vw, 14px); color: rgba(255,255,255,0.7); line-height: 1.65; }
+#s5 .right-panel {
+  flex: 1; padding: clamp(22px, 3vw, 44px);
+  display: flex; flex-direction: column; justify-content: center;
+  gap: 10px; background: var(--gray-light);
+}
+.feat-index-item {
+  display: flex; align-items: center; gap: 14px;
+  background: white; border-radius: 11px; padding: 14px 18px;
+  box-shadow: 0 1px 6px rgba(0,87,205,0.07);
+}
+.feat-index-num {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--blue); color: white;
+  font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.feat-index-icon { color: var(--blue); font-size: 20px; flex-shrink: 0; }
+.feat-index-text h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(11px, 1.15vw, 13px); font-weight: 800; color: var(--text);
+}
+.feat-index-text p { font-size: clamp(9px, 0.9vw, 11px); color: var(--gray); margin-top: 1px; }
+
+/* ══════════════════════════════════════
+   FEATURE SLIDES (s6 ~ s12) COMMON
+══════════════════════════════════════ */
+.feat-slide { flex-direction: column; }
+.feat-body {
+  flex: 1; display: flex; flex-direction: row; overflow: hidden;
+}
+.feat-left {
+  width: 36%;
+  background: linear-gradient(160deg, #0057CD 0%, #003EA8 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: clamp(20px, 2.5vw, 36px);
+  position: relative; overflow: hidden; gap: 16px;
+}
+.feat-left .bg-deco { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.06); }
+.feat-left .bg-deco.d1 { width: 300px; height: 300px; bottom: -120px; right: -80px; }
+.feat-left .bg-deco.d2 { width: 160px; height: 160px; top: -60px; left: -40px; }
+.feat-big-icon {
+  position: relative; z-index: 2;
+  width: clamp(72px, 9vw, 110px); height: clamp(72px, 9vw, 110px);
+  border-radius: 28px;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+}
+.feat-big-icon span { color: white; font-size: clamp(36px, 4.5vw, 56px); }
+.feat-num-badge {
+  position: relative; z-index: 2;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px; padding: 5px 16px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(10px, 1vw, 12px); font-weight: 700;
+  color: rgba(255,255,255,0.85); letter-spacing: 2px;
+}
+.feat-tags {
+  position: relative; z-index: 2;
+  display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+}
+.feat-tag {
+  background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 14px; padding: 3px 10px;
+  font-size: clamp(9px, 0.85vw, 10px); color: white; font-weight: 600;
+}
+.feat-right {
+  flex: 1; padding: clamp(22px, 2.8vw, 42px);
+  display: flex; flex-direction: column; justify-content: center;
+  background: white; overflow-y: auto;
+}
+.feat-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(20px, 2.5vw, 32px); font-weight: 900;
+  color: var(--text); margin-bottom: 10px; line-height: 1.15;
+}
+.feat-title span { color: var(--blue); }
+.feat-desc {
+  font-size: clamp(12px, 1.25vw, 15px); color: #374151;
+  line-height: 1.7; margin-bottom: 18px;
+  border-left: 3px solid var(--blue); padding-left: 14px;
+}
+
+/* Flow steps */
+.feat-flow {
+  display: flex; align-items: center; gap: 0;
+  background: var(--gray-light); border-radius: 12px;
+  padding: 12px 16px; margin-bottom: 18px; flex-wrap: wrap; gap: 4px;
+}
+.feat-flow-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(9px, 0.85vw, 10px); font-weight: 700;
+  color: var(--blue); letter-spacing: 1px; text-transform: uppercase;
+  margin-right: 10px; flex-shrink: 0;
+}
+.flow-step {
+  display: flex; align-items: center; gap: 4px;
+}
+.flow-step .step-box {
+  background: white; border: 1px solid #D1D9EC;
+  border-radius: 7px; padding: 5px 10px;
+  font-size: clamp(9px, 0.9vw, 11px); font-weight: 600; color: var(--text);
+  white-space: nowrap;
+}
+.flow-step .step-arr {
+  color: var(--blue); font-size: 14px; margin: 0 2px;
+}
+
+/* Bullet points */
+.feat-bullets { display: flex; flex-direction: column; gap: 9px; margin-bottom: 18px; }
+.feat-bullet {
+  display: flex; align-items: flex-start; gap: 11px;
+  padding: 11px 14px; border-radius: 9px; background: var(--gray-light);
+}
+.feat-bullet .b-icon {
+  width: 30px; height: 30px; border-radius: 7px;
+  background: var(--blue-light); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.feat-bullet .b-icon span { color: var(--blue); font-size: 15px; }
+.feat-bullet .b-text h4 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(11px, 1.05vw, 12px); font-weight: 700; color: var(--text);
+}
+.feat-bullet .b-text p { font-size: clamp(10px, 0.95vw, 11px); color: var(--gray); line-height: 1.5; margin-top: 1px; }
+
+/* Tech chips */
+.feat-tech-row { display: flex; flex-wrap: wrap; gap: 7px; }
+.feat-tech-chip {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--blue-light); border-radius: 20px; padding: 5px 12px;
+  font-size: clamp(9px, 0.9vw, 11px); font-weight: 700; color: var(--blue);
+}
+.feat-tech-chip span { font-size: 13px; }
+
+/* ══════════════════════════════════════
+   SLIDE 13 – 트러블슈팅
+══════════════════════════════════════ */
+#s13 { flex-direction: column; }
+.trouble-body {
+  flex: 1; display: grid; grid-template-columns: 1fr 1fr;
+  background: var(--gray-light);
+  gap: clamp(8px, 1vw, 12px); padding: clamp(14px, 1.8vw, 24px);
+}
+.trouble-card {
+  background: white; border-radius: 11px;
+  padding: clamp(12px, 1.6vw, 20px);
+  display: flex; flex-direction: column;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.trouble-card .t-header { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
+.trouble-card .t-num {
+  width: 26px; height: 26px; border-radius: 7px;
+  background: var(--blue); color: white;
+  font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.trouble-card h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(10px, 1vw, 12px); font-weight: 800; color: var(--text); line-height: 1.3;
+}
+.trouble-row { display: flex; gap: 7px; margin-bottom: 5px; }
+.trouble-label {
+  font-size: clamp(8px, 0.8vw, 9px); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px; min-width: 38px; flex-shrink: 0;
+}
+.trouble-label.problem { color: #EF4444; }
+.trouble-label.solve { color: #22C55E; }
+.trouble-text { font-size: clamp(9px, 0.9vw, 11px); color: var(--gray); line-height: 1.5; }
+.trouble-divider { height: 1px; background: #EEF0F5; margin: 7px 0; }
+code { background: #F3F4F6; padding: 1px 4px; border-radius: 3px; font-size: 0.9em; }
+
+/* ══════════════════════════════════════
+   SLIDE 14 – 회고
+══════════════════════════════════════ */
+#s14 { flex-direction: column; }
+.retro-body {
+  flex: 1; display: grid; grid-template-columns: repeat(3,1fr);
+  background: var(--gray-light);
+  gap: clamp(8px, 1vw, 14px); padding: clamp(16px, 2vw, 28px);
+}
+.retro-col { background: white; border-radius: 13px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 6px rgba(0,87,205,0.06); }
+.retro-col-head { padding: 16px 20px; display: flex; align-items: center; gap: 9px; }
+.retro-col-head.good { background: linear-gradient(135deg, #0057CD, #00419D); }
+.retro-col-head.bad { background: linear-gradient(135deg, #6366F1, #4F46E5); }
+.retro-col-head.learn { background: linear-gradient(135deg, #059669, #047857); }
+.retro-col-head span.material-symbols-outlined { color: white; font-size: 20px; }
+.retro-col-head h3 { font-family: 'Montserrat', sans-serif; font-size: clamp(13px, 1.3vw, 15px); font-weight: 800; color: white; }
+.retro-items { padding: 14px 16px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
+.retro-item { display: flex; gap: 9px; align-items: flex-start; padding: 9px 11px; border-radius: 7px; background: var(--gray-light); }
+.retro-item .r-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.retro-item .r-dot.good { background: var(--blue); }
+.retro-item .r-dot.bad { background: #6366F1; }
+.retro-item .r-dot.learn { background: #059669; }
+.retro-item p { font-size: clamp(10px, 0.95vw, 11px); color: #374151; line-height: 1.55; }
+
+/* ══════════════════════════════════════
+   SLIDE 15 – 시연
+══════════════════════════════════════ */
+#s15 {
+  background: linear-gradient(135deg, #0057CD 0%, #00419D 55%, #002D6E 100%);
+  align-items: center; justify-content: center; flex-direction: column;
+}
+#s15 .bg-c { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.05); }
+#s15 .bc1 { width: 460px; height: 460px; top: -190px; left: -130px; }
+#s15 .bc2 { width: 280px; height: 280px; bottom: -90px; right: -70px; }
+#s15 .demo-inner {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 24px;
+}
+#s15 .tag { font-size: clamp(9px, 0.9vw, 11px); color: rgba(255,255,255,0.55); letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
+#s15 h2 { font-family: 'Montserrat', sans-serif; font-size: clamp(28px, 4.5vw, 58px); font-weight: 900; color: white; letter-spacing: -1px; line-height: 1; }
+#s15 h2 span { color: #FFD700; }
+.qr-area {
+  display: flex; align-items: center; gap: 28px;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 18px; padding: 24px 36px;
+}
+.qr-box {
+  width: 130px; height: 130px; background: white; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.url-label { font-size: clamp(9px, 0.9vw, 11px); color: rgba(255,255,255,0.5); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; margin-bottom: 5px; }
+.url-link { font-family: 'Montserrat', sans-serif; font-size: clamp(16px, 1.9vw, 24px); font-weight: 800; color: #FFD700; text-decoration: none; }
+.url-link:hover { text-decoration: underline; }
+.url-sub { font-size: clamp(10px, 1vw, 12px); color: rgba(255,255,255,0.55); margin-top: 5px; }
+#s15 .team-credit { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+#s15 .credit-chip {
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 28px; padding: 7px 16px;
+  color: rgba(255,255,255,0.82); font-size: clamp(10px, 1vw, 12px);
+}
+#s15 .credit-chip span.material-symbols-outlined { font-size: 15px; color: #FFD700; }
+#s15 .slide-num { color: rgba(255,255,255,0.35); }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="deck">
+ <div class="slide-wrapper">
+
+  <!-- ════════════════════════════════════
+       S1 – 표지
+  ════════════════════════════════════ -->
+  <div class="slide active" id="s1">
+    <div class="bg-c bc1"></div><div class="bg-c bc2"></div><div class="bg-c bc3"></div>
+    <div class="content">
+      <div class="logo-badge">
+        <span class="material-symbols-outlined mat">fitness_center</span>
+        <span class="txt">AIBE6 · Team 4 · 스프링글스</span>
+      </div>
+      <h1>Fit<span>Mate</span></h1>
+      <p class="subtitle">나만의 인생 트레이너를 만나보세요</p>
+      <div class="divider"></div>
+      <div class="meta">
+        <div><div class="meta-label">Team</div><div class="meta-value">스프링글스</div></div>
+        <div><div class="meta-label">Course</div><div class="meta-value">AIBE6 2nd Project</div></div>
+        <div><div class="meta-label">Service</div><div class="meta-value">fitmate-ten.vercel.app</div></div>
+      </div>
+    </div>
+    <div class="slide-num">1 / 15</div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       S2 – 프로젝트 개요
+  ════════════════════════════════════ -->
+  <div class="slide" id="s2">
+    <div class="left-panel">
+      <div class="deco"></div>
+      <div class="tag">Project Overview</div>
+      <h2>피트니스 트레이너<br>매칭 플랫폼</h2>
+      <p>헬스장은 많지만 나에게 맞는 트레이너를 찾기 어렵습니다.<br><br>FitMate는 <strong style="color:#FFD700">트레이너와 회원</strong>을 스마트하게 연결해 더 효율적인 운동 경험을 제공합니다.</p>
+    </div>
+    <div class="right-panel">
+      <div class="section-title">핵심 가치 (Core Values)</div>
+      <div class="value-card">
+        <div class="icon-wrap"><span class="material-symbols-outlined">manage_search</span></div>
+        <div><h3>스마트 매칭</h3><p>AI 기반 추천 알고리즘으로 회원의 목표·성향에 맞는 트레이너를 자동 매칭합니다.</p></div>
+      </div>
+      <div class="value-card">
+        <div class="icon-wrap"><span class="material-symbols-outlined">verified_user</span></div>
+        <div><h3>신뢰할 수 있는 연결</h3><p>소셜 로그인과 SMS 본인인증으로 안전하고 신뢰도 높은 플랫폼을 구현했습니다.</p></div>
+      </div>
+      <div class="value-card">
+        <div class="icon-wrap"><span class="material-symbols-outlined">chat</span></div>
+        <div><h3>실시간 소통</h3><p>매칭 후 즉시 채팅으로 트레이너와 상담·일정 조율이 가능합니다.</p></div>
+      </div>
+      <div class="value-card">
+        <div class="icon-wrap"><span class="material-symbols-outlined">star</span></div>
+        <div><h3>투명한 리뷰</h3><p>실제 이용 후기와 평점으로 트레이너 선택에 필요한 정보를 제공합니다.</p></div>
+      </div>
+    </div>
+    <div class="slide-num">2 / 15</div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       S3 – 기술 스택
+  ════════════════════════════════════ -->
+  <div class="slide" id="s3">
+    <div class="slide-header">
+      <div class="icon-circle"><span class="material-symbols-outlined">code</span></div>
+      <h2>기술 스택</h2>
+    </div>
+    <div class="tech-body">
+      <div class="tech-col">
+        <div class="tech-col-title"><div class="dot"></div><h3>Backend</h3></div>
+        <div class="tech-item"><div class="t-icon"><span class="material-symbols-outlined">coffee</span></div><div><div class="t-name">Java 25</div><div class="t-desc">최신 LTS 기반 서버 개발</div></div></div>
+        <div class="tech-item"><div class="t-icon"><span class="material-symbols-outlined">settings</span></div><div><div class="t-name">Spring Boot 4.0.6</div><div class="t-desc">빠른 서버 개발 프레임워크</div></div></div>
+        <div class="tech-item"><div class="t-icon"><span class="material-symbols-outlined">storage</span></div><div><div class="t-name">Spring Data JPA</div><div class="t-desc">ORM 기반 DB 연동</div></div></div>
+        <div class="tech-item"><div class="t-icon"><span class="material-symbols-outlined">lock</span></div><div><div class="t-name">Spring Security + JWT</div><div class="t-desc">인증 및 인가 처리</div></div></div>
+        <div class="tech-item"><div class="t-icon"><span class="material-symbols-outlined">database</span></div><div><div class="t-name">MySQL</div><div class="t-desc">관계형 데이터베이스</div></div></div>
+      </div>
+      <div class="tech-col">
+        <div class="tech-col-title"><div class="dot"></div><h3>Frontend</h3></div>
+        <div class="tech-item"><div class="t-icon"><span class="material-symbols-outlined">web</span></div><div><div class="t-name">Next.js 15</div><div class="t-desc">React 기반 SSR/SSG 프레임워크</div></div></div>
+        <div class="tech-item"><div class="t-icon"><span class="material-symbols-outlined">code_blocks</span></div><div><div class="t-name">TypeScript</div><div class="t-desc">타입 안전성 보장</div></div></div>
+        <div class="tech-item"><div class="t-icon"><span class="material-symbols-outlined">palette</span></div><div><div class="t-name">Tailwind CSS</div><div class="t-desc">유틸리티 기반 스타일링</div></div></div>
+        <div class="tech-item"><div class="t-icon"><span class="material-symbols-outlined">api</span></div><div><div class="t-name">Axios / React Query</div><div class="t-desc">API 통신 및 서버 상태 관리</div></div></div>
+      </div>
+      <div class="tech-col">
+        <div class="tech-col-title"><div class="dot"></div><h3>Infrastructure & Auth</h3></div>
+        <div class="tech-item"><div class="t-icon"><span class="material-symbols-outlined">cloud</span></div><div><div class="t-name">AWS EC2</div><div class="t-desc">백엔드 서버 배포</div></div></div>
+        <div class="tech-item"><div class="t-icon"><span class="material-symbols-outlined">rocket_launch</span></div><div><div class="t-name">Vercel</div><div class="t-desc">프론트엔드 배포 플랫폼</div></div></div>
+        <div class="tech-item"><div class="t-icon"><span class="material-symbols-outlined">sms</span></div><div><div class="t-name">Coolsms</div><div class="t-desc">SMS 본인인증 서비스</div></div></div>
+        <div class="tech-item"><div class="t-icon"><span class="material-symbols-outlined">login</span></div><div><div class="t-name">Kakao / Google OAuth2</div><div class="t-desc">소셜 로그인 연동</div></div></div>
+      </div>
+    </div>
+    <div class="slide-num">3 / 15</div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       S4 – 시스템 아키텍처
+  ════════════════════════════════════ -->
+  <div class="slide" id="s4">
+    <div class="slide-header">
+      <div class="icon-circle"><span class="material-symbols-outlined">account_tree</span></div>
+      <h2>시스템 아키텍처</h2>
+    </div>
+    <div class="arch-body">
+      <div class="arch-row">
+        <div class="arch-box primary">
+          <span class="material-symbols-outlined box-icon">person</span>
+          <div class="box-title">사용자</div><div class="box-sub">Web Browser</div>
+        </div>
+      </div>
+      <div class="arch-row"><div class="arch-arrow down"><div class="arr-line"></div></div></div>
+      <div class="arch-row">
+        <div class="arch-box">
+          <span class="material-symbols-outlined box-icon">computer</span>
+          <div class="box-title">Frontend</div><div class="box-sub">Next.js · Vercel</div>
+        </div>
+        <div class="arch-arrow"><div class="arr-line"></div><div class="arr-label">REST API (HTTPS)</div></div>
+        <div class="arch-box">
+          <span class="material-symbols-outlined box-icon">dns</span>
+          <div class="box-title">Backend</div><div class="box-sub">Spring Boot · AWS EC2</div>
+        </div>
+        <div class="arch-arrow"><div class="arr-line"></div><div class="arr-label">JPA / SQL</div></div>
+        <div class="arch-box">
+          <span class="material-symbols-outlined box-icon">storage</span>
+          <div class="box-title">Database</div><div class="box-sub">MySQL · RDS</div>
+        </div>
+      </div>
+      <div class="arch-row" style="margin-top:10px;">
+        <div style="text-align:center;">
+          <div style="font-family:'Montserrat',sans-serif;font-size:clamp(10px,1vw,12px);font-weight:700;color:var(--text);margin-bottom:8px;">소셜 로그인 / 인증 흐름</div>
+          <div class="oauth-row">
+            <div class="oauth-chip"><div class="dot kakao"></div>Kakao OAuth2</div>
+            <div class="oauth-chip"><div class="dot google"></div>Google OAuth2</div>
+            <div class="oauth-chip"><div class="dot sms"></div>Coolsms 본인인증</div>
+            <div class="oauth-chip" style="border-color:var(--blue);color:var(--blue);">
+              <span class="material-symbols-outlined" style="font-size:13px;color:var(--blue);">key</span>JWT Token
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">4 / 15</div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       S5 – 주요 기능 INDEX
+  ════════════════════════════════════ -->
+  <div class="slide" id="s5">
+    <div class="left-panel">
+      <div class="deco"></div>
+      <div class="tag">Key Features</div>
+      <h2>주요<br>기능<br>소개</h2>
+      <p style="margin-top:14px;">FitMate의 핵심 기능 7가지를<br>하나씩 자세히 살펴봅니다.</p>
+    </div>
+    <div class="right-panel">
+      <div class="feat-index-item">
+        <div class="feat-index-num">01</div>
+        <span class="material-symbols-outlined feat-index-icon">login</span>
+        <div class="feat-index-text"><h3>소셜 로그인 (카카오 / 구글)</h3><p>OAuth2 기반 간편 로그인 · JWT 발급 · 신규 유저 자동 회원가입</p></div>
+      </div>
+      <div class="feat-index-item">
+        <div class="feat-index-num">02</div>
+        <span class="material-symbols-outlined feat-index-icon">sms</span>
+        <div class="feat-index-text"><h3>SMS 인증 회원가입</h3><p>Coolsms OTP 인증 · 트레이너/회원 역할 선택 가입</p></div>
+      </div>
+      <div class="feat-index-item">
+        <div class="feat-index-num">03</div>
+        <span class="material-symbols-outlined feat-index-icon">psychology</span>
+        <div class="feat-index-text"><h3>AI 매칭</h3><p>운동 목표·성향 분석 기반 트레이너 자동 추천</p></div>
+      </div>
+      <div class="feat-index-item">
+        <div class="feat-index-num">04</div>
+        <span class="material-symbols-outlined feat-index-icon">search</span>
+        <div class="feat-index-text"><h3>트레이너 찾기 / 필터링</h3><p>지역·전문분야·가격 다중 필터 · 정렬 · 상세 프로필</p></div>
+      </div>
+      <div class="feat-index-item">
+        <div class="feat-index-num">05</div>
+        <span class="material-symbols-outlined feat-index-icon">chat</span>
+        <div class="feat-index-text"><h3>실시간 채팅</h3><p>WebSocket 1:1 채팅 · 매칭 완료 후 자동 채팅방 생성</p></div>
+      </div>
+      <div class="feat-index-item">
+        <div class="feat-index-num">06</div>
+        <span class="material-symbols-outlined feat-index-icon">star</span>
+        <div class="feat-index-text"><h3>리뷰 / 후기</h3><p>별점 + 텍스트 리뷰 · 평균 평점 실시간 반영</p></div>
+      </div>
+      <div class="feat-index-item">
+        <div class="feat-index-num">07</div>
+        <span class="material-symbols-outlined feat-index-icon">admin_panel_settings</span>
+        <div class="feat-index-text"><h3>관리자 페이지</h3><p>회원·트레이너 관리 · 신고 처리 · 통계 대시보드</p></div>
+      </div>
+    </div>
+    <div class="slide-num">5 / 15</div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       S6 – FEATURE 01: 소셜 로그인
+  ════════════════════════════════════ -->
+  <div class="slide feat-slide" id="s6">
+    <div class="slide-header">
+      <div class="icon-circle"><span class="material-symbols-outlined">login</span></div>
+      <h2>소셜 로그인</h2>
+      <div class="header-right">
+        <span class="header-badge">FEATURE 01 / 07</span>
+      </div>
+    </div>
+    <div class="feat-body">
+      <div class="feat-left">
+        <div class="bg-deco d1"></div><div class="bg-deco d2"></div>
+        <div class="feat-big-icon"><span class="material-symbols-outlined">login</span></div>
+        <div class="feat-num-badge">FEATURE 01</div>
+        <div class="feat-tags">
+          <span class="feat-tag">Kakao</span>
+          <span class="feat-tag">Google</span>
+          <span class="feat-tag">OAuth2</span>
+          <span class="feat-tag">JWT</span>
+        </div>
+      </div>
+      <div class="feat-right">
+        <div class="feat-title">소셜 로그인<br><span>(카카오 / 구글)</span></div>
+        <p class="feat-desc">
+          별도 아이디·비밀번호 없이 <strong>카카오 또는 구글 계정</strong>으로 즉시 로그인할 수 있습니다.
+          Spring Security OAuth2 Client를 활용해 인가 코드 플로우를 구현했으며, 로그인 성공 시 JWT 토큰을 HttpOnly 쿠키에 저장해 보안을 강화했습니다.
+        </p>
+        <div class="feat-flow">
+          <span class="feat-flow-label">플로우</span>
+          <div class="flow-step"><span class="step-box">로그인 버튼 클릭</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">소셜 인가 서버</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">인가 코드 발급</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">AccessToken 교환</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">사용자 정보 파싱</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">JWT 발급 → 쿠키 저장</span></div>
+        </div>
+        <div class="feat-bullets">
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">speed</span></div>
+            <div class="b-text"><h4>간편한 원클릭 로그인</h4><p>카카오·구글 계정만 있으면 별도 회원가입 없이 즉시 서비스 이용 가능</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">person_add</span></div>
+            <div class="b-text"><h4>신규 사용자 자동 회원가입</h4><p>최초 소셜 로그인 시 이메일·닉네임을 자동 수집해 회원가입 처리 (추가 정보 입력 안내)</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">lock</span></div>
+            <div class="b-text"><h4>HttpOnly 쿠키 기반 JWT 저장</h4><p>XSS 공격으로부터 토큰을 보호하고, Refresh Token 자동 갱신으로 끊김 없는 세션 유지</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">merge</span></div>
+            <div class="b-text"><h4>계정 연동 지원</h4><p>동일 이메일로 카카오·구글 각각 로그인 시 같은 계정으로 통합 처리</p></div>
+          </div>
+        </div>
+        <div class="feat-tech-row">
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">settings</span>Spring Security OAuth2</span>
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">key</span>JWT (io.jsonwebtoken)</span>
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">cookie</span>HttpOnly Cookie</span>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">6 / 15</div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       S7 – FEATURE 02: SMS 인증 회원가입
+  ════════════════════════════════════ -->
+  <div class="slide feat-slide" id="s7">
+    <div class="slide-header">
+      <div class="icon-circle"><span class="material-symbols-outlined">sms</span></div>
+      <h2>SMS 인증 회원가입</h2>
+      <div class="header-right"><span class="header-badge">FEATURE 02 / 07</span></div>
+    </div>
+    <div class="feat-body">
+      <div class="feat-left">
+        <div class="bg-deco d1"></div><div class="bg-deco d2"></div>
+        <div class="feat-big-icon"><span class="material-symbols-outlined">sms</span></div>
+        <div class="feat-num-badge">FEATURE 02</div>
+        <div class="feat-tags">
+          <span class="feat-tag">Coolsms</span>
+          <span class="feat-tag">OTP</span>
+          <span class="feat-tag">본인인증</span>
+          <span class="feat-tag">역할 선택</span>
+        </div>
+      </div>
+      <div class="feat-right">
+        <div class="feat-title">SMS 인증<br><span>회원가입</span></div>
+        <p class="feat-desc">
+          일반 이메일 회원가입 시 <strong>Coolsms API를 통한 SMS 인증</strong>으로 본인확인을 진행합니다.
+          허위 계정 생성을 방지하고, 트레이너와 회원 역할을 선택해 맞춤 서비스를 제공합니다.
+        </p>
+        <div class="feat-flow">
+          <span class="feat-flow-label">플로우</span>
+          <div class="flow-step"><span class="step-box">이메일/PW 입력</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">역할 선택</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">휴대폰 번호 입력</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">OTP 발송</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">OTP 검증</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">회원가입 완료</span></div>
+        </div>
+        <div class="feat-bullets">
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">phone_android</span></div>
+            <div class="b-text"><h4>Coolsms 실문자 OTP 발송</h4><p>6자리 인증번호를 실제 SMS로 발송, 5분 유효시간 내 입력 검증</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">group</span></div>
+            <div class="b-text"><h4>트레이너 / 회원 역할 선택</h4><p>가입 시 역할(TRAINER / MEMBER)을 선택해 맞춤화된 대시보드와 기능을 제공</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">block</span></div>
+            <div class="b-text"><h4>중복 가입 방지</h4><p>휴대폰 번호를 UNIQUE 제약으로 관리해 동일 번호로 중복 계정 생성 차단</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">password</span></div>
+            <div class="b-text"><h4>BCrypt 비밀번호 암호화</h4><p>Spring Security의 BCryptPasswordEncoder로 비밀번호를 안전하게 암호화해 저장</p></div>
+          </div>
+        </div>
+        <div class="feat-tech-row">
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">sms</span>Coolsms API</span>
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">timer</span>OTP 5분 유효</span>
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">shield</span>BCrypt 암호화</span>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">7 / 15</div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       S8 – FEATURE 03: AI 매칭
+  ════════════════════════════════════ -->
+  <div class="slide feat-slide" id="s8">
+    <div class="slide-header">
+      <div class="icon-circle"><span class="material-symbols-outlined">psychology</span></div>
+      <h2>AI 매칭</h2>
+      <div class="header-right"><span class="header-badge">FEATURE 03 / 07</span></div>
+    </div>
+    <div class="feat-body">
+      <div class="feat-left">
+        <div class="bg-deco d1"></div><div class="bg-deco d2"></div>
+        <div class="feat-big-icon"><span class="material-symbols-outlined">psychology</span></div>
+        <div class="feat-num-badge">FEATURE 03</div>
+        <div class="feat-tags">
+          <span class="feat-tag">AI 추천</span>
+          <span class="feat-tag">맞춤 매칭</span>
+          <span class="feat-tag">성향 분석</span>
+        </div>
+      </div>
+      <div class="feat-right">
+        <div class="feat-title">AI 기반<br><span>트레이너 매칭</span></div>
+        <p class="feat-desc">
+          회원의 <strong>운동 목표·선호 성향·예산·지역</strong>을 종합 분석해 가장 적합한 트레이너를 자동으로 추천합니다.
+          단순 필터 검색을 넘어 개인화된 매칭 경험을 제공합니다.
+        </p>
+        <div class="feat-flow">
+          <span class="feat-flow-label">플로우</span>
+          <div class="flow-step"><span class="step-box">목표·성향 설문</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">조건 입력</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">AI 분석</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">추천 목록 생성</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">적합도 순 정렬</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">매칭 신청</span></div>
+        </div>
+        <div class="feat-bullets">
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">fitness_center</span></div>
+            <div class="b-text"><h4>운동 목표 기반 매칭</h4><p>다이어트 / 근력 강화 / 재활 / 체형 교정 등 목표에 맞는 전문 트레이너 우선 추천</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">tune</span></div>
+            <div class="b-text"><h4>다중 조건 종합 분석</h4><p>선호 지역, 예산 범위, 선호 성별, 트레이닝 강도 등 복합 조건을 가중치 기반으로 분석</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">percent</span></div>
+            <div class="b-text"><h4>매칭 적합도 점수 표시</h4><p>각 트레이너별 회원과의 적합도를 퍼센트(%)로 표시해 직관적인 선택 지원</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">thumb_up</span></div>
+            <div class="b-text"><h4>리뷰 데이터 반영</h4><p>실제 회원 리뷰와 평점 데이터를 추천 알고리즘에 반영해 신뢰도 높은 매칭 결과 제공</p></div>
+          </div>
+        </div>
+        <div class="feat-tech-row">
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">psychology</span>AI 추천 알고리즘</span>
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">calculate</span>가중치 유사도 분석</span>
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">star</span>리뷰 데이터 반영</span>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">8 / 15</div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       S9 – FEATURE 04: 트레이너 찾기/필터링
+  ════════════════════════════════════ -->
+  <div class="slide feat-slide" id="s9">
+    <div class="slide-header">
+      <div class="icon-circle"><span class="material-symbols-outlined">search</span></div>
+      <h2>트레이너 찾기 / 필터링</h2>
+      <div class="header-right"><span class="header-badge">FEATURE 04 / 07</span></div>
+    </div>
+    <div class="feat-body">
+      <div class="feat-left">
+        <div class="bg-deco d1"></div><div class="bg-deco d2"></div>
+        <div class="feat-big-icon"><span class="material-symbols-outlined">search</span></div>
+        <div class="feat-num-badge">FEATURE 04</div>
+        <div class="feat-tags">
+          <span class="feat-tag">다중 필터</span>
+          <span class="feat-tag">동적 쿼리</span>
+          <span class="feat-tag">정렬</span>
+          <span class="feat-tag">카드 뷰</span>
+        </div>
+      </div>
+      <div class="feat-right">
+        <div class="feat-title">트레이너 찾기<br><span>/ 필터링</span></div>
+        <p class="feat-desc">
+          AI 매칭 외에도 <strong>직접 원하는 조건으로</strong> 트레이너를 검색할 수 있습니다.
+          지역·전문분야·가격·경력 등 다양한 필터를 조합해 원하는 트레이너를 빠르게 찾아보세요.
+        </p>
+        <div class="feat-flow">
+          <span class="feat-flow-label">플로우</span>
+          <div class="flow-step"><span class="step-box">검색 조건 입력</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">필터 적용</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">결과 목록 조회</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">상세 프로필 확인</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">매칭 신청</span></div>
+        </div>
+        <div class="feat-bullets">
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">location_on</span></div>
+            <div class="b-text"><h4>지역 기반 필터</h4><p>시/구/동 단위까지 세분화된 지역 필터로 내 주변 트레이너만 빠르게 조회</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">category</span></div>
+            <div class="b-text"><h4>전문 분야 다중 선택</h4><p>헬스·PT·필라테스·크로스핏·재활 등 전문 분야를 복수 선택해 결과 필터링</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">payments</span></div>
+            <div class="b-text"><h4>가격·경력 범위 필터</h4><p>월 PT 비용 범위 설정 및 경력 연수 필터로 예산과 수준에 맞는 트레이너 탐색</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">sort</span></div>
+            <div class="b-text"><h4>다양한 정렬 옵션</h4><p>별점 높은 순 / 리뷰 많은 순 / 가격 낮은 순 / 최신 등록 순으로 자유롭게 정렬</p></div>
+          </div>
+        </div>
+        <div class="feat-tech-row">
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">data_object</span>JPA Specification</span>
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">dynamic_feed</span>동적 쿼리 빌더</span>
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">view_list</span>페이지네이션</span>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">9 / 15</div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       S10 – FEATURE 05: 실시간 채팅
+  ════════════════════════════════════ -->
+  <div class="slide feat-slide" id="s10">
+    <div class="slide-header">
+      <div class="icon-circle"><span class="material-symbols-outlined">chat</span></div>
+      <h2>실시간 채팅</h2>
+      <div class="header-right"><span class="header-badge">FEATURE 05 / 07</span></div>
+    </div>
+    <div class="feat-body">
+      <div class="feat-left">
+        <div class="bg-deco d1"></div><div class="bg-deco d2"></div>
+        <div class="feat-big-icon"><span class="material-symbols-outlined">chat</span></div>
+        <div class="feat-num-badge">FEATURE 05</div>
+        <div class="feat-tags">
+          <span class="feat-tag">WebSocket</span>
+          <span class="feat-tag">STOMP</span>
+          <span class="feat-tag">1:1 채팅</span>
+          <span class="feat-tag">실시간</span>
+        </div>
+      </div>
+      <div class="feat-right">
+        <div class="feat-title">실시간<br><span>1:1 채팅</span></div>
+        <p class="feat-desc">
+          매칭이 완료되는 순간 <strong>자동으로 채팅방이 생성</strong>되어 트레이너와 즉시 소통할 수 있습니다.
+          WebSocket·STOMP 프로토콜로 끊김 없는 실시간 양방향 통신을 구현했습니다.
+        </p>
+        <div class="feat-flow">
+          <span class="feat-flow-label">플로우</span>
+          <div class="flow-step"><span class="step-box">매칭 완료</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">채팅방 자동 생성</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">WebSocket 연결</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">메시지 송수신</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">DB 저장 / 알림</span></div>
+        </div>
+        <div class="feat-bullets">
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">bolt</span></div>
+            <div class="b-text"><h4>WebSocket 실시간 통신</h4><p>STOMP 프로토콜 위에서 메시지를 발행/구독(pub/sub) 방식으로 처리해 낮은 지연시간 실현</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">add_circle</span></div>
+            <div class="b-text"><h4>매칭 완료 시 자동 채팅방 생성</h4><p>매칭 수락과 동시에 서버에서 채팅방을 생성하고 양쪽 유저에게 알림 발송</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">history</span></div>
+            <div class="b-text"><h4>채팅 히스토리 영구 보관</h4><p>모든 메시지를 DB에 저장해 재접속 후에도 대화 내역 전체를 이어서 확인 가능</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">mark_chat_unread</span></div>
+            <div class="b-text"><h4>미읽음 메시지 카운터</h4><p>채팅 목록에 미읽음 메시지 수를 표시해 중요한 메시지를 놓치지 않도록 안내</p></div>
+          </div>
+        </div>
+        <div class="feat-tech-row">
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">swap_horiz</span>Spring WebSocket</span>
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">hub</span>STOMP Protocol</span>
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">save</span>메시지 DB 영속화</span>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">10 / 15</div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       S11 – FEATURE 06: 리뷰/후기
+  ════════════════════════════════════ -->
+  <div class="slide feat-slide" id="s11">
+    <div class="slide-header">
+      <div class="icon-circle"><span class="material-symbols-outlined">star</span></div>
+      <h2>리뷰 / 후기</h2>
+      <div class="header-right"><span class="header-badge">FEATURE 06 / 07</span></div>
+    </div>
+    <div class="feat-body">
+      <div class="feat-left">
+        <div class="bg-deco d1"></div><div class="bg-deco d2"></div>
+        <div class="feat-big-icon"><span class="material-symbols-outlined">star</span></div>
+        <div class="feat-num-badge">FEATURE 06</div>
+        <div class="feat-tags">
+          <span class="feat-tag">별점 평가</span>
+          <span class="feat-tag">텍스트 후기</span>
+          <span class="feat-tag">평균 평점</span>
+          <span class="feat-tag">신고</span>
+        </div>
+      </div>
+      <div class="feat-right">
+        <div class="feat-title">트레이너<br><span>리뷰 / 후기</span></div>
+        <p class="feat-desc">
+          PT 세션 완료 후 <strong>별점과 텍스트 후기</strong>를 작성할 수 있습니다.
+          누적된 리뷰는 트레이너 평균 평점에 즉시 반영되어, 다음 회원이 신뢰도 높은 정보로 트레이너를 선택하도록 돕습니다.
+        </p>
+        <div class="feat-flow">
+          <span class="feat-flow-label">플로우</span>
+          <div class="flow-step"><span class="step-box">PT 세션 완료</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">별점 선택 (1~5)</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">텍스트 후기 작성</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">리뷰 등록</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">평점 실시간 반영</span></div>
+        </div>
+        <div class="feat-bullets">
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">grade</span></div>
+            <div class="b-text"><h4>5점 만점 별점 시스템</h4><p>직관적인 별점 UI로 1~5점 평가, 트레이너 프로필에 평균 별점 즉시 반영</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">rate_review</span></div>
+            <div class="b-text"><h4>상세 텍스트 후기</h4><p>운동 강도·친절도·전문성 등 자유 형식의 텍스트 후기로 생생한 경험 공유</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">sort</span></div>
+            <div class="b-text"><h4>최신순 / 평점순 정렬</h4><p>리뷰 목록을 최신 등록순 또는 높은 평점순으로 자유롭게 정렬해 원하는 정보 탐색</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">flag</span></div>
+            <div class="b-text"><h4>리뷰 신고 기능</h4><p>부적절한 리뷰는 신고 기능으로 관리자에게 접수, 검토 후 삭제 처리</p></div>
+          </div>
+        </div>
+        <div class="feat-tech-row">
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">functions</span>평균 집계 쿼리</span>
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">data_object">JPA @Query</span>
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">cached</span>평점 실시간 갱신</span>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">11 / 15</div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       S12 – FEATURE 07: 관리자 페이지
+  ════════════════════════════════════ -->
+  <div class="slide feat-slide" id="s12">
+    <div class="slide-header">
+      <div class="icon-circle"><span class="material-symbols-outlined">admin_panel_settings</span></div>
+      <h2>관리자 페이지</h2>
+      <div class="header-right"><span class="header-badge">FEATURE 07 / 07</span></div>
+    </div>
+    <div class="feat-body">
+      <div class="feat-left">
+        <div class="bg-deco d1"></div><div class="bg-deco d2"></div>
+        <div class="feat-big-icon"><span class="material-symbols-outlined">admin_panel_settings</span></div>
+        <div class="feat-num-badge">FEATURE 07</div>
+        <div class="feat-tags">
+          <span class="feat-tag">대시보드</span>
+          <span class="feat-tag">회원 관리</span>
+          <span class="feat-tag">신고 처리</span>
+          <span class="feat-tag">통계</span>
+        </div>
+      </div>
+      <div class="feat-right">
+        <div class="feat-title">관리자<br><span>페이지</span></div>
+        <p class="feat-desc">
+          플랫폼 운영을 위한 <strong>전용 관리자 페이지</strong>를 별도로 구성했습니다.
+          ROLE_ADMIN 권한을 가진 계정만 접근 가능하며, 회원·트레이너 관리부터 신고 처리, 통계 확인까지 플랫폼 전반을 관리합니다.
+        </p>
+        <div class="feat-flow">
+          <span class="feat-flow-label">플로우</span>
+          <div class="flow-step"><span class="step-box">관리자 로그인</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">대시보드</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">회원/트레이너 관리</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">신고 처리</span><span class="step-arr">›</span></div>
+          <div class="flow-step"><span class="step-box">통계 확인</span></div>
+        </div>
+        <div class="feat-bullets">
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">people</span></div>
+            <div class="b-text"><h4>회원 / 트레이너 통합 관리</h4><p>가입 회원 전체 목록 조회, 계정 활성화/비활성화, 트레이너 인증 승인·반려 처리</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">flag</span></div>
+            <div class="b-text"><h4>신고 접수 및 처리 시스템</h4><p>회원이 접수한 신고 목록을 확인하고, 검토 후 계정 정지·리뷰 삭제 등 조치 가능</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">bar_chart</span></div>
+            <div class="b-text"><h4>통계 대시보드</h4><p>전체 매칭 현황, 월별 신규 가입자 수, 리뷰 통계, 인기 트레이너 순위를 차트로 시각화</p></div>
+          </div>
+          <div class="feat-bullet">
+            <div class="b-icon"><span class="material-symbols-outlined">security</span></div>
+            <div class="b-text"><h4>Role 기반 접근 제어</h4><p>Spring Security의 ROLE_ADMIN 권한 검사로 일반 사용자의 관리자 API 접근을 완전 차단</p></div>
+          </div>
+        </div>
+        <div class="feat-tech-row">
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">security</span>ROLE_ADMIN 접근 제어</span>
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">bar_chart</span>통계 집계 API</span>
+          <span class="feat-tech-chip"><span class="material-symbols-outlined">dashboard</span>Admin Dashboard</span>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">12 / 15</div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       S13 – 트러블슈팅
+  ════════════════════════════════════ -->
+  <div class="slide" id="s13">
+    <div class="slide-header">
+      <div class="icon-circle"><span class="material-symbols-outlined">bug_report</span></div>
+      <h2>트러블슈팅</h2>
+    </div>
+    <div class="trouble-body">
+      <div class="trouble-card">
+        <div class="t-header"><div class="t-num">1</div><h3>Google OAuth2 nameAttributeKey 오류</h3></div>
+        <div class="trouble-row">
+          <span class="trouble-label problem">문제</span>
+          <span class="trouble-text">구글 로그인 시 <code>nameAttributeKey</code>를 잘못 지정해 사용자 정보 파싱이 실패하며 로그인 불가</span>
+        </div>
+        <div class="trouble-divider"></div>
+        <div class="trouble-row">
+          <span class="trouble-label solve">해결</span>
+          <span class="trouble-text">구글 UserInfo 응답 구조를 분석해 <code>sub</code> 대신 <code>email</code>을 nameAttributeKey로 설정, OAuth2UserInfo 파싱 로직 수정</span>
+        </div>
+      </div>
+      <div class="trouble-card">
+        <div class="t-header"><div class="t-num">2</div><h3>소셜 로그인 후 ERR_TOO_MANY_REDIRECTS</h3></div>
+        <div class="trouble-row">
+          <span class="trouble-label problem">문제</span>
+          <span class="trouble-text">소셜 로그인 성공 후 리다이렉트 루프 발생 → <code>ERR_TOO_MANY_REDIRECTS</code> 오류</span>
+        </div>
+        <div class="trouble-divider"></div>
+        <div class="trouble-row">
+          <span class="trouble-label solve">해결</span>
+          <span class="trouble-text">SecurityFilterChain successHandler에서 JWT 쿠키 설정 후 단일 리다이렉트, 중복 필터 및 로직 제거로 루프 차단</span>
+        </div>
+      </div>
+      <div class="trouble-card">
+        <div class="t-header"><div class="t-num">3</div><h3>data.sql 한글 인코딩 깨짐</h3></div>
+        <div class="trouble-row">
+          <span class="trouble-label problem">문제</span>
+          <span class="trouble-text">초기 데이터 삽입 시 <code>data.sql</code>의 한글이 깨져 DB에 <code>???</code>로 삽입됨</span>
+        </div>
+        <div class="trouble-divider"></div>
+        <div class="trouble-row">
+          <span class="trouble-label solve">해결</span>
+          <span class="trouble-text">파일 인코딩을 UTF-8로 저장 + datasource URL에 <code>characterEncoding=UTF-8</code> 파라미터 추가</span>
+        </div>
+      </div>
+      <div class="trouble-card">
+        <div class="t-header"><div class="t-num">4</div><h3>배포 후 redirect URI가 localhost로 이동</h3></div>
+        <div class="trouble-row">
+          <span class="trouble-label problem">문제</span>
+          <span class="trouble-text">EC2 배포 후에도 OAuth2 redirect URI가 <code>localhost</code>를 참조해 소셜 로그인 실패</span>
+        </div>
+        <div class="trouble-divider"></div>
+        <div class="trouble-row">
+          <span class="trouble-label solve">해결</span>
+          <span class="trouble-text">카카오·구글 콘솔에 EC2 도메인 추가, <code>application-prod.yml</code>에 프로덕션 redirect URI 별도 설정</span>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">13 / 15</div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       S14 – 회고
+  ════════════════════════════════════ -->
+  <div class="slide" id="s14">
+    <div class="slide-header">
+      <div class="icon-circle"><span class="material-symbols-outlined">menu_book</span></div>
+      <h2>회고 (Retrospective)</h2>
+    </div>
+    <div class="retro-body">
+      <div class="retro-col">
+        <div class="retro-col-head good">
+          <span class="material-symbols-outlined">thumb_up</span>
+          <h3>잘된 점 (Keep)</h3>
+        </div>
+        <div class="retro-items">
+          <div class="retro-item"><div class="r-dot good"></div><p>소셜 로그인과 JWT 인증 흐름을 직접 구현하며 Spring Security에 대한 깊은 이해 습득</p></div>
+          <div class="retro-item"><div class="r-dot good"></div><p>Next.js App Router와 Server Component를 활용한 효율적인 SSR 구현</p></div>
+          <div class="retro-item"><div class="r-dot good"></div><p>AWS EC2 + Vercel 배포 파이프라인 구성으로 실제 서비스 배포 경험 획득</p></div>
+          <div class="retro-item"><div class="r-dot good"></div><p>팀 내 역할 분담이 명확하여 병렬 개발 진행이 효율적이었음</p></div>
+        </div>
+      </div>
+      <div class="retro-col">
+        <div class="retro-col-head bad">
+          <span class="material-symbols-outlined">thumb_down</span>
+          <h3>아쉬운 점 (Problem)</h3>
+        </div>
+        <div class="retro-items">
+          <div class="retro-item"><div class="r-dot bad"></div><p>초기 DB 스키마 설계가 미흡해 개발 중반 마이그레이션 작업 발생으로 일정 지연</p></div>
+          <div class="retro-item"><div class="r-dot bad"></div><p>테스트 코드 작성이 부족해 배포 후 예상치 못한 버그를 뒤늦게 발견한 경우 있음</p></div>
+          <div class="retro-item"><div class="r-dot bad"></div><p>실시간 채팅 WebSocket 안정성을 더 꼼꼼히 검증하지 못한 점</p></div>
+          <div class="retro-item"><div class="r-dot bad"></div><p>개발 환경과 프로덕션 환경 설정 분리를 처음부터 체계적으로 하지 못함</p></div>
+        </div>
+      </div>
+      <div class="retro-col">
+        <div class="retro-col-head learn">
+          <span class="material-symbols-outlined">lightbulb</span>
+          <h3>배운 점 (Try)</h3>
+        </div>
+        <div class="retro-items">
+          <div class="retro-item"><div class="r-dot learn"></div><p>OAuth2 소셜 로그인 전체 플로우(인가 코드 → 토큰 → 사용자 정보)를 직접 구현하며 인증 체계 심화 학습</p></div>
+          <div class="retro-item"><div class="r-dot learn"></div><p>환경별 설정 분리(dev / prod profile)의 중요성과 yml 구성 전략</p></div>
+          <div class="retro-item"><div class="r-dot learn"></div><p>CORS 및 쿠키 정책 설정의 복잡성, SameSite / Secure 속성 심층 이해</p></div>
+          <div class="retro-item"><div class="r-dot learn"></div><p>협업 시 API 스펙 선 합의(OpenAPI / Swagger)가 개발 속도에 얼마나 중요한지 체감</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">14 / 15</div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       S15 – 시연
+  ════════════════════════════════════ -->
+  <div class="slide" id="s15">
+    <div class="bg-c bc1"></div><div class="bg-c bc2"></div>
+    <div class="demo-inner">
+      <div class="tag">Live Demo</div>
+      <h2>Fit<span>Mate</span><br>지금 바로 경험하세요</h2>
+      <div class="qr-area">
+        <div class="qr-box">
+          <svg width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="5" y="5" width="30" height="30" rx="3" fill="#0057CD"/>
+            <rect x="9" y="9" width="22" height="22" rx="2" fill="white"/>
+            <rect x="13" y="13" width="14" height="14" rx="1" fill="#0057CD"/>
+            <rect x="75" y="5" width="30" height="30" rx="3" fill="#0057CD"/>
+            <rect x="79" y="9" width="22" height="22" rx="2" fill="white"/>
+            <rect x="83" y="13" width="14" height="14" rx="1" fill="#0057CD"/>
+            <rect x="5" y="75" width="30" height="30" rx="3" fill="#0057CD"/>
+            <rect x="9" y="79" width="22" height="22" rx="2" fill="white"/>
+            <rect x="13" y="83" width="14" height="14" rx="1" fill="#0057CD"/>
+            <rect x="42" y="5" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="52" y="5" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="62" y="5" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="42" y="15" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="62" y="15" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="42" y="25" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="52" y="25" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="5" y="42" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="15" y="42" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="25" y="42" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="5" y="52" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="25" y="52" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="5" y="62" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="15" y="62" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="25" y="62" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="42" y="42" width="26" height="26" rx="4" fill="#0057CD"/>
+            <rect x="46" y="46" width="18" height="18" rx="3" fill="white"/>
+            <rect x="50" y="50" width="10" height="10" rx="2" fill="#FFD700"/>
+            <rect x="75" y="42" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="85" y="42" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="99" y="42" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="75" y="52" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="99" y="52" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="75" y="62" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="85" y="62" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="99" y="62" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="42" y="75" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="52" y="75" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="42" y="85" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="62" y="85" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="42" y="99" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="52" y="99" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="62" y="99" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="75" y="75" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="85" y="75" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="99" y="75" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="75" y="85" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="99" y="99" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="85" y="99" width="6" height="6" rx="1" fill="#0057CD"/>
+            <rect x="75" y="99" width="6" height="6" rx="1" fill="#0057CD"/>
+          </svg>
+        </div>
+        <div class="url-area">
+          <div class="url-label">Service URL</div>
+          <a class="url-link" href="https://fitmate-ten.vercel.app" target="_blank">fitmate-ten.vercel.app</a>
+          <div class="url-sub">QR 코드를 스캔하거나 URL을 직접 방문하세요</div>
+        </div>
+      </div>
+      <div class="team-credit">
+        <div class="credit-chip"><span class="material-symbols-outlined">groups</span>스프링글스 Team 4</div>
+        <div class="credit-chip"><span class="material-symbols-outlined">school</span>AIBE6 2nd Project</div>
+        <div class="credit-chip"><span class="material-symbols-outlined">favorite</span>감사합니다!</div>
+      </div>
+    </div>
+    <div class="slide-num">15 / 15</div>
+  </div>
+
+ </div><!-- /slide-wrapper -->
+</div><!-- /deck -->
+
+<div class="nav" id="nav"></div>
+<button class="arrow left" onclick="changeSlide(-1)" aria-label="이전"><span class="material-symbols-outlined">chevron_left</span></button>
+<button class="arrow right" onclick="changeSlide(1)" aria-label="다음"><span class="material-symbols-outlined">chevron_right</span></button>
+
+<script>
+const TOTAL = 15;
+let current = 0;
+const slides = document.querySelectorAll('.slide');
+const nav = document.getElementById('nav');
+const progress = document.getElementById('progress');
+
+for (let i = 0; i < TOTAL; i++) {
+  const d = document.createElement('div');
+  d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+  d.onclick = () => goTo(i);
+  nav.appendChild(d);
+}
+
+function goTo(n) {
+  slides[current].classList.remove('active');
+  document.querySelectorAll('.nav-dot')[current].classList.remove('active');
+  current = (n + TOTAL) % TOTAL;
+  slides[current].classList.add('active');
+  document.querySelectorAll('.nav-dot')[current].classList.add('active');
+  progress.style.width = ((current + 1) / TOTAL * 100) + '%';
+}
+
+function changeSlide(dir) { goTo(current + dir); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); changeSlide(-1); }
+  if (e.key === 'Home') goTo(0);
+  if (e.key === 'End')  goTo(TOTAL - 1);
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+document.addEventListener('touchend',   e => { const dx = tx - e.changedTouches[0].clientX; if (Math.abs(dx) > 50) changeSlide(dx > 0 ? 1 : -1); });
+
+progress.style.width = (1 / TOTAL * 100) + '%';
+</script>
+</body>
+</html>
