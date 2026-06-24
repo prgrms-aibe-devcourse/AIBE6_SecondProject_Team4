@@ -17,6 +17,7 @@ import com.fitmate.matching.entity.MatchingRequest;
 import com.fitmate.matching.entity.MatchingResult;
 import com.fitmate.matching.repository.MatchingResultRepository;
 import com.fitmate.member.entity.Member;
+import com.fitmate.member.entity.Role;
 import com.fitmate.member.repository.MemberRepository;
 import com.fitmate.trainer.entity.TrainerAvailableTime;
 import com.fitmate.trainer.entity.TrainerProfile;
@@ -56,6 +57,11 @@ public class LessonRequestService {
         // 로그인한 사용자를 DB에서 찾음
         Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 트레이너는 레슨 요청을 보낼 수 없음 (일반 회원만 가능)
+        if (member.getRole() == Role.TRAINER) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         // 시간, 수강권 유형, 패키지 횟수 같은 입력값 검사
         validateRequest(request);
