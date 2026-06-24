@@ -60,6 +60,18 @@ import { useRouter } from 'next/navigation';
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 interface MemberRow {
     id: number
     userId: string
@@ -112,9 +124,11 @@ export default function AdminMembersPage() {
         const { data } = await getAuthClient().GET('/api/admin/members', {
             params: {
                 query: {
-                    page: p,
-                    size: 10,
-                    sort: 'createdAt,desc',
+                    pageable: {
+                        page: p,
+                        size: 10,
+                        sort: ['createdAt,desc'],
+                    },
                     ...(keyword.trim() ? { keyword: keyword.trim() } : {}),
                     ...(role ? { role } : {}),
                 },
