@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-function getAlertHref(alert: AlertItem): string {
+function getAlertHref(alert: AlertItem, role?: string): string {
     if (!alert.targetId) return '#'
     switch (alert.type) {
         case 'MATCHING':
@@ -20,6 +20,22 @@ function getAlertHref(alert: AlertItem): string {
         case 'LESSON_REQUEST':
         case 'MATCHING_COMPLETED':
             return `/lesson-requests/${alert.targetId}`
+        case 'WORKOUT_LOG': {
+            const dateMatch = alert.content?.match(/(\d{4}-\d{2}-\d{2})/)
+            const date = dateMatch?.[1]
+            if (role === 'TRAINER') {
+                if (date) {
+                    const [y, m] = date.split('-').map(Number)
+                    return `/mypage/workout/${alert.targetId}?year=${y}&month=${m}&date=${date}`
+                }
+                return `/mypage/workout/${alert.targetId}`
+            }
+            if (date) {
+                const [y, m] = date.split('-').map(Number)
+                sessionStorage.setItem('workout_calendar', JSON.stringify({ year: y, month: m - 1, date }))
+            }
+            return `/mypage?tab=workout`
+        }
         default:
             return '#'
     }
@@ -187,7 +203,7 @@ export default function Header() {
                                                             </button>
                                                         ) : (
                                                             <Link
-                                                                href={getAlertHref(alert)}
+                                                                href={getAlertHref(alert, user?.role)}
                                                                 onClick={() => {
                                                                     setAlertOpen(false)
                                                                     if (!alert.isRead && alert.id)

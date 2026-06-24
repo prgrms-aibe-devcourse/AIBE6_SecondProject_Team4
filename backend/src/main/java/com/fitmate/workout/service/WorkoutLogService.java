@@ -1,5 +1,8 @@
 package com.fitmate.workout.service;
 
+import com.fitmate.alert.dto.AlertRequest;
+import com.fitmate.alert.entity.AlertType;
+import com.fitmate.alert.service.AlertService;
 import com.fitmate.global.exception.CustomException;
 import com.fitmate.global.exception.ErrorCode;
 import com.fitmate.matching.entity.MatchingResult;
@@ -30,6 +33,7 @@ public class WorkoutLogService {
     private final MatchingResultRepository matchingResultRepository;
     private final MemberRepository memberRepository;
     private final WorkoutPhotoRepository workoutPhotoRepository;
+    private final AlertService alertService;
 
     private WorkoutLogResponse toResponse(WorkoutLog log) {
         List<WorkoutPhotoResponse> photos = workoutPhotoRepository.findByWorkoutLog_Id(log.getId())
@@ -59,7 +63,17 @@ public class WorkoutLogService {
                 .memo(request.memo())
                 .build();
 
-        return toResponse(workoutLogRepository.save(log));
+        WorkoutLogResponse response = toResponse(workoutLogRepository.save(log));
+
+        Member member = matching.getMatchingRequest().getMember();
+        alertService.createAlert(new AlertRequest(
+                member.getId(),
+                AlertType.WORKOUT_LOG,
+                matching.getId(),
+                trainer.getNickname() + " 트레이너가 " + request.date() + " 일정을 추가했습니다."
+        ));
+
+        return response;
     }
 
     @Transactional
@@ -93,6 +107,16 @@ public class WorkoutLogService {
         WorkoutLog log = workoutLogRepository.findByMatchingResult_IdAndId(matchingId, logId)
                 .orElseThrow(() -> new CustomException(ErrorCode.WORKOUT_LOG_NOT_FOUND));
         log.complete();
+
+        Member member = log.getMatchingResult().getMatchingRequest().getMember();
+        Member trainer = log.getTrainer();
+        alertService.createAlert(new AlertRequest(
+                trainer.getId(),
+                AlertType.WORKOUT_LOG,
+                matchingId,
+                member.getNickname() + " 회원이 " + log.getDate() + " 운동을 완료했습니다."
+        ));
+
         return toResponse(log);
     }
 
@@ -152,6 +176,17 @@ public class WorkoutLogService {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
         log.updateTrainerComment(comment);
+
+        if (comment != null && !comment.isBlank()) {
+            Member member = log.getMatchingResult().getMatchingRequest().getMember();
+            alertService.createAlert(new AlertRequest(
+                    member.getId(),
+                    AlertType.WORKOUT_LOG,
+                    matchingId,
+                    log.getTrainer().getNickname() + " 트레이너가 " + log.getDate() + " 기록에 코멘트를 남겼습니다."
+            ));
+        }
+
         return toResponse(log);
     }
 }
