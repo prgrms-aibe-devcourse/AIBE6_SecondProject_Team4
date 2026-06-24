@@ -85,7 +85,7 @@ interface WorkoutLog {
     routine: string | null
     diet: string | null
     memo: string | null
-    memberPhotos: string[]
+    memberPhotos: { id: number; photoUrl: string }[]
     completed: boolean
     trainerNickname: string
     trainerComment: string | null
@@ -541,13 +541,13 @@ export default function WorkoutTrainerPage() {
                                     </p>
                                     {selectedLog.memberPhotos.length > 0 ? (
                                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-sm">
-                                            {selectedLog.memberPhotos.map((url, idx) => (
+                                            {selectedLog.memberPhotos.map((photo, idx) => (
                                                 <div
-                                                    key={idx}
+                                                    key={photo.id}
                                                     className="aspect-square rounded-xl overflow-hidden border border-outline-variant"
                                                 >
                                                     <img
-                                                        src={getImageUrl(url)}
+                                                        src={getImageUrl(photo.photoUrl)}
                                                         alt={`인증 ${idx + 1}`}
                                                         className="w-full h-full object-cover"
                                                     />
